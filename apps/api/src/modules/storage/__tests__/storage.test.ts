@@ -1,8 +1,8 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
-import { LocalObjectStorage } from "../object-storage.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { LocalObjectStorage, type ObjectStorage } from "../object-storage.js";
 import { PostgresFileRepository } from "../postgres-repository.js";
 import { MemoryFileRepository } from "../repository.js";
 import { FileService } from "../service.js";
@@ -97,6 +97,43 @@ describe("self-hosted file storage service", () => {
     await expect(service.listCompanyDocuments("11111111-1111-4111-8111-111111111111")).resolves.toHaveLength(1);
   });
 
+  it("removes stored object bytes when company document metadata creation fails", async () => {
+    class FailingDocumentRepository extends MemoryFileRepository {
+      async createCompanyDocumentWithFileAsset() {
+        throw new Error("metadata_failed");
+      }
+    }
+
+    const objectStorage = {
+      putObject: vi.fn<NonNullable<ObjectStorage["putObject"]>>().mockResolvedValue(undefined),
+      getObject: vi.fn<NonNullable<ObjectStorage["getObject"]>>(),
+      deleteObject: vi.fn<NonNullable<ObjectStorage["deleteObject"]>>().mockResolvedValue(undefined),
+    } satisfies ObjectStorage;
+    const service = new FileService(
+      new FailingDocumentRepository(),
+      objectStorage,
+      { maxUploadBytes: 1024, storageDriver: "local" },
+    );
+
+    await expect(
+      service.createCompanyDocument({
+        userId: "00000000-0000-4000-8000-000000000001",
+        companyId: "11111111-1111-4111-8111-111111111111",
+        payload: {
+          title: "BRC certificate",
+          documentType: "brc",
+          visibility: "buyer_qualified",
+          expiresAt: "2027-05-13",
+          file: uploadPayload("brc"),
+        },
+      }),
+    ).rejects.toThrow("metadata_failed");
+
+    expect(objectStorage.putObject).toHaveBeenCalledTimes(1);
+    expect(objectStorage.deleteObject).toHaveBeenCalledTimes(1);
+    expect(objectStorage.deleteObject.mock.calls[0]?.[0]).toContain("company_document");
+  });
+
   it("rejects mismatched upload sizes", async () => {
     const service = new FileService(
       new MemoryFileRepository(),
@@ -115,6 +152,66 @@ describe("self-hosted file storage service", () => {
         },
       }),
     ).rejects.toThrow("upload_size_mismatch");
+  });
+
+  it("creates company document file metadata in a single atomic SQL statement", async () => {
+    const queries: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const client = {
+      async query<Row extends Record<string, unknown>>(sql: string, params?: readonly unknown[]) {
+        queries.push({ sql, params });
+        return {
+          rows: [
+            {
+              id: "33333333-3333-4333-8333-333333333333",
+              company_id: "11111111-1111-4111-8111-111111111111",
+              file_asset_id: "22222222-2222-4222-8222-222222222222",
+              title: "Health certificate",
+              document_type: "health_certificate",
+              visibility: "private",
+              status: "uploaded",
+              original_file_name: "file.pdf",
+              content_type: "application/pdf",
+              size_bytes: 10,
+              checksum_sha256: "a".repeat(64),
+              expires_at: null,
+              created_at: new Date("2026-05-13T08:00:00.000Z"),
+              updated_at: new Date("2026-05-13T08:00:00.000Z"),
+            },
+          ] as Row[],
+        };
+      },
+    };
+    const repository = new PostgresFileRepository(
+      { databaseUrl: "postgres://user:pass@localhost:5432/yorso" },
+      { client },
+    );
+
+    const document = await repository.createCompanyDocumentWithFileAsset({
+      fileAsset: {
+        ownerUserId: "00000000-0000-4000-8000-000000000001",
+        companyId: "11111111-1111-4111-8111-111111111111",
+        purpose: "company_document",
+        objectKey: "companies/111/company_document/file.pdf",
+        originalFileName: "file.pdf",
+        contentType: "application/pdf",
+        sizeBytes: 10,
+        checksumSha256: "a".repeat(64),
+        storageDriver: "local",
+      },
+      document: {
+        companyId: "11111111-1111-4111-8111-111111111111",
+        title: "Health certificate",
+        documentType: "health_certificate",
+        visibility: "private",
+        expiresAt: null,
+      },
+    });
+
+    expect(document.documentType).toBe("health_certificate");
+    expect(queries).toHaveLength(1);
+    expect(queries[0].sql).toContain("with inserted_asset as");
+    expect(queries[0].sql).toContain("insert into yorso_file_assets");
+    expect(queries[0].sql).toContain("insert into yorso_company_documents");
   });
 });
 

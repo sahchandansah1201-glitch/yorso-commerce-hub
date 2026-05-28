@@ -4303,6 +4303,85 @@ Marker: account storage client authority boundary.
 Marker: account source of truth.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 1G Account Storage Transaction Boundary
+
+Phase 1G closes the storage consistency decision left after Phase 1E/1F.
+Document upload metadata now writes `yorso_file_assets` and
+`yorso_company_documents` through one atomic PostgreSQL statement. The current
+runtime stays synchronous and does not introduce an outbox queue until there is
+an async storage worker, retry policy and operator status surface.
+
+Expected read/write profile:
+
+- No public traffic is added.
+- Successful document upload keeps one object write and moves metadata from two
+  sequential insert calls to one atomic CTE statement.
+- Successful media upload request volume is unchanged.
+- Media upload adds a cleanup path only when company profile update fails after
+  file asset creation.
+
+Cache, queue and backpressure strategy:
+
+- No queue, polling, subscription or retry loop is introduced.
+- Existing upload size and JSON body limits remain the first backpressure
+  boundary.
+- Existing auth/session cache and account-version precondition remain the
+  account authority boundary.
+- Outbox remains deferred until virus scanning, document review or external
+  object storage retry semantics require asynchronous processing.
+
+Database indexing and pagination strategy:
+
+- No schema migration, new index or pagination surface is introduced.
+- Document list remains company-scoped.
+- Atomic metadata writes use existing primary keys, foreign keys and indexes:
+  `idx_yorso_file_assets_owner_user_id`,
+  `idx_yorso_file_assets_company_id` and
+  `idx_yorso_company_documents_company_id`.
+
+Failure mode and graceful degradation:
+
+- If object bytes are written but metadata persistence fails, the local object
+  key is deleted.
+- If company media profile update fails after asset creation, the route removes
+  the newly created asset/object best-effort and preserves the original error.
+- If cleanup fails for a future non-local storage driver, add cleanup-failure
+  metrics and a durable cleanup queue before marking that driver
+  production-ready.
+- Account version strict/stale behavior from Phase 1E is unchanged.
+
+Observability and load-test plan:
+
+- Track storage metadata failure count by route and file purpose.
+- Track cleanup attempts/failures before introducing non-local object storage.
+- Load-test 10,000 concurrent users with successful document upload, simulated
+  metadata failure after object write, successful media upload, simulated media
+  profile-update failure and Phase 1E strict/stale storage writes.
+
+Validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+- 1 file passed;
+- 6 tests passed.
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+- 3 files passed;
+- 86 tests passed.
+- `npx tsc -b --noEmit`.
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `git diff --check`;
+- `npm run api:build`;
+- `npm run build`.
+
+Production build metric:
+
+- Account route chunk `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
+
+Marker: Backend Phase 1G.
+Marker: account storage transaction boundary.
+Marker: account source of truth.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

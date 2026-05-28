@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export interface StoredObject {
@@ -9,6 +9,7 @@ export interface StoredObject {
 export interface ObjectStorage {
   putObject(objectKey: string, bytes: Buffer, metadata: { contentType: string }): Promise<void>;
   getObject(objectKey: string): Promise<StoredObject>;
+  deleteObject(objectKey: string): Promise<void>;
 }
 
 export class LocalObjectStorage implements ObjectStorage {
@@ -37,6 +38,14 @@ export class LocalObjectStorage implements ObjectStorage {
       bytes,
       contentType: metadata.contentType ?? "application/octet-stream",
     };
+  }
+
+  async deleteObject(objectKey: string): Promise<void> {
+    const filePath = this.resolveObjectPath(objectKey);
+    await Promise.all([
+      rm(filePath, { force: true }),
+      rm(`${filePath}.metadata.json`, { force: true }),
+    ]);
   }
 
   private resolveObjectPath(objectKey: string) {

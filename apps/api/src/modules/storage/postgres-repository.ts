@@ -8,7 +8,12 @@ import type {
   CompanyDocumentType,
   CompanyDocumentVisibility,
 } from "../../../../../packages/contracts/dist/index.js";
-import type { CompanyDocumentCreateInput, FileAssetCreateInput, FileRepository } from "./repository.js";
+import type {
+  CompanyDocumentCreateInput,
+  CompanyDocumentWithFileAssetCreateInput,
+  FileAssetCreateInput,
+  FileRepository,
+} from "./repository.js";
 
 interface FileQueryClient {
   query<Row extends Record<string, unknown> = Record<string, unknown>>(
@@ -156,6 +161,78 @@ export class PostgresFileRepository implements FileRepository {
     );
 
     return mapAsset(result.rows[0]);
+  }
+
+  async createCompanyDocumentWithFileAsset(input: CompanyDocumentWithFileAssetCreateInput): Promise<CompanyDocument> {
+    const result = await this.client.query<CompanyDocumentRow>(
+      `
+        with inserted_asset as (
+          insert into yorso_file_assets (
+            owner_user_id, company_id, purpose, object_key, original_file_name,
+            content_type, size_bytes, checksum_sha256, storage_driver, created_at
+          )
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, now())
+          returning id, company_id, original_file_name, content_type, size_bytes, checksum_sha256
+        ),
+        inserted_document as (
+          insert into yorso_company_documents (
+            company_id, file_asset_id, title, document_type, visibility, status, expires_at, created_at, updated_at
+          )
+          select $10, inserted_asset.id, $11, $12, $13, 'uploaded', $14, now(), now()
+          from inserted_asset
+          returning id, company_id, file_asset_id, title, document_type, visibility, status, expires_at, created_at, updated_at
+        )
+        select
+          d.id,
+          d.company_id,
+          d.file_asset_id,
+          d.title,
+          d.document_type,
+          d.visibility,
+          d.status,
+          d.expires_at,
+          d.created_at,
+          d.updated_at,
+          a.original_file_name,
+          a.content_type,
+          a.size_bytes,
+          a.checksum_sha256
+        from inserted_document d
+        join inserted_asset a on a.id = d.file_asset_id
+      `,
+      [
+        input.fileAsset.ownerUserId,
+        input.fileAsset.companyId,
+        input.fileAsset.purpose,
+        input.fileAsset.objectKey,
+        input.fileAsset.originalFileName,
+        input.fileAsset.contentType,
+        input.fileAsset.sizeBytes,
+        input.fileAsset.checksumSha256,
+        input.fileAsset.storageDriver,
+        input.document.companyId,
+        input.document.title,
+        input.document.documentType,
+        input.document.visibility,
+        input.document.expiresAt,
+      ],
+    );
+
+    if (!result.rows[0]) throw new Error("company_document_not_created");
+    return mapDocument(result.rows[0]);
+  }
+
+  async deleteFileAssetForUser(userId: string, assetId: string): Promise<AccountFileAsset | null> {
+    const result = await this.client.query<FileAssetRow>(
+      `
+        delete from yorso_file_assets
+        where id = $1 and owner_user_id = $2
+        returning id, company_id, purpose, object_key, original_file_name, content_type,
+          size_bytes, checksum_sha256, storage_driver, created_at
+      `,
+      [assetId, userId],
+    );
+    return result.rows[0] ? mapAsset(result.rows[0]) : null;
   }
 
   async getFileAssetForUser(userId: string, assetId: string): Promise<AccountFileAsset | null> {

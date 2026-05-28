@@ -207,6 +207,30 @@
   `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Phase 1F checkpoint with
   full release validation passed.
 
+## Backend Phase 1G Account Storage Transaction Boundary
+
+- `docs/backend/phase-1-account-storage-transaction-boundary.md`:
+  implementation note, Russian plan/fact table and 10,000 concurrent-user
+  baseline for account storage transaction/outbox decision.
+- `apps/api/src/modules/storage/object-storage.ts`: object storage contract now
+  supports `deleteObject`; local storage deletes both object and metadata
+  sidecar.
+- `apps/api/src/modules/storage/repository.ts`: file repository contract now
+  includes `createCompanyDocumentWithFileAsset` and `deleteFileAssetForUser`.
+- `apps/api/src/modules/storage/postgres-repository.ts`: document upload
+  metadata writes file asset and company document rows in one atomic SQL CTE
+  statement.
+- `apps/api/src/modules/storage/service.ts`: upload paths delete object bytes
+  when metadata persistence fails.
+- `apps/api/src/modules/storage/routes.ts`: media upload cleans up the newly
+  created asset/object if company profile update fails after asset creation.
+- `apps/api/src/modules/storage/__tests__/storage.test.ts`: guards atomic
+  document metadata SQL and object cleanup after metadata failure.
+- `docs/backend/production-scale-baseline.md`: Backend Phase 1G capacity note.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`, `RISKS.md`: Phase 1G
+  checkpoint with full release validation passed.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional

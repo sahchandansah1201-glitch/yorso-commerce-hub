@@ -107,3 +107,12 @@
     with `account_api_session_required` unless an explicit, buyer-session or
     configured account user id is present, and `/account/company` passes the
     validated session-bound client into company documents.
+
+- Risk: Account document upload metadata could be partially written as a file
+  asset without the matching company document, or object bytes could remain
+  after metadata failure.
+  Resolution: Backend Phase 1G writes document file asset and company document
+    metadata in one atomic PostgreSQL CTE statement, deletes object bytes after
+    metadata persistence failure, and compensates media uploads if company media
+    profile update fails after asset creation. Outbox is deferred until async
+    storage processing exists.

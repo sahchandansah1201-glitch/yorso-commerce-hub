@@ -27,8 +27,15 @@ export interface CompanyDocumentCreateInput {
   expiresAt: string | null;
 }
 
+export interface CompanyDocumentWithFileAssetCreateInput {
+  fileAsset: FileAssetCreateInput;
+  document: Omit<CompanyDocumentCreateInput, "fileAssetId">;
+}
+
 export interface FileRepository {
   createFileAsset(input: FileAssetCreateInput): Promise<AccountFileAsset>;
+  createCompanyDocumentWithFileAsset(input: CompanyDocumentWithFileAssetCreateInput): Promise<CompanyDocument>;
+  deleteFileAssetForUser(userId: string, assetId: string): Promise<AccountFileAsset | null>;
   getFileAssetForUser(userId: string, assetId: string): Promise<AccountFileAsset | null>;
   getFileAssetByObjectKeyForUser(userId: string, objectKey: string): Promise<AccountFileAsset | null>;
   createCompanyDocument(input: CompanyDocumentCreateInput): Promise<CompanyDocument>;
@@ -54,6 +61,29 @@ export class MemoryFileRepository implements FileRepository {
       ownerUserId: input.ownerUserId,
     };
     this.assets.set(asset.id, asset);
+    return stripOwner(asset);
+  }
+
+  async createCompanyDocumentWithFileAsset(input: CompanyDocumentWithFileAssetCreateInput): Promise<CompanyDocument> {
+    const asset = await this.createFileAsset(input.fileAsset);
+    try {
+      return await this.createCompanyDocument({
+        ...input.document,
+        fileAssetId: asset.id,
+      });
+    } catch (error) {
+      this.assets.delete(asset.id);
+      throw error;
+    }
+  }
+
+  async deleteFileAssetForUser(userId: string, assetId: string): Promise<AccountFileAsset | null> {
+    const asset = this.assets.get(assetId);
+    if (!asset || asset.ownerUserId !== userId) return null;
+    if ([...this.documents.values()].some((document) => document.fileAssetId === assetId)) {
+      throw new Error("file_asset_in_use");
+    }
+    this.assets.delete(assetId);
     return stripOwner(asset);
   }
 

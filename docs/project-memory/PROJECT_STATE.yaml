@@ -12,8 +12,8 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-28"
   active_branch: "main"
-  head_commit: "phase_1f_account_storage_client_authority_boundary_checkpoint"
-  head_summary: "Backend Phase 1F Account Storage Client Authority Boundary implemented locally and full release validation passed."
+  head_commit: "phase_1g_account_storage_transaction_boundary_checkpoint"
+  head_summary: "Backend Phase 1G Account Storage Transaction Boundary implemented locally with full release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
     - "No expected dirty worktree after the Phase 1F checkpoint commit."
@@ -37,12 +37,20 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1f_account_storage_client_authority_boundary"
-  summary: "Account-owned storage UI uses the validated session-bound account client and enabled account API mode no longer falls back to the deterministic demo user id."
+  id: "backend_phase_1g_account_storage_transaction_boundary"
+  summary: "Account document metadata is written atomically and storage uploads use cleanup compensation instead of introducing an outbox before async processing exists."
   status: "implemented_locally_full_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 1G implementation is recorded in docs/backend/phase-1-account-storage-transaction-boundary.md."
+    - "apps/api/src/modules/storage/postgres-repository.ts adds createCompanyDocumentWithFileAsset, writing yorso_file_assets and yorso_company_documents in one atomic SQL CTE statement."
+    - "apps/api/src/modules/storage/service.ts deletes object bytes if metadata persistence fails after object write."
+    - "apps/api/src/modules/storage/routes.ts cleans up a newly created media asset if company profile media update fails."
+    - "Outbox is intentionally deferred because current uploads are synchronous and no async storage worker/retry/operator surface exists."
+    - "Phase 1G targeted validation passed: storage service/repository tests, server/account/storage API tests and npx tsc -b --noEmit."
+    - "Phase 1G full release validation passed: npm run lint; npm run check:production-scale-baseline; git diff --check; npm run api:build; npm run build."
+    - "Phase 1G production build Account route chunk: Account-BesZRqle.js 112.88 kB / 25.69 kB gzip."
     - "Phase 1F implementation is recorded in docs/backend/phase-1-account-storage-client-authority-boundary.md."
     - "src/lib/account-api.ts now resolves account user id lazily and fails enabled clients with account_api_session_required when no explicit/session/configured user exists."
     - "src/components/account/CompanyDocumentsCard.tsx accepts an accountApiClient prop; src/pages/account/Account.tsx passes the validated session-bound client into /account/company documents."

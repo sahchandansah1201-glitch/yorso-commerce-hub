@@ -1887,6 +1887,45 @@ Keep this file factual and append-only.
 
 ## 2026-05-28
 
+- Implemented Backend Phase 1G: Account Storage Transaction Boundary.
+- Added `docs/backend/phase-1-account-storage-transaction-boundary.md` with a
+  Russian plan/fact table, explicit outbox decision and 10,000 concurrent-user
+  review.
+- Added `deleteObject` to the object storage contract and local storage driver.
+- Added `createCompanyDocumentWithFileAsset` and `deleteFileAssetForUser` to
+  the file repository contract.
+- Updated PostgreSQL document upload metadata to write `yorso_file_assets` and
+  `yorso_company_documents` in one atomic CTE statement.
+- Updated file service upload paths to delete object bytes if metadata
+  persistence fails after object write.
+- Updated media upload route to clean up the newly created asset/object if
+  company profile media update fails after file asset creation.
+- Deferred outbox table/queue intentionally because current account storage
+  processing is synchronous and has no async worker, retry policy or operator
+  status surface.
+- Added storage tests for atomic document metadata SQL and object cleanup after
+  metadata failure.
+- Added the Phase 1G 10,000 concurrent-user capacity note to
+  `docs/backend/production-scale-baseline.md`.
+- Targeted validation passed:
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+  - 1 file passed;
+  - 6 tests passed;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+  - 3 files passed;
+  - 86 tests passed;
+  - `npx tsc -b --noEmit`.
+- Full release validation passed:
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run api:build`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
+
+## 2026-05-28
+
 - Implemented Backend Phase 1D: Account Strict Precondition Policy.
 - Added API config flag `ACCOUNT_VERSION_PRECONDITION_MODE=optional|required`.
 - Kept local/dev/test default as `optional` for compatibility.

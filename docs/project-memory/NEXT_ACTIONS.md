@@ -2,11 +2,36 @@
 
 ## Current Next Action
 
-1. Backend Phase 1F Account Storage Client Authority Boundary is implemented
+1. Backend Phase 1G Account Storage Transaction Boundary is implemented
    locally with full release validation passed. Choose the next Phase 1 account
    hardening item from the backend implementation plan.
 
-2. Phase 1F implemented locally:
+2. Phase 1G implemented locally:
+   - document upload metadata writes `yorso_file_assets` and
+     `yorso_company_documents` in one atomic PostgreSQL CTE statement;
+   - object bytes are deleted if metadata persistence fails after object write;
+   - media upload cleans up the newly created asset/object if company profile
+     update fails after asset creation;
+   - outbox is intentionally deferred until async storage processing exists.
+
+3. Phase 1G targeted validation passed:
+   - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+   - 1 file passed;
+   - 6 tests passed;
+   - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+   - 3 files passed;
+   - 86 tests passed;
+   - `npx tsc -b --noEmit`.
+
+4. Phase 1G full release validation passed:
+   - `npm run lint`;
+   - `npm run check:production-scale-baseline`;
+   - `git diff --check`;
+   - `npm run api:build`;
+   - `npm run build`.
+   - Account build chunk: `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
+
+5. Phase 1F implemented and committed:
    - enabled `createAccountApiClient` no longer falls back to
      `DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID` when no explicit/session/configured
      user id exists;
@@ -18,12 +43,12 @@
      `x-yorso-session-id` and account-version state as the rest of the account
      section.
 
-3. Phase 1F targeted validation passed:
+6. Phase 1F targeted validation passed:
    - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`;
    - 3 files passed;
    - 52 tests passed.
 
-4. Phase 1F full release validation passed:
+7. Phase 1F full release validation passed:
    - `npx tsc -b --noEmit`;
    - `npm run lint`;
    - `npm run check:production-scale-baseline`;
@@ -31,7 +56,7 @@
    - `npm run build`.
    - Account build chunk: `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
 
-5. Phase 1E implemented and committed:
+8. Phase 1E implemented and committed:
    - shared account version precondition helper lives in
      `apps/api/src/modules/account/version-precondition.ts`;
    - document list/create and company media upload responses include
@@ -45,14 +70,14 @@
    - frontend account API response types include storage `accountVersion`, and
      document create sends the version learned from document list.
 
-6. Phase 1E targeted validation passed:
+9. Phase 1E targeted validation passed:
    - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts`;
    - 2 API files passed, 80 tests passed;
    - `npx vitest run src/lib/account-api.test.ts`;
    - 1 frontend file passed, 16 tests passed;
    - `npx tsc -b --noEmit`.
 
-7. Phase 1E full release validation passed:
+10. Phase 1E full release validation passed:
    - `npm run contracts:build`;
    - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
    - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`;
@@ -64,7 +89,7 @@
    - `npm run build`.
    - Account build chunk: `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
 
-8. Phase 1D implemented and committed:
+11. Phase 1D implemented and committed:
    - `ACCOUNT_VERSION_PRECONDITION_MODE=optional|required` is now part of API
      config;
    - local/dev/test default remains `optional`;
@@ -74,7 +99,7 @@
      normal `/v1/account/*` mutations missing `x-yorso-account-version`;
    - stale compliant writes still return `409 account_snapshot_conflict`.
 
-9. Phase 1D validation passed:
+12. Phase 1D validation passed:
    - `npm run contracts:build`;
    - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
    - 2 API files passed, 79 tests passed;
@@ -88,7 +113,7 @@
    - `npm run build`.
    - Account build chunk: `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
 
-10. Phase 1C implemented locally:
+13. Phase 1C implemented locally:
    - backend account responses include `accountVersion`;
    - account mutations compare `x-yorso-account-version` when the header is
      present;
@@ -100,7 +125,7 @@
    - `/account/*` keeps the edit form open and shows `account-save-conflict`
      with reload action on stale-save conflict.
 
-11. Phase 1C validation already passed:
+14. Phase 1C validation already passed:
    - `npm run contracts:build`;
    - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
    - 2 API files passed, 77 tests passed;
@@ -108,7 +133,7 @@
    - 2 frontend files passed, 37 tests passed;
    - `npx tsc -b --noEmit`.
 
-12. Phase 1C full validation passed before commit:
+15. Phase 1C full validation passed before commit:
    - `npm run lint`;
    - `npm run check:production-scale-baseline`;
    - `git diff --check`;
@@ -116,7 +141,7 @@
    - `npm run build`.
    - Account build chunk: `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
 
-13. Phase 1B implemented and committed:
+16. Phase 1B implemented and committed:
    - API-enabled personal edits call only `PATCH /v1/account/me`;
    - API-enabled company edits call only `PATCH /v1/account/company`;
    - branch, product, meta-region and notification edits use existing
@@ -126,24 +151,55 @@
      `account_remoteSaveFailed` inline on remote failure;
    - API-disabled local preview keeps the existing localStorage/mock fallback.
 
-14. Preserve current known contracts: Phase 0 route-to-data-source contract,
+17. Preserve current known contracts: Phase 0 route-to-data-source contract,
    public sheet close locale a11y, public
    account menu a11y, public language selector a11y, public SEO, access gating,
    supplier identity redaction, exact-price lock, buyer-first trust narrative,
    Batch #112 code splitting, Batch #113 route chunk error boundary and
    Batches #110-#141 public UX/a11y safeguards.
 
-15. Treat Backend Phase 0 as closed with green gates and Phase 1 discovery as
+18. Treat Backend Phase 0 as closed with green gates and Phase 1 discovery as
    complete. The previous documented failures were remediated; do not
    reintroduce stale test contracts that check retired public UI copy or
    pre-safeguard CTA semantics.
 
-16. If a production-facing frontend behavior changes, include the 10,000
+19. If a production-facing frontend behavior changes, include the 10,000
    concurrent-user baseline note and validation.
 
-17. Choose the next implementation from the backend plan. Candidate: account
-   storage transactional metadata/outbox decision or the next Phase 1 account
-   production-hardening item.
+20. Choose the next implementation from the backend plan. Candidate: the next
+   Phase 1 account production-hardening item.
+
+## Backend Phase 1G Account Storage Transaction Boundary
+
+- Implementation doc:
+  `docs/backend/phase-1-account-storage-transaction-boundary.md`.
+- Status:
+  - implemented locally;
+  - targeted validation passed;
+  - full release validation passed;
+  - ready as the current checkpoint.
+- Concrete files changed:
+  - `apps/api/src/modules/storage/object-storage.ts`;
+  - `apps/api/src/modules/storage/repository.ts`;
+  - `apps/api/src/modules/storage/postgres-repository.ts`;
+  - `apps/api/src/modules/storage/service.ts`;
+  - `apps/api/src/modules/storage/routes.ts`;
+  - `apps/api/src/modules/storage/__tests__/storage.test.ts`;
+  - `docs/backend/phase-1-account-storage-transaction-boundary.md`;
+  - `docs/backend/production-scale-baseline.md`;
+  - project-memory files.
+- Targeted validation passed:
+  - storage service/repository tests: 1 file, 6 tests;
+  - API server/account/storage tests: 3 files, 86 tests;
+  - `npx tsc -b --noEmit`.
+- Full release validation passed:
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run api:build`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
 
 ## Backend Phase 1F Account Storage Client Authority Boundary
 

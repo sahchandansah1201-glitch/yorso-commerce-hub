@@ -123,17 +123,23 @@ export async function handleStorageRoute(
         purpose: slot === "logo" ? "company_logo" : "company_cover",
         upload,
       });
-      const nextCompany = await accountService.updateCompanyProfile(userId, {
-        media: slot === "logo"
-          ? {
-              logoObjectKey: asset.objectKey,
-              logoAlt: upload.alt ?? company.media.logoAlt,
-            }
-          : {
-              coverObjectKey: asset.objectKey,
-              coverAlt: upload.alt ?? company.media.coverAlt,
-            },
-      });
+      let nextCompany: Awaited<ReturnType<AccountService["updateCompanyProfile"]>>;
+      try {
+        nextCompany = await accountService.updateCompanyProfile(userId, {
+          media: slot === "logo"
+            ? {
+                logoObjectKey: asset.objectKey,
+                logoAlt: upload.alt ?? company.media.logoAlt,
+              }
+            : {
+                coverObjectKey: asset.objectKey,
+                coverAlt: upload.alt ?? company.media.coverAlt,
+              },
+        });
+      } catch (error) {
+        await fileService.deleteAccountFile({ userId, assetId: asset.id }).catch(() => undefined);
+        throw error;
+      }
 
       auditFromRequest(auditSink, context, request, {
         action: "storage.company_media.upload",

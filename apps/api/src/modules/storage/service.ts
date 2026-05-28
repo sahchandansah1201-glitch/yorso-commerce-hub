@@ -49,31 +49,17 @@ export class FileService {
     purpose: AccountFilePurpose;
     upload: AccountFileUploadPayload;
   }) {
-    const upload = this.assertUploadSize(accountFileUploadPayloadSchema.parse(params.upload));
-    const bytes = this.decodeBase64(upload);
-    const checksumSha256 = createHash("sha256").update(bytes).digest("hex");
-    const objectKey = buildObjectKey({
-      userId: params.userId,
-      companyId: params.companyId,
-      purpose: params.purpose,
-      fileName: upload.fileName,
-    });
+    const { input, bytes } = this.prepareFileAsset(params);
 
-    await this.objectStorage.putObject(objectKey, bytes, { contentType: upload.contentType });
+    await this.objectStorage.putObject(input.objectKey, bytes, { contentType: input.contentType });
 
-    const asset = await this.repository.createFileAsset({
-      ownerUserId: params.userId,
-      companyId: params.companyId,
-      purpose: params.purpose,
-      objectKey,
-      originalFileName: upload.fileName,
-      contentType: upload.contentType,
-      sizeBytes: bytes.byteLength,
-      checksumSha256,
-      storageDriver: this.options.storageDriver,
-    });
-
-    return accountFileAssetSchema.parse(asset);
+    try {
+      const asset = await this.repository.createFileAsset(input);
+      return accountFileAssetSchema.parse(asset);
+    } catch (error) {
+      await this.objectStorage.deleteObject(input.objectKey).catch(() => undefined);
+      throw error;
+    }
   }
 
   async createCompanyDocument(params: {
@@ -81,21 +67,37 @@ export class FileService {
     companyId: string;
     payload: CompanyDocumentCreate;
   }) {
-    const asset = await this.storeAccountFile({
+    const { input, bytes } = this.prepareFileAsset({
       userId: params.userId,
       companyId: params.companyId,
       purpose: "company_document",
       upload: params.payload.file,
     });
-    const document = await this.repository.createCompanyDocument({
-      companyId: params.companyId,
-      fileAssetId: asset.id,
-      title: params.payload.title,
-      documentType: params.payload.documentType,
-      visibility: params.payload.visibility,
-      expiresAt: params.payload.expiresAt ?? null,
-    });
-    return document;
+
+    await this.objectStorage.putObject(input.objectKey, bytes, { contentType: input.contentType });
+
+    try {
+      return await this.repository.createCompanyDocumentWithFileAsset({
+        fileAsset: input,
+        document: {
+          companyId: params.companyId,
+          title: params.payload.title,
+          documentType: params.payload.documentType,
+          visibility: params.payload.visibility,
+          expiresAt: params.payload.expiresAt ?? null,
+        },
+      });
+    } catch (error) {
+      await this.objectStorage.deleteObject(input.objectKey).catch(() => undefined);
+      throw error;
+    }
+  }
+
+  async deleteAccountFile(params: { userId: string; assetId: string }) {
+    const asset = await this.repository.deleteFileAssetForUser(params.userId, params.assetId);
+    if (!asset) return null;
+    await this.objectStorage.deleteObject(asset.objectKey);
+    return accountFileAssetSchema.parse(asset);
   }
 
   async listCompanyDocuments(companyId: string) {
@@ -140,6 +142,38 @@ export class FileService {
       throw new Error("upload_too_large");
     }
     return upload;
+  }
+
+  private prepareFileAsset(params: {
+    userId: string;
+    companyId: string | null;
+    purpose: AccountFilePurpose;
+    upload: AccountFileUploadPayload;
+  }) {
+    const upload = this.assertUploadSize(accountFileUploadPayloadSchema.parse(params.upload));
+    const bytes = this.decodeBase64(upload);
+    const checksumSha256 = createHash("sha256").update(bytes).digest("hex");
+    const objectKey = buildObjectKey({
+      userId: params.userId,
+      companyId: params.companyId,
+      purpose: params.purpose,
+      fileName: upload.fileName,
+    });
+
+    return {
+      bytes,
+      input: {
+        ownerUserId: params.userId,
+        companyId: params.companyId,
+        purpose: params.purpose,
+        objectKey,
+        originalFileName: upload.fileName,
+        contentType: upload.contentType,
+        sizeBytes: bytes.byteLength,
+        checksumSha256,
+        storageDriver: this.options.storageDriver,
+      },
+    };
   }
 }
 

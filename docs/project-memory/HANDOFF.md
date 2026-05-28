@@ -16,8 +16,8 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 1F account storage client authority boundary is implemented
-locally with full release validation green. Next step: choose the next backend
+Backend Phase 1G account storage transaction boundary is implemented locally
+with full release validation green. Next step: choose the next backend
 implementation from the plan.
 
 ## Current Status
@@ -36,6 +36,31 @@ implementation from the plan.
   full release validation green.
 - Phase 1F Account Storage Client Authority Boundary is implemented locally
   with full release validation green.
+- Phase 1G Account Storage Transaction Boundary is implemented locally with
+  full release validation green.
+- Phase 1G implementation document:
+  `docs/backend/phase-1-account-storage-transaction-boundary.md`.
+- Phase 1G implementation:
+  - `PostgresFileRepository.createCompanyDocumentWithFileAsset` writes
+    `yorso_file_assets` and `yorso_company_documents` in one atomic SQL CTE
+    statement;
+  - `FileService.storeAccountFile` and `createCompanyDocument` delete object
+    bytes if metadata persistence fails after object write;
+  - company media upload routes clean up the newly created asset/object
+    best-effort when `updateCompanyProfile` fails after asset creation;
+  - no outbox table/queue is introduced because current storage processing is
+    synchronous and has no worker, retry policy or operator status surface.
+- Phase 1G targeted validation passed:
+  `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/storage/__tests__/storage.test.ts`
+  with 1 file passed and 6 tests passed;
+  `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`
+  with 3 files passed and 86 tests passed;
+  `npx tsc -b --noEmit`.
+- Phase 1G full validation passed:
+  `npm run lint`, `npm run check:production-scale-baseline`,
+  `git diff --check`, `npm run api:build`, `npm run build`.
+- Phase 1G production build metric:
+  Account route chunk `Account-BesZRqle.js` 112.88 kB / 25.69 kB gzip.
 - Phase 1F implementation document:
   `docs/backend/phase-1-account-storage-client-authority-boundary.md`.
 - Phase 1F implementation:
