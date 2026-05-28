@@ -12,6 +12,11 @@ import type { AccountService } from "./service.js";
 
 type AccountCollectionName = "branches" | "products" | "metaRegions" | "notifications";
 type AccountItemName = "branch" | "product" | "metaRegion" | "notification";
+export type AccountVersionPreconditionMode = "optional" | "required";
+
+export interface AccountRouteOptions {
+  versionPreconditionMode?: AccountVersionPreconditionMode;
+}
 
 const ACCOUNT_VERSION_HEADER = "x-yorso-account-version";
 
@@ -115,6 +120,14 @@ function readAccountVersionHeader(request: IncomingMessage) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function readAccountVersionPrecondition(request: IncomingMessage, options: AccountRouteOptions) {
+  const version = readAccountVersionHeader(request);
+  if (options.versionPreconditionMode === "required" && !version) {
+    throw new Error("account_version_required");
+  }
+  return version;
+}
+
 async function accountVersionPayload(service: AccountService, userId: string) {
   return {
     accountVersion: await service.getAccountVersion(userId),
@@ -130,6 +143,7 @@ export async function handleAccountRoute(
   pathname: string,
   jsonBodyOptions: JsonBodyReadOptions,
   auditSink: AuditSink,
+  options: AccountRouteOptions = {},
 ) {
   try {
     if (pathname === "/v1/account/me") {
@@ -147,8 +161,9 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "PATCH") {
+        const accountVersion = readAccountVersionPrecondition(request, options);
         const payload = await readJsonBody(request, jsonBodyOptions);
-        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
+        await service.assertAccountVersion(userId, accountVersion);
         const profile = await service.updateCurrentUserProfile(userId, payload);
         auditAccountMutation(auditSink, context, request, {
           action: "account.user.update",
@@ -187,8 +202,9 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "PATCH") {
+        const accountVersion = readAccountVersionPrecondition(request, options);
         const payload = await readJsonBody(request, jsonBodyOptions);
-        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
+        await service.assertAccountVersion(userId, accountVersion);
         const company = await service.updateCompanyProfile(userId, payload);
         auditAccountMutation(auditSink, context, request, {
           action: "account.company.update",
@@ -228,8 +244,9 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "PATCH") {
+        const accountVersion = readAccountVersionPrecondition(request, options);
         const payload = await readJsonBody(request, jsonBodyOptions);
-        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
+        await service.assertAccountVersion(userId, accountVersion);
         const items = await collection.replace(service, userId, payload);
         auditAccountMutation(auditSink, context, request, {
           action: `account.${collection.key}.replace`,
@@ -271,8 +288,9 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "POST") {
+        const accountVersion = readAccountVersionPrecondition(request, options);
         const payload = await readJsonBody(request, jsonBodyOptions);
-        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
+        await service.assertAccountVersion(userId, accountVersion);
         const item = await collection.create(service, userId, itemId, payload);
         auditAccountMutation(auditSink, context, request, {
           action: `account.${collection.key}.create`,
@@ -293,8 +311,9 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "PATCH") {
+        const accountVersion = readAccountVersionPrecondition(request, options);
         const payload = await readJsonBody(request, jsonBodyOptions);
-        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
+        await service.assertAccountVersion(userId, accountVersion);
         const item = await collection.update(service, userId, itemId, payload);
         auditAccountMutation(auditSink, context, request, {
           action: `account.${collection.key}.update`,
@@ -315,7 +334,7 @@ export async function handleAccountRoute(
       }
 
       if (request.method === "DELETE") {
-        await service.assertAccountVersion(userId, readAccountVersionHeader(request));
+        await service.assertAccountVersion(userId, readAccountVersionPrecondition(request, options));
         const item = await collection.remove(service, userId, itemId);
         auditAccountMutation(auditSink, context, request, {
           action: `account.${collection.key}.delete`,
@@ -386,6 +405,17 @@ export async function handleAccountRoute(
         409,
         error.message,
         "Account data changed since it was loaded. Reload account data and try again.",
+        context,
+      );
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "account_version_required") {
+      sendError(
+        response,
+        428,
+        error.message,
+        "Account version precondition is required for account mutations.",
         context,
       );
       return true;

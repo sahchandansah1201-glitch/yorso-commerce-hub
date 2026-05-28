@@ -4063,6 +4063,94 @@ Marker: account conflict version handling.
 Marker: account source of truth.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 1D Account Strict Precondition Policy
+
+Phase 1D makes the Phase 1C version precondition production-enforceable.
+Self-hosted production API config must set
+`ACCOUNT_VERSION_PRECONDITION_MODE=required`; in that mode normal
+`/v1/account/*` mutations without `x-yorso-account-version` return
+`428 account_version_required` before mutation. Development, test and local
+preview keep the default `optional` mode for compatibility.
+
+Expected read/write profile:
+
+- No new public read/write traffic is introduced.
+- Valid current frontend writes use the same Phase 1C account-version
+  precondition read before mutation and response version read after mutation.
+- Missing-header writes in strict mode fail without a database mutation.
+- Normal `/account/*` UI writes remain Phase 1B section-scoped writes.
+
+Cache, queue and backpressure strategy:
+
+- No queue, polling, subscription or background retry loop is introduced.
+- Existing self-hosted auth/session cache remains the session authority
+  boundary.
+- Strict-mode missing-header requests use a bounded error response and do not
+  retry automatically.
+
+Database indexing and pagination strategy:
+
+- No new list or pagination surface is introduced.
+- The account-version lookup remains bounded to one account owner and one
+  company scope.
+- Production index requirements remain the Phase 1C ownership indexes:
+  `yorso_companies.owner_user_id`, collection `company_id`, and
+  `yorso_notification_preferences.user_id`.
+
+Failure mode and graceful degradation:
+
+- Production strict mode rejects non-compliant account write clients with
+  `428 account_version_required`.
+- Current YORSO account frontend already sends `x-yorso-account-version` after
+  backend load.
+- Stale compliant clients still receive `409 account_snapshot_conflict`.
+- API-disabled local preview remains outside the backend version contract.
+- Storage/media/document account routes remain a separate follow-up scope
+  because their document and media version boundaries differ from normal
+  account workspace mutations.
+
+Observability and load-test plan:
+
+- Track `428 account_version_required` by route and client to find legacy or
+  non-compliant write clients.
+- Track `409 account_snapshot_conflict` separately for stale-tab conflicts.
+- Load-test 10,000 concurrent users with account route opens, valid
+  personal/company edits, valid row-level collection edits, missing-header
+  writes and stale-header writes.
+- Monitor p95/p99 mutation latency, account-version lookup latency, DB CPU,
+  session-cache misses and rejection rates.
+
+Validation:
+
+- `npm run contracts:build`;
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
+- `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`;
+- `npx tsc -b --noEmit`;
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `git diff --check`;
+- `npm run api:build`;
+- `npm run build`.
+
+Validated locally on 2026-05-28:
+
+- API repository/server tests passed: 2 files, 79 tests;
+- frontend account API/editable tests passed: 2 files, 37 tests;
+- production build passed with Account chunk
+  `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip;
+- known Supabase generated type and Browserslist warnings were preserved.
+
+Focused strict-mode validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts`.
+
+- API server test suite passed: 1 file, 62 tests.
+
+Marker: Backend Phase 1D.
+Marker: account strict precondition policy.
+Marker: account source of truth.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -325,6 +325,7 @@ async function routeRequest(
       request,
       response,
       context,
+      config,
       authService,
       accountService,
       adminAuditService,
@@ -349,6 +350,7 @@ async function routeWorkRequest(
   request: IncomingMessage,
   response: ServerResponse,
   context: ReturnType<typeof createRequestContext>,
+  config: ApiConfig,
   authService: AuthService,
   accountService: AccountService,
   adminAuditService: AdminAuditService,
@@ -414,7 +416,17 @@ async function routeWorkRequest(
     auditSink,
     jsonBodyOptions,
   )) return;
-  if (await handleAccountRoute(request, response, context, accountService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
+  if (await handleAccountRoute(
+    request,
+    response,
+    context,
+    accountService,
+    authService,
+    url.pathname,
+    jsonBodyOptions,
+    auditSink,
+    { versionPreconditionMode: config.accountVersionPreconditionMode },
+  )) return;
   if (await handleStorageRoute(request, response, context, accountService, fileService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
   if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, authService, url)) return;
   if (await handleSupplierAccessRoute(request, response, context, supplierAccessService, authService, url, jsonBodyOptions, auditSink)) return;

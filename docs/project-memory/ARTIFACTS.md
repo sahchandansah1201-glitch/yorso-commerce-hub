@@ -137,6 +137,27 @@
   `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`, `RISKS.md`: Phase 1B
   checkpoint.
 
+## Backend Phase 1D Account Strict Precondition Policy
+
+- `docs/backend/phase-1-account-strict-precondition-policy.md`:
+  implementation note, Russian plan/fact table and 10,000 concurrent-user
+  baseline for strict account version preconditions.
+- `apps/api/src/config.ts`: `ACCOUNT_VERSION_PRECONDITION_MODE=optional|required`
+  config, local/dev/test optional default and production self-hosted required
+  guard.
+- `apps/api/src/server.ts`: passes the account version precondition mode into
+  account route handling.
+- `apps/api/src/modules/account/routes.ts`: strict mode rejects normal
+  `/v1/account/*` mutations missing `x-yorso-account-version` as
+  `428 account_version_required` while preserving Phase 1C stale-version
+  `409 account_snapshot_conflict`.
+- `apps/api/src/server.test.ts`: strict missing-header API regression and
+  production config guard.
+- `docs/backend/production-scale-baseline.md`: Backend Phase 1D capacity note.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`, `RISKS.md`: Phase 1D
+  checkpoint.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional

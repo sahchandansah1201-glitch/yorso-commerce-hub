@@ -19,6 +19,7 @@ export const apiConfigSchema = z.object({
   authSessionCacheFailMode: z.enum(["open", "closed"]).default("open"),
   authSessionCacheTtlMs: z.coerce.number().int().min(60_000).max(7 * 24 * 60 * 60 * 1000).default(300_000),
   authSessionCacheKeyPrefix: z.string().min(1).default("yorso:auth"),
+  accountVersionPreconditionMode: z.enum(["optional", "required"]).default("optional"),
   auditDriver: z.enum(["disabled", "console", "postgres"]).default("disabled"),
   auditMaxInFlight: z.coerce.number().int().min(1).max(50_000).default(2_000),
   adminAuditExportMaxWindowDays: z.coerce.number().int().min(1).max(366).default(31),
@@ -68,6 +69,7 @@ const localDefaults = {
   AUTH_SESSION_CACHE_FAIL_MODE: "open",
   AUTH_SESSION_CACHE_TTL_MS: "300000",
   AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth",
+  ACCOUNT_VERSION_PRECONDITION_MODE: "optional",
   YORSO_AUDIT_DRIVER: "disabled",
   YORSO_AUDIT_MAX_IN_FLIGHT: "2000",
   YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS: "31",
@@ -116,6 +118,7 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     authSessionCacheFailMode: source.AUTH_SESSION_CACHE_FAIL_MODE,
     authSessionCacheTtlMs: source.AUTH_SESSION_CACHE_TTL_MS,
     authSessionCacheKeyPrefix: source.AUTH_SESSION_CACHE_KEY_PREFIX,
+    accountVersionPreconditionMode: source.ACCOUNT_VERSION_PRECONDITION_MODE,
     auditDriver: source.YORSO_AUDIT_DRIVER,
     auditMaxInFlight: source.YORSO_AUDIT_MAX_IN_FLIGHT,
     adminAuditExportMaxWindowDays: source.YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS,
@@ -160,6 +163,9 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   }
   if (config.nodeEnv === "production" && config.authSessionCacheFailMode !== "closed") {
     throw new Error("Production self-hosted API must use AUTH_SESSION_CACHE_FAIL_MODE=closed.");
+  }
+  if (config.nodeEnv === "production" && config.accountVersionPreconditionMode !== "required") {
+    throw new Error("Production self-hosted API must use ACCOUNT_VERSION_PRECONDITION_MODE=required.");
   }
   if (config.nodeEnv === "production" && config.authObservabilityDriver !== "console") {
     throw new Error("Production self-hosted API must use AUTH_OBSERVABILITY_DRIVER=console.");

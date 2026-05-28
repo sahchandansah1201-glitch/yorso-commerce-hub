@@ -84,3 +84,11 @@
     `409 account_snapshot_conflict`, keep the edit form open and show a
     reloadable `account-save-conflict` banner instead of silently overwriting
     newer backend data.
+
+- Risk: Production account write clients could omit the Phase 1C version
+  precondition and still mutate account state.
+  Resolution: Backend Phase 1D adds
+    `ACCOUNT_VERSION_PRECONDITION_MODE=optional|required`, requires
+    `required` mode in production self-hosted runtime and rejects normal
+    `/v1/account/*` mutations missing `x-yorso-account-version` with
+    `428 account_version_required` in strict mode.

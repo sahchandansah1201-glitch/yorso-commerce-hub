@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-28"
   active_branch: "main"
-  head_commit: "phase_1c_account_conflict_version_handling"
-  head_summary: "Backend Phase 1C Account Conflict Version Handling implemented locally and full release validation passed."
-  dirty_worktree_before_project_memory: false
+  head_commit: "phase_1d_account_strict_precondition_policy"
+  head_summary: "Backend Phase 1D Account Strict Precondition Policy implemented locally and full release validation passed."
+  dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "No intentional dirty worktree should remain after the Phase 1C checkpoint commit."
+    - "Phase 1D code and documentation changes are intentional and should be committed as the checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,21 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1c_account_conflict_version_handling"
-  summary: "API-enabled /account/* sends account snapshot versions on mutations and shows reloadable conflict recovery for stale saves."
+  id: "backend_phase_1d_account_strict_precondition_policy"
+  summary: "Production self-hosted account mutations can require x-yorso-account-version and reject missing preconditions with 428."
   status: "implemented_locally_full_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 1D implementation is recorded in docs/backend/phase-1-account-strict-precondition-policy.md."
+    - "apps/api/src/config.ts adds ACCOUNT_VERSION_PRECONDITION_MODE=optional|required, defaults local/dev/test to optional and requires required mode in production self-hosted runtime."
+    - "apps/api/src/modules/account/routes.ts accepts versionPreconditionMode and returns 428 account_version_required for missing x-yorso-account-version when strict mode is required."
+    - "apps/api/src/server.ts passes config.accountVersionPreconditionMode into the account route handler."
+    - "apps/api/src/server.test.ts covers strict missing-header 428 behavior and production config guard."
+    - "Phase 1D targeted validation passed: npm run contracts:build plus api Vitest with repository/server tests, 2 files, 79 tests."
+    - "Phase 1D frontend targeted validation passed: npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx, 2 files, 37 tests."
+    - "Phase 1D full release validation passed: npx tsc -b --noEmit, npm run lint, npm run check:production-scale-baseline, git diff --check, npm run api:build and npm run build."
+    - "Phase 1D production build Account route chunk: Account-qLSbC0qo.js 112.83 kB / 25.65 kB gzip."
     - "Phase 1C implementation is recorded in docs/backend/phase-1-account-conflict-version-handling.md."
     - "Backend account routes now include accountVersion in account responses and reject stale mutations with 409 account_snapshot_conflict when x-yorso-account-version is present and stale."
     - "MemoryAccountRepository stores a monotonic account version and bumps it on user, company and workspace mutations."
@@ -86,8 +95,9 @@ active_workstream:
     - "Remediation aligned stale RU/i18n test contracts with current UI/access behavior, pinned sign-in locale tests to local auth, mounted the required buyer-session provider for registration funnel coverage, localized qualified exact-price formatting and catalog category labels, and bounded Supabase-backed public access smoke handling for transient network timeouts."
     - "Start from current repository files and runtime surfaces, not old chat memory."
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
-    - "Next planned workstream after Phase 1C checkpoint: Backend Phase 1D strict account precondition decision or the next item from the backend implementation plan."
+    - "Next planned workstream after Phase 1D checkpoint: choose the next account hardening item from the backend implementation plan, likely media/document version boundary or another Phase 1 account production-hardening item."
   confirmed_files:
+    - "docs/backend/phase-1-account-strict-precondition-policy.md"
     - "docs/backend/phase-1-account-conflict-version-handling.md"
     - "docs/backend/phase-1-account-section-scoped-mutations.md"
     - "docs/backend/phase-1-account-session-authority-gate.md"
@@ -1553,3 +1563,7 @@ critical_files:
 
 open_questions:
   - "Next scoped public UX/UI audit target after Batch #140 Lovable sync."
+    - "apps/api/src/config.ts"
+    - "apps/api/src/server.ts"
+    - "apps/api/src/modules/account/routes.ts"
+    - "apps/api/src/server.test.ts"

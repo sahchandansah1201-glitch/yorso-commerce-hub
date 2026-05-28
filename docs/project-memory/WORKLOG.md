@@ -1887,6 +1887,45 @@ Keep this file factual and append-only.
 
 ## 2026-05-28
 
+- Implemented Backend Phase 1D: Account Strict Precondition Policy.
+- Added API config flag `ACCOUNT_VERSION_PRECONDITION_MODE=optional|required`.
+- Kept local/dev/test default as `optional` for compatibility.
+- Added production self-hosted runtime guard requiring
+  `ACCOUNT_VERSION_PRECONDITION_MODE=required`.
+- Updated account route handling so strict mode rejects normal `/v1/account/*`
+  mutations without `x-yorso-account-version` as
+  `428 account_version_required`.
+- Preserved Phase 1C stale-write behavior:
+  `409 account_snapshot_conflict` when a supplied account version is stale.
+- Added strict-mode API regression and production config guard coverage in
+  `apps/api/src/server.test.ts`.
+- Added `docs/backend/phase-1-account-strict-precondition-policy.md`.
+- Added the Phase 1D 10,000 concurrent-user capacity note to
+  `docs/backend/production-scale-baseline.md`.
+- Targeted validation passed:
+  - `npm run contracts:build`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
+  - 2 API files passed;
+  - 79 tests passed;
+  - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`;
+  - 2 frontend files passed;
+  - 37 tests passed.
+- Full release validation passed:
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run api:build`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict mode;
+  - Browserslist data stale;
+  - existing React Router v7 future flag and `act(...)` warnings.
+
+## 2026-05-28
+
 - Implemented Backend Phase 1C: Account Conflict Version Handling.
 - Added account snapshot version support to account repositories:
   - `MemoryAccountRepository` keeps a monotonic account version and bumps it on

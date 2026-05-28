@@ -2208,6 +2208,50 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(String(freshUpdateBody.accountVersion)).not.toBe(freshVersion);
   });
 
+  it("requires account version headers for account mutations in strict precondition mode", async () => {
+    const strictConfig = loadApiConfig(
+      {
+        NODE_ENV: "test",
+        AUTH_SESSION_CACHE_DRIVER: "memory",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_TTL_MS: "300000",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
+      },
+      { allowLocalDefaults: true },
+    );
+    const fetchApi = await startRawTestServer({ config: strictConfig });
+    const buyerHeaders = await signIn(fetchApi, "buyer@example.com");
+
+    const missingPrecondition = await fetchApi("/v1/account/me", {
+      method: "PATCH",
+      headers: buyerHeaders,
+      body: JSON.stringify({ firstName: "NoVersion" }),
+    });
+    expect(missingPrecondition.status).toBe(428);
+    await expect(missingPrecondition.json()).resolves.toMatchObject({
+      error: { code: "account_version_required" },
+    });
+
+    const accountRead = await fetchApi("/v1/account/me", { headers: buyerHeaders });
+    const accountReadBody = (await accountRead.json()) as JsonBody;
+    expect(accountRead.status).toBe(200);
+    const accountVersion = String(accountReadBody.accountVersion);
+    expect(accountVersion).toBeTruthy();
+
+    const versionedUpdate = await fetchApi("/v1/account/me", {
+      method: "PATCH",
+      headers: {
+        ...buyerHeaders,
+        "x-yorso-account-version": accountVersion,
+      },
+      body: JSON.stringify({ firstName: "VersionedStrict" }),
+    });
+    const versionedUpdateBody = (await versionedUpdate.json()) as JsonBody;
+    expect(versionedUpdate.status).toBe(200);
+    expect(versionedUpdateBody.user).toMatchObject({ firstName: "VersionedStrict" });
+    expect(String(versionedUpdateBody.accountVersion)).not.toBe(accountVersion);
+  });
+
   it("uploads company logo media through the self-hosted file route and updates company media", async () => {
     const fetchApi = await startTestServer();
     const response = await fetchApi("/v1/account/company/media/logo", {
@@ -2375,6 +2419,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
         YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
@@ -2389,6 +2434,28 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(() => assertSupabaseIsPrototypeOnly(productionConfig)).toThrow(/Supabase env values/);
   });
 
+  it("requires account version preconditions in production config", () => {
+    const productionConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "optional",
+        YORSO_AUDIT_DRIVER: "postgres",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(productionConfig))
+      .toThrow(/ACCOUNT_VERSION_PRECONDITION_MODE=required/);
+  });
+
   it("requires Redis fail-closed rate limiting in production config", () => {
     const productionConfig = loadApiConfig(
       {
@@ -2397,6 +2464,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "open",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
         YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
@@ -2415,6 +2483,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "open",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
         YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
@@ -2433,6 +2502,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
         YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "disabled",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
@@ -2451,6 +2521,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
         YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
@@ -2470,6 +2541,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
         YORSO_AUDIT_DRIVER: "disabled",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
@@ -2489,6 +2561,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
         YORSO_AUDIT_DRIVER: "postgres",
         YORSO_ADMIN_AUDIT_RETENTION_DAYS: "180",
         AUTH_OBSERVABILITY_DRIVER: "console",
@@ -2509,6 +2582,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
         YORSO_AUDIT_DRIVER: "postgres",
         YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS: "90",
         AUTH_OBSERVABILITY_DRIVER: "console",
@@ -2529,6 +2603,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
         YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
@@ -2548,6 +2623,7 @@ describe("YORSO self-hosted API skeleton", () => {
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
         AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
         YORSO_AUDIT_DRIVER: "postgres",
         AUTH_OBSERVABILITY_DRIVER: "console",
         YORSO_ERROR_OBSERVABILITY_DRIVER: "console",

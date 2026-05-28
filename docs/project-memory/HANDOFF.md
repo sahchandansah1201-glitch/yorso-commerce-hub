@@ -16,8 +16,9 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 1C account conflict/version handling is complete. Next step:
-choose the next backend implementation from the plan.
+Backend Phase 1D account strict precondition policy is complete locally. Next
+step: commit the checkpoint if not already committed, then choose the next
+backend implementation from the plan.
 
 ## Current Status
 
@@ -29,6 +30,38 @@ choose the next backend implementation from the plan.
   green.
 - Phase 1C Account Conflict Version Handling is implemented locally with full
   release validation green.
+- Phase 1D Account Strict Precondition Policy is implemented locally with full
+  release validation green.
+- Phase 1D implementation document:
+  `docs/backend/phase-1-account-strict-precondition-policy.md`.
+- Phase 1D implementation:
+  - `ACCOUNT_VERSION_PRECONDITION_MODE=optional|required` is now part of API
+    config;
+  - production self-hosted runtime requires
+    `ACCOUNT_VERSION_PRECONDITION_MODE=required`;
+  - strict account route mode rejects normal `/v1/account/*` mutations without
+    `x-yorso-account-version` as `428 account_version_required`;
+  - default dev/test/local mode remains `optional`;
+  - stale compliant writes still return `409 account_snapshot_conflict`.
+- Phase 1D changed files:
+  `apps/api/src/config.ts`,
+  `apps/api/src/server.ts`,
+  `apps/api/src/modules/account/routes.ts`,
+  `apps/api/src/server.test.ts`,
+  `docs/backend/phase-1-account-strict-precondition-policy.md`,
+  `docs/backend/production-scale-baseline.md` and project-memory files.
+- Phase 1D targeted validation passed:
+  `npm run contracts:build`;
+  `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`
+  with 2 files passed and 79 tests passed;
+  `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`
+  with 2 files passed and 37 tests passed.
+- Phase 1D full validation passed:
+  `npx tsc -b --noEmit`, `npm run lint`,
+  `npm run check:production-scale-baseline`, `git diff --check`,
+  `npm run api:build`, `npm run build`.
+- Phase 1D production build metric:
+  Account route chunk `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
 - Phase 1C implementation document:
   `docs/backend/phase-1-account-conflict-version-handling.md`.
 - Phase 1C implementation:
