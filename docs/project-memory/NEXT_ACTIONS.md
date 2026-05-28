@@ -2,11 +2,41 @@
 
 ## Current Next Action
 
-1. Backend Phase 1H Account Workspace Replace Transaction Boundary is
-   implemented locally with full release validation passed. Choose the next
-   Phase 1 account hardening item from the backend implementation plan.
+1. Backend Phase 1I Account Workspace Aggregate Read is implemented locally
+   with full release validation passed. Commit the checkpoint.
 
-2. Phase 1H implemented locally:
+2. Phase 1I implemented locally:
+   - backend exposes `GET /v1/account/workspace` through existing account
+     session authority;
+   - the response returns user, company, branches, products, metaRegions,
+     notifications, accountVersion and requestId;
+   - `PostgresAccountRepository.getWorkspaceSnapshot` returns the snapshot in
+     one scoped SQL query with JSON aggregation and account-version
+     calculation;
+   - `MemoryAccountRepository.getWorkspaceSnapshot` mirrors the same shape for
+     local/test runtime;
+   - `createAccountApiClient().load()` now calls only `/v1/account/workspace`
+     in self-hosted mode instead of six section reads.
+
+3. Phase 1I targeted validation passed:
+   - `npm run contracts:build`;
+   - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`;
+   - 3 files passed;
+   - 52 tests passed;
+   - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
+   - 2 files passed;
+   - 83 tests passed;
+   - `npx tsc -b --noEmit`.
+
+4. Phase 1I full release validation passed:
+   - `npm run lint`;
+   - `npm run check:production-scale-baseline`;
+   - `git diff --check`;
+   - `npm run api:build`;
+   - `npm run build`.
+   - Account route chunk: `Account-CK-9-38I.js` 112.88 kB / 25.69 kB gzip.
+
+5. Phase 1H implemented and committed:
    - bulk branch, product, meta-region and notification replacements now run
      one atomic PostgreSQL CTE statement per collection;
    - each statement includes `input`, `deleted`, `touched` and
@@ -14,7 +44,7 @@
    - replacement rows return from the write statement without a second reread;
    - route payloads and responses are unchanged.
 
-3. Phase 1H targeted validation passed:
+6. Phase 1H targeted validation passed:
    - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts`;
    - 1 file passed;
    - 17 tests passed;
@@ -23,7 +53,7 @@
    - 86 tests passed;
    - `npx tsc -b --noEmit`.
 
-4. Phase 1H full release validation passed:
+7. Phase 1H full release validation passed:
    - `npm run lint`;
    - `npm run check:production-scale-baseline`;
    - `git diff --check`;

@@ -104,6 +104,17 @@ interface BackendNotificationsResponse extends BackendAccountVersionResponse {
   requestId: string;
 }
 
+interface BackendWorkspaceResponse extends BackendAccountVersionResponse {
+  ok: true;
+  user: BackendUserProfile;
+  company: BackendCompanyProfile;
+  branches: CompanyBranch[];
+  products: CompanyProduct[];
+  metaRegions: MetaRegion[];
+  notifications: NotificationPreference[];
+  requestId: string;
+}
+
 interface BackendBranchResponse extends BackendAccountVersionResponse {
   ok: true;
   branch: CompanyBranch;
@@ -596,16 +607,6 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
     if (body.accountVersion?.trim()) accountVersion = body.accountVersion.trim();
   };
 
-  const rememberLoadedAccountVersion = (responses: BackendAccountVersionResponse[]) => {
-    const versions = responses
-      .map((response) => response.accountVersion?.trim() ?? "")
-      .filter(Boolean);
-    if (!versions.length) return;
-    const uniqueVersions = new Set(versions);
-    if (uniqueVersions.size > 1) throw new Error("account_snapshot_changed_during_load");
-    accountVersion = versions[0];
-  };
-
   const request = async <T extends object>(path: string, init?: RequestInit): Promise<T> => {
     if (!baseUrl) throw new Error("account_api_disabled");
     const response = await fetchImpl(`${baseUrl}${path}`, {
@@ -620,34 +621,12 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
   return {
     enabled: Boolean(baseUrl),
     async load(localProfile: AccountProfile): Promise<AccountProfile> {
-      const [
-        userResponse,
-        companyResponse,
-        branchesResponse,
-        productsResponse,
-        metaRegionsResponse,
-        notificationsResponse,
-      ] = await Promise.all([
-        request<BackendUserResponse>("/v1/account/me"),
-        request<BackendCompanyResponse>("/v1/account/company"),
-        request<BackendBranchesResponse>("/v1/account/branches"),
-        request<BackendProductsResponse>("/v1/account/products"),
-        request<BackendMetaRegionsResponse>("/v1/account/meta-regions"),
-        request<BackendNotificationsResponse>("/v1/account/notifications"),
-      ]);
-      rememberLoadedAccountVersion([
-        userResponse,
-        companyResponse,
-        branchesResponse,
-        productsResponse,
-        metaRegionsResponse,
-        notificationsResponse,
-      ]);
-      return mergeBackendAccountProfile(localProfile, userResponse.user, companyResponse.company, {
-        branches: branchesResponse.branches,
-        products: productsResponse.products,
-        metaRegions: metaRegionsResponse.metaRegions,
-        notifications: notificationsResponse.notifications,
+      const workspaceResponse = await request<BackendWorkspaceResponse>("/v1/account/workspace");
+      return mergeBackendAccountProfile(localProfile, workspaceResponse.user, workspaceResponse.company, {
+        branches: workspaceResponse.branches,
+        products: workspaceResponse.products,
+        metaRegions: workspaceResponse.metaRegions,
+        notifications: workspaceResponse.notifications,
       });
     },
     async save(profile: AccountProfile): Promise<AccountProfile> {

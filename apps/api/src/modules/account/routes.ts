@@ -129,6 +129,23 @@ export async function handleAccountRoute(
   options: AccountVersionPreconditionOptions = {},
 ) {
   try {
+    if (pathname === "/v1/account/workspace") {
+      const { userId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+
+      if (request.method === "GET") {
+        const snapshot = await service.getWorkspaceSnapshot(userId);
+        sendJson(response, 200, {
+          ok: true,
+          ...snapshot,
+          requestId: context.requestId,
+        });
+        return true;
+      }
+
+      methodNotAllowed(response, context, "GET");
+      return true;
+    }
+
     if (pathname === "/v1/account/me") {
       const { userId, sessionId } = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
 
@@ -367,7 +384,12 @@ export async function handleAccountRoute(
       return true;
     }
 
-    if (error instanceof Error && (error.message === "user_not_found" || error.message === "company_not_found")) {
+    if (
+      error instanceof Error &&
+      (error.message === "user_not_found" ||
+        error.message === "company_not_found" ||
+        error.message === "account_workspace_not_found")
+    ) {
       sendError(response, 404, error.message, "Account resource was not found.", context);
       return true;
     }

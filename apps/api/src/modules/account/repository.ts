@@ -3,6 +3,7 @@ import type {
   AccountMetaRegionsUpdate,
   AccountNotificationsUpdate,
   AccountProductsUpdate,
+  AccountWorkspaceSnapshot,
   CompanyBranch,
   CompanyBranchCreate,
   CompanyBranchUpdate,
@@ -24,6 +25,7 @@ import type {
 export interface AccountRepository {
   getAccountVersion(userId: string): Promise<string>;
   touchAccountVersion(userId: string): Promise<void>;
+  getWorkspaceSnapshot(userId: string): Promise<AccountWorkspaceSnapshot | null>;
   getUserProfile(userId: string): Promise<UserProfile | null>;
   updateUserProfile(userId: string, update: UserProfileUpdate): Promise<UserProfile>;
   getCompanyProfile(userId: string): Promise<CompanyProfile | null>;
@@ -259,6 +261,22 @@ export class MemoryAccountRepository implements AccountRepository {
   async touchAccountVersion(userId: string) {
     await this.getAccountVersion(userId);
     this.bumpAccountVersion(userId);
+  }
+
+  async getWorkspaceSnapshot(userId: string) {
+    const user = await this.getUserProfile(userId);
+    const company = await this.getCompanyProfile(userId);
+    if (!user || !company) return null;
+
+    return {
+      user,
+      company,
+      branches: await this.getBranches(userId),
+      products: await this.getProducts(userId),
+      metaRegions: await this.getMetaRegions(userId),
+      notifications: await this.getNotifications(userId),
+      accountVersion: await this.getAccountVersion(userId),
+    };
   }
 
   async getUserProfile(userId: string) {

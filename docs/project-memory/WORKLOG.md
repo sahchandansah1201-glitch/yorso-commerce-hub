@@ -2165,3 +2165,31 @@ Keep this file factual and append-only.
 - Known non-blocking warnings preserved:
   - React Router v7 future flag warnings in existing test harness;
   - existing `act(...)` warnings in legacy account editable tests.
+
+## 2026-05-29
+
+- Started Backend Phase 1I: Account Workspace Aggregate Read.
+- Added shared `accountWorkspaceSnapshotSchema` and `AccountWorkspaceSnapshot`.
+- Added authenticated `GET /v1/account/workspace` returning user, company, branches, products, metaRegions, notifications, accountVersion and requestId.
+- Added `getWorkspaceSnapshot` to account service/repository boundaries.
+- Implemented PostgreSQL workspace snapshot as one scoped SQL query with JSON aggregation and account-version calculation.
+- Updated `src/lib/account-api.ts` so self-hosted account hydration calls `/v1/account/workspace` instead of six account section endpoints.
+- Updated API repository/server and frontend account tests for the aggregate read path.
+- Added `docs/backend/phase-1-account-workspace-aggregate-read.md` and production-scale baseline notes.
+- Targeted validation passed:
+  - `npm run contracts:build`;
+  - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`;
+  - 3 frontend files passed;
+  - 52 tests passed;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
+  - 2 API files passed;
+  - 83 tests passed;
+  - `npx tsc -b --noEmit`.
+- Full release validation passed:
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run api:build`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-CK-9-38I.js` 112.88 kB / 25.69 kB gzip.

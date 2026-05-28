@@ -137,6 +137,33 @@
   `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`, `RISKS.md`: Phase 1B
   checkpoint.
 
+## Backend Phase 1I Account Workspace Aggregate Read
+
+- `docs/backend/phase-1-account-workspace-aggregate-read.md`: implementation
+  note, Russian plan/fact table and 10,000 concurrent-user baseline for the
+  account workspace aggregate read.
+- `packages/contracts/src/account-company.ts`: shared
+  `accountWorkspaceSnapshotSchema` and `AccountWorkspaceSnapshot` type.
+- `apps/api/src/modules/account/routes.ts`: read-only
+  `GET /v1/account/workspace` endpoint behind the existing account session
+  authority.
+- `apps/api/src/modules/account/service.ts`,
+  `apps/api/src/modules/account/repository.ts` and
+  `apps/api/src/modules/account/postgres-repository.ts`: account workspace
+  snapshot service/repository boundary; PostgreSQL implementation uses one
+  scoped SQL query with JSON aggregation and account-version calculation.
+- `src/lib/account-api.ts`: self-hosted account hydration now calls
+  `/v1/account/workspace` instead of six account section endpoints.
+- `apps/api/src/server.test.ts`,
+  `apps/api/src/modules/account/__tests__/repository.test.ts`,
+  `src/lib/account-api.test.ts`,
+  `src/pages/account/Account.test.tsx` and
+  `src/pages/account/Account.editable.test.tsx`: aggregate endpoint,
+  repository and frontend hydration coverage.
+- `docs/backend/production-scale-baseline.md`: Backend Phase 1I capacity note.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Phase 1I checkpoint.
+
 ## Backend Phase 1D Account Strict Precondition Policy
 
 - `docs/backend/phase-1-account-strict-precondition-policy.md`:

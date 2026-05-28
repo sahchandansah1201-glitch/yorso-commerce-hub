@@ -202,6 +202,16 @@ export const accountProductsSchema = z.array(companyProductSchema).max(300);
 export const accountMetaRegionsSchema = z.array(metaRegionSchema).max(80);
 export const accountNotificationsSchema = z.array(notificationPreferenceSchema).max(20);
 
+export const accountWorkspaceSnapshotSchema = z.object({
+  user: userProfileSchema,
+  company: companyProfileSchema,
+  branches: accountBranchesSchema,
+  products: accountProductsSchema,
+  metaRegions: accountMetaRegionsSchema,
+  notifications: accountNotificationsSchema,
+  accountVersion: z.string().min(1),
+});
+
 const base64Schema = z.string().min(1).refine((value) => /^[A-Za-z0-9+/]+={0,2}$/.test(value), {
   message: "File content must be raw base64 without a data URL prefix.",
 });
@@ -266,6 +276,7 @@ export type AccountFileUploadPayload = z.infer<typeof accountFileUploadPayloadSc
 export type AccountMetaRegionsUpdate = z.infer<typeof accountMetaRegionsSchema>;
 export type AccountNotificationsUpdate = z.infer<typeof accountNotificationsSchema>;
 export type AccountProductsUpdate = z.infer<typeof accountProductsSchema>;
+export type AccountWorkspaceSnapshot = z.infer<typeof accountWorkspaceSnapshotSchema>;
 export type BranchType = z.infer<typeof branchTypeSchema>;
 export type BuyerQualificationStatus = z.infer<typeof buyerQualificationStatusSchema>;
 export type CompanyBranch = z.infer<typeof companyBranchSchema>;

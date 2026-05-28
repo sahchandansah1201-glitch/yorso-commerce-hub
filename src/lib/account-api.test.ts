@@ -123,6 +123,19 @@ const backendDocument = {
 };
 
 const mockLoadResponses = () =>
+  vi.fn<typeof fetch>().mockResolvedValueOnce(jsonResponse({
+    ok: true,
+    user: backendUser,
+    company: backendCompany,
+    branches: backendBranches,
+    products: backendProducts,
+    metaRegions: backendMetaRegions,
+    notifications: backendNotifications,
+    accountVersion: "account-v1",
+    requestId: "r-workspace",
+  }));
+
+const mockSaveResponses = () =>
   vi
     .fn<typeof fetch>()
     .mockResolvedValueOnce(jsonResponse({ ok: true, user: backendUser, requestId: "r1" }))
@@ -200,21 +213,17 @@ describe("account API adapter", () => {
     expect(notificationUpdate[0].events).toContain("price_access_approved");
   });
 
-  it("loads all account workspace sections from the configured self-hosted API", async () => {
+  it("loads all account workspace sections from one configured self-hosted workspace endpoint", async () => {
     const fetchImpl = mockLoadResponses();
     const client = createAuthenticatedAccountClient(fetchImpl);
 
     const profile = await client.load(mockAccountProfile);
     const [, firstRequest] = fetchImpl.mock.calls[0] as [string, RequestInit];
 
-    expect(fetchImpl).toHaveBeenNthCalledWith(1, "http://localhost:3000/v1/account/me", expect.any(Object));
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(fetchImpl).toHaveBeenNthCalledWith(1, "http://localhost:3000/v1/account/workspace", expect.any(Object));
     expect(new Headers(firstRequest.headers).get("content-type")).toBe("application/json");
     expect(new Headers(firstRequest.headers).get(ACCOUNT_USER_ID_HEADER)).toBe(DEFAULT_SELF_HOSTED_ACCOUNT_USER_ID);
-    expect(fetchImpl).toHaveBeenNthCalledWith(2, "http://localhost:3000/v1/account/company", expect.any(Object));
-    expect(fetchImpl).toHaveBeenNthCalledWith(3, "http://localhost:3000/v1/account/branches", expect.any(Object));
-    expect(fetchImpl).toHaveBeenNthCalledWith(4, "http://localhost:3000/v1/account/products", expect.any(Object));
-    expect(fetchImpl).toHaveBeenNthCalledWith(5, "http://localhost:3000/v1/account/meta-regions", expect.any(Object));
-    expect(fetchImpl).toHaveBeenNthCalledWith(6, "http://localhost:3000/v1/account/notifications", expect.any(Object));
     expect(profile.company.tradeName).toBe("Backend Seafood");
     expect(profile.branches[0].name).toBe("Backend Branch");
     expect(profile.products[0].commercialName).toBe("Backend Cod");
@@ -233,12 +242,17 @@ describe("account API adapter", () => {
   it("sends the latest account version precondition after loading account data", async () => {
     const fetchImpl = vi
       .fn<typeof fetch>()
-      .mockResolvedValueOnce(jsonResponse({ ok: true, user: backendUser, accountVersion: "account-v1", requestId: "r1" }))
-      .mockResolvedValueOnce(jsonResponse({ ok: true, company: backendCompany, accountVersion: "account-v1", requestId: "r2" }))
-      .mockResolvedValueOnce(jsonResponse({ ok: true, branches: backendBranches, accountVersion: "account-v1", requestId: "r3" }))
-      .mockResolvedValueOnce(jsonResponse({ ok: true, products: backendProducts, accountVersion: "account-v1", requestId: "r4" }))
-      .mockResolvedValueOnce(jsonResponse({ ok: true, metaRegions: backendMetaRegions, accountVersion: "account-v1", requestId: "r5" }))
-      .mockResolvedValueOnce(jsonResponse({ ok: true, notifications: backendNotifications, accountVersion: "account-v1", requestId: "r6" }))
+      .mockResolvedValueOnce(jsonResponse({
+        ok: true,
+        user: backendUser,
+        company: backendCompany,
+        branches: backendBranches,
+        products: backendProducts,
+        metaRegions: backendMetaRegions,
+        notifications: backendNotifications,
+        accountVersion: "account-v1",
+        requestId: "r-workspace",
+      }))
       .mockResolvedValueOnce(jsonResponse({
         ok: true,
         user: { ...backendUser, firstName: "Versioned" },
@@ -273,8 +287,8 @@ describe("account API adapter", () => {
       client,
     );
 
-    const [, userPatch] = fetchImpl.mock.calls[6] as [string, RequestInit];
-    const [, companyPatch] = fetchImpl.mock.calls[7] as [string, RequestInit];
+    const [, userPatch] = fetchImpl.mock.calls[1] as [string, RequestInit];
+    const [, companyPatch] = fetchImpl.mock.calls[2] as [string, RequestInit];
     expect(new Headers(userPatch.headers).get(ACCOUNT_VERSION_HEADER)).toBe("account-v1");
     expect(new Headers(companyPatch.headers).get(ACCOUNT_VERSION_HEADER)).toBe("account-v2");
   });
@@ -309,7 +323,7 @@ describe("account API adapter", () => {
   });
 
   it("saves all account workspace sections to the self-hosted API", async () => {
-    const fetchImpl = mockLoadResponses();
+    const fetchImpl = mockSaveResponses();
     const client = createAuthenticatedAccountClient(fetchImpl);
 
     await client.save(mockAccountProfile);

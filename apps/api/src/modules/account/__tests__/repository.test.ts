@@ -219,6 +219,104 @@ class FakeAccountPgClient implements AccountQueryClient {
     this.calls.push({ sql, params });
     const normalized = sql.replace(/\s+/g, " ").trim().toLowerCase();
 
+    if (normalized.startsWith("with account_company as") && normalized.includes("user_profile")) {
+      if (params[0] !== this.user.id || !this.company) return { rows: [] };
+      const allVersions = [
+        this.user.updated_at,
+        this.company.updated_at,
+        ...this.branches.map((branch) => branch.updated_at),
+        ...this.products.map((product) => product.updated_at),
+        ...this.metaRegions.map((metaRegion) => metaRegion.updated_at),
+        ...this.notifications.map((notification) => notification.updated_at),
+      ];
+      const accountVersion = new Date(Math.max(...allVersions.map((date) => date.getTime())));
+      return {
+        rows: [
+          {
+            user_profile: {
+              id: this.user.id,
+              firstName: this.user.first_name,
+              lastName: this.user.last_name,
+              email: this.user.email,
+              phone: this.user.phone,
+              preferredLanguage: this.user.preferred_language,
+              timezone: this.user.timezone,
+              updatedAt: this.user.updated_at.toISOString(),
+            },
+            company_profile: {
+              id: this.company.id,
+              legalName: this.company.legal_name,
+              tradeName: this.company.trade_name,
+              accountRole: this.company.account_role,
+              countryCode: this.company.country_code,
+              website: this.company.website,
+              yearFounded: this.company.year_founded,
+              contactEmail: this.company.contact_email,
+              contactPhone: this.company.contact_phone,
+              messengerHandle: this.company.messenger_handle,
+              description: this.company.description,
+              productFocus: this.company.product_focus,
+              certificates: this.company.certificates,
+              paymentTerms: this.company.payment_terms,
+              publicationStatus: this.company.publication_status,
+              buyerQualificationStatus: this.company.buyer_qualification_status,
+              media: {
+                logoObjectKey: this.company.logo_object_key,
+                coverObjectKey: this.company.cover_object_key,
+                logoAlt: this.company.logo_alt,
+                coverAlt: this.company.cover_alt,
+                logoFit: this.company.logo_fit,
+                coverFocalX: Number(this.company.cover_focal_x),
+                coverFocalY: Number(this.company.cover_focal_y),
+              },
+              updatedAt: this.company.updated_at.toISOString(),
+            },
+            branches: this.branches.map((branch) => ({
+              id: branch.id,
+              name: branch.name,
+              type: branch.type,
+              country: branch.country,
+              region: branch.region,
+              city: branch.city,
+              addressLine: branch.address_line,
+              defaultIncoterms: branch.default_incoterms,
+              portOrPickupPoint: branch.port_or_pickup_point,
+              notes: branch.notes,
+            })),
+            products: this.products.map((product) => ({
+              id: product.id,
+              commercialName: product.commercial_name,
+              latinName: product.latin_name,
+              category: product.category,
+              state: product.state,
+              format: product.format,
+              role: product.role,
+              monthlyVolume: product.monthly_volume,
+              certificates: product.certificates,
+              targetCountries: product.target_countries,
+            })),
+            meta_regions: this.metaRegions.map((metaRegion) => ({
+              id: metaRegion.id,
+              name: metaRegion.name,
+              countries: metaRegion.countries,
+              logisticsReason: metaRegion.logistics_reason,
+              defaultCurrency: metaRegion.default_currency,
+              notes: metaRegion.notes,
+              usedFor: metaRegion.used_for,
+            })),
+            notifications: this.notifications.map((notification) => ({
+              id: notification.id,
+              channel: notification.channel,
+              enabled: notification.enabled,
+              events: notification.events,
+              frequency: notification.frequency,
+            })),
+            account_version: accountVersion,
+          } as unknown as Row,
+        ],
+      };
+    }
+
     if (normalized.startsWith("with account_company as")) {
       const allVersions = [
         this.user.updated_at,
@@ -678,6 +776,22 @@ describe("account repositories", () => {
     expect(afterBranchDelete).not.toBe(afterUserUpdate);
   });
 
+  it("memory repository returns one account workspace snapshot", async () => {
+    const repository = new MemoryAccountRepository();
+
+    const snapshot = await repository.getWorkspaceSnapshot(demoUserId);
+
+    expect(snapshot).toMatchObject({
+      user: { id: demoUserId, email: "buyer@example.com" },
+      company: { id: demoCompanyId, tradeName: "Demo Seafood" },
+      branches: expect.any(Array),
+      products: expect.any(Array),
+      metaRegions: expect.any(Array),
+      notifications: expect.any(Array),
+      accountVersion: expect.any(String),
+    });
+  });
+
   it("factory selects memory repository by default", () => {
     const config = loadApiConfig({ NODE_ENV: "test" }, { allowLocalDefaults: true });
     const repository = createAccountRepository(config);
@@ -756,6 +870,30 @@ describe("account repositories", () => {
     expect(before).toBe("2026-05-13T08:00:00.000Z");
     expect(afterUserUpdate).toBe("2026-05-13T09:00:00.000Z");
     expect(client.calls.some((call) => call.sql.includes("with account_company as"))).toBe(true);
+  });
+
+  it("postgres repository returns the account workspace snapshot in one query", async () => {
+    const { client, repository } = createPostgresRepository();
+
+    const snapshot = await repository.getWorkspaceSnapshot(demoUserId);
+
+    expect(snapshot).toMatchObject({
+      user: {
+        id: demoUserId,
+        email: "buyer@example.com",
+      },
+      company: {
+        id: demoCompanyId,
+        tradeName: "Demo Seafood",
+      },
+      branches: [expect.objectContaining({ id: "br_1", defaultIncoterms: "EXW" })],
+      products: [expect.objectContaining({ id: "p_1", commercialName: "Atlantic Cod H&G" })],
+      metaRegions: [expect.objectContaining({ id: "mr_1", logisticsReason: "same_sales_market" })],
+      notifications: [expect.objectContaining({ id: "n_email", channel: "email" })],
+      accountVersion: "2026-05-13T08:00:00.000Z",
+    });
+    expect(client.calls).toHaveLength(1);
+    expect(client.calls[0]?.sql).toContain("user_profile");
   });
 
   it("postgres repository maps company and media rows to the account contract", async () => {

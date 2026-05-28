@@ -4458,6 +4458,87 @@ Marker: account workspace replace transaction boundary.
 Marker: account source of truth.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 1I Account Workspace Aggregate Read
+
+Phase 1I reduces self-hosted account hydration fanout by adding
+`GET /v1/account/workspace`. API-enabled `/account/*` now loads user, company,
+branches, products, meta-regions, notifications and `accountVersion` through
+one authenticated snapshot endpoint instead of six parallel account section
+requests.
+
+Expected read/write profile:
+
+- No public traffic is added.
+- Account entry performs one self-hosted read request instead of six account
+  section reads.
+- PostgreSQL production repository returns the snapshot through one user-scoped
+  query with JSON aggregation and account-version calculation.
+- Normal writes remain Phase 1B section-scoped or row-level mutations.
+
+Cache, queue and backpressure strategy:
+
+- No queue, polling, subscription or retry loop is introduced.
+- Existing auth/session cache remains the account authority boundary.
+- Existing request-size/schema validation and bounded account collection
+  contracts remain the backpressure boundary.
+- The change reduces browser and API route fanout under account-entry load.
+
+Database indexing and pagination strategy:
+
+- No schema migration or new index is introduced.
+- Snapshot reads stay scoped by one authenticated user id and one owned company.
+- Existing indexes remain the bounded paths:
+  `yorso_users.id`, `yorso_companies.owner_user_id`,
+  `idx_yorso_company_branches_company_id`,
+  `idx_yorso_company_products_company_id`,
+  `idx_yorso_company_meta_regions_company_id` and
+  `idx_yorso_notification_preferences_user_id`.
+- If account products/branches grow beyond bounded account-management lists,
+  add server pagination rather than returning unbounded arrays from the
+  workspace snapshot.
+
+Failure mode and graceful degradation:
+
+- Missing/invalid sessions still fail closed through the existing account
+  session errors.
+- Missing user/company state returns an account resource error.
+- Frontend account pages keep the existing backend-unavailable state on
+  hydration failure.
+- API-disabled Lovable/local prototype mode remains unchanged.
+
+Observability and load-test plan:
+
+- Track `/v1/account/workspace` p95/p99 latency, status code distribution,
+  response size and account collection row counts.
+- Compare account-entry load against the previous six-request hydration shape.
+- Load-test 10,000 concurrent users with account entry, invalid sessions,
+  row-level account edits and contract-bounded large workspace collections.
+
+Validation:
+
+- `npm run contracts:build`.
+- `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`;
+- 3 files passed;
+- 52 tests passed.
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`;
+- 2 files passed;
+- 83 tests passed.
+- `npx tsc -b --noEmit`.
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `git diff --check`;
+- `npm run api:build`;
+- `npm run build`.
+
+Production build metric:
+
+- Account route chunk `Account-CK-9-38I.js` 112.88 kB / 25.69 kB gzip.
+
+Marker: Backend Phase 1I.
+Marker: account workspace aggregate read.
+Marker: account source of truth.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

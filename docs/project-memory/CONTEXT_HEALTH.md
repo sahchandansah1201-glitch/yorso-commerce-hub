@@ -1,21 +1,21 @@
 # Context Health
 
-Updated: 2026-05-28
+Updated: 2026-05-29
 
 ## Current Status
 
 ```yaml
 context_risk: "low"
-last_checkpoint: "2026-05-28"
+last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "phase_1h_account_workspace_replace_transaction_boundary_checkpoint"
+head_commit: "phase_1i_account_workspace_aggregate_read_in_progress"
 latest_merged_batch: 141
-active_workstream: "backend_phase_1h_account_workspace_replace_transaction_boundary"
+active_workstream: "backend_phase_1i_account_workspace_aggregate_read"
 pull_request: null
-recommended_action: "choose the next backend implementation from the plan"
-why_low: "Backend Phase 0 closure audit and remediation are recorded in docs/backend/phase-0-closure-audit.md. Phase 1 discovery/audit is recorded in docs/backend/phase-1-account-source-of-truth-discovery-audit.md. Phase 1A implementation is recorded in docs/backend/phase-1-account-session-authority-gate.md. Phase 1B implementation is recorded in docs/backend/phase-1-account-section-scoped-mutations.md. Phase 1C implementation is recorded in docs/backend/phase-1-account-conflict-version-handling.md. Phase 1D implementation is recorded in docs/backend/phase-1-account-strict-precondition-policy.md. Phase 1E implementation is recorded in docs/backend/phase-1-account-media-document-version-boundary.md. Phase 1F implementation is recorded in docs/backend/phase-1-account-storage-client-authority-boundary.md. Phase 1G implementation is recorded in docs/backend/phase-1-account-storage-transaction-boundary.md. Phase 1H implementation is recorded in docs/backend/phase-1-account-workspace-replace-transaction-boundary.md. Phase 1H full release validation is green."
+recommended_action: "commit the Phase 1I checkpoint"
+why_low: "Backend Phase 0 closure audit and remediation are recorded in docs/backend/phase-0-closure-audit.md. Phase 1 discovery/audit is recorded in docs/backend/phase-1-account-source-of-truth-discovery-audit.md. Phase 1A-1H are documented and validated. Phase 1I implementation is recorded in docs/backend/phase-1-account-workspace-aggregate-read.md; targeted and full release validation passed."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_1h_account_workspace_replace_transaction_boundary.
-Current HEAD baseline: Phase 1H checkpoint after Backend Phase 1G commit; Batch #141 merge commit 5eafcb7 is preserved.
+Current workstream: backend_phase_1i_account_workspace_aggregate_read.
+Current HEAD baseline: Phase 1I in-progress checkpoint after Backend Phase 1H commit; Batch #141 merge commit 5eafcb7 is preserved.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,7 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: choose the next backend implementation from the plan.
+Current recommended action: commit the Phase 1I checkpoint.
 Phase 1 audit finding: backend auth/account authority exists, but /account/* remains local-first through localStorage/mock profile hydration and browser sessionStorage gating.
 Phase 1A implemented locally: API-enabled /account/* validates /v1/auth/session before rendering editable account data, hydrates account state from the self-hosted API as authority, clears invalid/missing buyer sessions and redirects to /signin, exposes backend-unavailable and save-failed states, and keeps localStorage/mock fallback only for API-disabled local preview.
 Phase 1A targeted validation passed: npx vitest run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-api.test.ts src/lib/auth-runtime.test.ts, 4 files passed, 51 tests passed.
@@ -100,6 +100,11 @@ Phase 1H implementation doc: docs/backend/phase-1-account-workspace-replace-tran
 Phase 1H targeted validation passed: npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts, 1 file passed, 17 tests passed; npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts, 3 files passed, 86 tests passed; npx tsc -b --noEmit.
 Phase 1H full release validation passed: npm run lint; npm run check:production-scale-baseline; git diff --check; npm run api:build; npm run build.
 Phase 1H production build metric: Account-BesZRqle.js 112.88 kB / 25.69 kB gzip.
+Phase 1I implemented locally: GET /v1/account/workspace returns an authenticated self-hosted account workspace snapshot; PostgresAccountRepository returns that snapshot through one scoped SQL query; frontend account hydration uses /v1/account/workspace instead of six account section requests.
+Phase 1I implementation doc: docs/backend/phase-1-account-workspace-aggregate-read.md.
+Phase 1I targeted validation passed: npm run contracts:build; npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx, 3 files passed, 52 tests passed; npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts, 2 files passed, 83 tests passed; npx tsc -b --noEmit.
+Phase 1I full release validation passed: npm run lint; npm run check:production-scale-baseline; git diff --check; npm run api:build; npm run build.
+Phase 1I production build metric: Account-CK-9-38I.js 112.88 kB / 25.69 kB gzip.
 Current Batch #141 scope: localize shared catalog sheet close controls for RU/ES without changing visible catalog drawer layout, compare behavior, route structure, public SEO, access gating, supplier identity redaction or exact-price locks.
 Current Batch #141 finding: shared SheetContent hardcoded the default close accessible name as Close; public catalog drawer usages in CompareTray and IntelligenceRail did not pass a localized close label.
 Current Batch #141 implementation: SheetContent accepts optional closeLabel while preserving the English fallback; CompareTray and IntelligenceRail pass t.aria_close; SheetCloseLocale.test.tsx guards RU/ES CompareTray and IntelligenceRail close labels; public-sheet-close-locale-a11y e2e opens the real /offers comparison drawer in RU/ES.

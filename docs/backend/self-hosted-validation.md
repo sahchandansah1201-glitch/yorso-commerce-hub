@@ -231,6 +231,8 @@ It verifies:
 - `apps/api/src/index.ts` starts a standalone HTTP server;
 - `/health/live` and `/health/ready` exist;
 - `/v1/account/company/schema` exposes the account/company contract boundary;
+- `GET /v1/account/workspace` returns the authenticated account workspace
+  snapshot used by API-enabled `/account/*` hydration;
 - `apps/api/Dockerfile` builds and starts `apps/api/dist/index.js`;
 - `infra/docker-compose.yml` wires the API service to PgBouncer, Redis and
   MinIO;

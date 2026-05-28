@@ -1,5 +1,6 @@
 import {
   accountBranchesSchema,
+  accountWorkspaceSnapshotSchema,
   accountWorkspaceItemIdSchema,
   accountMetaRegionsSchema,
   accountNotificationsSchema,
@@ -40,6 +41,12 @@ export class AccountService {
 
     const current = await this.repository.getAccountVersion(userId);
     if (current !== expected) throw new Error("account_snapshot_conflict");
+  }
+
+  async getWorkspaceSnapshot(userId: string) {
+    const snapshot = await this.repository.getWorkspaceSnapshot(userId);
+    if (!snapshot) throw new Error("account_workspace_not_found");
+    return accountWorkspaceSnapshotSchema.parse(snapshot);
   }
 
   async getCurrentUserProfile(userId: string) {

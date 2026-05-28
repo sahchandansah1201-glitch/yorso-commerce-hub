@@ -16,9 +16,8 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 1H account workspace replace transaction boundary is implemented
-locally with full release validation green. Next step: choose the next backend
-implementation from the plan.
+Backend Phase 1I account workspace aggregate read is implemented locally with
+full release validation green. Next step: commit the checkpoint.
 
 ## Current Status
 
@@ -38,8 +37,35 @@ implementation from the plan.
   with full release validation green.
 - Phase 1G Account Storage Transaction Boundary is implemented locally with
   full release validation green.
-- Phase 1H Account Workspace Replace Transaction Boundary is implemented
-  locally with full release validation green.
+- Phase 1H Account Workspace Replace Transaction Boundary is committed with
+  full release validation green.
+- Phase 1I Account Workspace Aggregate Read is implemented locally with full
+  release validation green.
+- Phase 1I implementation document:
+  `docs/backend/phase-1-account-workspace-aggregate-read.md`.
+- Phase 1I implementation:
+  - `GET /v1/account/workspace` returns an authenticated self-hosted snapshot
+    with user, company, branches, products, metaRegions, notifications,
+    accountVersion and requestId;
+  - `PostgresAccountRepository.getWorkspaceSnapshot` returns the snapshot
+    through one scoped SQL query with JSON aggregation and account-version
+    calculation;
+  - `MemoryAccountRepository.getWorkspaceSnapshot` mirrors the same shape for
+    local/test runtime;
+  - `createAccountApiClient().load()` now hydrates from
+    `/v1/account/workspace` instead of six parallel account section requests.
+- Phase 1I targeted validation passed:
+  `npm run contracts:build`;
+  `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`
+  with 3 files passed and 52 tests passed;
+  `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/server.test.ts`
+  with 2 files passed and 83 tests passed;
+  `npx tsc -b --noEmit`.
+- Phase 1I full release validation passed:
+  `npm run lint`, `npm run check:production-scale-baseline`,
+  `git diff --check`, `npm run api:build`, `npm run build`.
+- Phase 1I production build metric:
+  Account route chunk `Account-CK-9-38I.js` 112.88 kB / 25.69 kB gzip.
 - Phase 1H implementation document:
   `docs/backend/phase-1-account-workspace-replace-transaction-boundary.md`.
 - Phase 1H implementation:

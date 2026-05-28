@@ -18,6 +18,7 @@ compiled, started and wired into Docker Compose.
 | `GET /v1/auth/session` | Reads the current self-hosted API session from `x-yorso-session-id`. |
 | `POST /v1/auth/sign-out` | Revokes the current self-hosted API session. |
 | `GET /v1/account/company/schema` | Exposes the account/company DTO boundary used by frontend work. |
+| `GET /v1/account/workspace` | Returns the authenticated account workspace snapshot: user, company, branches, products, meta-regions, notifications and `accountVersion`. |
 | `GET /v1/account/me` | Returns the current user profile through the account service. |
 | `PATCH /v1/account/me` | Validates and updates editable user profile fields through the contract schema. |
 | `GET /v1/account/company` | Returns the current company profile through the account service. |
@@ -113,6 +114,16 @@ Batch #26 expands the same bridge to the remaining account workspace sections:
   only user/company records.
 - Collection updates are replace-style for now because the current frontend
   edits complete account-profile sections. Row-level CRUD can be added later
+
+Backend Phase 1I updates the account read bridge:
+
+- `GET /v1/account/workspace` is the preferred self-hosted hydration endpoint
+  for API-enabled `/account/*`.
+- `PostgresAccountRepository.getWorkspaceSnapshot` reads the account snapshot
+  through one owner-scoped SQL query instead of six browser-initiated section
+  reads.
+- Existing section endpoints remain available for section reads, row-level
+  writes and backwards compatibility.
   without changing the page-level adapter contract.
 
 Batch #27 adds the first self-hosted file boundary:

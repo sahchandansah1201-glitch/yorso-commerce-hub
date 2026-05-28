@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-05-28"
+updated_at: "2026-05-29"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -10,10 +10,10 @@ source_policy:
 
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-05-28"
+  git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "phase_1h_account_workspace_replace_transaction_boundary_checkpoint"
-  head_summary: "Backend Phase 1H Account Workspace Replace Transaction Boundary implemented locally with full release validation passed."
+  head_commit: "phase_1i_account_workspace_aggregate_read_in_progress"
+  head_summary: "Backend Phase 1I Account Workspace Aggregate Read implemented locally with full release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
     - "No expected dirty worktree after the Phase 1F checkpoint commit."
@@ -37,12 +37,20 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1h_account_workspace_replace_transaction_boundary"
-  summary: "Bulk account workspace collection replacement endpoints now use one atomic PostgreSQL CTE statement per collection."
+  id: "backend_phase_1i_account_workspace_aggregate_read"
+  summary: "API-enabled account hydration now uses one authenticated self-hosted workspace snapshot endpoint instead of six section reads."
   status: "implemented_locally_full_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 1I implementation is recorded in docs/backend/phase-1-account-workspace-aggregate-read.md."
+    - "Backend exposes GET /v1/account/workspace through the existing account session authority and returns user, company, branches, products, metaRegions, notifications, accountVersion and requestId."
+    - "PostgresAccountRepository.getWorkspaceSnapshot returns the account workspace via one scoped SQL query with JSON aggregation and account-version calculation."
+    - "MemoryAccountRepository.getWorkspaceSnapshot provides the same snapshot shape for local/test runtime."
+    - "src/lib/account-api.ts createAccountApiClient().load() now calls only /v1/account/workspace in self-hosted mode and remembers the accountVersion from that response."
+    - "Phase 1I targeted validation passed: npm run contracts:build; frontend account API/account tests, 3 files, 52 tests; API repository/server tests, 2 files, 83 tests; npx tsc -b --noEmit."
+    - "Phase 1I full release validation passed: npm run lint; npm run check:production-scale-baseline; git diff --check; npm run api:build; npm run build."
+    - "Phase 1I production build Account route chunk: Account-CK-9-38I.js 112.88 kB / 25.69 kB gzip."
     - "Phase 1H implementation is recorded in docs/backend/phase-1-account-workspace-replace-transaction-boundary.md."
     - "PostgresAccountRepository replaceBranches, replaceProducts, replaceMetaRegions and replaceNotifications now use one CTE statement with input/deleted/touched/insert returning."
     - "Bulk replacement rows are returned from the write statement instead of delete plus per-row insert plus reread."
@@ -129,6 +137,7 @@ active_workstream:
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "Next planned workstream after Phase 1D checkpoint: choose the next account hardening item from the backend implementation plan, likely media/document version boundary or another Phase 1 account production-hardening item."
   confirmed_files:
+    - "docs/backend/phase-1-account-workspace-aggregate-read.md"
     - "docs/backend/phase-1-account-media-document-version-boundary.md"
     - "docs/backend/phase-1-account-strict-precondition-policy.md"
     - "docs/backend/phase-1-account-conflict-version-handling.md"

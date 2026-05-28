@@ -63,6 +63,55 @@ const accountApiBody = (url: string) => {
       },
     };
   }
+  if (url.endsWith("/v1/account/workspace")) {
+    return {
+      ok: true,
+      accountVersion: "account-v1",
+      requestId: "req-account-workspace",
+      user: {
+        id: "user-api-1",
+        firstName: "Remote",
+        lastName: "Buyer",
+        email: "remote@example.com",
+        phone: "+34 611 000 000",
+        preferredLanguage: "en",
+        timezone: "Europe/Madrid",
+        updatedAt: "2026-05-28T00:00:00.000Z",
+      },
+      company: {
+        id: "company-api-1",
+        legalName: "Remote Seafood Trading S.L.",
+        tradeName: "Remote Seafood",
+        accountRole: "buyer",
+        countryCode: "ES",
+        website: "https://remote.example.com",
+        yearFounded: 2020,
+        contactEmail: "trade@remote.example.com",
+        contactPhone: "+34 910 111 222",
+        messengerHandle: "+34 611 111 222",
+        description: "Remote backend company profile for account authority tests.",
+        productFocus: ["Salmon"],
+        certificates: ["MSC"],
+        paymentTerms: ["LC at sight"],
+        publicationStatus: "draft",
+        buyerQualificationStatus: "pending",
+        media: {
+          logoObjectKey: null,
+          coverObjectKey: null,
+          logoAlt: null,
+          coverAlt: null,
+          logoFit: "contain",
+          coverFocalX: 0.5,
+          coverFocalY: 0.5,
+        },
+        updatedAt: "2026-05-28T00:00:00.000Z",
+      },
+      branches: [],
+      products: [],
+      metaRegions: [],
+      notifications: [],
+    };
+  }
   if (url.endsWith("/v1/account/me")) {
     return {
       ok: true,
@@ -136,7 +185,7 @@ const mockAccountFetch = (overrides?: {
 }) =>
   vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
     const url = String(input);
-    if (overrides?.failAccountMe && url.endsWith("/v1/account/me")) {
+    if (overrides?.failAccountMe && (url.endsWith("/v1/account/me") || url.endsWith("/v1/account/workspace"))) {
       return okJson({ error: { code: "account_unavailable" }, ok: false }, 503);
     }
     const body = accountApiBody(url);
@@ -261,16 +310,16 @@ describe("Account workspace", () => {
 
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(
-        "https://api.yorso.test/v1/account/me",
+        "https://api.yorso.test/v1/account/workspace",
         expect.objectContaining({
           headers: expect.any(Headers),
         }),
       ),
     );
-    const accountMeCall = fetchMock.mock.calls.find(([input]) =>
-      String(input).endsWith("/v1/account/me"),
+    const accountWorkspaceCall = fetchMock.mock.calls.find(([input]) =>
+      String(input).endsWith("/v1/account/workspace"),
     );
-    const accountHeaders = accountMeCall?.[1]?.headers as Headers | undefined;
+    const accountHeaders = accountWorkspaceCall?.[1]?.headers as Headers | undefined;
     expect(accountHeaders?.get("x-yorso-session-id")).toBe("session-api-1");
     expect(accountHeaders?.get("x-yorso-user-id")).toBe("user-api-1");
   });

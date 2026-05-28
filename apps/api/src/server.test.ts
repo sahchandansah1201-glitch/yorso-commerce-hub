@@ -1866,6 +1866,30 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("returns the account workspace snapshot through one authenticated endpoint", async () => {
+    const response = await request("/v1/account/workspace");
+    const body = (await response.json()) as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      ok: true,
+      user: {
+        email: "buyer@example.com",
+        preferredLanguage: "en",
+      },
+      company: {
+        tradeName: "Demo Seafood",
+        accountRole: "both",
+      },
+      branches: expect.any(Array),
+      products: expect.any(Array),
+      metaRegions: expect.any(Array),
+      notifications: expect.any(Array),
+      accountVersion: expect.any(String),
+      requestId: expect.any(String),
+    });
+  });
+
   it("updates the current account user profile", async () => {
     const response = await request("/v1/account/me", {
       method: "PATCH",

@@ -6,6 +6,7 @@ import type {
   AccountMetaRegionsUpdate,
   AccountNotificationsUpdate,
   AccountProductsUpdate,
+  AccountWorkspaceSnapshot,
   BranchType,
   BuyerQualificationStatus,
   CompanyBranch,
@@ -134,6 +135,16 @@ interface AccountVersionRow extends Record<string, unknown> {
   account_version: Date | string;
 }
 
+interface AccountWorkspaceSnapshotRow extends Record<string, unknown> {
+  user_profile: unknown;
+  company_profile: unknown;
+  branches: unknown;
+  products: unknown;
+  meta_regions: unknown;
+  notifications: unknown;
+  account_version: Date | string;
+}
+
 const companySelectSql = `
   select
     c.id,
@@ -172,6 +183,12 @@ const toNumber = (value: number | string | null | undefined, fallback: number) =
   if (value === null || value === undefined) return fallback;
   const parsed = typeof value === "number" ? value : Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const coerceJson = <T>(value: unknown, fallback: T): T => {
+  if (value === null || value === undefined) return fallback;
+  if (typeof value === "string") return JSON.parse(value) as T;
+  return value as T;
 };
 
 function mapUser(row: UserRow): UserProfile {
@@ -394,6 +411,191 @@ export class PostgresAccountRepository implements AccountRepository {
   async touchAccountVersion(userId: string): Promise<void> {
     const companyId = await this.getCompanyIdForUser(userId);
     await this.touchCompany(companyId);
+  }
+
+  async getWorkspaceSnapshot(userId: string): Promise<AccountWorkspaceSnapshot | null> {
+    const result = await this.client.query<AccountWorkspaceSnapshotRow>(
+      `
+        with account_company as (
+          select
+            c.id,
+            c.legal_name,
+            c.trade_name,
+            c.account_role,
+            c.country_code,
+            c.website,
+            c.year_founded,
+            c.contact_email,
+            c.contact_phone,
+            c.messenger_handle,
+            c.description,
+            c.product_focus,
+            c.certificates,
+            c.payment_terms,
+            c.publication_status,
+            c.buyer_qualification_status,
+            c.updated_at,
+            m.logo_object_key,
+            m.cover_object_key,
+            m.logo_alt,
+            m.cover_alt,
+            m.logo_fit,
+            m.cover_focal_x,
+            m.cover_focal_y
+          from yorso_companies c
+          left join yorso_company_media m on m.company_id = c.id
+          where c.owner_user_id = $1
+          limit 1
+        ),
+        versions as (
+          select updated_at from yorso_users where id = $1
+          union all
+          select updated_at from yorso_companies where owner_user_id = $1
+          union all
+          select m.updated_at
+          from yorso_company_media m
+          join account_company c on c.id = m.company_id
+          union all
+          select a.created_at
+          from yorso_file_assets a
+          join account_company c on c.id = a.company_id
+          union all
+          select d.updated_at
+          from yorso_company_documents d
+          join account_company c on c.id = d.company_id
+          union all
+          select b.updated_at
+          from yorso_company_branches b
+          join account_company c on c.id = b.company_id
+          union all
+          select p.updated_at
+          from yorso_company_products p
+          join account_company c on c.id = p.company_id
+          union all
+          select r.updated_at
+          from yorso_company_meta_regions r
+          join account_company c on c.id = r.company_id
+          union all
+          select n.updated_at
+          from yorso_notification_preferences n
+          where n.user_id = $1
+        )
+        select
+          jsonb_build_object(
+            'id', u.id,
+            'firstName', u.first_name,
+            'lastName', u.last_name,
+            'email', u.email,
+            'phone', u.phone,
+            'preferredLanguage', u.preferred_language,
+            'timezone', u.timezone,
+            'updatedAt', u.updated_at
+          ) as user_profile,
+          case when c.id is null then null else jsonb_build_object(
+            'id', c.id,
+            'legalName', c.legal_name,
+            'tradeName', c.trade_name,
+            'accountRole', c.account_role,
+            'countryCode', c.country_code,
+            'website', c.website,
+            'yearFounded', c.year_founded,
+            'contactEmail', c.contact_email,
+            'contactPhone', c.contact_phone,
+            'messengerHandle', c.messenger_handle,
+            'description', c.description,
+            'productFocus', coalesce(c.product_focus, array[]::text[]),
+            'certificates', coalesce(c.certificates, array[]::text[]),
+            'paymentTerms', coalesce(c.payment_terms, array[]::text[]),
+            'publicationStatus', c.publication_status,
+            'buyerQualificationStatus', c.buyer_qualification_status,
+            'media', jsonb_build_object(
+              'logoObjectKey', c.logo_object_key,
+              'coverObjectKey', c.cover_object_key,
+              'logoAlt', c.logo_alt,
+              'coverAlt', c.cover_alt,
+              'logoFit', coalesce(c.logo_fit, 'contain'::yorso_logo_fit),
+              'coverFocalX', coalesce(c.cover_focal_x, 0.5),
+              'coverFocalY', coalesce(c.cover_focal_y, 0.5)
+            ),
+            'updatedAt', c.updated_at
+          ) end as company_profile,
+          coalesce((
+            select jsonb_agg(jsonb_build_object(
+              'id', b.id,
+              'name', b.name,
+              'type', b.type,
+              'country', b.country,
+              'region', b.region,
+              'city', b.city,
+              'addressLine', b.address_line,
+              'defaultIncoterms', b.default_incoterms,
+              'portOrPickupPoint', b.port_or_pickup_point,
+              'notes', b.notes
+            ) order by b.position asc, b.name asc)
+            from yorso_company_branches b
+            join account_company bc on bc.id = b.company_id
+          ), '[]'::jsonb) as branches,
+          coalesce((
+            select jsonb_agg(jsonb_build_object(
+              'id', p.id,
+              'commercialName', p.commercial_name,
+              'latinName', p.latin_name,
+              'category', p.category,
+              'state', p.state,
+              'format', p.format,
+              'role', p.role,
+              'monthlyVolume', p.monthly_volume,
+              'certificates', coalesce(p.certificates, array[]::text[]),
+              'targetCountries', coalesce(p.target_countries, array[]::text[])
+            ) order by p.position asc, p.commercial_name asc)
+            from yorso_company_products p
+            join account_company pc on pc.id = p.company_id
+          ), '[]'::jsonb) as products,
+          coalesce((
+            select jsonb_agg(jsonb_build_object(
+              'id', r.id,
+              'name', r.name,
+              'countries', coalesce(r.countries, array[]::text[]),
+              'logisticsReason', r.logistics_reason,
+              'defaultCurrency', r.default_currency,
+              'notes', r.notes,
+              'usedFor', coalesce(r.used_for, array[]::yorso_meta_region_used_for[])
+            ) order by r.position asc, r.name asc)
+            from yorso_company_meta_regions r
+            join account_company rc on rc.id = r.company_id
+          ), '[]'::jsonb) as meta_regions,
+          coalesce((
+            select jsonb_agg(jsonb_build_object(
+              'id', n.id,
+              'channel', n.channel,
+              'enabled', n.enabled,
+              'events', coalesce(n.events, array[]::yorso_notification_event[]),
+              'frequency', n.frequency
+            ) order by n.position asc, n.channel asc)
+            from yorso_notification_preferences n
+            where n.user_id = $1
+          ), '[]'::jsonb) as notifications,
+          (select coalesce(max(updated_at), now()) from versions) as account_version
+        from yorso_users u
+        left join account_company c on true
+        where u.id = $1
+        limit 1
+      `,
+      [userId],
+    );
+
+    const row = result.rows[0];
+    if (!row || !row.user_profile || !row.company_profile) return null;
+
+    return {
+      user: coerceJson<UserProfile | null>(row.user_profile, null) as UserProfile,
+      company: coerceJson<CompanyProfile | null>(row.company_profile, null) as CompanyProfile,
+      branches: coerceJson<CompanyBranch[]>(row.branches, []),
+      products: coerceJson<CompanyProduct[]>(row.products, []),
+      metaRegions: coerceJson<MetaRegion[]>(row.meta_regions, []),
+      notifications: coerceJson<NotificationPreference[]>(row.notifications, []),
+      accountVersion: ensureIso(row.account_version),
+    };
   }
 
   async getUserProfile(userId: string): Promise<UserProfile | null> {
