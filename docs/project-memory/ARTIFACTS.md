@@ -117,6 +117,26 @@
 - `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
   `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Phase 1A checkpoint.
 
+## Backend Phase 1B Account Section-Scoped Mutations
+
+- `docs/backend/phase-1-account-section-scoped-mutations.md`: implementation
+  note, Russian plan/fact table and 10,000 concurrent-user baseline for
+  section-scoped account mutations.
+- `src/lib/account-api.ts`: section-scoped sync helper, personal/company
+  update helpers and row-level workspace collection diff sync for branches,
+  products, meta-regions and notifications.
+- `src/pages/account/Account.tsx`: account sections now pass section ownership
+  into API-mode saves; collection forms wait for backend success before
+  closing and show localized inline errors on remote failure.
+- `src/lib/account-api.test.ts`: endpoint-granularity coverage for personal,
+  company, branch, product, meta-region and notification section sync.
+- `src/pages/account/Account.editable.test.tsx`: API-mode UI coverage for
+  personal scoped save and branch row-level create.
+- `docs/backend/production-scale-baseline.md`: Backend Phase 1B capacity note.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`, `RISKS.md`: Phase 1B
+  checkpoint.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional

@@ -30,9 +30,13 @@
   Impact: Slow admin reads or broad exports could affect support operations and buyer conversion.
   Mitigation: Existing batches use bounded pagination, capped exports, role guards, smoke/e2e secret checks and production-scale guard markers. Future changes must keep the 10000 concurrent users baseline fields explicit.
 
-- Risk: Account workspace saves are broad local-first syncs.
-  Impact: One account edit can still issue multiple remote PATCH requests; backend collection replacement can partially fail without a transaction-safe workspace save boundary.
-  Mitigation: Phase 1A stopped silent local-success/backend-failure states in API-enabled mode. Phase 1B should make writes section-scoped and transaction-safe before production signoff.
+- Risk: Account API-mode saves still need explicit conflict/version handling.
+  Impact: A user can edit from a stale backend snapshot and overwrite a newer
+  backend value without a visible conflict path.
+  Mitigation: Phase 1A made backend session/profile authoritative before
+  render. Phase 1B narrows writes to the edited section/row and keeps UI state
+  remote-first. Phase 1C should add account snapshot versioning or updated-at
+  preconditions plus visible stale-save recovery.
 
 ## Resolved Risks
 
@@ -72,3 +76,11 @@
     rendering editable account data in API-enabled mode and clears
     `buyerSession` on `auth_session_required` / `auth_session_invalid` before
     redirecting to `/signin`.
+
+- Risk: Account workspace saves were broad full-profile remote syncs in
+  API-enabled mode.
+  Resolution: Backend Phase 1B replaces normal account edits with
+    section-scoped mutations. Personal and company saves use their own profile
+    endpoints; branch, product, meta-region and notification saves use existing
+    row-level endpoints; collection forms wait for backend success before
+    closing.

@@ -127,6 +127,25 @@ const accountApiBody = (url: string, init?: RequestInit) => {
   if (url.endsWith("/v1/account/branches")) {
     return { branches: [], ok: true, requestId: "req-account-branches" };
   }
+  if (url.includes("/v1/account/branches/")) {
+    const id = decodeURIComponent(url.split("/v1/account/branches/")[1] ?? "branch-api-1");
+    return {
+      branch: {
+        id,
+        name: String(patchBody.name ?? "Remote branch"),
+        type: patchBody.type ?? "warehouse",
+        country: String(patchBody.country ?? "Spain"),
+        region: String(patchBody.region ?? ""),
+        city: String(patchBody.city ?? "Barcelona"),
+        addressLine: String(patchBody.addressLine ?? "Remote address"),
+        defaultIncoterms: String(patchBody.defaultIncoterms ?? "EXW"),
+        portOrPickupPoint: String(patchBody.portOrPickupPoint ?? "Barcelona"),
+        notes: String(patchBody.notes ?? ""),
+      },
+      ok: true,
+      requestId: "req-account-branch-row",
+    };
+  }
   if (url.endsWith("/v1/account/products")) {
     return { ok: true, products: [], requestId: "req-account-products" };
   }
@@ -285,7 +304,65 @@ describe("Account editability", () => {
     const headers = userPatch?.[1]?.headers as Headers | undefined;
     expect(headers?.get("x-yorso-session-id")).toBe("session-api-1");
     expect(headers?.get("x-yorso-user-id")).toBe("user-api-1");
+    expect(
+      fetchMock.mock.calls
+        .filter(([, init]) => init?.method === "PATCH")
+        .map(([input]) => String(input).replace("https://api.yorso.test", "")),
+    ).toEqual(["/v1/account/me"]);
     expect(localStorage.getItem(ACCOUNT_STORAGE_KEY) ?? "").not.toContain("Alicia");
+  });
+
+  it("self-hosted account mode adds a branch through only the row-level branch endpoint", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
+    signInSelfHosted();
+    const fetchMock = mockAccountFetch();
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderAt("/account/branches");
+    await screen.findByTestId("account-section-branches");
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("account-branch-add"));
+    });
+    await act(async () => {
+      fireEvent.change(screen.getByTestId("account-branch-name"), {
+        target: { value: "Barcelona cold store" },
+      });
+      fireEvent.change(screen.getByTestId("account-branch-country"), {
+        target: { value: "Spain" },
+      });
+      fireEvent.change(screen.getByTestId("account-branch-city"), {
+        target: { value: "Barcelona" },
+      });
+      fireEvent.change(screen.getByTestId("account-branch-address"), {
+        target: { value: "Moll de Barcelona 1" },
+      });
+      fireEvent.change(screen.getByTestId("account-branch-incoterms"), {
+        target: { value: "dap" },
+      });
+      fireEvent.change(screen.getByTestId("account-branch-pickup"), {
+        target: { value: "Port of Barcelona" },
+      });
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("account-branch-save"));
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("account-branch-form")).not.toBeInTheDocument();
+      expect(screen.getAllByText("Barcelona cold store").length).toBeGreaterThan(0);
+    });
+    const writeCalls = fetchMock.mock.calls
+      .filter(([, init]) => ["POST", "PATCH", "DELETE"].includes(String(init?.method ?? "")))
+      .map(([input, init]) => [String(input).replace("https://api.yorso.test", ""), init?.method]);
+    expect(writeCalls).toHaveLength(1);
+    expect(writeCalls[0]?.[0]).toMatch(/^\/v1\/account\/branches\/branch_/);
+    expect(writeCalls[0]?.[1]).toBe("POST");
+    expect(
+      fetchMock.mock.calls
+        .filter(([, init]) => init?.method === "PATCH")
+        .map(([input]) => String(input).replace("https://api.yorso.test", "")),
+    ).toEqual([]);
   });
 });
 

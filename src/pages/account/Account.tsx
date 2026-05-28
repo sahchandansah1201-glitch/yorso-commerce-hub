@@ -30,7 +30,9 @@ import {
   createAccountApiClient,
   fileToAccountUploadPayload,
   hydrateAccountProfileFromApi,
+  syncAccountProfileSectionToApi,
   syncAccountProfileToApi,
+  type AccountProfileSectionSyncTarget,
 } from "@/lib/account-api";
 import {
   isAuthRuntimeError,
@@ -69,6 +71,7 @@ const VALID: AccountSectionKey[] = [
 ];
 
 interface AccountUpdateOptions {
+  section?: AccountProfileSectionSyncTarget;
   syncRemote?: boolean;
 }
 
@@ -1081,6 +1084,7 @@ const BranchesSection = ({
   const [typeFilter, setTypeFilter] = useState<CompanyBranch["type"] | "all">("all");
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const visibleBranches = useMemo(() => {
     const normalizedQuery = normalizeBranchValue(query);
@@ -1120,22 +1124,26 @@ const BranchesSection = ({
     setDraft(createEmptyBranch());
     setEditingId(null);
     setErrors({});
+    setSaveError(null);
   };
 
   const startEdit = (branch: CompanyBranch) => {
     setDraft({ ...branch });
     setEditingId(branch.id);
     setErrors({});
+    setSaveError(null);
   };
 
   const cancelEdit = () => {
     setDraft(null);
     setEditingId(null);
     setErrors({});
+    setSaveError(null);
   };
 
-  const saveDraft = () => {
+  const saveDraft = async () => {
     if (!draft) return;
+    setSaveError(null);
     const nextErrors = validateBranchDraft(draft, t);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
@@ -1162,19 +1170,38 @@ const BranchesSection = ({
     const nextBranches = editingId
       ? profile.branches.map((b) => (b.id === editingId ? normalized : b))
       : [...profile.branches, normalized];
-    onChange({ ...profile, branches: nextBranches });
-    setSelectedBranchId(normalized.id);
-    cancelEdit();
+    try {
+      await onChange({ ...profile, branches: nextBranches });
+      setSelectedBranchId(normalized.id);
+      cancelEdit();
+    } catch {
+      setSaveError(t.account_remoteSaveFailed);
+    }
   };
 
-  const deleteBranch = (branchId: string) => {
-    onChange({ ...profile, branches: profile.branches.filter((b) => b.id !== branchId) });
-    if (selectedBranchId === branchId) setSelectedBranchId(null);
-    if (editingId === branchId) cancelEdit();
+  const deleteBranch = async (branchId: string) => {
+    setSaveError(null);
+    try {
+      await onChange({ ...profile, branches: profile.branches.filter((b) => b.id !== branchId) });
+      if (selectedBranchId === branchId) setSelectedBranchId(null);
+      if (editingId === branchId) cancelEdit();
+    } catch {
+      setSaveError(t.account_remoteSaveFailed);
+    }
   };
 
   return (
     <div className="space-y-4" data-testid="account-section-branches">
+      {saveError ? (
+        <p
+          className="flex items-start gap-1 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+          role="alert"
+          data-testid="account-branch-save-error"
+        >
+          <AlertCircle className="mt-[1px] h-3 w-3 shrink-0" aria-hidden />
+          <span>{saveError}</span>
+        </p>
+      ) : null}
       <AccountSectionCard
         title={t.account_branches_title}
         description={t.account_branches_desc}
@@ -1354,7 +1381,7 @@ const BranchesSection = ({
             >
               {t.account_action_cancel}
             </Button>
-            <Button type="button" onClick={saveDraft} data-testid="account-branch-save">
+            <Button type="button" onClick={() => void saveDraft()} data-testid="account-branch-save">
               {t.account_action_save}
             </Button>
           </div>
@@ -1428,7 +1455,7 @@ const BranchesSection = ({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => deleteBranch(b.id)}
+                    onClick={() => void deleteBranch(b.id)}
                     aria-label={`${t.account_branch_delete}: ${b.name}`}
                     data-testid={`account-branch-delete-${b.id}`}
                   >
@@ -1696,6 +1723,7 @@ const ProductsSection = ({
   const [shareLinkValue, setShareLinkValue] = useState("");
   const [ignoredLinkParams, setIgnoredLinkParams] = useState(initialView.ignoredParams);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saveError, setSaveError] = useState<string | null>(null);
   const productViewMountedRef = useRef(false);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const shareLinkInputRef = useRef<HTMLInputElement>(null);
@@ -1876,6 +1904,7 @@ const ProductsSection = ({
     setDraft(createEmptyProduct());
     setEditingId(null);
     setErrors({});
+    setSaveError(null);
   };
 
   const startEdit = (product: CompanyProduct) => {
@@ -1886,16 +1915,19 @@ const ProductsSection = ({
     });
     setEditingId(product.id);
     setErrors({});
+    setSaveError(null);
   };
 
   const cancelEdit = () => {
     setDraft(null);
     setEditingId(null);
     setErrors({});
+    setSaveError(null);
   };
 
-  const saveDraft = () => {
+  const saveDraft = async () => {
     if (!draft) return;
+    setSaveError(null);
     const nextErrors = validateProductDraft(draft, t);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
@@ -1923,19 +1955,38 @@ const ProductsSection = ({
       ? profile.products.map((p) => (p.id === editingId ? normalized : p))
       : [...profile.products, normalized];
 
-    onChange({ ...profile, products: nextProducts });
-    setSelectedProductId(normalized.id);
-    cancelEdit();
+    try {
+      await onChange({ ...profile, products: nextProducts });
+      setSelectedProductId(normalized.id);
+      cancelEdit();
+    } catch {
+      setSaveError(t.account_remoteSaveFailed);
+    }
   };
 
-  const deleteProduct = (productId: string) => {
-    onChange({ ...profile, products: profile.products.filter((p) => p.id !== productId) });
-    if (selectedProductId === productId) setSelectedProductId(null);
-    if (editingId === productId) cancelEdit();
+  const deleteProduct = async (productId: string) => {
+    setSaveError(null);
+    try {
+      await onChange({ ...profile, products: profile.products.filter((p) => p.id !== productId) });
+      if (selectedProductId === productId) setSelectedProductId(null);
+      if (editingId === productId) cancelEdit();
+    } catch {
+      setSaveError(t.account_remoteSaveFailed);
+    }
   };
 
   return (
     <div className="space-y-4" data-testid="account-section-products">
+      {saveError ? (
+        <p
+          className="flex items-start gap-1 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+          role="alert"
+          data-testid="account-product-save-error"
+        >
+          <AlertCircle className="mt-[1px] h-3 w-3 shrink-0" aria-hidden />
+          <span>{saveError}</span>
+        </p>
+      ) : null}
       <AccountSectionCard
         title={t.account_products_title}
         description={t.account_products_desc}
@@ -2252,7 +2303,7 @@ const ProductsSection = ({
             >
               {t.account_action_cancel}
             </Button>
-            <Button type="button" onClick={saveDraft} data-testid="account-product-save">
+            <Button type="button" onClick={() => void saveDraft()} data-testid="account-product-save">
               {t.account_action_save}
             </Button>
           </div>
@@ -2357,7 +2408,7 @@ const ProductsSection = ({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => deleteProduct(p.id)}
+                        onClick={() => void deleteProduct(p.id)}
                         aria-label={`${t.account_product_delete}: ${p.commercialName}`}
                         data-testid={`account-product-delete-${p.id}`}
                       >
@@ -2525,11 +2576,13 @@ const MetaRegionsSection = ({
   const [draft, setDraft] = useState<MetaRegion | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const startAdd = () => {
     setDraft(createEmptyMetaRegion());
     setEditingId(null);
     setErrors({});
+    setSaveError(null);
   };
 
   const startEdit = (region: MetaRegion) => {
@@ -2540,12 +2593,14 @@ const MetaRegionsSection = ({
     });
     setEditingId(region.id);
     setErrors({});
+    setSaveError(null);
   };
 
   const cancelEdit = () => {
     setDraft(null);
     setEditingId(null);
     setErrors({});
+    setSaveError(null);
   };
 
   const toggleUse = (use: MetaRegion["usedFor"][number]) => {
@@ -2556,8 +2611,9 @@ const MetaRegionsSection = ({
     setDraft({ ...draft, usedFor });
   };
 
-  const saveDraft = () => {
+  const saveDraft = async () => {
     if (!draft) return;
+    setSaveError(null);
     const nextErrors = validateMetaRegionDraft(draft, t);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
@@ -2573,17 +2629,36 @@ const MetaRegionsSection = ({
     const nextRegions = editingId
       ? profile.metaRegions.map((m) => (m.id === editingId ? normalized : m))
       : [...profile.metaRegions, normalized];
-    onChange({ ...profile, metaRegions: nextRegions });
-    cancelEdit();
+    try {
+      await onChange({ ...profile, metaRegions: nextRegions });
+      cancelEdit();
+    } catch {
+      setSaveError(t.account_remoteSaveFailed);
+    }
   };
 
-  const deleteRegion = (regionId: string) => {
-    onChange({ ...profile, metaRegions: profile.metaRegions.filter((m) => m.id !== regionId) });
-    if (editingId === regionId) cancelEdit();
+  const deleteRegion = async (regionId: string) => {
+    setSaveError(null);
+    try {
+      await onChange({ ...profile, metaRegions: profile.metaRegions.filter((m) => m.id !== regionId) });
+      if (editingId === regionId) cancelEdit();
+    } catch {
+      setSaveError(t.account_remoteSaveFailed);
+    }
   };
 
   return (
     <div className="space-y-4" data-testid="account-section-meta-regions">
+      {saveError ? (
+        <p
+          className="flex items-start gap-1 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+          role="alert"
+          data-testid="account-meta-save-error"
+        >
+          <AlertCircle className="mt-[1px] h-3 w-3 shrink-0" aria-hidden />
+          <span>{saveError}</span>
+        </p>
+      ) : null}
       <AccountSectionCard
         title={t.account_metaRegions_title}
         description={t.account_metaRegions_desc}
@@ -2696,7 +2771,7 @@ const MetaRegionsSection = ({
             >
               {t.account_action_cancel}
             </Button>
-            <Button type="button" onClick={saveDraft} data-testid="account-meta-save">
+            <Button type="button" onClick={() => void saveDraft()} data-testid="account-meta-save">
               {t.account_action_save}
             </Button>
           </div>
@@ -2751,7 +2826,7 @@ const MetaRegionsSection = ({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => deleteRegion(m.id)}
+                    onClick={() => void deleteRegion(m.id)}
                     aria-label={`${t.account_metaRegion_delete}: ${m.name}`}
                     data-testid={`account-meta-delete-${m.id}`}
                   >
@@ -2821,17 +2896,20 @@ const NotificationsSection = ({
     null,
   );
   const [eventsError, setEventsError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const startEdit = (preference: NotificationPreference) => {
     setDraft({ ...preference, events: [...preference.events] });
     setEditingChannel(preference.channel);
     setEventsError(null);
+    setSaveError(null);
   };
 
   const cancelEdit = () => {
     setDraft(null);
     setEditingChannel(null);
     setEventsError(null);
+    setSaveError(null);
   };
 
   const toggleEvent = (event: NotificationPreference["events"][number]) => {
@@ -2843,8 +2921,9 @@ const NotificationsSection = ({
     if (events.length) setEventsError(null);
   };
 
-  const saveDraft = () => {
+  const saveDraft = async () => {
     if (!draft || !editingChannel) return;
+    setSaveError(null);
     if (draft.enabled && draft.events.length === 0) {
       setEventsError(t.account_notif_validation_eventsRequired);
       return;
@@ -2857,12 +2936,26 @@ const NotificationsSection = ({
           }
         : n,
     );
-    onChange({ ...profile, notifications: nextNotifications });
-    cancelEdit();
+    try {
+      await onChange({ ...profile, notifications: nextNotifications });
+      cancelEdit();
+    } catch {
+      setSaveError(t.account_remoteSaveFailed);
+    }
   };
 
   return (
     <div className="space-y-4" data-testid="account-section-notifications">
+      {saveError ? (
+        <p
+          className="flex items-start gap-1 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+          role="alert"
+          data-testid="account-notif-save-error"
+        >
+          <AlertCircle className="mt-[1px] h-3 w-3 shrink-0" aria-hidden />
+          <span>{saveError}</span>
+        </p>
+      ) : null}
       <AccountSectionCard
         title={t.account_notifications_title}
         description={t.account_notifications_desc}
@@ -3001,7 +3094,7 @@ const NotificationsSection = ({
             >
               {t.account_action_cancel}
             </Button>
-            <Button type="button" onClick={saveDraft} data-testid="account-notif-save">
+            <Button type="button" onClick={() => void saveDraft()} data-testid="account-notif-save">
               {t.account_action_save}
             </Button>
           </div>
@@ -3173,8 +3266,13 @@ const Account = () => {
         return;
       }
 
-      if (!authSession) throw new Error(t.account_remoteSaveFailed);
-      const remoteProfile = await syncAccountProfileToApi(next, accountApiClient);
+      if (!authSession || !options.section) throw new Error(t.account_remoteSaveFailed);
+      const remoteProfile = await syncAccountProfileSectionToApi(
+        next,
+        profile,
+        options.section,
+        accountApiClient,
+      );
       if (!remoteProfile) throw new Error(t.account_remoteSaveFailed);
       if (syncVersion !== syncVersionRef.current) return;
       setProfile(remoteProfile);
@@ -3198,31 +3296,36 @@ const Account = () => {
     return <AccountStatusScreen kind="unavailable" onRetry={() => setBootRetry((value) => value + 1)} />;
   }
 
+  const updateSection =
+    (sectionKey: AccountProfileSectionSyncTarget) =>
+    (next: AccountProfile, options: AccountUpdateOptions = {}) =>
+      update(next, { ...options, section: sectionKey });
+
   let content: JSX.Element;
   switch (active) {
     case "personal":
-      content = <PersonalSection profile={profile} onChange={update} />;
+      content = <PersonalSection profile={profile} onChange={updateSection("personal")} />;
       break;
     case "company":
       content = (
         <CompanySection
           profile={profile}
-          onChange={update}
+          onChange={updateSection("company")}
           accountApiClient={accountApiClient}
         />
       );
       break;
     case "branches":
-      content = <BranchesSection profile={profile} onChange={update} />;
+      content = <BranchesSection profile={profile} onChange={updateSection("branches")} />;
       break;
     case "products":
-      content = <ProductsSection profile={profile} onChange={update} />;
+      content = <ProductsSection profile={profile} onChange={updateSection("products")} />;
       break;
     case "meta-regions":
-      content = <MetaRegionsSection profile={profile} onChange={update} />;
+      content = <MetaRegionsSection profile={profile} onChange={updateSection("meta-regions")} />;
       break;
     case "notifications":
-      content = <NotificationsSection profile={profile} onChange={update} />;
+      content = <NotificationsSection profile={profile} onChange={updateSection("notifications")} />;
       break;
   }
 

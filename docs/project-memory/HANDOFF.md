@@ -16,15 +16,49 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Finish validation and commit Backend Phase 1A: Account Session Authority Gate.
+Start Backend Phase 1C: account conflict/version handling after the Phase 1B
+checkpoint.
 
 ## Current Status
 
 - The repository is currently on `main`.
 - Backend Phase 0 closure audit and remediation are complete.
 - Phase 1 Account Source Of Truth discovery/audit is complete.
-- Phase 1A Account Session Authority Gate is implemented locally and targeted
-  account/auth/API validation is green.
+- Phase 1A Account Session Authority Gate is committed and validation is green.
+- Phase 1B Account Section-Scoped Mutations is implemented locally and full
+  local validation is green.
+- Phase 1B implementation document:
+  `docs/backend/phase-1-account-section-scoped-mutations.md`.
+- Phase 1B implementation:
+  - API-mode personal edits call only `PATCH /v1/account/me`;
+  - API-mode company edits call only `PATCH /v1/account/company`;
+  - API-mode branch/product/meta-region/notification edits use row-level
+    existing account endpoints instead of broad collection PATCH from normal
+    UI saves;
+  - branch, product, meta-region and notification forms wait for backend
+    success before closing and show `account_remoteSaveFailed` inline on
+    remote failure;
+  - API-disabled local preview keeps localStorage/mock fallback behavior.
+- Phase 1B changed files:
+  `src/lib/account-api.ts`,
+  `src/pages/account/Account.tsx`,
+  `src/lib/account-api.test.ts`,
+  `src/pages/account/Account.editable.test.tsx`,
+  `docs/backend/phase-1-account-section-scoped-mutations.md`,
+  `docs/backend/production-scale-baseline.md` and project-memory files.
+- Phase 1B validation passed:
+  `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/auth-runtime.test.ts`
+  with 4 files passed and 56 tests passed.
+- Phase 1B focused changed-file validation also passed:
+  `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`
+  with 2 files passed and 34 tests passed.
+- Additional Phase 1B validation passed:
+  `npx tsc -b --noEmit`, `npm run lint`,
+  `npm run check:production-scale-baseline`, `git diff --check` and
+  `npm run build`.
+- Phase 1B production build metric:
+  Account route chunk `Account-4Y7df4zk.js` 111.70 kB / 25.36 kB gzip.
+- Phase 1B is ready for the local checkpoint commit.
 - Phase 1A implementation document:
   `docs/backend/phase-1-account-session-authority-gate.md`.
 - Phase 1A implementation:
@@ -95,10 +129,11 @@ Finish validation and commit Backend Phase 1A: Account Session Authority Gate.
 - Route-to-data-source contract now covers current `src/App.tsx` public,
   info/legal, account, dashboard, admin, redirect, dev and `*` routes.
 - Current next action:
-  - finish full validation, then commit Backend Phase 1A Account Session
-    Authority Gate.
-- Next concrete implementation after Phase 1A:
-  - Backend Phase 1B section-scoped account mutations and transaction boundary.
+  - start Backend Phase 1C account conflict/version handling after the Phase 1B
+    checkpoint commit.
+- Next concrete implementation after Phase 1B:
+  - Backend Phase 1C account conflict/version handling for stale backend
+    snapshots and concurrent account edits.
 - Batch #141 is implemented, validated and merged.
 - Batch #141 commit:
   `5eafcb7`, `[codex] Batch #141 public sheet close locale a11y`.

@@ -448,6 +448,13 @@ type MetaRegionCreate = Omit<MetaRegion, "id">;
 type MetaRegionUpdate = Partial<MetaRegionCreate>;
 type NotificationCreate = Omit<NotificationPreference, "id">;
 type NotificationUpdate = Partial<NotificationCreate>;
+export type AccountProfileSectionSyncTarget =
+  | "personal"
+  | "company"
+  | "branches"
+  | "products"
+  | "meta-regions"
+  | "notifications";
 
 interface AccountApiClientOptions {
   baseUrl?: string;
@@ -477,6 +484,47 @@ const jsonHeaders = (headers?: HeadersInit) => {
 const readJson = async <T>(response: Response): Promise<T> => {
   if (!response.ok) throw new Error(`account_api_http_${response.status}`);
   return (await response.json()) as T;
+};
+
+const omitId = <T extends { id: string }>(item: T): Omit<T, "id"> => {
+  const { id, ...payload } = item;
+  void id;
+  return payload;
+};
+
+const isSameWorkspaceItem = <T>(left: T, right: T) =>
+  JSON.stringify(left) === JSON.stringify(right);
+
+const syncWorkspaceCollection = async <T extends { id: string }>({
+  create,
+  next,
+  previous,
+  remove,
+  update,
+}: {
+  create: (item: T) => Promise<T>;
+  next: T[];
+  previous: T[];
+  remove: (id: string) => Promise<T>;
+  update: (item: T) => Promise<T>;
+}) => {
+  const previousById = new Map(previous.map((item) => [item.id, item]));
+  const nextById = new Map(next.map((item) => [item.id, item]));
+
+  await Promise.all(
+    previous
+      .filter((item) => !nextById.has(item.id))
+      .map((item) => remove(item.id)),
+  );
+
+  return Promise.all(
+    next.map((item) => {
+      const previousItem = previousById.get(item.id);
+      if (!previousItem) return create(item);
+      if (isSameWorkspaceItem(previousItem, item)) return Promise.resolve(item);
+      return update(item);
+    }),
+  );
 };
 
 export function createAccountApiClient(options: AccountApiClientOptions = {}) {
@@ -574,6 +622,20 @@ export function createAccountApiClient(options: AccountApiClientOptions = {}) {
         metaRegions: metaRegionsResponse.metaRegions,
         notifications: notificationsResponse.notifications,
       });
+    },
+    async updateUserProfile(user: UserProfile): Promise<UserProfile> {
+      const response = await request<BackendUserResponse>("/v1/account/me", {
+        method: "PATCH",
+        body: JSON.stringify(mapFrontendUserUpdate(user)),
+      });
+      return mergeBackendUser(user, response.user);
+    },
+    async updateCompanyProfile(company: CompanyProfile): Promise<CompanyProfile> {
+      const response = await request<BackendCompanyResponse>("/v1/account/company", {
+        method: "PATCH",
+        body: JSON.stringify(mapFrontendCompanyUpdate(company)),
+      });
+      return mergeBackendCompany(company, response.company);
     },
     async uploadCompanyMedia(
       slot: "logo" | "cover",
@@ -749,6 +811,83 @@ export const syncAccountProfileToApi = async (
     const next = await client.save(profile);
     recordSyncState("synced");
     return next;
+  } catch (error) {
+    recordSyncState("failed", error instanceof Error ? error.message : "unknown_error");
+    return null;
+  }
+};
+
+export const syncAccountProfileSectionToApi = async (
+  profile: AccountProfile,
+  previousProfile: AccountProfile,
+  section: AccountProfileSectionSyncTarget,
+  client = createAccountApiClient(),
+): Promise<AccountProfile | null> => {
+  if (!client.enabled) {
+    recordSyncState("disabled");
+    return null;
+  }
+
+  try {
+    if (section === "personal") {
+      const user = await client.updateUserProfile(profile.user);
+      recordSyncState("synced");
+      return { ...profile, user };
+    }
+
+    if (section === "company") {
+      const company = await client.updateCompanyProfile(profile.company);
+      recordSyncState("synced");
+      return { ...profile, company };
+    }
+
+    if (section === "branches") {
+      const branches = await syncWorkspaceCollection<CompanyBranch>({
+        previous: previousProfile.branches,
+        next: profile.branches,
+        create: (branch) => client.createBranch(branch.id, omitId(branch) as BranchCreate),
+        update: (branch) => client.updateBranch(branch.id, omitId(branch) as BranchUpdate),
+        remove: (id) => client.deleteBranch(id),
+      });
+      recordSyncState("synced");
+      return { ...profile, branches };
+    }
+
+    if (section === "products") {
+      const products = await syncWorkspaceCollection<CompanyProduct>({
+        previous: previousProfile.products,
+        next: profile.products,
+        create: (product) => client.createProduct(product.id, omitId(product) as ProductCreate),
+        update: (product) => client.updateProduct(product.id, omitId(product) as ProductUpdate),
+        remove: (id) => client.deleteProduct(id),
+      });
+      recordSyncState("synced");
+      return { ...profile, products };
+    }
+
+    if (section === "meta-regions") {
+      const metaRegions = await syncWorkspaceCollection<MetaRegion>({
+        previous: previousProfile.metaRegions,
+        next: profile.metaRegions,
+        create: (metaRegion) => client.createMetaRegion(metaRegion.id, omitId(metaRegion) as MetaRegionCreate),
+        update: (metaRegion) => client.updateMetaRegion(metaRegion.id, omitId(metaRegion) as MetaRegionUpdate),
+        remove: (id) => client.deleteMetaRegion(id),
+      });
+      recordSyncState("synced");
+      return { ...profile, metaRegions };
+    }
+
+    const notifications = await syncWorkspaceCollection<NotificationPreference>({
+      previous: previousProfile.notifications,
+      next: profile.notifications,
+      create: (notification) =>
+        client.createNotification(notification.id, omitId(notification) as NotificationCreate),
+      update: (notification) =>
+        client.updateNotification(notification.id, omitId(notification) as NotificationUpdate),
+      remove: (id) => client.deleteNotification(id),
+    });
+    recordSyncState("synced");
+    return { ...profile, notifications };
   } catch (error) {
     recordSyncState("failed", error instanceof Error ? error.message : "unknown_error");
     return null;

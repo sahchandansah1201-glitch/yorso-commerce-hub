@@ -2,19 +2,16 @@
 
 ## Current Next Action
 
-1. Finish validation and commit Backend Phase 1A: Account Session Authority
-   Gate.
+1. Start Backend Phase 1C: account conflict/version handling.
 
-2. Phase 1A implemented locally:
-   - API-enabled `/account/*` validates `/v1/auth/session` before rendering
-     editable account sections;
-   - valid sessions hydrate account state from the self-hosted account API as
-     authority;
-   - `auth_session_required` / `auth_session_invalid` clears local buyer
-     session state and redirects to `/signin`;
-   - backend account load failures show an explicit unavailable state and keep
-     editable sections closed;
-   - API-enabled saves update UI only after `syncAccountProfileToApi` succeeds;
+2. Phase 1B implemented locally:
+   - API-enabled personal edits call only `PATCH /v1/account/me`;
+   - API-enabled company edits call only `PATCH /v1/account/company`;
+   - branch, product, meta-region and notification edits use existing
+     row-level account endpoints instead of broad collection PATCH from normal
+     UI saves;
+   - collection forms wait for backend success before closing and show
+     `account_remoteSaveFailed` inline on remote failure;
    - API-disabled local preview keeps the existing localStorage/mock fallback.
 
 3. Preserve current known contracts: Phase 0 route-to-data-source contract,
@@ -32,10 +29,44 @@
 5. If a production-facing frontend behavior changes, include the 10,000
    concurrent-user baseline note and validation.
 
-6. After Phase 1A is committed, the next concrete implementation is Backend
-   Phase 1B: section-scoped account mutations. That means replacing the current
-   broad full-profile six-endpoint save from each edit with narrower
-   section/action-specific writes and explicit transaction/failure boundaries.
+6. After Phase 1B is committed, the next concrete implementation is Backend
+   Phase 1C: account conflict/version handling. That means adding a visible
+   stale-snapshot/save-conflict path for API-mode account saves so concurrent
+   edits do not silently overwrite newer backend data.
+
+## Backend Phase 1B Account Section-Scoped Mutations
+
+- Implementation doc:
+  `docs/backend/phase-1-account-section-scoped-mutations.md`.
+- Status:
+  - implemented locally;
+  - full local validation passed;
+  - ready for commit in the Phase 1B checkpoint.
+- Concrete files changed:
+  - `src/lib/account-api.ts`;
+  - `src/pages/account/Account.tsx`;
+  - `src/lib/account-api.test.ts`;
+  - `src/pages/account/Account.editable.test.tsx`;
+  - `docs/backend/phase-1-account-section-scoped-mutations.md`;
+  - `docs/backend/production-scale-baseline.md`.
+- Targeted validation passed:
+  - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/auth-runtime.test.ts`;
+  - 4 files passed;
+  - 56 tests passed.
+- Additional validation passed:
+  - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`;
+  - 2 files passed;
+  - 34 tests passed;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-4Y7df4zk.js` 111.70 kB / 25.36 kB gzip.
+- Known non-blocking warnings in the targeted run:
+  - existing React Router v7 future flag warnings;
+  - existing `act(...)` warnings in legacy account editable tests.
 
 ## Backend Phase 1A Account Session Authority Gate
 

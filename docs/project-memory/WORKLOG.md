@@ -1883,3 +1883,43 @@ Keep this file factual and append-only.
 - Known non-blocking warnings preserved:
   - React Router v7 future flag warnings in existing test harness;
   - existing `act(...)` warnings in legacy account editable tests.
+
+## 2026-05-28
+
+- Implemented Backend Phase 1B: Account Section-Scoped Mutations.
+- Replaced API-mode `/account/*` broad six-endpoint save for normal edits with
+  section-scoped account mutations.
+- Added `syncAccountProfileSectionToApi` in `src/lib/account-api.ts` with
+  section keys for `personal`, `company`, `branches`, `products`,
+  `meta-regions` and `notifications`.
+- Wired `src/pages/account/Account.tsx` so each account section passes its
+  section ownership into API-mode save.
+- Updated branch, product, meta-region and notification form saves to wait for
+  backend success before closing and show `account_remoteSaveFailed` inline on
+  backend failure.
+- Added endpoint-granularity tests for personal, company, branch, product,
+  meta-region and notification section sync.
+- Added API-mode UI coverage for a personal scoped save and a row-level branch
+  create.
+- Added `docs/backend/phase-1-account-section-scoped-mutations.md`.
+- Added the Phase 1B 10,000 concurrent-user capacity note to
+  `docs/backend/production-scale-baseline.md`.
+- Targeted validation passed:
+  - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/auth-runtime.test.ts`;
+  - 4 files passed;
+  - 56 tests passed.
+- Focused changed-file validation passed:
+  - `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`;
+  - 2 files passed;
+  - 34 tests passed.
+- Additional validation passed:
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-4Y7df4zk.js` 111.70 kB / 25.36 kB gzip.
+- Known non-blocking warnings preserved:
+  - React Router v7 future flag warnings in existing test harness;
+  - existing `act(...)` warnings in legacy account editable tests.

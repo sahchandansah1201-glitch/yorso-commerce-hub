@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-28"
   active_branch: "main"
-  head_commit: "phase_1a_working_tree"
-  head_summary: "Backend Phase 1A Account Session Authority Gate implemented locally; validation in progress"
-  dirty_worktree_before_project_memory: true
+  head_commit: "phase_1b_account_section_scoped_mutations"
+  head_summary: "Backend Phase 1B Account Section-Scoped Mutations validated; next planned workstream is Phase 1C account conflict/version handling."
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Phase 1A account session authority gate code, tests and docs are being prepared before commit."
+    - "No intentional dirty worktree should remain after the Phase 1B commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1a_account_session_authority_gate"
-  summary: "API-enabled /account/* validates self-hosted session before rendering editable private account data and uses backend account snapshot as authority."
-  status: "implemented_locally_validation_in_progress"
+  id: "backend_phase_1b_account_section_scoped_mutations"
+  summary: "API-enabled /account/* normal edits write only the edited account section or row endpoint instead of broad full-profile saves."
+  status: "implemented_locally_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 1B implementation is recorded in docs/backend/phase-1-account-section-scoped-mutations.md."
+    - "src/lib/account-api.ts now exposes syncAccountProfileSectionToApi with section keys for personal, company, branches, products, meta-regions and notifications."
+    - "API-mode personal edits call only PATCH /v1/account/me."
+    - "API-mode company edits call only PATCH /v1/account/company."
+    - "API-mode branch/product/meta-region/notification edits use existing row-level account endpoints instead of broad collection PATCH from normal UI saves."
+    - "Branch, product, meta-region and notification forms wait for backend success before closing and show account_remoteSaveFailed inline on backend failure."
+    - "API-disabled local preview keeps the existing localStorage/mock fallback."
+    - "Phase 1B validation passed: npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/auth-runtime.test.ts, 4 files, 56 tests."
+    - "Phase 1B additional validation passed: npx tsc -b --noEmit, npm run lint, npm run check:production-scale-baseline, git diff --check and npm run build."
+    - "Phase 1B production build Account route chunk: Account-4Y7df4zk.js 111.70 kB / 25.36 kB gzip."
     - "Phase 1A implementation is recorded in docs/backend/phase-1-account-session-authority-gate.md."
     - "src/pages/account/Account.tsx now checks readCurrentAuthSession() before rendering AccountShell when VITE_YORSO_API_URL is configured."
     - "Valid API sessions hydrate account data through createAccountApiClient({ userId: session.userId, sessionId: session.id }) before editable sections render."
@@ -65,8 +75,9 @@ active_workstream:
     - "Remediation aligned stale RU/i18n test contracts with current UI/access behavior, pinned sign-in locale tests to local auth, mounted the required buyer-session provider for registration funnel coverage, localized qualified exact-price formatting and catalog category labels, and bounded Supabase-backed public access smoke handling for transient network timeouts."
     - "Start from current repository files and runtime surfaces, not old chat memory."
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
-    - "Next planned workstream after commit: Backend Phase 1B account mutation granularity."
+    - "Next planned workstream after commit: Backend Phase 1C account conflict/version handling."
   confirmed_files:
+    - "docs/backend/phase-1-account-section-scoped-mutations.md"
     - "docs/backend/phase-1-account-session-authority-gate.md"
     - "docs/backend/phase-1-account-source-of-truth-discovery-audit.md"
     - "docs/backend/phase-0-closure-audit.md"
@@ -74,6 +85,8 @@ active_workstream:
     - "src/pages/account/Account.tsx"
     - "src/pages/account/Account.test.tsx"
     - "src/pages/account/Account.editable.test.tsx"
+    - "src/lib/account-api.ts"
+    - "src/lib/account-api.test.ts"
     - "src/components/account/AccountShell.tsx"
     - "src/i18n/translations.ts"
     - "src/components/catalog/CatalogFilters.tsx"

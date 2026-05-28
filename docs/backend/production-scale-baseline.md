@@ -3894,6 +3894,83 @@ Marker: account session authority gate.
 Marker: account source of truth.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 1B Account Section-Scoped Mutations
+
+Phase 1B narrows API-mode `/account/*` writes from a broad full-profile save to
+the backend section that the user actually edits. The existing self-hosted row
+endpoints are reused: personal profile, company profile, branches, products,
+meta-regions and notifications each keep their own mutation path.
+
+Expected read/write profile:
+
+- Account route mount remains Phase 1A behavior: one session validation plus
+  bounded account snapshot reads.
+- Personal edits send one `PATCH /v1/account/me`.
+- Company profile edits send one `PATCH /v1/account/company`.
+- Branch, product, meta-region and notification edits send one row-level
+  `POST`, `PATCH` or `DELETE` for the changed row.
+- A normal section edit no longer sends six broad account PATCH requests.
+- No polling, subscription, background sync or public catalog traffic is added.
+
+Cache, queue and backpressure strategy:
+
+- No new frontend queue is introduced.
+- The existing self-hosted auth/session cache remains the cache boundary.
+- API-mode UI state updates only after backend success. If the backend is slow
+  or fails, the edit form remains open and shows a localized inline error.
+- API-disabled local preview keeps the localStorage/mock fallback.
+
+Database indexing and pagination strategy:
+
+- No schema or index change is required.
+- Existing protected account row endpoints already address rows by account/user
+  scope and row id.
+- No new list pagination surface is introduced.
+
+Failure mode and graceful degradation:
+
+- Initial backend load failure remains Phase 1A fail-closed behavior:
+  editable account content is not rendered.
+- Section save failure no longer produces local success in API mode.
+- Collection forms for branches, products, meta-regions and notifications wait
+  for backend success before closing and surface `account_remoteSaveFailed` on
+  failure.
+- Current UI edits one row at a time. Future bulk editors should add a
+  server-side transactional batch endpoint instead of issuing multiple row
+  requests from the browser.
+
+Observability and load-test plan:
+
+- Unit coverage verifies endpoint granularity for personal, company, branch,
+  product, meta-region and notification section sync.
+- UI coverage verifies API-mode personal save and branch create use only the
+  expected narrow endpoints.
+- Production load validation should compare Phase 1A six-endpoint save volume
+  against Phase 1B narrow writes at 10,000 concurrent users, measuring p95
+  mutation latency, write error rate, auth/session cache misses, database row
+  lock waits and retry/error-alert rates.
+
+Validation:
+
+- `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/auth-runtime.test.ts`;
+- `npx tsc -b --noEmit`;
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `git diff --check`;
+- `npm run build`.
+
+Validated locally on 2026-05-28:
+
+- focused account/auth/API suite passed: 4 files, 56 tests;
+- production build passed with Account chunk
+  `Account-4Y7df4zk.js` 111.70 kB / 25.36 kB gzip;
+- known Supabase generated type and Browserslist warnings were preserved.
+
+Marker: Backend Phase 1B.
+Marker: account section-scoped mutations.
+Marker: account source of truth.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

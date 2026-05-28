@@ -15,6 +15,7 @@ import {
   mapFrontendProductsUpdate,
   mapFrontendUserUpdate,
   mergeBackendAccountProfile,
+  syncAccountProfileSectionToApi,
   syncAccountProfileToApi,
 } from "@/lib/account-api";
 
@@ -264,6 +265,230 @@ describe("account API adapter", () => {
         method: "PATCH",
         body: expect.stringContaining("price_access_approved"),
       }),
+    );
+  });
+
+  it("syncs the personal section through only /v1/account/me", async () => {
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({
+        ok: true,
+        requestId: "r-user-section",
+        user: { ...backendUser, firstName: "Alicia" },
+      }));
+    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const nextProfile = {
+      ...mockAccountProfile,
+      user: { ...mockAccountProfile.user, firstName: "Alicia" },
+    };
+
+    const synced = await syncAccountProfileSectionToApi(
+      nextProfile,
+      mockAccountProfile,
+      "personal",
+      client,
+    );
+
+    expect(synced?.user.firstName).toBe("Alicia");
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "http://localhost:3000/v1/account/me",
+      expect.objectContaining({
+        method: "PATCH",
+        body: expect.stringContaining("\"firstName\":\"Alicia\""),
+      }),
+    );
+  });
+
+  it("syncs the company section through only /v1/account/company", async () => {
+    const nextCompany = {
+      ...mockAccountProfile.company,
+      tradeName: "Scoped Company Update",
+    };
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({
+        ok: true,
+        requestId: "r-company-section",
+        company: { ...backendCompany, tradeName: nextCompany.tradeName },
+      }));
+    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const nextProfile = {
+      ...mockAccountProfile,
+      company: nextCompany,
+    };
+
+    const synced = await syncAccountProfileSectionToApi(
+      nextProfile,
+      mockAccountProfile,
+      "company",
+      client,
+    );
+
+    expect(synced?.company.tradeName).toBe("Scoped Company Update");
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(fetchImpl).toHaveBeenCalledWith(
+      "http://localhost:3000/v1/account/company",
+      expect.objectContaining({
+        method: "PATCH",
+        body: expect.stringContaining("\"tradeName\":\"Scoped Company Update\""),
+      }),
+    );
+  });
+
+  it("syncs branch changes through row-level create/update/delete endpoints", async () => {
+    const existingBranch = mockAccountProfile.branches[0];
+    const deletedBranch = mockAccountProfile.branches[1];
+    const newBranch = {
+      ...existingBranch,
+      id: "br_new",
+      name: "New loading point",
+      city: "Bergen",
+    };
+    const changedBranch = {
+      ...existingBranch,
+      city: "Alesund",
+      notes: "Section-scoped update.",
+    };
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ ok: true, branch: deletedBranch, deletedId: deletedBranch.id, requestId: "r-delete" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, branch: changedBranch, requestId: "r-update" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, branch: newBranch, requestId: "r-create" }));
+    const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+    const previousProfile = {
+      ...mockAccountProfile,
+      branches: [existingBranch, deletedBranch],
+    };
+    const nextProfile = {
+      ...mockAccountProfile,
+      branches: [changedBranch, newBranch],
+    };
+
+    const synced = await syncAccountProfileSectionToApi(
+      nextProfile,
+      previousProfile,
+      "branches",
+      client,
+    );
+
+    expect(synced?.branches).toEqual([changedBranch, newBranch]);
+    expect(fetchImpl).toHaveBeenCalledTimes(3);
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      1,
+      `http://localhost:3000/v1/account/branches/${deletedBranch.id}`,
+      expect.objectContaining({ method: "DELETE" }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      2,
+      `http://localhost:3000/v1/account/branches/${existingBranch.id}`,
+      expect.objectContaining({
+        method: "PATCH",
+        body: expect.stringContaining("\"city\":\"Alesund\""),
+      }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      3,
+      "http://localhost:3000/v1/account/branches/br_new",
+      expect.objectContaining({
+        method: "POST",
+        body: expect.stringContaining("\"name\":\"New loading point\""),
+      }),
+    );
+    expect(fetchImpl.mock.calls.map(([input]) => String(input))).not.toContain(
+      "http://localhost:3000/v1/account/branches",
+    );
+  });
+
+  it("syncs product, meta-region and notification edits through row-level endpoints", async () => {
+    const changedProduct = {
+      ...mockAccountProfile.products[0],
+      monthlyVolume: "48 t / month",
+    };
+    const changedRegion = {
+      ...mockAccountProfile.metaRegions[0],
+      defaultCurrency: "USD",
+    };
+    const changedNotification = {
+      ...mockAccountProfile.notifications[0],
+      frequency: "daily" as const,
+    };
+
+    const productFetch = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ ok: true, product: changedProduct, requestId: "r-product" }));
+    const metaFetch = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({ ok: true, metaRegion: changedRegion, requestId: "r-meta" }));
+    const notificationFetch = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse({
+        ok: true,
+        notification: changedNotification,
+        requestId: "r-notification",
+      }));
+
+    const productClient = createAccountApiClient({
+      baseUrl: "http://localhost:3000",
+      fetchImpl: productFetch,
+    });
+    const metaClient = createAccountApiClient({
+      baseUrl: "http://localhost:3000",
+      fetchImpl: metaFetch,
+    });
+    const notificationClient = createAccountApiClient({
+      baseUrl: "http://localhost:3000",
+      fetchImpl: notificationFetch,
+    });
+
+    await syncAccountProfileSectionToApi(
+      { ...mockAccountProfile, products: [changedProduct] },
+      { ...mockAccountProfile, products: [mockAccountProfile.products[0]] },
+      "products",
+      productClient,
+    );
+    await syncAccountProfileSectionToApi(
+      { ...mockAccountProfile, metaRegions: [changedRegion] },
+      { ...mockAccountProfile, metaRegions: [mockAccountProfile.metaRegions[0]] },
+      "meta-regions",
+      metaClient,
+    );
+    await syncAccountProfileSectionToApi(
+      { ...mockAccountProfile, notifications: [changedNotification] },
+      { ...mockAccountProfile, notifications: [mockAccountProfile.notifications[0]] },
+      "notifications",
+      notificationClient,
+    );
+
+    expect(productFetch).toHaveBeenCalledWith(
+      `http://localhost:3000/v1/account/products/${changedProduct.id}`,
+      expect.objectContaining({
+        method: "PATCH",
+        body: expect.stringContaining("\"monthlyVolume\":\"48 t / month\""),
+      }),
+    );
+    expect(metaFetch).toHaveBeenCalledWith(
+      `http://localhost:3000/v1/account/meta-regions/${changedRegion.id}`,
+      expect.objectContaining({
+        method: "PATCH",
+        body: expect.stringContaining("\"defaultCurrency\":\"USD\""),
+      }),
+    );
+    expect(notificationFetch).toHaveBeenCalledWith(
+      `http://localhost:3000/v1/account/notifications/${changedNotification.id}`,
+      expect.objectContaining({
+        method: "PATCH",
+        body: expect.stringContaining("\"frequency\":\"daily\""),
+      }),
+    );
+    expect(productFetch.mock.calls.map(([input]) => String(input))).not.toContain(
+      "http://localhost:3000/v1/account/products",
+    );
+    expect(metaFetch.mock.calls.map(([input]) => String(input))).not.toContain(
+      "http://localhost:3000/v1/account/meta-regions",
+    );
+    expect(notificationFetch.mock.calls.map(([input]) => String(input))).not.toContain(
+      "http://localhost:3000/v1/account/notifications",
     );
   });
 
