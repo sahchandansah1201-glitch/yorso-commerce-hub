@@ -2,8 +2,8 @@
  * Editability, media, redirects and locale-leak tests for /account.
  * Local fallback plus self-hosted API bridge.
  */
-import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen, within, fireEvent, act } from "@testing-library/react";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { render, screen, within, fireEvent, act, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, Navigate } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/i18n/LanguageContext";
@@ -41,11 +41,123 @@ const renderAt = (path: string) =>
 const signIn = () =>
   buyerSession.signIn({ identifier: "demo@example.com", method: "email" });
 
+const signInSelfHosted = () =>
+  buyerSession.signIn({
+    displayName: "Remote buyer",
+    id: "session-api-1",
+    identifier: "remote@example.com",
+    method: "email",
+    source: "self_hosted",
+    userId: "user-api-1",
+  });
+
+const okJson = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    headers: { "content-type": "application/json" },
+    status,
+  });
+
+const accountApiBody = (url: string, init?: RequestInit) => {
+  const method = init?.method ?? "GET";
+  const patchBody = init?.body ? JSON.parse(String(init.body)) as Record<string, unknown> : {};
+  if (url.endsWith("/v1/auth/session")) {
+    return {
+      ok: true,
+      requestId: "req-auth-session",
+      session: {
+        displayName: "Remote buyer",
+        email: "remote@example.com",
+        expiresAt: "2026-06-01T00:00:00.000Z",
+        id: "session-api-1",
+        issuedAt: "2026-05-28T00:00:00.000Z",
+        userId: "user-api-1",
+      },
+    };
+  }
+  if (url.endsWith("/v1/account/me")) {
+    return {
+      ok: true,
+      requestId: "req-account-me",
+      user: {
+        id: "user-api-1",
+        firstName: method === "PATCH" ? String(patchBody.firstName ?? "Remote") : "Remote",
+        lastName: "Buyer",
+        email: "remote@example.com",
+        phone: "+34 611 000 000",
+        preferredLanguage: "en",
+        timezone: "Europe/Madrid",
+        updatedAt: "2026-05-28T00:00:00.000Z",
+      },
+    };
+  }
+  if (url.endsWith("/v1/account/company")) {
+    return {
+      ok: true,
+      requestId: "req-account-company",
+      company: {
+        id: "company-api-1",
+        legalName: "Remote Seafood Trading S.L.",
+        tradeName: "Remote Seafood",
+        accountRole: "buyer",
+        countryCode: "ES",
+        website: "https://remote.example.com",
+        yearFounded: 2020,
+        contactEmail: "trade@remote.example.com",
+        contactPhone: "+34 910 111 222",
+        messengerHandle: "+34 611 111 222",
+        description: "Remote backend company profile for account save tests.",
+        productFocus: ["Salmon"],
+        certificates: ["MSC"],
+        paymentTerms: ["LC at sight"],
+        publicationStatus: "draft",
+        buyerQualificationStatus: "pending",
+        media: {
+          logoObjectKey: null,
+          coverObjectKey: null,
+          logoAlt: null,
+          coverAlt: null,
+          logoFit: "contain",
+          coverFocalX: 0.5,
+          coverFocalY: 0.5,
+        },
+        updatedAt: "2026-05-28T00:00:00.000Z",
+      },
+    };
+  }
+  if (url.endsWith("/v1/account/branches")) {
+    return { branches: [], ok: true, requestId: "req-account-branches" };
+  }
+  if (url.endsWith("/v1/account/products")) {
+    return { ok: true, products: [], requestId: "req-account-products" };
+  }
+  if (url.endsWith("/v1/account/meta-regions")) {
+    return { metaRegions: [], ok: true, requestId: "req-account-meta-regions" };
+  }
+  if (url.endsWith("/v1/account/notifications")) {
+    return { notifications: [], ok: true, requestId: "req-account-notifications" };
+  }
+  return null;
+};
+
+const mockAccountFetch = () =>
+  vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const body = accountApiBody(String(input), init);
+    if (!body) return okJson({ error: { code: "not_found" }, ok: false }, 404);
+    return okJson(body);
+  });
+
 describe("Account editability", () => {
   beforeEach(() => {
+    vi.stubEnv("VITE_YORSO_API_URL", "");
     localStorage.clear();
     sessionStorage.clear();
     resetAccountProfile();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   it("Personal: edit -> save persists to localStorage", () => {
@@ -140,6 +252,40 @@ describe("Account editability", () => {
     expect(await within(card).findByText("HACCP certificate")).toBeInTheDocument();
     expect(within(card).getByText(/haccp\.pdf/i)).toBeInTheDocument();
     expect(within(card).getByText("Stored locally")).toBeInTheDocument();
+  });
+
+  it("self-hosted account mode saves personal edits to backend before leaving edit mode", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
+    signInSelfHosted();
+    const fetchMock = mockAccountFetch();
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderAt("/account/personal");
+    const card = await screen.findByTestId("account-card-personal-basic");
+
+    await act(async () => {
+      fireEvent.click(within(card).getByTestId("account-card-personal-basic-edit"));
+    });
+    await act(async () => {
+      fireEvent.change(within(card).getByTestId("account-input-firstName"), {
+        target: { value: "Alicia" },
+      });
+    });
+    await act(async () => {
+      fireEvent.click(within(card).getByTestId("account-card-personal-basic-save"));
+    });
+
+    await waitFor(() => expect(card.getAttribute("data-editing")).toBe("false"));
+    expect(within(card).getByText("Alicia")).toBeInTheDocument();
+    const userPatch = fetchMock.mock.calls.find(
+      ([input, init]) => String(input).endsWith("/v1/account/me") && init?.method === "PATCH",
+    );
+    expect(userPatch).toBeTruthy();
+    expect(JSON.parse(String(userPatch?.[1]?.body))).toMatchObject({ firstName: "Alicia" });
+    const headers = userPatch?.[1]?.headers as Headers | undefined;
+    expect(headers?.get("x-yorso-session-id")).toBe("session-api-1");
+    expect(headers?.get("x-yorso-user-id")).toBe("user-api-1");
+    expect(localStorage.getItem(ACCOUNT_STORAGE_KEY) ?? "").not.toContain("Alicia");
   });
 });
 

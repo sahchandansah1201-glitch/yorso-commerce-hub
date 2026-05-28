@@ -3815,6 +3815,85 @@ Marker: public sheet close locale a11y.
 Marker: catalog drawer trust.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 1A Account Session Authority Gate
+
+Phase 1A changes the `/account/*` source-of-truth behavior when the
+self-hosted API is configured. Editable account sections now wait for
+`/v1/auth/session` validation and a successful account snapshot read before
+rendering. Missing or invalid sessions clear the local buyer session and
+redirect to `/signin`; backend load failures render an explicit unavailable
+state instead of falling back to stale `localStorage` data.
+
+Expected read/write profile:
+
+- API-disabled local preview keeps the previous local account prototype path and
+  introduces no backend traffic.
+- API-enabled account route mount/retry performs one `GET /v1/auth/session`
+  and one bounded parallel account snapshot read:
+  `/v1/account/me`, `/company`, `/branches`, `/products`, `/meta-regions` and
+  `/notifications`.
+- API-enabled saves keep the existing broad account sync profile through
+  `syncAccountProfileToApi`, but now the UI updates only after backend success.
+- No polling, timers, subscriptions, background jobs or public catalog traffic
+  are introduced.
+
+Cache, queue and backpressure strategy:
+
+- Session validation uses the existing self-hosted auth/session cache strategy;
+  production remains expected to run Redis session cache in fail-closed mode.
+- The frontend adds no queue and no automatic retry loop. Retry is
+  user-initiated from the unavailable state.
+- Under backend pressure, `/account/*` fails closed for editable private data:
+  the account form does not silently switch to local authority.
+- Batch #112 route splitting and Batch #113 route chunk error recovery are
+  unchanged.
+
+Database indexing and pagination strategy:
+
+- No database schema, index or migration changes.
+- Account snapshot endpoints remain bounded to current authenticated account
+  records and workspace collections.
+- Phase 1A introduces no new list pagination surfaces.
+- Follow-up Phase 1B should narrow broad full-profile writes into
+  section-scoped mutations with a clearer transaction boundary.
+
+Failure mode and graceful degradation:
+
+- `auth_session_required` and `auth_session_invalid` clear browser buyer session
+  state and redirect to `/signin`.
+- Auth/network/account load failures show a visible backend-unavailable state
+  and keep editable sections closed.
+- API-mode save failures propagate through the existing async `EditableCard`
+  error path, keeping edit mode open.
+- Local preview without `VITE_YORSO_API_URL` remains usable through the
+  localStorage/mock fallback.
+
+Observability and load-test plan:
+
+- Targeted regression coverage verifies local fallback, backend session gate,
+  backend account hydration, fail-closed unavailable state, session/user
+  headers and remote-first save behavior.
+- Existing backend auth/account tests continue to cover protected API route
+  authority.
+- Production load validation for Phase 1 should simulate account route open and
+  representative section saves at 10,000 concurrent users with Redis session
+  cache enabled, measuring p95 latency, account endpoint error rate, session
+  cache events and database read/write volume.
+
+Validation:
+
+- `npx vitest run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-api.test.ts src/lib/auth-runtime.test.ts`.
+- `npx tsc -b --noEmit`;
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `git diff --check`;
+- `npm run build`.
+
+Marker: Backend Phase 1A.
+Marker: account session authority gate.
+Marker: account source of truth.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

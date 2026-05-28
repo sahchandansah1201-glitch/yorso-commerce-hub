@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-28"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "phase_1_discovery_audit_commit"
+head_commit: "phase_1a_working_tree"
 latest_merged_batch: 141
-active_workstream: "backend_phase_1_account_source_of_truth_discovery_complete"
+active_workstream: "backend_phase_1a_account_session_authority_gate"
 pull_request: null
-recommended_action: "start Backend Phase 1A Account Session Authority Gate"
-why_low: "Backend Phase 0 closure audit and remediation are recorded in docs/backend/phase-0-closure-audit.md. Phase 1 discovery/audit is recorded in docs/backend/phase-1-account-source-of-truth-discovery-audit.md. Lint, production build, contracts build and full npm test were green at Phase 0 remediation; current audit is docs/project-memory only."
+recommended_action: "finish validation and commit Backend Phase 1A Account Session Authority Gate"
+why_low: "Backend Phase 0 closure audit and remediation are recorded in docs/backend/phase-0-closure-audit.md. Phase 1 discovery/audit is recorded in docs/backend/phase-1-account-source-of-truth-discovery-audit.md. Phase 1A implementation is recorded in docs/backend/phase-1-account-session-authority-gate.md. Targeted account/auth/API tests, typecheck, lint, production-scale check, diff check and production build are green."
 ```
 
 ## Risk Levels
@@ -51,17 +51,22 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_1_account_source_of_truth_discovery_complete.
-Current HEAD baseline: Phase 1 discovery/audit checkpoint after Backend Phase 0 remediation; Batch #141 merge commit 5eafcb7 is preserved.
+Current workstream: backend_phase_1a_account_session_authority_gate.
+Current HEAD baseline: Phase 1A working tree after Backend Phase 0 remediation; Batch #141 merge commit 5eafcb7 is preserved.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
 docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and maps current App.tsx public, info/legal, account, dashboard, admin, redirect, dev and * routes to data sources or explicit no-data-source redirects.
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
-Current recommended action: start Backend Phase 1A Account Session Authority Gate.
+Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
+Current recommended action: finish validation and commit Backend Phase 1A Account Session Authority Gate.
 Phase 1 audit finding: backend auth/account authority exists, but /account/* remains local-first through localStorage/mock profile hydration and browser sessionStorage gating.
-Phase 1A target: API-enabled /account/* must validate /v1/auth/session before rendering editable account data, hydrate account state from the self-hosted API as authority, constrain deterministic demo user fallback to dev/test, and expose explicit backend-unavailable/save-failed states.
+Phase 1A implemented locally: API-enabled /account/* validates /v1/auth/session before rendering editable account data, hydrates account state from the self-hosted API as authority, clears invalid/missing buyer sessions and redirects to /signin, exposes backend-unavailable and save-failed states, and keeps localStorage/mock fallback only for API-disabled local preview.
+Phase 1A targeted validation passed: npx vitest run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-api.test.ts src/lib/auth-runtime.test.ts, 4 files passed, 51 tests passed.
+Phase 1A additional validation passed: npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; git diff --check; npm run build.
+Phase 1A build metric: Account-CSSVMLIT.js 109.62 kB / 25.11 kB gzip.
+Next after Phase 1A commit: Backend Phase 1B section-scoped account mutations and transaction boundary.
 Current Batch #141 scope: localize shared catalog sheet close controls for RU/ES without changing visible catalog drawer layout, compare behavior, route structure, public SEO, access gating, supplier identity redaction or exact-price locks.
 Current Batch #141 finding: shared SheetContent hardcoded the default close accessible name as Close; public catalog drawer usages in CompareTray and IntelligenceRail did not pass a localized close label.
 Current Batch #141 implementation: SheetContent accepts optional closeLabel while preserving the English fallback; CompareTray and IntelligenceRail pass t.aria_close; SheetCloseLocale.test.tsx guards RU/ES CompareTray and IntelligenceRail close labels; public-sheet-close-locale-a11y e2e opens the real /offers comparison drawer in RU/ES.

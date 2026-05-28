@@ -1843,3 +1843,43 @@ Keep this file factual and append-only.
   Authority Gate.
 - Updated project memory so the next action is Phase 1A, not another public
   UX/UI batch.
+
+## 2026-05-28
+
+- Implemented Backend Phase 1A: Account Session Authority Gate.
+- Changed `src/pages/account/Account.tsx` so API-enabled `/account/*`:
+  - validates the current browser session with `readCurrentAuthSession()`
+    before rendering editable account sections;
+  - uses `createAccountApiClient({ userId: session.userId, sessionId:
+    session.id })` for backend account hydration and save calls;
+  - redirects missing/invalid sessions to `/signin` after clearing
+    `buyerSession`;
+  - shows `account-backend-unavailable` and keeps editable sections closed if
+    backend account load fails;
+  - updates UI after backend save success in API-enabled mode instead of
+    writing localStorage first.
+- Changed `src/components/account/AccountShell.tsx` so the account note reflects
+  backend source mode vs local prototype mode.
+- Added EN/RU/ES account loading, backend-unavailable, backend-source and
+  remote-save-failed copy to `src/i18n/translations.ts`.
+- Added `docs/backend/phase-1-account-session-authority-gate.md`.
+- Added the Phase 1A 10,000 concurrent-user capacity note to
+  `docs/backend/production-scale-baseline.md`.
+- Added account tests for backend session validation, backend profile
+  authority, missing-session redirect, backend-unavailable fail-closed state and
+  remote-first save headers/localStorage behavior.
+- Targeted validation passed:
+  - `npx vitest run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-api.test.ts src/lib/auth-runtime.test.ts`;
+  - 4 files passed;
+  - 51 tests passed.
+- Additional validation passed:
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-CSSVMLIT.js` 109.62 kB / 25.11 kB gzip.
+- Known non-blocking warnings preserved:
+  - React Router v7 future flag warnings in existing test harness;
+  - existing `act(...)` warnings in legacy account editable tests.

@@ -93,6 +93,30 @@
   memory checkpoint moving next action to Backend Phase 1A Account Session
   Authority Gate.
 
+## Backend Phase 1A Account Session Authority Gate
+
+- `docs/backend/phase-1-account-session-authority-gate.md`: implementation
+  note, Russian plan/fact table and 10,000 concurrent-user baseline for the
+  account session authority gate.
+- `src/pages/account/Account.tsx`: API-enabled account routes now validate
+  `readCurrentAuthSession()` before rendering editable account sections, hydrate
+  account data through a session-bound account API client, redirect
+  missing/invalid sessions to `/signin`, show a backend-unavailable state on
+  account load failure and save remote-first in API mode.
+- `src/components/account/AccountShell.tsx`: account shell source note now
+  distinguishes local prototype mode from self-hosted backend mode.
+- `src/i18n/translations.ts`: EN/RU/ES copy for account loading,
+  backend-source, backend-unavailable, retry and remote-save-failed states.
+- `src/pages/account/Account.test.tsx`: regression coverage for backend session
+  validation, backend account authority, missing-session redirect and
+  backend-unavailable fail-closed state.
+- `src/pages/account/Account.editable.test.tsx`: regression coverage for
+  remote-first account save with session/user headers and no localStorage
+  success before backend success.
+- `docs/backend/production-scale-baseline.md`: Backend Phase 1A capacity note.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Phase 1A checkpoint.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional

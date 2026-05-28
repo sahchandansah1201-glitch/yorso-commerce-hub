@@ -17,9 +17,15 @@ interface Props {
   active: AccountSectionKey;
   children: ReactNode;
   profile?: AccountProfile;
+  sourceMode?: "local" | "self_hosted";
 }
 
-export const AccountShell = ({ active, children, profile: profileProp }: Props) => {
+export const AccountShell = ({
+  active,
+  children,
+  profile: profileProp,
+  sourceMode = "local",
+}: Props) => {
   const { t } = useLanguage();
   const { isSignedIn } = useBuyerSession();
 
@@ -120,7 +126,9 @@ export const AccountShell = ({ active, children, profile: profileProp }: Props) 
           <section className="min-w-0 space-y-4" data-testid="account-content">
             {children}
             <p className="text-[11px] text-muted-foreground" data-testid="account-prototype-note">
-              {t.account_prototype_savedLocally}
+              {sourceMode === "self_hosted"
+                ? t.account_backend_sourceNote
+                : t.account_prototype_savedLocally}
             </p>
           </section>
 

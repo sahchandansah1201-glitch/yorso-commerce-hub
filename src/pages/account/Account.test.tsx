@@ -2,8 +2,8 @@
  * Account workspace shell + section preview tests.
  * Account workspace shell + self-hosted API fallback assumptions.
  */
-import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { render, screen, within, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, Navigate } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/i18n/LanguageContext";
@@ -21,6 +21,7 @@ const renderAt = (path: string) =>
             <Routes>
               <Route path="/account" element={<Navigate to="/account/personal" replace />} />
               <Route path="/account/:section" element={<Account />} />
+              <Route path="/signin" element={<div data-testid="signin-target">Sign in</div>} />
             </Routes>
           </BuyerSessionProvider>
         </TooltipProvider>
@@ -31,11 +32,127 @@ const renderAt = (path: string) =>
 const signIn = () =>
   buyerSession.signIn({ identifier: "demo@example.com", method: "email" });
 
+const signInSelfHosted = () =>
+  buyerSession.signIn({
+    displayName: "Remote buyer",
+    id: "session-api-1",
+    identifier: "remote@example.com",
+    method: "email",
+    source: "self_hosted",
+    userId: "user-api-1",
+  });
+
+const okJson = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    headers: { "content-type": "application/json" },
+    status,
+  });
+
+const accountApiBody = (url: string) => {
+  if (url.endsWith("/v1/auth/session")) {
+    return {
+      ok: true,
+      requestId: "req-auth-session",
+      session: {
+        displayName: "Remote buyer",
+        email: "remote@example.com",
+        expiresAt: "2026-06-01T00:00:00.000Z",
+        id: "session-api-1",
+        issuedAt: "2026-05-28T00:00:00.000Z",
+        userId: "user-api-1",
+      },
+    };
+  }
+  if (url.endsWith("/v1/account/me")) {
+    return {
+      ok: true,
+      requestId: "req-account-me",
+      user: {
+        id: "user-api-1",
+        firstName: "Remote",
+        lastName: "Buyer",
+        email: "remote@example.com",
+        phone: "+34 611 000 000",
+        preferredLanguage: "en",
+        timezone: "Europe/Madrid",
+        updatedAt: "2026-05-28T00:00:00.000Z",
+      },
+    };
+  }
+  if (url.endsWith("/v1/account/company")) {
+    return {
+      ok: true,
+      requestId: "req-account-company",
+      company: {
+        id: "company-api-1",
+        legalName: "Remote Seafood Trading S.L.",
+        tradeName: "Remote Seafood",
+        accountRole: "buyer",
+        countryCode: "ES",
+        website: "https://remote.example.com",
+        yearFounded: 2020,
+        contactEmail: "trade@remote.example.com",
+        contactPhone: "+34 910 111 222",
+        messengerHandle: "+34 611 111 222",
+        description: "Remote backend company profile for account authority tests.",
+        productFocus: ["Salmon"],
+        certificates: ["MSC"],
+        paymentTerms: ["LC at sight"],
+        publicationStatus: "draft",
+        buyerQualificationStatus: "pending",
+        media: {
+          logoObjectKey: null,
+          coverObjectKey: null,
+          logoAlt: null,
+          coverAlt: null,
+          logoFit: "contain",
+          coverFocalX: 0.5,
+          coverFocalY: 0.5,
+        },
+        updatedAt: "2026-05-28T00:00:00.000Z",
+      },
+    };
+  }
+  if (url.endsWith("/v1/account/branches")) {
+    return { branches: [], ok: true, requestId: "req-account-branches" };
+  }
+  if (url.endsWith("/v1/account/products")) {
+    return { ok: true, products: [], requestId: "req-account-products" };
+  }
+  if (url.endsWith("/v1/account/meta-regions")) {
+    return { metaRegions: [], ok: true, requestId: "req-account-meta-regions" };
+  }
+  if (url.endsWith("/v1/account/notifications")) {
+    return { notifications: [], ok: true, requestId: "req-account-notifications" };
+  }
+  return null;
+};
+
+const mockAccountFetch = (overrides?: {
+  failAccountMe?: boolean;
+}) =>
+  vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+    const url = String(input);
+    if (overrides?.failAccountMe && url.endsWith("/v1/account/me")) {
+      return okJson({ error: { code: "account_unavailable" }, ok: false }, 503);
+    }
+    const body = accountApiBody(url);
+    if (!body) return okJson({ error: { code: "not_found" }, ok: false }, 404);
+    return okJson(body);
+  });
+
 describe("Account workspace", () => {
   beforeEach(() => {
+    vi.stubEnv("VITE_YORSO_API_URL", "");
     localStorage.clear();
     sessionStorage.clear();
     resetAccountProfile();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   it("/account redirects to /account/personal and renders shell", () => {
@@ -122,6 +239,59 @@ describe("Account workspace", () => {
     expect(within(sidebar).getByText("Уведомления")).toBeInTheDocument();
     expect(within(sidebar).queryByText("Personal info")).toBeNull();
     expect(within(sidebar).queryByText("Company profile")).toBeNull();
+  });
+
+  it("self-hosted account mode validates the session and renders only backend profile data", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
+    signInSelfHosted();
+    const fetchMock = mockAccountFetch();
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderAt("/account/company");
+
+    expect(screen.getByTestId("account-session-loading")).toBeInTheDocument();
+    expect((await screen.findAllByText("Remote Seafood")).length).toBeGreaterThan(0);
+    expect(screen.queryByText("Atlantic Bridge")).toBeNull();
+    expect(screen.getByTestId("account-prototype-note")).toHaveTextContent(
+      "Loaded from the YORSO backend",
+    );
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "https://api.yorso.test/v1/account/me",
+        expect.objectContaining({
+          headers: expect.any(Headers),
+        }),
+      ),
+    );
+    const accountMeCall = fetchMock.mock.calls.find(([input]) =>
+      String(input).endsWith("/v1/account/me"),
+    );
+    const accountHeaders = accountMeCall?.[1]?.headers as Headers | undefined;
+    expect(accountHeaders?.get("x-yorso-session-id")).toBe("session-api-1");
+    expect(accountHeaders?.get("x-yorso-user-id")).toBe("user-api-1");
+  });
+
+  it("self-hosted account mode redirects missing local session to sign in", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
+
+    renderAt("/account/personal");
+
+    expect(await screen.findByTestId("signin-target")).toBeInTheDocument();
+    expect(screen.queryByTestId("account-content")).toBeNull();
+  });
+
+  it("self-hosted account mode keeps editable sections closed when backend profile load fails", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
+    signInSelfHosted();
+    vi.stubGlobal("fetch", mockAccountFetch({ failAccountMe: true }));
+
+    renderAt("/account/company");
+
+    expect(await screen.findByTestId("account-backend-unavailable")).toBeInTheDocument();
+    expect(screen.getByText("Account data is temporarily unavailable")).toBeInTheDocument();
+    expect(screen.queryByTestId("account-content")).toBeNull();
+    expect(screen.queryByText("Atlantic Bridge")).toBeNull();
   });
 });
 

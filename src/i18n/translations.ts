@@ -1530,6 +1530,13 @@ type TranslationKeys = {
   account_nav_notifications: string;
   account_editPlaceholder: string;
   account_prototype_savedLocally: string;
+  account_backend_sourceNote: string;
+  account_loading_title: string;
+  account_loading_body: string;
+  account_unavailable_title: string;
+  account_unavailable_body: string;
+  account_unavailable_retry: string;
+  account_remoteSaveFailed: string;
   account_signinRequired_title: string;
   account_signinRequired_body: string;
   account_signinRequired_cta: string;
@@ -3449,6 +3456,13 @@ const en: TranslationKeys = {
   account_nav_notifications: "Notifications",
   account_editPlaceholder: "Edit",
   account_prototype_savedLocally: "Saved locally in this prototype. Backend integration will use this data shape later.",
+  account_backend_sourceNote: "Loaded from the YORSO backend for this signed-in session.",
+  account_loading_title: "Checking your account session",
+  account_loading_body: "YORSO is confirming your session and loading your company operating profile before edits are shown.",
+  account_unavailable_title: "Account data is temporarily unavailable",
+  account_unavailable_body: "We could not load your profile from the YORSO backend. Editable account sections stay closed until the backend responds.",
+  account_unavailable_retry: "Try again",
+  account_remoteSaveFailed: "We could not save this change to the YORSO backend. Please try again.",
   account_signinRequired_title: "Sign in to open your account",
   account_signinRequired_body: "Your company operating profile is available to signed in users only.",
   account_signinRequired_cta: "Sign in",
@@ -5356,6 +5370,13 @@ const ru: TranslationKeys = {
   account_nav_notifications: "Уведомления",
   account_editPlaceholder: "Редактировать",
   account_prototype_savedLocally: "Сохранено локально в этом прототипе. Интеграция с бэкендом позже использует эту модель данных.",
+  account_backend_sourceNote: "Загружено из backend YORSO для текущей сессии.",
+  account_loading_title: "Проверяем сессию учётной записи",
+  account_loading_body: "YORSO подтверждает сессию и загружает операционный профиль компании до показа редактируемых разделов.",
+  account_unavailable_title: "Данные учётной записи временно недоступны",
+  account_unavailable_body: "Не удалось загрузить профиль из backend YORSO. Редактируемые разделы остаются закрытыми, пока backend не ответит.",
+  account_unavailable_retry: "Повторить",
+  account_remoteSaveFailed: "Не удалось сохранить изменение в backend YORSO. Попробуйте ещё раз.",
   account_signinRequired_title: "Войдите, чтобы открыть учётную запись",
   account_signinRequired_body: "Ваш операционный профиль доступен только после входа.",
   account_signinRequired_cta: "Войти",
@@ -7262,6 +7283,13 @@ const es: TranslationKeys = {
   account_nav_notifications: "Notificaciones",
   account_editPlaceholder: "Editar",
   account_prototype_savedLocally: "Guardado localmente en este prototipo. La integración con el backend usará este modelo de datos más adelante.",
+  account_backend_sourceNote: "Cargado desde el backend de YORSO para esta sesión iniciada.",
+  account_loading_title: "Comprobando la sesión de tu cuenta",
+  account_loading_body: "YORSO está confirmando tu sesión y cargando el perfil operativo de la empresa antes de mostrar las secciones editables.",
+  account_unavailable_title: "Los datos de la cuenta no están disponibles temporalmente",
+  account_unavailable_body: "No pudimos cargar tu perfil desde el backend de YORSO. Las secciones editables permanecen cerradas hasta que el backend responda.",
+  account_unavailable_retry: "Intentar de nuevo",
+  account_remoteSaveFailed: "No pudimos guardar este cambio en el backend de YORSO. Inténtalo de nuevo.",
   account_signinRequired_title: "Inicia sesión para abrir tu cuenta",
   account_signinRequired_body: "Tu perfil operativo está disponible para usuarios con sesión iniciada.",
   account_signinRequired_cta: "Iniciar sesión",

@@ -2,23 +2,70 @@
 
 ## Current Next Action
 
-1. Start Backend Phase 1A: Account Session Authority Gate from the completed
-   Phase 1 Account Source Of Truth discovery/audit.
+1. Finish validation and commit Backend Phase 1A: Account Session Authority
+   Gate.
 
-2. Preserve current known contracts: Phase 0 route-to-data-source contract,
+2. Phase 1A implemented locally:
+   - API-enabled `/account/*` validates `/v1/auth/session` before rendering
+     editable account sections;
+   - valid sessions hydrate account state from the self-hosted account API as
+     authority;
+   - `auth_session_required` / `auth_session_invalid` clears local buyer
+     session state and redirects to `/signin`;
+   - backend account load failures show an explicit unavailable state and keep
+     editable sections closed;
+   - API-enabled saves update UI only after `syncAccountProfileToApi` succeeds;
+   - API-disabled local preview keeps the existing localStorage/mock fallback.
+
+3. Preserve current known contracts: Phase 0 route-to-data-source contract,
    public sheet close locale a11y, public
    account menu a11y, public language selector a11y, public SEO, access gating,
    supplier identity redaction, exact-price lock, buyer-first trust narrative,
    Batch #112 code splitting, Batch #113 route chunk error boundary and
    Batches #110-#141 public UX/a11y safeguards.
 
-3. Treat Backend Phase 0 as closed with green gates and Phase 1 discovery as
+4. Treat Backend Phase 0 as closed with green gates and Phase 1 discovery as
    complete. The previous documented failures were remediated; do not
    reintroduce stale test contracts that check retired public UI copy or
    pre-safeguard CTA semantics.
 
-4. If a production-facing frontend behavior changes, include the 10,000
+5. If a production-facing frontend behavior changes, include the 10,000
    concurrent-user baseline note and validation.
+
+6. After Phase 1A is committed, the next concrete implementation is Backend
+   Phase 1B: section-scoped account mutations. That means replacing the current
+   broad full-profile six-endpoint save from each edit with narrower
+   section/action-specific writes and explicit transaction/failure boundaries.
+
+## Backend Phase 1A Account Session Authority Gate
+
+- Implementation doc:
+  `docs/backend/phase-1-account-session-authority-gate.md`.
+- Status:
+  - implemented locally;
+  - targeted account/auth/API tests passed;
+  - full validation and commit pending.
+- Concrete files changed:
+  - `src/pages/account/Account.tsx`;
+  - `src/components/account/AccountShell.tsx`;
+  - `src/i18n/translations.ts`;
+  - `src/pages/account/Account.test.tsx`;
+  - `src/pages/account/Account.editable.test.tsx`;
+  - `docs/backend/phase-1-account-session-authority-gate.md`;
+  - `docs/backend/production-scale-baseline.md`.
+- Targeted validation passed:
+  - `npx vitest run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-api.test.ts src/lib/auth-runtime.test.ts`;
+  - 4 files passed;
+  - 51 tests passed.
+- Additional validation passed:
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run build`.
+- Known non-blocking warnings in that targeted run:
+  - existing React Router v7 future flag warnings;
+  - existing `act(...)` warnings in legacy account editable tests.
 
 ## Backend Phase 1 Discovery Audit
 

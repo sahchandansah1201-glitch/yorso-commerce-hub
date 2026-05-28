@@ -1,6 +1,7 @@
 import { cloneElement, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { useParams, Navigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
+import Header from "@/components/landing/Header";
 import { AccountShell, type AccountSectionKey } from "@/components/account/AccountShell";
 import { AccountSectionCard } from "@/components/account/AccountSectionCard";
 import { EditableCard } from "@/components/account/EditableCard";
@@ -12,7 +13,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle2, Copy, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Copy,
+  Loader2,
+  Pencil,
+  Plus,
+  RefreshCcw,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
 import {
   createAccountApiClient,
@@ -20,6 +32,13 @@ import {
   hydrateAccountProfileFromApi,
   syncAccountProfileToApi,
 } from "@/lib/account-api";
+import {
+  isAuthRuntimeError,
+  isSelfHostedAuthConfigured,
+  readCurrentAuthSession,
+  type AuthRuntimeSession,
+} from "@/lib/auth-runtime";
+import { buyerSession } from "@/lib/buyer-session";
 import {
   validateEmail,
   validateLanguage,
@@ -52,6 +71,11 @@ const VALID: AccountSectionKey[] = [
 interface AccountUpdateOptions {
   syncRemote?: boolean;
 }
+
+type AccountUpdateResult = void | Promise<void>;
+type AccountSourceMode = "local" | "self_hosted";
+type AccountBootStatus = "loading" | "ready" | "auth_required" | "unavailable";
+type AccountApiClient = ReturnType<typeof createAccountApiClient>;
 
 const fallback = (v: string | undefined, nf: string) => (v && v.trim() ? v : nf);
 
@@ -275,7 +299,7 @@ const PersonalSection = ({
   onChange,
 }: {
   profile: AccountProfile;
-  onChange: (p: AccountProfile) => void;
+  onChange: (p: AccountProfile) => AccountUpdateResult;
 }) => {
   const { t } = useLanguage();
   const u = profile.user;
@@ -567,15 +591,18 @@ const qualLabelMap = (t: ReturnType<typeof useLanguage>["t"]) => ({
 const CompanySection = ({
   profile,
   onChange,
+  accountApiClient: accountApiClientProp,
 }: {
   profile: AccountProfile;
-  onChange: (p: AccountProfile, options?: AccountUpdateOptions) => void;
+  onChange: (p: AccountProfile, options?: AccountUpdateOptions) => AccountUpdateResult;
+  accountApiClient?: AccountApiClient;
 }) => {
   const { t } = useLanguage();
   const c = profile.company;
   const pub = pubLabelMap(t);
   const qual = qualLabelMap(t);
-  const accountApiClient = useMemo(() => createAccountApiClient(), []);
+  const fallbackAccountApiClient = useMemo(() => createAccountApiClient(), []);
+  const accountApiClient = accountApiClientProp ?? fallbackAccountApiClient;
 
   const saveCompany = (next: CompanyProfile) => onChange({ ...profile, company: next });
   const resolveMediaSrc = (value: string) => accountApiClient.resolveStoredFileUrl(value);
@@ -593,7 +620,7 @@ const CompanySection = ({
       },
       profile,
     );
-    onChange(result.profile, { syncRemote: false });
+    await onChange(result.profile, { syncRemote: false });
     return result.asset.objectKey;
   };
 
@@ -1034,7 +1061,7 @@ const BranchesSection = ({
   onChange,
 }: {
   profile: AccountProfile;
-  onChange: (next: AccountProfile) => void;
+  onChange: (next: AccountProfile) => AccountUpdateResult;
 }) => {
   const { t } = useLanguage();
   const branchTypeLabel = useMemo<Record<CompanyBranch["type"], string>>(
@@ -1646,7 +1673,7 @@ const ProductsSection = ({
   onChange,
 }: {
   profile: AccountProfile;
-  onChange: (next: AccountProfile) => void;
+  onChange: (next: AccountProfile) => AccountUpdateResult;
 }) => {
   const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -2478,7 +2505,7 @@ const MetaRegionsSection = ({
   onChange,
 }: {
   profile: AccountProfile;
-  onChange: (next: AccountProfile) => void;
+  onChange: (next: AccountProfile) => AccountUpdateResult;
 }) => {
   const { t } = useLanguage();
   const reasonLabel: Record<MetaRegion["logisticsReason"], string> = {
@@ -2763,7 +2790,7 @@ const NotificationsSection = ({
   onChange,
 }: {
   profile: AccountProfile;
-  onChange: (next: AccountProfile) => void;
+  onChange: (next: AccountProfile) => AccountUpdateResult;
 }) => {
   const { t } = useLanguage();
   const channelLabel: Record<NotificationPreference["channel"], string> = {
@@ -2986,35 +3013,174 @@ const NotificationsSection = ({
 
 // ─── ROUTER ────────────────────────────────────────────────────────
 
+const AccountStatusScreen = ({
+  kind,
+  onRetry,
+}: {
+  kind: "loading" | "unavailable";
+  onRetry?: () => void;
+}) => {
+  const { t } = useLanguage();
+  const isLoading = kind === "loading";
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header showSkipLink />
+      <main
+        id="main"
+        className="container flex min-h-[60vh] max-w-2xl items-center py-16"
+        data-testid={isLoading ? "account-session-loading" : "account-backend-unavailable"}
+      >
+        <section className="w-full rounded-lg border border-border bg-card p-6 shadow-sm sm:p-8">
+          <div className="flex items-start gap-4">
+            <div
+              className={
+                isLoading
+                  ? "flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary"
+                  : "flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-destructive/10 text-destructive"
+              }
+              aria-hidden
+            >
+              {isLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <AlertCircle className="h-5 w-5" />
+              )}
+            </div>
+            <div className="min-w-0 space-y-2">
+              <h1 className="font-heading text-2xl font-semibold text-foreground">
+                {isLoading ? t.account_loading_title : t.account_unavailable_title}
+              </h1>
+              <p className="text-sm leading-6 text-muted-foreground">
+                {isLoading ? t.account_loading_body : t.account_unavailable_body}
+              </p>
+              {!isLoading && onRetry ? (
+                <Button type="button" onClick={onRetry} className="mt-2" data-testid="account-backend-retry">
+                  <RefreshCcw className="mr-2 h-4 w-4" aria-hidden />
+                  {t.account_unavailable_retry}
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+};
+
 const Account = () => {
+  const { t } = useLanguage();
   const { section } = useParams<{ section?: string }>();
   const active = useMemo<AccountSectionKey | null>(() => {
     if (!section) return null;
     return (VALID as string[]).includes(section) ? (section as AccountSectionKey) : null;
   }, [section]);
 
-  const [profile, setProfile] = useState<AccountProfile>(() => getAccountProfile());
+  const apiEnabled = isSelfHostedAuthConfigured();
+  const sourceMode: AccountSourceMode = apiEnabled ? "self_hosted" : "local";
+  const [profile, setProfile] = useState<AccountProfile | null>(() =>
+    apiEnabled ? null : getAccountProfile(),
+  );
+  const [bootStatus, setBootStatus] = useState<AccountBootStatus>(() =>
+    apiEnabled ? "loading" : "ready",
+  );
+  const [bootRetry, setBootRetry] = useState(0);
+  const [authSession, setAuthSession] = useState<AuthRuntimeSession | null>(null);
   const syncVersionRef = useRef(0);
+  const accountApiClient = useMemo(
+    () =>
+      apiEnabled && authSession
+        ? createAccountApiClient({
+            sessionId: authSession.id,
+            userId: authSession.userId,
+          })
+        : createAccountApiClient(),
+    [apiEnabled, authSession],
+  );
 
   useEffect(() => {
-    let active = true;
+    let isMounted = true;
     const localProfile = getAccountProfile();
     const hydrationVersion = syncVersionRef.current;
 
-    hydrateAccountProfileFromApi(localProfile).then((remoteProfile) => {
-      if (!active || !remoteProfile || hydrationVersion !== syncVersionRef.current) return;
+    if (!apiEnabled) {
+      setAuthSession(null);
+      setProfile(localProfile);
+      setBootStatus("ready");
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    setAuthSession(null);
+    setProfile(null);
+    setBootStatus("loading");
+
+    void (async () => {
+      const authResult = await readCurrentAuthSession();
+      if (!isMounted || hydrationVersion !== syncVersionRef.current) return;
+
+      if (isAuthRuntimeError(authResult) || !authResult.session) {
+        const code = isAuthRuntimeError(authResult) ? authResult.code : "";
+        if (code !== "auth_session_required" && code !== "auth_session_invalid") {
+          setAuthSession(null);
+          setProfile(null);
+          setBootStatus("unavailable");
+          return;
+        }
+        buyerSession.signOut();
+        setAuthSession(null);
+        setBootStatus("auth_required");
+        return;
+      }
+
+      const client = createAccountApiClient({
+        sessionId: authResult.session.id,
+        userId: authResult.session.userId,
+      });
+      const remoteProfile = await hydrateAccountProfileFromApi(localProfile, client);
+      if (!isMounted || hydrationVersion !== syncVersionRef.current) return;
+
+      if (!remoteProfile) {
+        setAuthSession(authResult.session);
+        setProfile(null);
+        setBootStatus("unavailable");
+        return;
+      }
+
+      setAuthSession(authResult.session);
       setProfile(remoteProfile);
-      saveAccountProfile(remoteProfile);
+      setBootStatus("ready");
+    })().catch(() => {
+      if (!isMounted) return;
+      setAuthSession(null);
+      setProfile(null);
+      setBootStatus("unavailable");
     });
 
     return () => {
-      active = false;
+      isMounted = false;
     };
-  }, []);
+  }, [apiEnabled, bootRetry]);
 
-  const update = (next: AccountProfile, options: AccountUpdateOptions = {}) => {
+  const update = async (next: AccountProfile, options: AccountUpdateOptions = {}) => {
     syncVersionRef.current += 1;
     const syncVersion = syncVersionRef.current;
+
+    if (apiEnabled) {
+      if (options.syncRemote === false) {
+        setProfile(next);
+        return;
+      }
+
+      if (!authSession) throw new Error(t.account_remoteSaveFailed);
+      const remoteProfile = await syncAccountProfileToApi(next, accountApiClient);
+      if (!remoteProfile) throw new Error(t.account_remoteSaveFailed);
+      if (syncVersion !== syncVersionRef.current) return;
+      setProfile(remoteProfile);
+      return;
+    }
+
     setProfile(next);
     saveAccountProfile(next);
     if (options.syncRemote === false) return;
@@ -3026,6 +3192,11 @@ const Account = () => {
   };
 
   if (!active) return <Navigate to="/account/personal" replace />;
+  if (bootStatus === "auth_required") return <Navigate to="/signin" replace />;
+  if (bootStatus === "loading") return <AccountStatusScreen kind="loading" />;
+  if (bootStatus === "unavailable" || !profile) {
+    return <AccountStatusScreen kind="unavailable" onRetry={() => setBootRetry((value) => value + 1)} />;
+  }
 
   let content: JSX.Element;
   switch (active) {
@@ -3033,7 +3204,13 @@ const Account = () => {
       content = <PersonalSection profile={profile} onChange={update} />;
       break;
     case "company":
-      content = <CompanySection profile={profile} onChange={update} />;
+      content = (
+        <CompanySection
+          profile={profile}
+          onChange={update}
+          accountApiClient={accountApiClient}
+        />
+      );
       break;
     case "branches":
       content = <BranchesSection profile={profile} onChange={update} />;
@@ -3050,7 +3227,7 @@ const Account = () => {
   }
 
   return (
-    <AccountShell active={active} profile={profile}>
+    <AccountShell active={active} profile={profile} sourceMode={sourceMode}>
       {content}
     </AccountShell>
   );

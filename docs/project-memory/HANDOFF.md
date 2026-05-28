@@ -16,14 +16,48 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Start Backend Phase 1A: Account Session Authority Gate from the completed
-Phase 1 Account Source Of Truth discovery/audit.
+Finish validation and commit Backend Phase 1A: Account Session Authority Gate.
 
 ## Current Status
 
 - The repository is currently on `main`.
 - Backend Phase 0 closure audit and remediation are complete.
 - Phase 1 Account Source Of Truth discovery/audit is complete.
+- Phase 1A Account Session Authority Gate is implemented locally and targeted
+  account/auth/API validation is green.
+- Phase 1A implementation document:
+  `docs/backend/phase-1-account-session-authority-gate.md`.
+- Phase 1A implementation:
+  - API-enabled `/account/*` validates `/v1/auth/session` before rendering
+    editable private account sections;
+  - valid sessions hydrate account profile state from the self-hosted account
+    API as authority;
+  - `auth_session_required` / `auth_session_invalid` clears local buyer session
+    state and redirects to `/signin`;
+  - backend account load failure renders `account-backend-unavailable` and does
+    not render `account-content`;
+  - API-enabled saves wait for `syncAccountProfileToApi` before updating UI;
+  - API-disabled local preview still uses localStorage/mock fallback.
+- Phase 1A changed files:
+  `src/pages/account/Account.tsx`,
+  `src/components/account/AccountShell.tsx`,
+  `src/i18n/translations.ts`,
+  `src/pages/account/Account.test.tsx`,
+  `src/pages/account/Account.editable.test.tsx`,
+  `docs/backend/phase-1-account-session-authority-gate.md`,
+  `docs/backend/production-scale-baseline.md` and project-memory files.
+- Phase 1A targeted validation passed:
+  `npx vitest run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-api.test.ts src/lib/auth-runtime.test.ts`
+  with 4 files passed and 51 tests passed.
+- Additional Phase 1A validation passed:
+  `npx tsc -b --noEmit`, `npm run lint`,
+  `npm run check:production-scale-baseline`, `git diff --check` and
+  `npm run build`.
+- Phase 1A production build metric:
+  Account route chunk `Account-CSSVMLIT.js` 109.62 kB / 25.11 kB gzip.
+- Known non-blocking warnings in that run:
+  existing React Router v7 future flag warnings and existing `act(...)`
+  warnings in legacy account editable tests.
 - Phase 1 discovery/audit document:
   `docs/backend/phase-1-account-source-of-truth-discovery-audit.md`.
 - Phase 1 audit decision:
@@ -61,7 +95,10 @@ Phase 1 Account Source Of Truth discovery/audit.
 - Route-to-data-source contract now covers current `src/App.tsx` public,
   info/legal, account, dashboard, admin, redirect, dev and `*` routes.
 - Current next action:
-  - start Backend Phase 1A: Account Session Authority Gate.
+  - finish full validation, then commit Backend Phase 1A Account Session
+    Authority Gate.
+- Next concrete implementation after Phase 1A:
+  - Backend Phase 1B section-scoped account mutations and transaction boundary.
 - Batch #141 is implemented, validated and merged.
 - Batch #141 commit:
   `5eafcb7`, `[codex] Batch #141 public sheet close locale a11y`.
