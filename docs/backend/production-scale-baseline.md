@@ -4151,6 +4151,94 @@ Marker: account strict precondition policy.
 Marker: account source of truth.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 1E Account Media/Document Version Boundary
+
+Phase 1E extends the account version precondition contract to account-owned
+storage mutations. Document list/create and company media upload JSON responses
+now include `accountVersion`; strict production mode rejects media/document POST
+requests without `x-yorso-account-version`; stale storage mutations return
+`409 account_snapshot_conflict`.
+
+Expected read/write profile:
+
+- No public catalog or supplier access traffic is added.
+- `GET /v1/account/documents` adds one account-version lookup to a bounded
+  company-scoped document list.
+- `POST /v1/account/documents` adds one precondition lookup and one response
+  version lookup around existing document metadata creation.
+- `POST /v1/account/company/media/:slot` adds the same precondition/response
+  lookups around the existing file asset and company media update path.
+- Missing-header strict requests fail before body parsing and do not create
+  storage metadata.
+
+Cache, queue and backpressure strategy:
+
+- No new queue, polling, subscription or retry loop is introduced.
+- Existing auth/session cache remains the account authority boundary.
+- Existing JSON body and upload-size limits remain the upload backpressure
+  boundary.
+- Object storage writes remain synchronous in this phase.
+
+Database indexing and pagination strategy:
+
+- No new pagination surface is introduced.
+- Existing document listing remains company-scoped.
+- Account version lookup now includes `yorso_file_assets.created_at` and
+  `yorso_company_documents.updated_at`.
+- Existing required indexes:
+  `idx_yorso_file_assets_company_id`,
+  `idx_yorso_company_documents_company_id`, plus Phase 1C account ownership
+  indexes.
+
+Failure mode and graceful degradation:
+
+- Strict production clients without version headers receive
+  `428 account_version_required`.
+- Stale compliant media/document clients receive
+  `409 account_snapshot_conflict`.
+- Current YORSO account frontend uses the shared account API request helper, so
+  it learns `accountVersion` from document/media responses and sends it on
+  later writes.
+- Read-only file streaming routes stay outside JSON account version payloads.
+- A future media pipeline can move file metadata + account-version touch into a
+  transactional metadata boundary or outbox if upload processing becomes async.
+
+Observability and load-test plan:
+
+- Track `428 account_version_required` and `409 account_snapshot_conflict` on
+  storage account routes separately from profile/workspace account routes.
+- Track upload p95/p99 latency, body-size distribution, account-version lookup
+  latency and object storage write latency.
+- Load-test 10,000 concurrent users with document list, valid document upload,
+  valid media upload, missing-header upload and stale-header upload after
+  another account mutation.
+
+Validation:
+
+- `npm run contracts:build`;
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts`;
+- `npx vitest run src/lib/account-api.test.ts src/pages/account/Account.editable.test.tsx`;
+- `npx tsc -b --noEmit`.
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `git diff --check`;
+- `npm run api:build`;
+- `npm run build`.
+
+Validated locally on 2026-05-28:
+
+- API repository/server tests passed: 2 files, 80 tests;
+- frontend account API/editable tests passed: 2 files, 37 tests;
+- focused frontend account API adapter tests passed: 1 file, 16 tests;
+- production build passed with Account chunk
+  `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip;
+- known Supabase generated type and Browserslist warnings were preserved.
+
+Marker: Backend Phase 1E.
+Marker: account media document version boundary.
+Marker: account source of truth.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

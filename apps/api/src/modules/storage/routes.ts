@@ -10,6 +10,16 @@ import {
   sendAccountSessionError,
 } from "../auth/session.js";
 import type { FileService } from "./service.js";
+import {
+  readAccountVersionPrecondition,
+  type AccountVersionPreconditionOptions,
+} from "../account/version-precondition.js";
+
+async function accountVersionPayload(accountService: AccountService, userId: string) {
+  return {
+    accountVersion: await accountService.getAccountVersion(userId),
+  };
+}
 
 export async function handleStorageRoute(
   request: IncomingMessage,
@@ -21,6 +31,7 @@ export async function handleStorageRoute(
   pathname: string,
   jsonBodyOptions: JsonBodyReadOptions,
   auditSink: AuditSink,
+  options: AccountVersionPreconditionOptions = {},
 ) {
   try {
     if (pathname === "/v1/account/files/by-object-key") {
@@ -48,17 +59,25 @@ export async function handleStorageRoute(
       if (request.method === "GET") {
         const company = await accountService.getCompanyProfile(userId);
         const documents = await fileService.listCompanyDocuments(company.id);
-        sendJson(response, 200, { ok: true, documents, requestId: context.requestId });
+        sendJson(response, 200, {
+          ok: true,
+          documents,
+          ...(await accountVersionPayload(accountService, userId)),
+          requestId: context.requestId,
+        });
         return true;
       }
 
       if (request.method === "POST") {
+        const accountVersion = readAccountVersionPrecondition(request, options);
+        await accountService.assertAccountVersion(userId, accountVersion);
         const company = await accountService.getCompanyProfile(userId);
         const payload = fileService.parseDocumentCreate(await readJsonBody(request, {
           ...jsonBodyOptions,
           maxBytes: fileService.maxJsonBodyBytes,
         }));
         const document = await fileService.createCompanyDocument({ userId, companyId: company.id, payload });
+        await accountService.touchAccountVersion(userId);
         auditFromRequest(auditSink, context, request, {
           action: "storage.document.create",
           actorUserId: userId,
@@ -69,7 +88,12 @@ export async function handleStorageRoute(
           sessionId,
           statusCode: 201,
         });
-        sendJson(response, 201, { ok: true, document, requestId: context.requestId });
+        sendJson(response, 201, {
+          ok: true,
+          document,
+          ...(await accountVersionPayload(accountService, userId)),
+          requestId: context.requestId,
+        });
         return true;
       }
 
@@ -86,6 +110,8 @@ export async function handleStorageRoute(
       }
 
       const slot = pathname.endsWith("/logo") ? "logo" : "cover";
+      const accountVersion = readAccountVersionPrecondition(request, options);
+      await accountService.assertAccountVersion(userId, accountVersion);
       const company = await accountService.getCompanyProfile(userId);
       const upload = fileService.parseMediaUpload(await readJsonBody(request, {
         ...jsonBodyOptions,
@@ -124,6 +150,7 @@ export async function handleStorageRoute(
         ok: true,
         asset,
         company: nextCompany,
+        ...(await accountVersionPayload(accountService, userId)),
         requestId: context.requestId,
       });
       return true;
@@ -170,6 +197,28 @@ export async function handleStorageRoute(
 
     if (error instanceof Error && (error.message === "upload_too_large" || error.message === "upload_size_mismatch")) {
       sendError(response, 400, error.message, "Uploaded file payload is invalid.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "account_version_required") {
+      sendError(
+        response,
+        428,
+        error.message,
+        "Account version precondition is required for account mutations.",
+        context,
+      );
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "account_snapshot_conflict") {
+      sendError(
+        response,
+        409,
+        error.message,
+        "Account data changed since it was loaded. Reload account data and try again.",
+        context,
+      );
       return true;
     }
 

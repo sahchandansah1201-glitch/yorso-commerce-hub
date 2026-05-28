@@ -427,7 +427,18 @@ async function routeWorkRequest(
     auditSink,
     { versionPreconditionMode: config.accountVersionPreconditionMode },
   )) return;
-  if (await handleStorageRoute(request, response, context, accountService, fileService, authService, url.pathname, jsonBodyOptions, auditSink)) return;
+  if (await handleStorageRoute(
+    request,
+    response,
+    context,
+    accountService,
+    fileService,
+    authService,
+    url.pathname,
+    jsonBodyOptions,
+    auditSink,
+    { versionPreconditionMode: config.accountVersionPreconditionMode },
+  )) return;
   if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, authService, url)) return;
   if (await handleSupplierAccessRoute(request, response, context, supplierAccessService, authService, url, jsonBodyOptions, auditSink)) return;
   if (await handleSupplierDirectoryRoute(request, response, context, supplierService, authService, url)) return;

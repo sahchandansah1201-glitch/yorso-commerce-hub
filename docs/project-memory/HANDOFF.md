@@ -16,9 +16,9 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 1D account strict precondition policy is complete locally. Next
-step: commit the checkpoint if not already committed, then choose the next
-backend implementation from the plan.
+Backend Phase 1E account media/document version boundary is implemented
+locally with full release validation green. Next step: choose the next backend
+implementation from the plan.
 
 ## Current Status
 
@@ -32,6 +32,48 @@ backend implementation from the plan.
   release validation green.
 - Phase 1D Account Strict Precondition Policy is implemented locally with full
   release validation green.
+- Phase 1E Account Media/Document Version Boundary is implemented locally with
+  full release validation green.
+- Phase 1E implementation document:
+  `docs/backend/phase-1-account-media-document-version-boundary.md`.
+- Phase 1E implementation:
+  - shared account version precondition helper now serves account and storage
+    routes;
+  - `GET/POST /v1/account/documents` and
+    `POST /v1/account/company/media/:slot` JSON responses include
+    `accountVersion`;
+  - strict media/document POST routes reject missing
+    `x-yorso-account-version` as `428 account_version_required`;
+  - stale media/document POST routes reject with
+    `409 account_snapshot_conflict`;
+  - PostgreSQL account version includes file asset and company document
+    timestamps;
+  - frontend account API storage response types include `accountVersion`.
+- Phase 1E changed files:
+  `apps/api/src/modules/account/version-precondition.ts`,
+  `apps/api/src/modules/account/routes.ts`,
+  `apps/api/src/modules/account/repository.ts`,
+  `apps/api/src/modules/account/service.ts`,
+  `apps/api/src/modules/account/postgres-repository.ts`,
+  `apps/api/src/modules/storage/routes.ts`,
+  `apps/api/src/server.ts`,
+  `apps/api/src/server.test.ts`,
+  `src/lib/account-api.ts`,
+  `src/lib/account-api.test.ts`,
+  `docs/backend/phase-1-account-media-document-version-boundary.md`,
+  `docs/backend/production-scale-baseline.md` and project-memory files.
+- Phase 1E targeted validation passed:
+  `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts`
+  with 2 files passed and 80 tests passed;
+  `npx vitest run src/lib/account-api.test.ts`
+  with 1 file passed and 16 tests passed;
+  `npx tsc -b --noEmit`.
+- Phase 1E full validation passed:
+  `npm run contracts:build`, API repository/server tests, frontend
+  account-api/account editable tests, typecheck, lint, production-scale check,
+  diff check, API build and production build.
+- Phase 1E production build metric:
+  Account route chunk `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
 - Phase 1D implementation document:
   `docs/backend/phase-1-account-strict-precondition-policy.md`.
 - Phase 1D implementation:

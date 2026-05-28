@@ -2252,6 +2252,96 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(String(versionedUpdateBody.accountVersion)).not.toBe(accountVersion);
   });
 
+  it("requires account version headers for media and document mutations in strict precondition mode", async () => {
+    const strictConfig = loadApiConfig(
+      {
+        NODE_ENV: "test",
+        AUTH_SESSION_CACHE_DRIVER: "memory",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_TTL_MS: "300000",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
+      },
+      { allowLocalDefaults: true },
+    );
+    const fetchApi = await startRawTestServer({ config: strictConfig });
+    const buyerHeaders = await signIn(fetchApi, "buyer@example.com");
+
+    const missingPrecondition = await fetchApi("/v1/account/documents", {
+      method: "POST",
+      headers: buyerHeaders,
+      body: JSON.stringify({
+        title: "Missing precondition",
+        documentType: "other",
+        visibility: "private",
+        file: filePayload("strict-document"),
+      }),
+    });
+    expect(missingPrecondition.status).toBe(428);
+    await expect(missingPrecondition.json()).resolves.toMatchObject({
+      error: { code: "account_version_required" },
+    });
+
+    const accountRead = await fetchApi("/v1/account/me", { headers: buyerHeaders });
+    const accountReadBody = (await accountRead.json()) as JsonBody;
+    const accountVersion = String(accountReadBody.accountVersion);
+    expect(accountRead.status).toBe(200);
+    expect(accountVersion).toBeTruthy();
+
+    const documentCreate = await fetchApi("/v1/account/documents", {
+      method: "POST",
+      headers: {
+        ...buyerHeaders,
+        "x-yorso-account-version": accountVersion,
+      },
+      body: JSON.stringify({
+        title: "Strict HACCP",
+        documentType: "haccp",
+        visibility: "buyer_qualified",
+        file: filePayload("strict-doc"),
+      }),
+    });
+    const documentCreateBody = (await documentCreate.json()) as JsonBody;
+    expect(documentCreate.status).toBe(201);
+    expect(documentCreateBody.document).toMatchObject({ title: "Strict HACCP" });
+    const documentVersion = String(documentCreateBody.accountVersion);
+    expect(documentVersion).toBeTruthy();
+    expect(documentVersion).not.toBe(accountVersion);
+
+    const staleMediaUpload = await fetchApi("/v1/account/company/media/logo", {
+      method: "POST",
+      headers: {
+        ...buyerHeaders,
+        "x-yorso-account-version": accountVersion,
+      },
+      body: JSON.stringify({
+        ...filePayload("stale-logo", "logo.svg", "image/svg+xml"),
+        alt: "Stale logo",
+      }),
+    });
+    expect(staleMediaUpload.status).toBe(409);
+    await expect(staleMediaUpload.json()).resolves.toMatchObject({
+      error: { code: "account_snapshot_conflict" },
+    });
+
+    const mediaUpload = await fetchApi("/v1/account/company/media/logo", {
+      method: "POST",
+      headers: {
+        ...buyerHeaders,
+        "x-yorso-account-version": documentVersion,
+      },
+      body: JSON.stringify({
+        ...filePayload("fresh-logo", "logo.svg", "image/svg+xml"),
+        alt: "Fresh logo",
+      }),
+    });
+    const mediaUploadBody = (await mediaUpload.json()) as JsonBody;
+    expect(mediaUpload.status).toBe(201);
+    expect(mediaUploadBody.company).toMatchObject({
+      media: expect.objectContaining({ logoAlt: "Fresh logo" }),
+    });
+    expect(String(mediaUploadBody.accountVersion)).not.toBe(documentVersion);
+  });
+
   it("uploads company logo media through the self-hosted file route and updates company media", async () => {
     const fetchApi = await startTestServer();
     const response = await fetchApi("/v1/account/company/media/logo", {

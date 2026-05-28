@@ -358,6 +358,14 @@ export class PostgresAccountRepository implements AccountRepository {
           from yorso_company_media m
           join account_company c on c.id = m.company_id
           union all
+          select a.created_at
+          from yorso_file_assets a
+          join account_company c on c.id = a.company_id
+          union all
+          select d.updated_at
+          from yorso_company_documents d
+          join account_company c on c.id = d.company_id
+          union all
           select b.updated_at
           from yorso_company_branches b
           join account_company c on c.id = b.company_id
@@ -381,6 +389,11 @@ export class PostgresAccountRepository implements AccountRepository {
     );
 
     return ensureIso(result.rows[0]?.account_version ?? new Date());
+  }
+
+  async touchAccountVersion(userId: string): Promise<void> {
+    const companyId = await this.getCompanyIdForUser(userId);
+    await this.touchCompany(companyId);
   }
 
   async getUserProfile(userId: string): Promise<UserProfile | null> {

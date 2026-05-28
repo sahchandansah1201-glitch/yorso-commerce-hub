@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-28"
   active_branch: "main"
-  head_commit: "phase_1d_account_strict_precondition_policy"
-  head_summary: "Backend Phase 1D Account Strict Precondition Policy implemented locally and full release validation passed."
-  dirty_worktree_before_project_memory: true
+  head_commit: "phase_1e_account_media_document_version_boundary_checkpoint"
+  head_summary: "Backend Phase 1E Account Media/Document Version Boundary implemented and full release validation passed."
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Phase 1D code and documentation changes are intentional and should be committed as the checkpoint."
+    - "No expected dirty worktree after the Phase 1E checkpoint commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1d_account_strict_precondition_policy"
-  summary: "Production self-hosted account mutations can require x-yorso-account-version and reject missing preconditions with 428."
+  id: "backend_phase_1e_account_media_document_version_boundary"
+  summary: "Account-owned media and document routes participate in accountVersion and strict precondition handling."
   status: "implemented_locally_full_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 1E implementation is recorded in docs/backend/phase-1-account-media-document-version-boundary.md."
+    - "apps/api/src/modules/account/version-precondition.ts centralizes x-yorso-account-version precondition reading for account and storage routes."
+    - "apps/api/src/modules/storage/routes.ts now returns accountVersion on document list/create and company media upload responses."
+    - "Strict storage POST routes reject missing x-yorso-account-version with 428 account_version_required and stale headers with 409 account_snapshot_conflict."
+    - "PostgresAccountRepository account version now includes yorso_file_assets.created_at and yorso_company_documents.updated_at."
+    - "MemoryAccountRepository and AccountService expose touchAccountVersion for storage mutations."
+    - "src/lib/account-api.ts storage response types include accountVersion; src/lib/account-api.test.ts confirms document create sends the version learned from document list."
+    - "Phase 1E targeted validation passed: API repository/server tests, 2 files, 80 tests; account API adapter tests, 1 file, 16 tests; npx tsc -b --noEmit."
+    - "Phase 1E full release validation passed: npm run contracts:build; API repository/server tests, 2 files, 80 tests; frontend account API/editable tests, 2 files, 37 tests; npx tsc -b --noEmit; npm run lint; npm run check:production-scale-baseline; git diff --check; npm run api:build; npm run build."
+    - "Phase 1E production build Account route chunk: Account-qLSbC0qo.js 112.83 kB / 25.65 kB gzip."
     - "Phase 1D implementation is recorded in docs/backend/phase-1-account-strict-precondition-policy.md."
     - "apps/api/src/config.ts adds ACCOUNT_VERSION_PRECONDITION_MODE=optional|required, defaults local/dev/test to optional and requires required mode in production self-hosted runtime."
     - "apps/api/src/modules/account/routes.ts accepts versionPreconditionMode and returns 428 account_version_required for missing x-yorso-account-version when strict mode is required."
@@ -97,6 +107,7 @@ active_workstream:
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "Next planned workstream after Phase 1D checkpoint: choose the next account hardening item from the backend implementation plan, likely media/document version boundary or another Phase 1 account production-hardening item."
   confirmed_files:
+    - "docs/backend/phase-1-account-media-document-version-boundary.md"
     - "docs/backend/phase-1-account-strict-precondition-policy.md"
     - "docs/backend/phase-1-account-conflict-version-handling.md"
     - "docs/backend/phase-1-account-section-scoped-mutations.md"
@@ -1567,3 +1578,10 @@ open_questions:
     - "apps/api/src/server.ts"
     - "apps/api/src/modules/account/routes.ts"
     - "apps/api/src/server.test.ts"
+    - "apps/api/src/modules/account/version-precondition.ts"
+    - "apps/api/src/modules/account/repository.ts"
+    - "apps/api/src/modules/account/service.ts"
+    - "apps/api/src/modules/account/postgres-repository.ts"
+    - "apps/api/src/modules/storage/routes.ts"
+    - "src/lib/account-api.ts"
+    - "src/lib/account-api.test.ts"

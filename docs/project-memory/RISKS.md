@@ -92,3 +92,11 @@
     `required` mode in production self-hosted runtime and rejects normal
     `/v1/account/*` mutations missing `x-yorso-account-version` with
     `428 account_version_required` in strict mode.
+
+- Risk: Account-owned media/document mutations could bypass the account
+  version precondition policy.
+  Resolution: Backend Phase 1E applies the shared
+    `x-yorso-account-version` precondition to document create and company media
+    upload routes, returns refreshed `accountVersion` from document/media JSON
+    responses and includes file/document timestamps in the account snapshot
+    version.

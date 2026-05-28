@@ -158,6 +158,34 @@
   `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`, `RISKS.md`: Phase 1D
   checkpoint.
 
+## Backend Phase 1E Account Media/Document Version Boundary
+
+- `docs/backend/phase-1-account-media-document-version-boundary.md`:
+  implementation note, Russian plan/fact table and 10,000 concurrent-user
+  baseline for account-owned media/document version preconditions.
+- `apps/api/src/modules/account/version-precondition.ts`: shared
+  `x-yorso-account-version` reader and strict missing-header guard.
+- `apps/api/src/modules/account/routes.ts`: uses the shared precondition
+  helper.
+- `apps/api/src/modules/account/repository.ts`,
+  `service.ts` and `postgres-repository.ts`: account snapshot version can be
+  touched after storage mutations and PostgreSQL version includes file/document
+  timestamps.
+- `apps/api/src/modules/storage/routes.ts`: document list/create and company
+  media upload responses include `accountVersion`; strict/stale storage POST
+  routes return `428 account_version_required` / `409 account_snapshot_conflict`.
+- `apps/api/src/server.ts`: passes account version precondition mode into
+  storage route handling.
+- `apps/api/src/server.test.ts`: strict media/document precondition and stale
+  storage mutation coverage.
+- `src/lib/account-api.ts` and `src/lib/account-api.test.ts`: frontend account
+  API storage responses carry `accountVersion`, and document create sends the
+  version learned from document list.
+- `docs/backend/production-scale-baseline.md`: Backend Phase 1E capacity note.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Phase 1E checkpoint with
+  full release validation passed.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional

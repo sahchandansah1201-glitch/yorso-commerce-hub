@@ -1926,6 +1926,59 @@ Keep this file factual and append-only.
 
 ## 2026-05-28
 
+- Implemented Backend Phase 1E: Account Media/Document Version Boundary.
+- Added shared `apps/api/src/modules/account/version-precondition.ts` for
+  `x-yorso-account-version` parsing and strict missing-header enforcement.
+- Updated account routes to use the shared precondition helper.
+- Updated storage routes so:
+  - `GET /v1/account/documents` returns `accountVersion`;
+  - `POST /v1/account/documents` checks the account version precondition,
+    returns `428 account_version_required` when strict mode requires a header,
+    returns `409 account_snapshot_conflict` for stale headers and returns a
+    refreshed `accountVersion` after success;
+  - `POST /v1/account/company/media/logo|cover` follows the same strict/stale
+    precondition contract and returns refreshed `accountVersion`.
+- Updated account version sources:
+  - PostgreSQL account version now includes `yorso_file_assets.created_at` and
+    `yorso_company_documents.updated_at`;
+  - memory repository exposes `touchAccountVersion` so storage mutations can
+    bump account snapshot version.
+- Updated frontend account API storage response types to include
+  `accountVersion`.
+- Updated `src/lib/account-api.test.ts` so document create sends the version
+  learned from document list.
+- Added strict storage regression coverage to `apps/api/src/server.test.ts`.
+- Added `docs/backend/phase-1-account-media-document-version-boundary.md`.
+- Added the Phase 1E 10,000 concurrent-user capacity note to
+  `docs/backend/production-scale-baseline.md`.
+- Targeted validation passed:
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts`;
+  - 2 API files passed;
+  - 80 tests passed;
+  - `npx vitest run src/lib/account-api.test.ts`;
+  - 1 frontend file passed;
+  - 16 tests passed;
+  - `npx tsc -b --noEmit`.
+- Full release validation passed:
+  - `npm run contracts:build`;
+  - API repository/server tests: 2 files passed, 80 tests passed;
+  - frontend account API/editable tests: 2 files passed, 37 tests passed;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`;
+  - `npm run api:build`;
+  - `npm run build`.
+- Production build metric:
+  - Account route chunk `Account-qLSbC0qo.js` 112.83 kB / 25.65 kB gzip.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict mode;
+  - Browserslist data stale;
+  - existing React Router v7 future flag and `act(...)` warnings in focused
+    frontend tests.
+
+## 2026-05-28
+
 - Implemented Backend Phase 1C: Account Conflict Version Handling.
 - Added account snapshot version support to account repositories:
   - `MemoryAccountRepository` keeps a monotonic account version and bumps it on

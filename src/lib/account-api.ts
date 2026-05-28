@@ -180,20 +180,20 @@ export interface CompanyDocument {
   updatedAt: string;
 }
 
-interface BackendCompanyMediaUploadResponse {
+interface BackendCompanyMediaUploadResponse extends BackendAccountVersionResponse {
   ok: true;
   asset: AccountFileAsset;
   company: BackendCompanyProfile;
   requestId: string;
 }
 
-interface BackendCompanyDocumentsResponse {
+interface BackendCompanyDocumentsResponse extends BackendAccountVersionResponse {
   ok: true;
   documents: CompanyDocument[];
   requestId: string;
 }
 
-interface BackendCompanyDocumentCreateResponse {
+interface BackendCompanyDocumentCreateResponse extends BackendAccountVersionResponse {
   ok: true;
   document: CompanyDocument;
   requestId: string;

@@ -624,8 +624,8 @@ describe("account API adapter", () => {
   it("lists, creates and resolves company document file URLs through the self-hosted API adapter", async () => {
     const fetchImpl = vi
       .fn<typeof fetch>()
-      .mockResolvedValueOnce(jsonResponse({ ok: true, documents: [backendDocument], requestId: "r-docs" }))
-      .mockResolvedValueOnce(jsonResponse({ ok: true, document: backendDocument, requestId: "r-doc" }));
+      .mockResolvedValueOnce(jsonResponse({ ok: true, documents: [backendDocument], accountVersion: "account-v1", requestId: "r-docs" }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, document: backendDocument, accountVersion: "account-v2", requestId: "r-doc" }));
     const client = createAccountApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
 
     await expect(client.listCompanyDocuments()).resolves.toEqual([backendDocument]);
@@ -652,6 +652,8 @@ describe("account API adapter", () => {
       "http://localhost:3000/v1/account/documents",
       expect.objectContaining({ method: "POST" }),
     );
+    const [, createRequest] = fetchImpl.mock.calls[1] as [string, RequestInit];
+    expect(new Headers(createRequest.headers).get(ACCOUNT_VERSION_HEADER)).toBe("account-v1");
     expect(client.fileUrl(backendAsset.id)).toBe(
       "http://localhost:3000/v1/account/files/22222222-2222-4222-8222-222222222222?accountUserId=00000000-0000-4000-8000-000000000001",
     );

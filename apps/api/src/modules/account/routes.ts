@@ -9,16 +9,13 @@ import {
   sendAccountSessionError,
 } from "../auth/session.js";
 import type { AccountService } from "./service.js";
+import {
+  readAccountVersionPrecondition,
+  type AccountVersionPreconditionOptions,
+} from "./version-precondition.js";
 
 type AccountCollectionName = "branches" | "products" | "metaRegions" | "notifications";
 type AccountItemName = "branch" | "product" | "metaRegion" | "notification";
-export type AccountVersionPreconditionMode = "optional" | "required";
-
-export interface AccountRouteOptions {
-  versionPreconditionMode?: AccountVersionPreconditionMode;
-}
-
-const ACCOUNT_VERSION_HEADER = "x-yorso-account-version";
 
 const accountCollections = {
   "/v1/account/branches": {
@@ -114,20 +111,6 @@ function matchCollectionItem(pathname: string) {
   return null;
 }
 
-function readAccountVersionHeader(request: IncomingMessage) {
-  const value = request.headers[ACCOUNT_VERSION_HEADER];
-  if (Array.isArray(value)) return value[0]?.trim() ?? "";
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function readAccountVersionPrecondition(request: IncomingMessage, options: AccountRouteOptions) {
-  const version = readAccountVersionHeader(request);
-  if (options.versionPreconditionMode === "required" && !version) {
-    throw new Error("account_version_required");
-  }
-  return version;
-}
-
 async function accountVersionPayload(service: AccountService, userId: string) {
   return {
     accountVersion: await service.getAccountVersion(userId),
@@ -143,7 +126,7 @@ export async function handleAccountRoute(
   pathname: string,
   jsonBodyOptions: JsonBodyReadOptions,
   auditSink: AuditSink,
-  options: AccountRouteOptions = {},
+  options: AccountVersionPreconditionOptions = {},
 ) {
   try {
     if (pathname === "/v1/account/me") {

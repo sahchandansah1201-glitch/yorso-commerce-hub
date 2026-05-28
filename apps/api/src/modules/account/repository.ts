@@ -23,6 +23,7 @@ import type {
 
 export interface AccountRepository {
   getAccountVersion(userId: string): Promise<string>;
+  touchAccountVersion(userId: string): Promise<void>;
   getUserProfile(userId: string): Promise<UserProfile | null>;
   updateUserProfile(userId: string, update: UserProfileUpdate): Promise<UserProfile>;
   getCompanyProfile(userId: string): Promise<CompanyProfile | null>;
@@ -253,6 +254,11 @@ export class MemoryAccountRepository implements AccountRepository {
 
   private bumpAccountVersion(userId: string) {
     this.accountVersions.set(userId, nextAccountVersion());
+  }
+
+  async touchAccountVersion(userId: string) {
+    await this.getAccountVersion(userId);
+    this.bumpAccountVersion(userId);
   }
 
   async getUserProfile(userId: string) {

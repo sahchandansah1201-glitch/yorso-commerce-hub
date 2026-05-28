@@ -30,6 +30,10 @@ export class AccountService {
     return this.repository.getAccountVersion(userId);
   }
 
+  async touchAccountVersion(userId: string) {
+    await this.repository.touchAccountVersion(userId);
+  }
+
   async assertAccountVersion(userId: string, expectedVersion?: string) {
     const expected = expectedVersion?.trim();
     if (!expected) return;
