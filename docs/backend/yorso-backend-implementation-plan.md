@@ -187,7 +187,7 @@ starts.
 | `/offers/:id` | self-hosted catalog API when configured; API-disabled local fixture preview; no Supabase fallback | offer detail API, documents, related offers | Phase 3A closed |
 | `/suppliers` | mock suppliers | supplier directory public/qualified views | P0 |
 | `/suppliers/:supplierId` | mock suppliers | supplier profile public/qualified/owner views | P0 |
-| Supplier access panel | localStorage mock | access request workflow and audit | P0 |
+| Supplier access panel | self-hosted access API when configured; API-disabled local preview; no Supabase fallback | access request workflow, grants, notifications and audit | Phase 3B closed |
 | Catalog request form | sessionStorage mock | RFQ request API | P1 |
 | Blog | static data files | content source, SEO metadata, sitemap/RSS | P2 |
 | Analytics dashboards | mock data | event ingestion, funnel queries | P2 |

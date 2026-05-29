@@ -219,7 +219,7 @@ backend policy logic.
 | `/offers/:id` | self-hosted catalog API при настроенном API; API-disabled local fixture preview; без Supabase fallback | offer detail API, documents, related offers | Phase 3A закрыта |
 | `/suppliers` | mock suppliers | supplier directory public/qualified views | P0 |
 | `/suppliers/:supplierId` | mock suppliers | supplier profile public/qualified/owner views | P0 |
-| Supplier access panel | localStorage mock | access request workflow and audit | P0 |
+| Supplier access panel | self-hosted access API при настроенном API; API-disabled local preview; без Supabase fallback | access request workflow, grants, notifications и audit | Phase 3B закрыта |
 | Catalog request form | sessionStorage mock | RFQ request API | P1 |
 | Blog | static files | content source, SEO metadata, sitemap/RSS | P2 |
 | Analytics dashboards | mock data | event ingestion, funnel queries | P2 |

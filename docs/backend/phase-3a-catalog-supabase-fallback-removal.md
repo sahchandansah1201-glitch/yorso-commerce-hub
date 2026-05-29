@@ -46,10 +46,10 @@ Removed catalog fallback:
 
 | Area | Confirmed files | Status | Next removal |
 |---|---|---|---|
-| Supplier access prototype fallback | `src/lib/legacy-supplier-access-supabase-adapter.ts`, `src/lib/supplier-access-api.ts` | Still present by design. Not touched in Phase 3A. | Phase 3B. |
+| Supplier access prototype fallback | `src/lib/supplier-access-api.ts` | Removed after Phase 3A in Phase 3B. | No runtime action remains. |
 | Supabase reference tooling/tests | `supabase/`, `scripts/check-supabase-access-types.mjs`, `scripts/supabase-access-*.mjs`, RLS/reference tests | Still present as historical/reference tooling. | Phase 3C. |
 | Empty prototype env keys | `.env.example` `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` | Still present as empty prototype markers used by guards. | Remove after access/reference retirement. |
-| Supabase dependency | `@supabase/supabase-js` | Still needed by remaining supplier-access/reference imports. | Remove in final Supabase retirement batch. |
+| Supabase dependency | `@supabase/supabase-js` | Still needed by remaining reference tooling/tests. | Remove in final Supabase retirement batch. |
 
 ## 10,000 Concurrent-User Review
 

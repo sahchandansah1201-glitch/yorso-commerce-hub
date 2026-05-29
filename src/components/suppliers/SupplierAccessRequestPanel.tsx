@@ -9,9 +9,9 @@
  *   SupplierAccessRequestPanel  - the unsent state (CTA + supporting copy)
  *   SupplierAccessRequestSent   - the sent / pending / approved status card
  *
- * The request is routed through the supplier access adapter. It writes to the
- * backend when a Supabase auth user exists and falls back to local mock storage
- * for the frontend prototype.
+ * The request is routed through the supplier access adapter. Configured
+ * deployments write to the self-hosted YORSO API; API-disabled preview uses
+ * local mock storage only.
  *
  * No supplier company name is exposed before approval.
  *

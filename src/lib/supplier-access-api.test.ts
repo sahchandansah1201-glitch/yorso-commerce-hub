@@ -33,7 +33,7 @@ describe("supplier-access-api", () => {
     vi.unstubAllGlobals();
   });
 
-  it("falls back to local mock request when no Supabase auth user is available", async () => {
+  it("uses the local preview mock request only when the self-hosted API URL is disabled", async () => {
     const request = await requestSupplierAccess(SUPPLIER_ID);
 
     expect(request.supplierId).toBe(SUPPLIER_ID);
@@ -45,7 +45,7 @@ describe("supplier-access-api", () => {
     });
   });
 
-  it("reads the local fallback request when backend has no authenticated user", async () => {
+  it("reads the local preview request only when the self-hosted API URL is disabled", async () => {
     await requestSupplierAccess(SUPPLIER_ID);
 
     const request = await readSupplierAccessRequest(SUPPLIER_ID);
@@ -266,5 +266,45 @@ describe("supplier-access-api", () => {
         headers: expect.any(Headers),
       }),
     );
+  });
+
+  it("clears stale local approval when the configured self-hosted API read fails", async () => {
+    persistSupplierAccessRequest({
+      supplierId: SUPPLIER_ID,
+      intent: "exact_price",
+      status: "approved",
+      sentAt: "2026-05-14T00:00:00.000Z",
+      pendingAt: "2026-05-14T00:01:00.000Z",
+      approvedAt: "2026-05-14T00:02:00.000Z",
+      reasons: ["exact_price"],
+      message: "",
+    });
+    vi.stubEnv("VITE_YORSO_API_URL", "http://localhost:3000");
+    const fetchImpl = vi.fn(async () =>
+      new Response(JSON.stringify({
+        error: { code: "supplier_access_unavailable" },
+      }), { status: 503, headers: { "content-type": "application/json" } }),
+    );
+    vi.stubGlobal("fetch", fetchImpl);
+
+    await expect(readSupplierAccessRequest(SUPPLIER_ID)).resolves.toBeNull();
+
+    expect(readStore()[SUPPLIER_ID]).toBeUndefined();
+    expect(fetchImpl).toHaveBeenCalledOnce();
+  });
+
+  it("does not create a local preview request when the configured self-hosted API request fails", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "http://localhost:3000");
+    const fetchImpl = vi.fn(async () =>
+      new Response(JSON.stringify({
+        error: { code: "supplier_access_unavailable" },
+      }), { status: 503, headers: { "content-type": "application/json" } }),
+    );
+    vi.stubGlobal("fetch", fetchImpl);
+
+    await expect(requestSupplierAccess(SUPPLIER_ID)).rejects.toThrow("supplier_access_unavailable");
+
+    expect(readStore()[SUPPLIER_ID]).toBeUndefined();
+    expect(fetchImpl).toHaveBeenCalledOnce();
   });
 });

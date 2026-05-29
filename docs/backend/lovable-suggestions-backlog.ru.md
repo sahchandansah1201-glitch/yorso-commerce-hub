@@ -131,13 +131,12 @@ model. Но он еще не означает полный production backend: f
 
 Прогресс по adapters:
 
-- `src/lib/supplier-access-api.ts` подключает Supplier Access Flow к
-  `supplier_access_requests`, если есть реальный Supabase auth user;
-- при отсутствии backend auth adapter сохраняет текущий local mock fallback,
-  чтобы Lovable preview и прототип не ломались.
-- `log_supplier_access_event(...)` пишет audit event для supplier access request
-  через контролируемую SECURITY DEFINER RPC. Frontend adapter вызывает ее после
-  создания backend-запроса; local mock fallback audit events не пишет.
+- Устаревшее Supabase-направление закрыто в Backend Phase 3B: `src/lib/supplier-access-api.ts`
+  больше не подключается к Supabase auth/RLS и не вызывает
+  `supplier_access_requests` / `log_supplier_access_event` через Supabase.
+- Production path для Supplier Access Flow теперь идет через self-hosted
+  `/v1/access/*`; при отсутствии `VITE_YORSO_API_URL` остается только local
+  preview mock, чтобы Lovable preview и прототип не ломались.
 - Access event hardening добавляет composite indexes для audit queries по
   request/supplier/actor/target и отклоняет не-object metadata payloads в RPC.
 - `access_events_admin` дает read-only admin audit view с контекстом actor,
@@ -146,10 +145,8 @@ model. Но он еще не означает полный production backend: f
 - `npm run check:supabase-types` остается non-strict preview/build guard,
   потому что Lovable может регенерировать `types.ts` из своего Supabase schema.
   Команда сообщает о drift, но не блокирует сборку приложения.
-- `src/lib/supplier-access-api.ts` содержит локальный Supplier Access backend
-  contract и использует untyped Supabase calls для `supplier_access_requests` и
-  `log_supplier_access_event`, поэтому TypeScript не зависит от generated access
-  typings, которые Lovable может удалить.
+- `src/lib/supplier-access-api.ts` содержит frontend contract для self-hosted
+  Supplier Access backend и не использует untyped Supabase calls.
 - `npm run check:supabase-types:strict` является backend-readiness gate. Он
   должен проходить после применения migrations и регенерации `types.ts`; он
   падает, если отсутствуют `access_events`, `access_grants`,

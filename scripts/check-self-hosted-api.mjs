@@ -219,7 +219,6 @@ const requiredFiles = [
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.boundary.test.ts",
   "src/lib/supplier-access-api.test.ts",
-  "src/lib/legacy-supplier-access-supabase-adapter.ts",
   "src/lib/supplier-approval-notifications.ts",
   "src/lib/use-supplier-access-notifications.ts",
   "src/lib/use-supplier-access-notifications.test.tsx",
@@ -254,6 +253,7 @@ const requiredFiles = [
   "docs/backend/phase-2i-password-recovery-cleanup-runtime.md",
   "docs/backend/phase-2j-auth-surface-closure-audit.md",
   "docs/backend/phase-3a-catalog-supabase-fallback-removal.md",
+  "docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -478,6 +478,7 @@ const phase2hPasswordRecoveryAbuseCleanup = read("docs/backend/phase-2h-password
 const phase2iPasswordRecoveryCleanupRuntime = read("docs/backend/phase-2i-password-recovery-cleanup-runtime.md");
 const phase2jAuthSurfaceClosureAudit = read("docs/backend/phase-2j-auth-surface-closure-audit.md");
 const phase3aCatalogSupabaseFallbackRemoval = read("docs/backend/phase-3a-catalog-supabase-fallback-removal.md");
+const phase3bSupplierAccessSupabaseFallbackRemoval = read("docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -514,7 +515,6 @@ const offersPage = read("src/pages/Offers.tsx");
 const offerDetailPage = read("src/pages/OfferDetail.tsx");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
 const supplierAccessApiBoundaryTest = read("src/lib/supplier-access-api.boundary.test.ts");
-const legacySupplierAccessSupabaseAdapter = read("src/lib/legacy-supplier-access-supabase-adapter.ts");
 const supplierApprovalNotifications = read("src/lib/supplier-approval-notifications.ts");
 const useSupplierAccessNotifications = read("src/lib/use-supplier-access-notifications.ts");
 const useSupplierAccessNotificationsTest = read("src/lib/use-supplier-access-notifications.test.tsx");
@@ -2889,6 +2889,16 @@ for (const marker of [
   requireText("docs/backend/phase-3a-catalog-supabase-fallback-removal.md", phase3aCatalogSupabaseFallbackRemoval, marker);
 }
 for (const marker of [
+  "Backend Phase 3B",
+  "Supplier Access Supabase Fallback Removal",
+  "Plan / Fact",
+  "No supplier-access path falls back to Supabase",
+  "Remaining Supabase / Prototype Debt After Phase 3B",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md", phase3bSupplierAccessSupabaseFallbackRemoval, marker);
+}
+for (const marker of [
   "PasswordRecoveryDeliveryWorker",
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
@@ -4051,14 +4061,16 @@ requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "clearSupplierA
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "isSupplierAccessApiConfigured");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "acknowledgeSupplierAccessNotifications");
 requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "acknowledgeNotifications");
-requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "legacy-supplier-access-supabase-adapter");
-requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, "@/integrations/supabase/client");
-requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, "readLegacySupplierAccessRequest");
-requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, "requestLegacySupplierAccess");
-requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, "log_supplier_access_event");
-requireText("src/lib/legacy-supplier-access-supabase-adapter.ts", legacySupplierAccessSupabaseAdapter, "supplier_access_requests");
-requireText("src/lib/supplier-access-api.boundary.test.ts", supplierAccessApiBoundaryTest, "keeps direct Supabase imports out of supplier-access-api.ts");
-requireText("src/lib/supplier-access-api.boundary.test.ts", supplierAccessApiBoundaryTest, "isolated legacy Supabase adapter");
+requireText("src/lib/supplier-access-api.ts", supplierAccessApi, "never fall back to Supabase auth, RLS or prototype tables");
+forbidText("src/lib/supplier-access-api.ts", supplierAccessApi, "legacy-supplier-access-supabase-adapter");
+forbidText("src/lib/supplier-access-api.ts", supplierAccessApi, "readLegacySupplierAccessRequest");
+forbidText("src/lib/supplier-access-api.ts", supplierAccessApi, "requestLegacySupplierAccess");
+forbidText("src/lib/supplier-access-api.ts", supplierAccessApi, "isLegacySupplierAccessSupabaseConfigured");
+if (existsSync("src/lib/legacy-supplier-access-supabase-adapter.ts")) {
+  failures.push("src/lib/legacy-supplier-access-supabase-adapter.ts: removed supplier-access Supabase fallback file must stay absent");
+}
+requireText("src/lib/supplier-access-api.boundary.test.ts", supplierAccessApiBoundaryTest, "keeps API-disabled preview local-only without Supabase auth or RLS fallback");
+requireText("src/lib/supplier-access-api.boundary.test.ts", supplierAccessApiBoundaryTest, "keeps Supabase and the deleted legacy adapter out of supplier-access-api.ts");
 requireText("src/lib/use-supplier-access-notifications.ts", useSupplierAccessNotifications, "useSupplierAccessNotifications");
 requireText("src/lib/use-supplier-access-notifications.ts", useSupplierAccessNotifications, "readSupplierAccessNotifications");
 requireText("src/lib/use-supplier-access-notifications.ts", useSupplierAccessNotifications, "acknowledgeSupplierAccessNotifications");

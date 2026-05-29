@@ -118,7 +118,7 @@ mistaken for production data surfaces.
 | `src/data/mockSuppliers.ts` | supplier directory/profile fixtures | `supplier_profiles`, `supplier_certifications`, `supplier_delivery_markets`, `supplier_documents` |
 | `src/data/mockOffers.ts` | catalog and offer fixtures | `products`, `offers`, `offer_prices`, `offer_media`, `offer_delivery_terms`, `offer_documents` |
 | `src/data/mockIntelligence.ts` | price/news/doc readiness fixtures | market intelligence tables or external ingestion later |
-| `src/lib/supplier-access-requests.ts` | local access request state | `supplier_access_requests`, `access_grants`, `access_events` |
+| `src/lib/supplier-access-api.ts` / `src/lib/supplier-access-requests.ts` | self-hosted access API when configured; API-disabled local preview only; no Supabase fallback | `supplier_access_requests`, `access_grants`, `access_events`, `access_notifications` |
 | `src/lib/supplier-access-approval.ts` | mock approval notification | backend status transition and notification queue |
 | `src/lib/catalog-requests.ts` | session RFQ/request state | `buyer_requests`, `buyer_request_items`, `supplier_responses` |
 | `src/lib/buyer-session.ts` | frontend session bridge | YORSO API session plus resolved company membership |
@@ -133,8 +133,8 @@ Production adapter rule:
 
 - page/component code calls `src/lib/*-api.ts`;
 - adapters call the self-hosted YORSO API;
-- Supabase-specific adapters may remain only as temporary legacy prototype
-  bridges and must not be production dependencies;
+- Supabase-specific runtime adapters must not be production dependencies;
+  remaining Supabase references are historical/tooling debt until Phase 3C;
 - adapter return shapes must not expose restricted fields in locked states;
 - removing Supabase from production must not require page-level rewrites.
 

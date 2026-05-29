@@ -374,18 +374,18 @@ surface. Guards and `src/lib/catalog-api.boundary.test.ts` prevent
 `fetchLegacyCatalogOffers`, `fetchLegacyCatalogOfferById` or the removed
 `src/lib/legacy-catalog-supabase-adapter.ts` file from returning.
 
-Batch #69 closes the legacy supplier access Supabase adapter boundary.
-`src/lib/supplier-access-api.ts` remains the self-hosted-first access facade:
-configured deployments use `/v1/access/suppliers/:supplierId/request` and
-`/v1/access/notifications`, while the temporary Supabase read/write path is
-isolated in `src/lib/legacy-supplier-access-supabase-adapter.ts`. The legacy
-adapter owns `supplier_access_requests` reads/inserts and
-`log_supplier_access_event` calls for prototype continuity only. At 10,000
-concurrent users this prevents the buyer access hot path from depending on
-prototype Supabase auth/RLS while preserving local fallback behavior for
-unfinished environments. `src/lib/supplier-access-api.boundary.test.ts`,
-`check:self-hosted-api` and `check:production-scale-baseline` prevent direct
-Supabase imports from returning to the supplier access facade.
+Backend Phase 3B removes the supplier access Supabase fallback that Batch #69
+previously isolated. `src/lib/supplier-access-api.ts` remains the
+self-hosted-first access facade: configured deployments use
+`/v1/access/suppliers/:supplierId/request` and `/v1/access/notifications`;
+API-disabled preview uses only local supplier-access preview storage. No
+supplier-access path falls back to Supabase auth, RLS or prototype tables. At
+10,000 concurrent users this removes an unowned external access read/write path
+under load and keeps buyer trust state on the owned access API, database indexes
+and notification flow. `src/lib/supplier-access-api.boundary.test.ts`,
+`check:self-hosted-api` and `check:production-scale-baseline` now fail if the
+removed `src/lib/legacy-supplier-access-supabase-adapter.ts` file or legacy
+adapter markers return.
 
 Phase 2J closes the auth Supabase removal boundary.
 `src/lib/auth-runtime.ts` remains the production-facing auth facade for
@@ -5235,10 +5235,11 @@ Observability and load-test plan:
 - Load-test auth through the self-hosted API only; validate no browser auth
   bundle imports the Supabase client or removed auth adapter.
 
-After Backend Phase 3A, remaining Supabase/prototype debt is explicitly scoped
-to supplier-access fallback (`legacy-supplier-access-supabase-adapter`),
-Supabase reference tooling/tests, empty prototype env keys and the
-`@supabase/supabase-js` dependency. Those are separate Phase 3 removal targets.
+After Backend Phase 3B, remaining Supabase/prototype debt is explicitly scoped
+to Supabase reference tooling/tests, empty prototype env keys and the
+`@supabase/supabase-js` dependency. Catalog and supplier-access runtime
+fallbacks are removed. Those remaining items are separate Phase 3C removal
+targets.
 
 Validation:
 

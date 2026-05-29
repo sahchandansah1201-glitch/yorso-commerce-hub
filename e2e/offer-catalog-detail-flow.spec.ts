@@ -16,7 +16,7 @@ const SUPPLIER_ID = "nordic-seafood";
 const OTHER_SUPPLIER_ID = "pacifico-export";
 const ACCESS_STORAGE_KEY = "yorso_supplier_access_requests";
 const ACCESS_CHANGE_EVENT = "yorso:supplier-access-change";
-const EXACT_PRICE_PATTERN = /\$(8\.50|8\.70|8\.90|9\.00|9\.10|9\.20|9\.30|9\.80|10\.00)/;
+const EXACT_PRICE_PATTERN = /\$(8\.50|8\.70|8\.85|8\.90|9\.00|9\.10|9\.20|9\.30|9\.80|10\.00)/;
 
 const installRegisteredStorage = async (page: Page) => {
   await page.addInitScript(() => {
@@ -136,7 +136,7 @@ test.describe("/offers -> /offers/:id · supplier approval bridge", () => {
       "qualified_unlocked",
     );
     await expect(salmonRow(page).getByTestId("catalog-row-supplier-name")).toContainText(SUPPLIER_NAME);
-    await expect(salmonRow(page).getByTestId("catalog-row-price")).toContainText("USD");
+    await expect(salmonRow(page).getByTestId("catalog-row-price")).toContainText(EXACT_PRICE_PATTERN);
   });
 
   test("unrelated approval does not unlock the catalog/detail flow", async ({ page }) => {

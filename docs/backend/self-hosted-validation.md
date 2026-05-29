@@ -670,18 +670,23 @@ removal validation:
   `fetchLegacyCatalogOffers`, `fetchLegacyCatalogOfferById`, `SupplierPublicRow`
   or a direct Supabase client dependency returns to the catalog facade.
 
-Batch #69 adds legacy supplier access Supabase adapter boundary validation:
+Backend Phase 3B replaces Batch #69's legacy supplier access Supabase adapter
+boundary with a removal guard:
 
 - `src/lib/supplier-access-api.ts` remains the self-hosted-first access facade
   for request status, request creation and notification acknowledgement;
-- `src/lib/legacy-supplier-access-supabase-adapter.ts` owns the temporary
-  Supabase `supplier_access_requests` and `log_supplier_access_event` bridge;
-- `src/lib/supplier-access-api.boundary.test.ts` verifies the legacy adapter
-  fallback, local mock fallback and absence of direct Supabase imports in
-  `supplier-access-api.ts`;
+- configured deployments use only `/v1/access/suppliers/:supplierId/request`
+  and `/v1/access/notifications`;
+- API-disabled preview uses only local `supplier-access-requests` storage;
+- `src/lib/legacy-supplier-access-supabase-adapter.ts` is removed and must stay
+  absent;
+- `src/lib/supplier-access-api.boundary.test.ts` verifies API-disabled local
+  preview behavior, fail-closed configured API behavior and absence of deleted
+  legacy Supabase markers in `supplier-access-api.ts`;
 - `test:supplier-access-frontend` includes that boundary test;
 - `check:self-hosted-api` and `check:production-scale-baseline` fail if the
-  supplier access facade regains a direct Supabase client dependency.
+  supplier access facade regains a direct Supabase client dependency or the
+  removed legacy adapter file returns.
 
 Phase 2J replaces Batch #70's legacy auth Supabase adapter boundary with a
 removal guard:

@@ -5,9 +5,9 @@
  * and the new backend access foundation:
  *
  * - when `VITE_YORSO_API_URL` is configured, use the self-hosted YORSO API;
- * - when the self-hosted API is not configured, keep prototype Supabase reads
- *   isolated in `legacy-supplier-access-supabase-adapter.ts`;
- * - when neither backend is available, keep the localStorage mock fallback;
+ * - when the self-hosted API is not configured, keep the localStorage preview
+ *   mock so the buyer flow remains usable in local/static demos;
+ * - never fall back to Supabase auth, RLS or prototype tables;
  * - never expose supplier identity here. This adapter only carries status.
  */
 import {
@@ -204,14 +204,6 @@ export function createSupplierAccessApiClient(
 export const isSupplierAccessApiConfigured = () =>
   createSupplierAccessApiClient().enabled;
 
-const getLegacySupplierAccessAdapter = async () => {
-  try {
-    return await import("@/lib/legacy-supplier-access-supabase-adapter");
-  } catch {
-    return null;
-  }
-};
-
 export const readSupplierAccessRequest = async (
   supplierId: string | undefined,
 ): Promise<SupplierAccessRequest | null> => {
@@ -225,14 +217,9 @@ export const readSupplierAccessRequest = async (
       clearSupplierAccessRequest(supplierId);
       return null;
     } catch {
-      // Keep preview resilient: prototype fallback continues below.
+      clearSupplierAccessRequest(supplierId);
+      return null;
     }
-  }
-
-  const legacySupabase = await getLegacySupplierAccessAdapter();
-  if (legacySupabase?.isLegacySupplierAccessSupabaseConfigured()) {
-    const legacyRequest = await legacySupabase.readLegacySupplierAccessRequest(supplierId);
-    if (legacyRequest) return legacyRequest;
   }
 
   return getSupplierAccessRequest(supplierId);
@@ -243,17 +230,7 @@ export const requestSupplierAccess = async (
 ): Promise<SupplierAccessRequest> => {
   const selfHosted = createSupplierAccessApiClient();
   if (selfHosted.enabled) {
-    try {
-      return await selfHosted.request(supplierId);
-    } catch {
-      // Keep preview resilient: prototype fallback continues below.
-    }
-  }
-
-  const legacySupabase = await getLegacySupplierAccessAdapter();
-  if (legacySupabase?.isLegacySupplierAccessSupabaseConfigured()) {
-    const legacyRequest = await legacySupabase.requestLegacySupplierAccess(supplierId);
-    if (legacyRequest) return legacyRequest;
+    return selfHosted.request(supplierId);
   }
 
   return createSupplierAccessRequest(supplierId);

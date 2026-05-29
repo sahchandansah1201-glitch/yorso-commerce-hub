@@ -19,7 +19,7 @@ const PRODUCT_NAME = "Atlantic Salmon Fillet Skin-On Pin Bone Out Premium Grade"
 const SUPPLIER_NAME = "Nordic Seafood AS";
 const SUPPLIER_ID = "nordic-seafood";
 const OTHER_SUPPLIER_ID = "pacifico-export";
-const EXACT_PRICE_PATTERN = /\$(8\.50|8\.70|8\.90|9\.00|9\.10|9\.20|9\.30|9\.80|10\.00)/;
+const EXACT_PRICE_PATTERN = /\$(8\.50|8\.70|8\.85|8\.90|9\.00|9\.10|9\.20|9\.30|9\.80|10\.00)/;
 
 type SupplierAccessStatus = "none" | "sent" | "approved";
 
@@ -390,7 +390,7 @@ test.describe("/offers API-backed catalog/detail approval bridge", () => {
       "qualified_unlocked",
     );
     await expect(salmonRow(page).getByTestId("catalog-row-supplier-name")).toContainText(SUPPLIER_NAME);
-    await expect(salmonRow(page).getByTestId("catalog-row-price")).toContainText("USD");
+    await expect(salmonRow(page).getByTestId("catalog-row-price")).toContainText(EXACT_PRICE_PATTERN);
   });
 
   test("backend approval for another supplier does not unlock the current catalog/detail flow", async ({ page }) => {

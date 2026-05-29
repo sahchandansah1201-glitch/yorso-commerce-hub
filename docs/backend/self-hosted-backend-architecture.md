@@ -761,15 +761,15 @@ catalog adapter. No catalog path calls Supabase. The guard scripts now fail if
 markers return, or if the deleted `legacy-catalog-supabase-adapter.ts` file is
 reintroduced.
 
-Batch #69 closes the supplier-access Supabase boundary. `src/lib/supplier-access-api.ts`
-continues to own the production-facing request/status/notification facade, but
-it reaches prototype Supabase only through
-`src/lib/legacy-supplier-access-supabase-adapter.ts` when the self-hosted API is
-not configured. The self-hosted path keeps using explicit account headers,
-`/v1/access/suppliers/:supplierId/request` and `/v1/access/notifications`; the
-legacy adapter is limited to temporary `supplier_access_requests` and
-`log_supplier_access_event` compatibility. Guard scripts fail if
-`supplier-access-api.ts` imports the Supabase client directly.
+Backend Phase 3B removes the supplier-access Supabase fallback that Batch #69
+had previously isolated. `src/lib/supplier-access-api.ts` continues to own the
+production-facing request/status/notification facade, but it no longer reaches
+Supabase auth, RLS or prototype tables. Configured deployments use explicit
+account headers, `/v1/access/suppliers/:supplierId/request` and
+`/v1/access/notifications`; API-disabled preview uses only local
+`supplier-access-requests` storage. Guard scripts fail if `supplier-access-api.ts`
+imports the Supabase client, if removed legacy adapter markers return, or if the
+deleted `legacy-supplier-access-supabase-adapter.ts` file is reintroduced.
 
 Phase 2J removes the auth Supabase boundary instead of keeping it isolated.
 `src/lib/auth-runtime.ts` remains the only production-facing frontend auth
