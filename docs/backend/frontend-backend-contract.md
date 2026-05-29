@@ -85,12 +85,12 @@ mistaken for production data surfaces.
 | `/for-suppliers` | Supplier acquisition landing | static content | CMS-ready static page, conversion events | P3 |
 | `/blog` | SEO/content index | static `blogPosts` and i18n patches | content source, SEO metadata, sitemap/RSS later | P2 |
 | `/blog/:slug` | Article page | static `blogPosts` | content source, article metadata, structured data | P2 |
-| `/account/personal` | User profile | `mockAccount`, localStorage | user profile API | P0 |
-| `/account/company` | Company profile and media | `mockAccount`, localStorage, local file URLs | company profile API, self-hosted object storage, publication status | P0 |
-| `/account/branches` | Branch list | read-only `mockAccount` | branch CRUD API | P1 |
-| `/account/products` | Product matrix | read-only `mockAccount` | company product CRUD API | P1 |
-| `/account/meta-regions` | Logistics grouping | read-only `mockAccount` | meta-region CRUD API | P1 |
-| `/account/notifications` | Notification preferences | read-only `mockAccount` | notification preference API | P1 |
+| `/account/personal` | User profile | self-hosted account workspace snapshot when `VITE_YORSO_API_URL` is configured; localStorage/mock only in API-disabled preview | `GET /v1/account/workspace`, `PATCH /v1/account/me` | Phase 1 closed |
+| `/account/company` | Company profile and media | self-hosted account workspace snapshot and self-hosted account storage when API is configured; local file URLs only in API-disabled preview | `GET /v1/account/workspace`, `PATCH /v1/account/company`, self-hosted object storage | Phase 1 closed |
+| `/account/branches` | Branch list | self-hosted account workspace snapshot when API is configured | row-level branch API, bulk replace compatibility | Phase 1 closed |
+| `/account/products` | Product matrix | self-hosted account workspace snapshot when API is configured | row-level product API, bulk replace compatibility | Phase 1 closed |
+| `/account/meta-regions` | Logistics grouping | self-hosted account workspace snapshot when API is configured | row-level meta-region API, bulk replace compatibility | Phase 1 closed |
+| `/account/notifications` | Notification preferences | self-hosted account workspace snapshot when API is configured | row-level notification API, bulk replace compatibility | Phase 1 closed |
 | `/account` | Account legacy/current entry | client redirect to `/account/personal` | redirect only; no data source | P0 |
 | `/profile` and `/profile/*` | Legacy profile aliases | client redirects to account sections | redirect compatibility only; no data source | P0 |
 | `/dashboard/registration-funnel` | Analytics demo | deterministic mock | analytics warehouse or event aggregates | P3 |
@@ -114,7 +114,7 @@ mistaken for production data surfaces.
 | Current file/source | Current role | Backend replacement |
 |---|---|---|
 | `src/data/mockAccount.ts` | account fixtures | `profiles`, `companies`, `company_branches`, `company_products`, `company_meta_regions`, `notification_preferences` |
-| `src/lib/account-store.ts` | local account persistence | `account-api.ts` using self-hosted YORSO API |
+| `src/lib/account-store.ts` | API-disabled account preview cache only after Phase 1 | `account-api.ts` using self-hosted YORSO API as production authority |
 | `src/data/mockSuppliers.ts` | supplier directory/profile fixtures | `supplier_profiles`, `supplier_certifications`, `supplier_delivery_markets`, `supplier_documents` |
 | `src/data/mockOffers.ts` | catalog and offer fixtures | `products`, `offers`, `offer_prices`, `offer_media`, `offer_delivery_terms`, `offer_documents` |
 | `src/data/mockIntelligence.ts` | price/news/doc readiness fixtures | market intelligence tables or external ingestion later |

@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "phase_1i_account_workspace_aggregate_read_in_progress"
+head_commit: "phase_1j_account_source_of_truth_closure_audit_committed_local"
 latest_merged_batch: 141
-active_workstream: "backend_phase_1i_account_workspace_aggregate_read"
+active_workstream: "backend_phase_1j_account_source_of_truth_closure_audit"
 pull_request: null
-recommended_action: "commit the Phase 1I checkpoint"
-why_low: "Backend Phase 0 closure audit and remediation are recorded in docs/backend/phase-0-closure-audit.md. Phase 1 discovery/audit is recorded in docs/backend/phase-1-account-source-of-truth-discovery-audit.md. Phase 1A-1H are documented and validated. Phase 1I implementation is recorded in docs/backend/phase-1-account-workspace-aggregate-read.md; targeted and full release validation passed."
+recommended_action: "start Backend Phase 2A registration-to-account creation source of truth, unless the user chooses legacy Supabase consolidation first"
+why_low: "Backend Phase 0 closure audit and remediation are recorded in docs/backend/phase-0-closure-audit.md. Phase 1 discovery/audit is recorded in docs/backend/phase-1-account-source-of-truth-discovery-audit.md. Phase 1A-1I are documented, committed and validated. Phase 1J closure audit is recorded in docs/backend/phase-1-account-source-of-truth-closure-audit.md; self-hosted production runtime, production-scale baseline, lint and diff checks passed."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_1i_account_workspace_aggregate_read.
-Current HEAD baseline: Phase 1I in-progress checkpoint after Backend Phase 1H commit; Batch #141 merge commit 5eafcb7 is preserved.
+Current workstream: backend_phase_1j_account_source_of_truth_closure_audit.
+Current HEAD baseline: Phase 1J closure audit committed locally after Backend Phase 1I; Batch #141 merge commit 5eafcb7 is preserved.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,11 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: commit the Phase 1I checkpoint.
+Current recommended action: start Backend Phase 2A registration-to-account creation source of truth, unless the user chooses the legacy Supabase consolidation workstream first.
+Phase 1J implemented locally: docs/backend/phase-1-account-source-of-truth-closure-audit.md closes Backend Phase 1 Account Source Of Truth as a documented gate after Phases 1A-1I. It does not add runtime code.
+Phase 1J account authority finding: API-enabled /account/* now validates the self-hosted session, hydrates through self-hosted account API, saves through backend authority, uses accountVersion conflict/precondition handling and keeps localStorage/mock only for API-disabled preview.
+Phase 1J self-contained product boundary: account Phase 1 production path uses self-hosted auth/session/account API, PostgreSQL and self-hosted file storage. Existing Supabase references remain legacy/prototype debt outside this Phase 1 closure and need a separate consolidation/removal workstream.
+Phase 1J validation passed: npm run check:self-hosted-production-runtime; npm run check:production-scale-baseline; npm run lint; git diff --check.
 Phase 1 audit finding: backend auth/account authority exists, but /account/* remains local-first through localStorage/mock profile hydration and browser sessionStorage gating.
 Phase 1A implemented locally: API-enabled /account/* validates /v1/auth/session before rendering editable account data, hydrates account state from the self-hosted API as authority, clears invalid/missing buyer sessions and redirects to /signin, exposes backend-unavailable and save-failed states, and keeps localStorage/mock fallback only for API-disabled local preview.
 Phase 1A targeted validation passed: npx vitest run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-api.test.ts src/lib/auth-runtime.test.ts, 4 files passed, 51 tests passed.

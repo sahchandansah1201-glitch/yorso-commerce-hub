@@ -164,6 +164,23 @@
 - `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
   `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Phase 1I checkpoint.
 
+## Backend Phase 1J Account Source Of Truth Closure Audit
+
+- `docs/backend/phase-1-account-source-of-truth-closure-audit.md`: closure
+  audit for Backend Phase 1 Account Source Of Truth, including Russian
+  plan/fact table, exit criteria status, implementation map, remaining product
+  debt outside Phase 1 and the 10,000 concurrent-user review.
+- `docs/backend/frontend-backend-contract.md`: updated account route/data-source
+  contract so `/account/*` points to the self-hosted account workspace snapshot
+  in API-enabled production, with localStorage/mock limited to API-disabled
+  preview mode.
+- `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
+  `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Phase 1J checkpoint.
+- Validation passed:
+  `npm run check:self-hosted-production-runtime`,
+  `npm run check:production-scale-baseline`, `npm run lint`,
+  `git diff --check`.
+
 ## Backend Phase 1D Account Strict Precondition Policy
 
 - `docs/backend/phase-1-account-strict-precondition-policy.md`:

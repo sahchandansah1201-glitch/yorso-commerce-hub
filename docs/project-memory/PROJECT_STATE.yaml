@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "phase_1i_account_workspace_aggregate_read_in_progress"
-  head_summary: "Backend Phase 1I Account Workspace Aggregate Read implemented locally with full release validation passed."
+  head_commit: "phase_1j_account_source_of_truth_closure_audit_committed_local"
+  head_summary: "Backend Phase 1J Account Source Of Truth Closure Audit committed locally with validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "No expected dirty worktree after the Phase 1F checkpoint commit."
+    - "No expected dirty worktree after the Phase 1J checkpoint commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,19 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1i_account_workspace_aggregate_read"
-  summary: "API-enabled account hydration now uses one authenticated self-hosted workspace snapshot endpoint instead of six section reads."
-  status: "implemented_locally_full_validation_passed"
+  id: "backend_phase_1j_account_source_of_truth_closure_audit"
+  summary: "Backend Phase 1 Account Source Of Truth is closure-audited as self-hosted account authority, with remaining non-account Supabase/prototype debt explicitly out of scope."
+  status: "committed_locally_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 1J closure audit is recorded in docs/backend/phase-1-account-source-of-truth-closure-audit.md."
+    - "Phase 1J does not add runtime code; it closes Backend Phase 1 Account Source Of Truth as a documented gate after Phases 1A-1I."
+    - "Phase 1J verifies that API-enabled /account/* validates the self-hosted session, hydrates account workspace from the self-hosted API, saves through backend authority, enforces accountVersion conflicts/preconditions and no longer uses localStorage as production write source."
+    - "Phase 1J documents the self-contained production boundary: account Phase 1 uses self-hosted auth/session/account API, PostgreSQL and self-hosted file storage; Supabase references remain legacy/prototype debt outside this closure."
+    - "docs/backend/frontend-backend-contract.md was updated so /account/* is mapped to self-hosted account workspace snapshot authority in API-enabled production and localStorage/mock only in API-disabled preview."
+    - "Phase 1J validation passed: npm run check:self-hosted-production-runtime; npm run check:production-scale-baseline; npm run lint; git diff --check."
+    - "Recommended next implementation after the Phase 1J checkpoint: Backend Phase 2A registration-to-account creation and verification source of truth, or a scoped self-hosted consolidation pass for remaining legacy Supabase surfaces."
     - "Phase 1I implementation is recorded in docs/backend/phase-1-account-workspace-aggregate-read.md."
     - "Backend exposes GET /v1/account/workspace through the existing account session authority and returns user, company, branches, products, metaRegions, notifications, accountVersion and requestId."
     - "PostgresAccountRepository.getWorkspaceSnapshot returns the account workspace via one scoped SQL query with JSON aggregation and account-version calculation."
@@ -135,8 +142,9 @@ active_workstream:
     - "Remediation aligned stale RU/i18n test contracts with current UI/access behavior, pinned sign-in locale tests to local auth, mounted the required buyer-session provider for registration funnel coverage, localized qualified exact-price formatting and catalog category labels, and bounded Supabase-backed public access smoke handling for transient network timeouts."
     - "Start from current repository files and runtime surfaces, not old chat memory."
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
-    - "Next planned workstream after Phase 1D checkpoint: choose the next account hardening item from the backend implementation plan, likely media/document version boundary or another Phase 1 account production-hardening item."
+    - "Next planned workstream after Phase 1J checkpoint: Backend Phase 2A registration-to-account creation and verification source of truth, or a scoped self-hosted consolidation pass for remaining legacy Supabase surfaces."
   confirmed_files:
+    - "docs/backend/phase-1-account-source-of-truth-closure-audit.md"
     - "docs/backend/phase-1-account-workspace-aggregate-read.md"
     - "docs/backend/phase-1-account-media-document-version-boundary.md"
     - "docs/backend/phase-1-account-strict-precondition-policy.md"

@@ -2193,3 +2193,27 @@ Keep this file factual and append-only.
   - `npm run build`.
 - Production build metric:
   - Account route chunk `Account-CK-9-38I.js` 112.88 kB / 25.69 kB gzip.
+
+## 2026-05-29
+
+- Implemented Backend Phase 1J: Account Source Of Truth Closure Audit.
+- Added `docs/backend/phase-1-account-source-of-truth-closure-audit.md` with:
+  - Russian plan/fact table;
+  - Phase 1 exit criteria status;
+  - Phase 1A-1I implementation map;
+  - explicit self-contained production boundary for account runtime;
+  - remaining product debt outside Phase 1;
+  - 10,000 concurrent-user review.
+- Updated `docs/backend/frontend-backend-contract.md` so `/account/*` maps to
+  the self-hosted account workspace snapshot in API-enabled production, with
+  localStorage/mock limited to API-disabled preview mode.
+- Updated project-memory checkpoint files for Phase 1J.
+- No production runtime code changed in Phase 1J.
+- Validation passed:
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run lint`;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict mode;
+  - Browserslist data stale.
