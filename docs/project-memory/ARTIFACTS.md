@@ -1212,6 +1212,33 @@
   `docs/backend/self-hosted-production-deploy.md` and
   `docs/backend/self-hosted-validation.md`: production/readiness updates.
 
+## Backend Phase 2J Auth Surface Closure
+
+- `docs/backend/phase-2j-auth-surface-closure-audit.md`: Phase 2J plan/fact,
+  closed auth surface map, removed auth Supabase code, remaining debt list,
+  10,000 concurrent-user review and validation.
+- `src/lib/auth-runtime.ts`: self-hosted/local-only auth facade; removed
+  Supabase env branching and dynamic legacy adapter loading.
+- `src/lib/auth-runtime.test.ts`: runtime coverage for self-hosted auth,
+  local contract auth, ignored prototype Supabase env values and self-hosted
+  password recovery.
+- `src/lib/auth-runtime.boundary.test.ts`: static guard that the removed
+  auth Supabase adapter file stays absent and auth runtime stays free of
+  fallback markers.
+- `src/lib/buyer-session.ts` and `src/lib/analytics.ts`: auth/session source
+  types reduced to `self_hosted` / `local_contract`.
+- Deleted `src/lib/legacy-auth-supabase-adapter.ts`: removed prototype
+  Supabase email sign-in, password reset, recovery observer and password update
+  code.
+- `src/pages/ResetPassword.tsx`: self-hosted reset-token completion comment.
+- `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: guard coverage forbidding the
+  removed auth Supabase fallback from returning.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/self-hosted-backend-architecture.md` and
+  `docs/backend/self-hosted-validation.md`: contract/readiness updates.
+
 ## Lovable Sync Prompts
 
 ## Batch #133 Public Breadcrumb Locale A11y

@@ -2,42 +2,43 @@
 
 ## Current Next Action
 
-Backend Phase 2I is implemented and committed locally at `70d65de6`.
+Backend Phase 2J is implemented and committed locally at `f753224f`.
 
-Phase 2I wires the Phase 2H password recovery cleanup policy into an owned
-self-hosted API scheduler. It does not add Supabase, hosted BaaS, SaaS email
-provider coupling or public UI layout changes.
+Phase 2J closes Phases 2A-2I as one self-hosted auth, registration and password
+recovery surface. The remaining auth Supabase prototype fallback was removed
+from code.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Cleanup scheduler | Запускать очистку password recovery вне public request handlers. | Реализовано: `PasswordRecoveryCleanupScheduler` вызывает worker, пропускает overlapping runs и пишет success/failure/skipped события. | Позже можно добавить admin visibility по queue/cleanup age. |
-| Runtime factory | Включать cleanup только явной self-hosted настройкой. | Реализовано: `createPasswordRecoveryCleanupRuntime` создаёт scheduler только при `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true`. | Production держит worker включённым. |
-| API lifecycle | Старт/стоп cleanup должен быть связан с API process, а не с пользовательским запросом. | Реализовано: `createApiServer` стартует scheduler на `listening` и останавливает на `close`. | Закрыто в commit `70d65de6`. |
-| Production guard | Production должен fail closed без cleanup runtime. | Реализовано: `assertSelfHostedProductionRuntime` требует `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true`; env/compose содержат interval, batch, retention и worker id. | Retention values остаются config-owned. |
-| Observability/smoke | Нужна проверка runtime без PII/token labels. | Реализовано: Prometheus metrics `yorso_api_password_recovery_cleanup_worker_*`; smoke ждёт `password_recovery_cleanup_runtime_guard=ok`. | Alert thresholds позже. |
+| Auth runtime | Убрать Supabase auth fallback из `/signin` и `/reset-password`. | Реализовано: `auth-runtime.ts` не содержит `legacy-auth-supabase-adapter`, `supabase_prototype`, `VITE_SUPABASE` branching или direct Supabase import. | Не возвращать hosted auth provider в runtime. |
+| Adapter file | Удалить код, который вызывал Supabase Auth. | Реализовано: `src/lib/legacy-auth-supabase-adapter.ts` удалён. | Boundary test проверяет отсутствие файла. |
+| Session/analytics source | Убрать Supabase как источник browser session. | Реализовано: `AuthRuntimeSource`, `BuyerSessionSource`, analytics auth/workspace source = `self_hosted` / `local_contract`. | Старые optional source значения больше не эмитятся runtime'ом. |
+| Guards | Запретить возврат auth Supabase fallback. | Реализовано: `test:auth-runtime`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать guards в `ci:core`. |
+| Debt list | Точно выделить оставшийся Supabase/prototype debt вне auth. | Реализовано: Phase 2J doc фиксирует catalog fallback, supplier-access fallback, Supabase reference tooling/tests, empty env keys и dependency. | Убирать отдельными Phase 3 batches. |
 
-## Next Implementation After Phase 2I
+## Next Implementation After Phase 2J
 
 Recommended next scoped workstream:
 
-Backend Phase 2J: auth/registration/password recovery closure audit.
+Backend Phase 3A: catalog Supabase fallback removal.
 
 Concrete scope:
 
-- проверить Phase 2A-2I как единый self-hosted auth/registration/password
-  recovery surface;
-- подтвердить, что production path не зависит от Supabase/BaaS/provider runtime;
-- сверить env examples, Docker Compose, production guards, smoke markers,
-  metrics and docs;
-- составить точный список оставшегося Supabase/prototype debt;
-- выбрать следующий implementation step только после audit findings.
+- удалить `src/lib/legacy-catalog-supabase-adapter.ts`;
+- перевести `src/lib/catalog-api.ts` в self-hosted API first + local fixture
+  preview only, без Supabase fallback;
+- обновить `src/lib/catalog-api.boundary.test.ts`, `useLandingOffers` source
+  naming and related docs/guards;
+- подтвердить `/`, `/offers`, `/offers/:id` behavior through existing
+  self-hosted API/local fixture paths;
+- не трогать supplier-access fallback в этом же batch, кроме фиксации как
+  следующего отдельного debt.
 
-Alternative:
+Alternative after Phase 3A:
 
-Backend Phase 3A: scoped legacy Supabase consolidation/removal for the first
-remaining production-relevant surface found by Phase 2J.
+Backend Phase 3B: supplier-access Supabase fallback removal.
 
 ## Guardrails To Preserve
 

@@ -16,18 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 2I Password Recovery Cleanup Runtime is committed locally at
-`70d65de6`; release validation passed.
+Backend Phase 2J Auth Surface Closure is committed locally at `f753224f`;
+release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scheduler | Запускать password recovery cleanup вне public request handlers. | Реализовано: `PasswordRecoveryCleanupScheduler` вызывает worker, пропускает overlap и пишет success/failure/skipped events. | В будущем можно добавить admin visibility по queue age. |
-| Runtime factory | Включать cleanup только явной self-hosted настройкой. | Реализовано: `createPasswordRecoveryCleanupRuntime` возвращает `null` по умолчанию и создаёт scheduler при `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true`. | Production должен держать worker включённым. |
-| Server lifecycle | Старт/стоп cleanup должен следовать lifecycle API process. | Реализовано: scheduler стартует на `listening` и останавливается на `close`. | Не связывать cleanup с request path. |
-| Production guard | Production должен fail closed без cleanup runtime. | Реализовано: `assertSelfHostedProductionRuntime` требует `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true`. | Retention остаётся config-owned. |
-| Metrics/smoke | Проверить runtime без PII/token labels. | Реализовано: Prometheus metrics и smoke marker `password_recovery_cleanup_runtime_guard=ok`. | Alert thresholds позже. |
+| Auth runtime | Убрать Supabase auth fallback из `/signin` и `/reset-password`. | Реализовано: `auth-runtime.ts` не содержит `legacy-auth-supabase-adapter`, `supabase_prototype`, `VITE_SUPABASE` branching или direct Supabase import. | Не возвращать hosted auth provider. |
+| Adapter file | Удалить код вызова Supabase Auth. | Реализовано: `src/lib/legacy-auth-supabase-adapter.ts` удалён. | Boundary test проверяет отсутствие файла. |
+| Session source | Убрать Supabase как источник browser session. | Реализовано: `AuthRuntimeSource`, `BuyerSessionSource` и analytics source = `self_hosted` / `local_contract`. | Старые optional source значения больше не эмитятся runtime'ом. |
+| Guards | Запретить возврат auth Supabase fallback. | Реализовано: `test:auth-runtime`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать в CI. |
+| Debt list | Точно выделить оставшийся Supabase/prototype debt вне auth. | Реализовано: catalog fallback, supplier-access fallback, reference tooling/tests, empty env keys и dependency listed. | Phase 3A начнёт removal. |
 
 ## Current Status
 
@@ -35,44 +35,37 @@ Backend Phase 2I Password Recovery Cleanup Runtime is committed locally at
 - Latest public UX/a11y safeguard batch synced: Batch #141.
 - Backend Phase 0 closure audit and remediation are complete.
 - Backend Phase 1 discovery/audit and Phases 1A-1J are complete.
-- Backend Phase 2A-2H are committed locally and validation green.
-- Backend Phase 2I is committed locally at `70d65de6`; release validation passed.
+- Backend Phase 2A-2I are committed locally and validation green.
+- Backend Phase 2J is committed locally at `f753224f`; release validation passed.
 
-## Phase 2I Files
+## Phase 2J Files
 
-- `docs/backend/phase-2i-password-recovery-cleanup-runtime.md`
-- `apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts`
-- `apps/api/src/modules/auth/password-recovery-cleanup-scheduler.test.ts`
-- `apps/api/src/modules/auth/password-recovery-cleanup-runtime.ts`
-- `apps/api/src/modules/auth/password-recovery-cleanup-runtime.test.ts`
-- `apps/api/src/config.ts`
-- `apps/api/src/metrics.ts`
-- `apps/api/src/metrics.test.ts`
-- `apps/api/src/server.ts`
-- `apps/api/src/server.test.ts`
-- `.env.example`
-- `.env.production.example`
-- `infra/docker-compose.yml`
+- `docs/backend/phase-2j-auth-surface-closure-audit.md`
+- `src/lib/auth-runtime.ts`
+- `src/lib/auth-runtime.test.ts`
+- `src/lib/auth-runtime.boundary.test.ts`
+- `src/lib/buyer-session.ts`
+- `src/lib/analytics.ts`
+- `src/pages/ResetPassword.tsx`
+- deleted: `src/lib/legacy-auth-supabase-adapter.ts`
 - `scripts/check-self-hosted-api.mjs`
-- `scripts/check-self-hosted-infra.mjs`
-- `scripts/check-self-hosted-production-runtime.mjs`
 - `scripts/check-production-scale-baseline.mjs`
-- `scripts/smoke-self-hosted-auth-api.mjs`
+- `docs/backend/frontend-backend-contract.md`
 - `docs/backend/production-scale-baseline.md`
-- `docs/backend/self-hosted-auth-api-smoke.md`
-- `docs/backend/self-hosted-production-deploy.md`
+- `docs/backend/self-hosted-backend-architecture.md`
 - `docs/backend/self-hosted-validation.md`
 
 ## Validation
 
 Passed locally on 2026-05-29:
 
-- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/password-recovery-cleanup-scheduler.test.ts apps/api/src/modules/auth/password-recovery-cleanup-runtime.test.ts apps/api/src/modules/auth/password-recovery-cleanup.test.ts apps/api/src/metrics.test.ts apps/api/src/server.test.ts -t "password recovery cleanup|metrics|production config"`
-- `npx tsc -b --noEmit`
-- `npm run check:self-hosted-infra`
-- `npm run check:self-hosted-production-runtime`
+- `npx vitest run src/lib/auth-runtime.test.ts src/lib/auth-runtime.boundary.test.ts src/lib/buyer-session.test.ts`
+- `npm run test:auth-runtime`
+- `npm run check:supabase-boundary`
 - `npm run check:self-hosted-api`
+- `npm run check:self-hosted-production-runtime`
 - `npm run check:production-scale-baseline`
+- `npx tsc -b --noEmit`
 - `npm run test:api`
 - `npm test`
 - `npm run lint`
@@ -88,16 +81,15 @@ Known non-blocking warnings:
 
 ## Next Recommended Workstream
 
-Backend Phase 2J: auth/registration/password recovery closure audit.
+Backend Phase 3A: catalog Supabase fallback removal.
 
 Concrete next function:
 
-- verify Phase 2A-2I registration/auth/password recovery source-of-truth
-  runtime as one closed backend surface;
-- map remaining Supabase/prototype fallback surfaces and separate production
-  blockers from local preview fallback;
-- validate production guards, env examples, runtime smoke and docs are aligned;
-- produce exact next implementation step after the closure audit;
+- remove `src/lib/legacy-catalog-supabase-adapter.ts`;
+- make `src/lib/catalog-api.ts` self-hosted API first plus local fixture
+  preview only, without Supabase fallback;
+- update catalog boundary tests, guards and docs;
+- keep supplier-access Supabase fallback as a separate Phase 3B debt;
 - preserve no hosted BaaS/Supabase production dependency.
 
 ## Preserve

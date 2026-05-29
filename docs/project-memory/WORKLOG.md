@@ -2709,3 +2709,65 @@ Keep this file factual and append-only.
 - Known non-blocking warnings preserved:
   - Supabase generated types out of sync in non-strict preview/build mode;
   - Browserslist data stale.
+
+## 2026-05-29
+
+- Implemented Backend Phase 2J: Auth Surface Closure And Supabase Prototype
+  Removal.
+- Closed Phase 2A-2I as one self-hosted auth, registration and password
+  recovery surface:
+  - registration: `/v1/auth/register/*`;
+  - sign-in/session/sign-out: `/v1/auth/sign-in`, `/v1/auth/session`,
+    `/v1/auth/sign-out`;
+  - password reset: `/v1/auth/password-reset/request`,
+    `/v1/auth/password-reset/complete`;
+  - delivery/cleanup: self-hosted workers/schedulers and file-spool handoff.
+- Removed auth Supabase prototype fallback from code:
+  - deleted `src/lib/legacy-auth-supabase-adapter.ts`;
+  - removed `legacy-auth-supabase-adapter` dynamic import from
+    `src/lib/auth-runtime.ts`;
+  - removed `supabase_prototype` from auth runtime source, buyer session source
+    and analytics source types;
+  - removed `VITE_SUPABASE_*` auth branching from `auth-runtime.ts`.
+- Updated `/reset-password` route comments to describe the self-hosted
+  `?token=` / `#token=` completion path.
+- Updated guards:
+  - `src/lib/auth-runtime.boundary.test.ts` asserts the deleted adapter file
+    stays absent;
+  - `scripts/check-self-hosted-api.mjs` forbids auth Supabase fallback markers;
+  - `scripts/check-production-scale-baseline.mjs` forbids the same markers and
+    requires the Phase 2J closure doc.
+- Added exact remaining debt list outside Phase 2J:
+  - catalog Supabase fallback;
+  - supplier-access Supabase fallback;
+  - Supabase reference tooling/tests;
+  - empty prototype env keys;
+  - `@supabase/supabase-js` dependency.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Auth runtime | Убрать Supabase auth fallback из `/signin` и `/reset-password`. | Реализовано: runtime self-hosted/local-only. | Не возвращать hosted auth provider. |
+| Adapter file | Удалить код вызова Supabase Auth. | Реализовано: `legacy-auth-supabase-adapter.ts` удалён. | Guard blocks return. |
+| Source types | Убрать Supabase session source. | Реализовано: `self_hosted` / `local_contract` only. | Старые values больше не эмитятся. |
+| Debt list | Точно выделить оставшийся debt вне auth. | Реализовано в Phase 2J doc. | Phase 3A: catalog fallback removal. |
+
+- Validation passed:
+  - `npx vitest run src/lib/auth-runtime.test.ts src/lib/auth-runtime.boundary.test.ts src/lib/buyer-session.test.ts`;
+  - `npm run test:auth-runtime`;
+  - `npm run check:supabase-boundary`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run test:api`;
+  - `npm test`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `npm run smoke:self-hosted-auth-api:run`;
+  - `git diff --check`;
+  - `npm run build`.
+- Commit: `f753224f` (`[codex] Backend Phase 2J auth surface closure`).
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.
