@@ -2277,6 +2277,66 @@ Keep this file factual and append-only.
 
 ## 2026-05-29
 
+- Implemented Backend Phase 2G: Password Recovery Delivery Runtime.
+- Added password recovery delivery processing:
+  - `PasswordRecoveryDeliveryWorker`;
+  - `PasswordRecoveryDeliveryScheduler`;
+  - `createPasswordRecoveryDeliveryRuntime`;
+  - `FileSpoolPasswordRecoverySender`.
+- Added memory and PostgreSQL repository support:
+  - `leasePasswordRecoveryDeliveryJobs`;
+  - `markPasswordRecoveryDeliverySent`;
+  - `markPasswordRecoveryDeliveryFailed`.
+- PostgreSQL leasing uses bounded ordered `for update skip locked` candidates
+  and excludes expired or already used recovery tokens before delivery.
+- File-spool handoff writes one `0600` JSON file per sent recovery delivery:
+  - delivery id;
+  - recovery id;
+  - backend-only destination;
+  - masked destination preview;
+  - reset URL;
+  - recovery token for owned operator/channel handoff;
+  - no provider credentials or hosted BaaS metadata.
+- Sender failure errors redact email, phone and password-recovery-token shaped
+  values before persistence.
+- `createApiServer` now starts/stops the password recovery delivery scheduler
+  with the HTTP server lifecycle when
+  `YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true`.
+- Added production fail-closed configuration:
+  - `YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true`;
+  - `YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool`;
+  - absolute `YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR`.
+- Added password recovery delivery worker metrics without email, destination,
+  recovery id or reset-token labels.
+- Updated `.env.example`, `.env.production.example`, `infra/docker-compose.yml`,
+  self-hosted guard scripts, backend docs, production-scale baseline,
+  frontend/backend contract and deployment docs.
+- Kept out of scope:
+  - hosted email provider integration;
+  - public UI changes;
+  - password policy/KDF changes;
+  - expired token cleanup/retention job.
+- Validation passed:
+  - `npm run contracts:build`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/password-recovery-delivery-worker.test.ts apps/api/src/modules/auth/password-recovery-delivery-sender.test.ts apps/api/src/modules/auth/password-recovery-delivery-runtime.test.ts apps/api/src/modules/auth/delivery-worker.test.ts apps/api/src/modules/auth/delivery-sender.test.ts apps/api/src/modules/auth/delivery-runtime.test.ts apps/api/src/metrics.test.ts apps/api/src/server.test.ts`;
+  - `npx tsc -b --noEmit`;
+  - `npm run test:db-migrations`;
+  - `npm run check:self-hosted-db`;
+  - `npm run check:self-hosted-infra`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run test:api`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `git diff --check`;
+  - `npm run build`.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.
+- Committed Backend Phase 2G implementation locally as `9485bd36`
+  (`[codex] Backend Phase 2G password recovery delivery runtime`).
+
 - Corrected the stale Phase 2E project-memory status: Phase 2E is committed
   locally at `c1afa712` and preserved.
 - Implemented Backend Phase 2F: Password Recovery Source Of Truth.

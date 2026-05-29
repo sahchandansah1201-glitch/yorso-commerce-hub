@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "project_memory_checkpoint_after_4c2da272"
+head_commit: "project_memory_checkpoint_after_9485bd36"
 latest_merged_batch: 141
-active_workstream: "backend_phase_2f_password_recovery_source_of_truth"
+active_workstream: "backend_phase_2g_password_recovery_delivery_runtime"
 pull_request: null
-recommended_action: "start Backend Phase 2G password recovery delivery worker/sender runtime"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2F are documented, committed and validated."
+recommended_action: "start Backend Phase 2H password recovery abuse-control and cleanup policy"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2G are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_2g_password_recovery_delivery_worker_sender_runtime.
-Current HEAD baseline: Backend Phase 2F password recovery source of truth implementation commit 4c2da272 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_2g_password_recovery_delivery_runtime.
+Current HEAD baseline: Backend Phase 2G password recovery delivery runtime implementation commit 9485bd36 is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,12 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: start Backend Phase 2G password recovery delivery worker/sender runtime.
+Current recommended action: start Backend Phase 2H password recovery abuse-control and cleanup policy.
+Phase 2G implemented and committed locally at 9485bd36: docs/backend/phase-2g-password-recovery-delivery-runtime.md records the self-hosted password recovery delivery runtime.
+Phase 2G runtime: PasswordRecoveryDeliveryWorker leases yorso_auth_password_recovery_outbox jobs, excludes expired/used recoveries, sends through FileSpoolPasswordRecoverySender, and marks rows sent, requeued or failed.
+Phase 2G delivery handoff: file-spool JSON contains reset URL/token for owned operator/channel delivery, uses mode 0600, and stays outside browser-visible API responses and logs.
+Phase 2G production guard: production self-hosted runtime requires YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true, YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool and an absolute YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR.
+Phase 2G validation passed: npm run contracts:build; focused password recovery delivery worker/sender/runtime/API metrics/server tests; npx tsc -b --noEmit; npm run test:db-migrations; npm run check:self-hosted-db; npm run check:self-hosted-infra; npm run check:self-hosted-production-runtime; npm run check:self-hosted-api; npm run check:production-scale-baseline; npm run test:api; npm run lint; npm run api:build; git diff --check; npm run build.
 Phase 2F implemented and committed locally at 4c2da272: docs/backend/phase-2f-password-recovery-source-of-truth.md records the self-hosted password recovery source of truth.
 Phase 2F runtime: /v1/auth/password-reset/request returns generic success for known and unknown accounts, creates durable reset token and outbox state for known accounts, and never returns reset tokens or raw emails in public responses.
 Phase 2F completion: /v1/auth/password-reset/complete validates token hash, salted token secret, expiry and used state, updates yorso_auth_credentials and revokes/deletes sessions by user plus matching session-cache entries.

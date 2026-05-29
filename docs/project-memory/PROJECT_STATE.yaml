@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "project_memory_checkpoint_after_4c2da272"
-  head_summary: "Project-memory checkpoint after Backend Phase 2F implementation commit 4c2da272; Phase 2F validation passed."
+  head_commit: "project_memory_checkpoint_after_9485bd36"
+  head_summary: "Project-memory checkpoint after Backend Phase 2G implementation commit 9485bd36; Phase 2G validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "No dirty worktree expected after the Phase 2F project-memory checkpoint."
+    - "No dirty worktree expected after the Phase 2G project-memory checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,25 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_2f_password_recovery_source_of_truth"
-  summary: "Password recovery now uses owned self-hosted reset request/complete endpoints, durable token source of truth, sealed backend-only delivery handoff material and session revocation."
+  id: "backend_phase_2g_password_recovery_delivery_runtime"
+  summary: "Password recovery delivery now uses an owned self-hosted worker, scheduler and file-spool handoff for the Phase 2F outbox."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 2G implementation is recorded in docs/backend/phase-2g-password-recovery-delivery-runtime.md."
+    - "PasswordRecoveryDeliveryWorker leases yorso_auth_password_recovery_outbox rows through AuthRepository and processes them with an injectable self-hosted sender."
+    - "Memory and PostgreSQL auth repositories support leasePasswordRecoveryDeliveryJobs, markPasswordRecoveryDeliverySent and markPasswordRecoveryDeliveryFailed."
+    - "PostgreSQL leasing uses bounded ordered for update skip locked candidates and excludes expired or already used recovery tokens before delivery."
+    - "FileSpoolPasswordRecoverySender writes one 0600 JSON handoff file per sent recovery delivery job with reset URL/token for owned operator/channel delivery."
+    - "Sender errors are sanitized before persistence and redact email, phone and password-recovery-token shaped values."
+    - "createApiServer starts the password recovery delivery scheduler on HTTP server listening and stops it on close when YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true."
+    - "Production self-hosted config now requires YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true, YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool and an absolute YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR."
+    - "Prometheus metrics track password recovery delivery worker runs and job counts without email, destination, recovery id or reset token labels."
+    - "Docker Compose and env examples include the owned password-recovery-delivery spool volume and scheduler controls."
+    - "No hosted email provider, Supabase function, public UI change, password policy or reset-token cleanup job was added."
+    - "Phase 2G release validation passed: contracts build; focused password recovery delivery worker/sender/runtime/API metrics/server tests; TypeScript build; DB migration tests; self-hosted DB/infra/runtime/API guards; production-scale guard; full API tests; lint; API build; diff check; production build."
+    - "Phase 2G is committed locally at 9485bd36."
     - "Phase 2F implementation is recorded in docs/backend/phase-2f-password-recovery-source-of-truth.md."
     - "POST /v1/auth/password-reset/request returns a generic success response for known and unknown accounts without exposing reset tokens or raw emails."
     - "POST /v1/auth/password-reset/complete verifies token lookup hash, salted token secret, expiry and used state before updating yorso_auth_credentials."

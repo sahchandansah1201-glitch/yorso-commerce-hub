@@ -1110,6 +1110,38 @@
   `docs/backend/production-scale-baseline.md`: route data-source and
   production-scale updates.
 
+## Backend Phase 2G Password Recovery Delivery Runtime
+
+- `docs/backend/phase-2g-password-recovery-delivery-runtime.md`: Phase 2G
+  plan/fact, runtime config, file-spool contract, 10,000 concurrent-user review
+  and validation.
+- `apps/api/src/modules/auth/password-recovery-delivery-worker.ts`: bounded
+  worker for password recovery delivery jobs with sanitized retry/failure
+  persistence.
+- `apps/api/src/modules/auth/password-recovery-delivery-sender.ts`: owned
+  file-spool reset handoff writer with `0600` permissions.
+- `apps/api/src/modules/auth/password-recovery-delivery-scheduler.ts` and
+  `password-recovery-delivery-runtime.ts`: scheduler/runtime factory for
+  API-process background delivery.
+- `apps/api/src/modules/auth/repository.ts` and `postgres-repository.ts`:
+  memory/PostgreSQL lease, sent and failed methods for recovery outbox rows.
+- `apps/api/src/config.ts`, `apps/api/src/server.ts` and `apps/api/src/metrics.ts`:
+  production config guard, HTTP lifecycle wiring and worker metrics.
+- `apps/api/src/modules/auth/password-recovery-delivery-*.test.ts` and
+  `apps/api/src/server.test.ts`: worker, sender, runtime and production guard
+  coverage.
+- `.env.example`, `.env.production.example` and `infra/docker-compose.yml`:
+  password recovery delivery worker/sender/spool settings and owned spool
+  volume.
+- `scripts/check-self-hosted-infra.mjs`,
+  `scripts/check-self-hosted-production-runtime.mjs`,
+  `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 2G.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/production-scale-baseline.md` and
+  `docs/backend/self-hosted-production-deploy.md`: route data-source,
+  production-scale and deploy updates.
+
 ## Lovable Sync Prompts
 
 ## Batch #133 Public Breadcrumb Locale A11y
