@@ -1313,3 +1313,15 @@
 - `src/lib/useLandingOffers.ts` and `src/lib/analytics.ts`: landing offer source naming changed to `catalog-api` / `mock-fallback`.
 - `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: Phase 3A release guards.
 - `docs/backend/frontend-backend-contract.md`, `docs/backend/production-scale-baseline.md`, `docs/backend/self-hosted-backend-architecture.md`, `docs/backend/self-hosted-validation.md`, `docs/backend/yorso-backend-implementation-plan.md`, `docs/backend/yorso-backend-implementation-plan.ru.md`: contract/readiness updates.
+
+## Backend Phase 3B Supplier Access Supabase Fallback Removal
+
+- `docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md`: implementation, plan/fact, remaining debt, validation and 10,000 concurrent-user review.
+- `src/lib/supplier-access-api.ts`: self-hosted-first supplier access facade; configured deployments use `/v1/access/suppliers/:supplierId/request` and `/v1/access/notifications`, API-disabled preview uses local supplier-access requests only.
+- Deleted `src/lib/legacy-supplier-access-supabase-adapter.ts`: removed supplier-access Supabase auth/RLS/table fallback.
+- `src/lib/supplier-access-api.boundary.test.ts`: guards local-only API-disabled preview, fail-closed configured API behavior and deleted adapter absence.
+- `src/lib/supplier-access-api.test.ts`: regression coverage for local preview, self-hosted endpoints, stale approval clearing and configured request failure without local mock creation.
+- `src/components/suppliers/SupplierAccessRequestPanel.tsx`: comment updated to describe self-hosted/local-preview routing without Supabase auth.
+- `e2e/offer-catalog-detail-api-flow.spec.ts`, `e2e/offer-catalog-detail-flow.spec.ts`, `e2e/offer-detail-runtime.spec.ts`: exact-price smoke expectations updated to current `$8.85 per kg` locale-aware formatting contract.
+- `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: Phase 3B release guards.
+- `docs/backend/frontend-backend-contract.md`, `docs/backend/production-scale-baseline.md`, `docs/backend/self-hosted-backend-architecture.md`, `docs/backend/self-hosted-validation.md`, `docs/backend/yorso-backend-implementation-plan.md`, `docs/backend/yorso-backend-implementation-plan.ru.md`: contract/readiness updates.

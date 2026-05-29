@@ -16,8 +16,8 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 3A Catalog Supabase Fallback Removal is committed locally at
-`b5d1e9f8`; release validation passed.
+Backend Phase 3B Supplier Access Supabase Fallback Removal is committed locally
+at `5b96f838`; release validation passed.
 
 ## Plan / Fact
 
@@ -27,7 +27,9 @@ Backend Phase 3A Catalog Supabase Fallback Removal is committed locally at
 | Adapter file | Удалить catalog Supabase fallback файл. | Реализовано: `src/lib/legacy-catalog-supabase-adapter.ts` удалён. | Guard tests требуют отсутствие файла. |
 | Landing source | Убрать `supabase` из landing offers telemetry/source naming. | Реализовано: `useLandingOffers` и analytics source = `catalog-api` / `mock-fallback`. | Дашборды читать `catalog-api` как self-hosted facade result. |
 | Guards | Запретить возврат catalog Supabase fallback. | Реализовано: `catalog-api.boundary.test.ts`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать в CI. |
-| Debt list | Точно выделить оставшийся Supabase/prototype debt после Phase 3A. | Реализовано: supplier-access fallback, reference tooling/tests, empty env keys и dependency listed. | Phase 3B начнёт supplier-access removal. |
+| Supplier access facade | Убрать runtime-путь `supplier-access-api` → legacy Supabase adapter. | Реализовано: dynamic import/legacy branches удалены, `legacy-supplier-access-supabase-adapter.ts` удалён. | Не возвращать legacy markers. |
+| Supplier access fail-closed | Не использовать local mock при ошибке configured API. | Реализовано: read failure очищает stale approval и возвращает `null`; request failure rejects без local request. | UI error copy отдельно, если понадобится. |
+| Debt list | Точно выделить оставшийся Supabase/prototype debt после Phase 3B. | Реализовано: остались reference tooling/tests, empty env keys и dependency. | Phase 3C: reference tooling retirement. |
 
 ## Current Status
 
@@ -38,6 +40,27 @@ Backend Phase 3A Catalog Supabase Fallback Removal is committed locally at
 - Backend Phase 2A-2I are committed locally and validation green.
 - Backend Phase 2J is committed locally at `f753224f`; release validation passed.
 - Backend Phase 3A is committed locally at `b5d1e9f8`; release validation passed.
+- Backend Phase 3B is committed locally at `5b96f838`; release validation passed.
+
+## Phase 3B Files
+
+- `docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md`
+- `src/lib/supplier-access-api.ts`
+- `src/lib/supplier-access-api.boundary.test.ts`
+- `src/lib/supplier-access-api.test.ts`
+- deleted: `src/lib/legacy-supplier-access-supabase-adapter.ts`
+- `src/components/suppliers/SupplierAccessRequestPanel.tsx`
+- `e2e/offer-catalog-detail-api-flow.spec.ts`
+- `e2e/offer-catalog-detail-flow.spec.ts`
+- `e2e/offer-detail-runtime.spec.ts`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/self-hosted-backend-architecture.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
 
 ## Phase 3A Files
 
@@ -61,6 +84,9 @@ Backend Phase 3A Catalog Supabase Fallback Removal is committed locally at
 
 Passed locally on 2026-05-29:
 
+- `npx vitest run src/lib/supplier-access-api.boundary.test.ts src/lib/supplier-access-api.test.ts`
+- `npm run test:supplier-access-frontend`
+- `npm run test:access-contract`
 - `npm run check:supabase-boundary`
 - `npm run check:self-hosted-api`
 - `npm run check:production-scale-baseline`
@@ -71,6 +97,7 @@ Passed locally on 2026-05-29:
 - `npm test`
 - `npm run lint`
 - `npm run api:build`
+- `npm run smoke:e2e:api-backed-access-flows`
 - `npm run smoke:self-hosted-offer-detail:run`
 - `git diff --check`
 - `npm run build`
@@ -83,16 +110,18 @@ Known non-blocking warnings:
 
 ## Next Recommended Workstream
 
-Backend Phase 3B: supplier-access Supabase fallback removal.
+Backend Phase 3C: Supabase reference tooling retirement.
 
 Concrete next function:
 
-- remove runtime dependency on `src/lib/legacy-supplier-access-supabase-adapter.ts`
-  from `src/lib/supplier-access-api.ts`;
-- keep configured deployments on owned `/v1/access/*` API;
-- keep API-disabled preview local-only without Supabase auth/RLS;
-- delete the legacy supplier-access adapter only after boundary tests prove
-  request status, request creation and notification behavior still pass;
+- classify remaining Supabase references as historical docs, reference tests,
+  CLI smoke tools, env examples or active package imports;
+- remove or quarantine Supabase reference smoke tooling that no longer protects
+  production behavior;
+- remove empty prototype env keys from production/default examples if no guard
+  needs them;
+- decide whether `@supabase/supabase-js` and `src/integrations/supabase/client.ts`
+  can be removed now or must remain as explicit historical reference artifacts;
 - preserve no hosted BaaS/Supabase production dependency.
 
 ## Preserve

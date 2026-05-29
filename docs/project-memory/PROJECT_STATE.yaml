@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "b5d1e9f8"
-  head_summary: "Backend Phase 3A catalog Supabase fallback removal; validation passed."
+  head_commit: "5b96f838"
+  head_summary: "Backend Phase 3B supplier-access Supabase fallback removal; validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 3A implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 3B implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_3a_catalog_supabase_fallback_removal"
-  summary: "Catalog Supabase prototype fallback is removed; catalog facade is self-hosted API first with local fixture preview only."
+  id: "backend_phase_3b_supplier_access_supabase_fallback_removal"
+  summary: "Supplier-access Supabase prototype fallback is removed; supplier-access facade is self-hosted API first with local preview only."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 3B implementation is recorded in docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md."
+    - "src/lib/legacy-supplier-access-supabase-adapter.ts was deleted."
+    - "src/lib/supplier-access-api.ts no longer dynamically imports legacy-supplier-access-supabase-adapter and contains no readLegacySupplierAccessRequest, requestLegacySupplierAccess or isLegacySupplierAccessSupabaseConfigured branch."
+    - "Configured deployments use /v1/access/suppliers/:supplierId/request and /v1/access/notifications through createSupplierAccessApiClient."
+    - "API-disabled preview uses only src/lib/supplier-access-requests.ts local preview state."
+    - "Configured API read failure clears stale local approval and returns null; configured API request failure rejects and does not create a local mock request."
+    - "src/lib/supplier-access-api.boundary.test.ts asserts local-only API-disabled preview, fail-closed configured API behavior and absence of deleted Supabase fallback markers."
+    - "check:self-hosted-api and check:production-scale-baseline now guard the Phase 3B supplier-access fallback removal."
+    - "Phase 3B release validation passed: focused supplier-access tests, test:supplier-access-frontend, test:access-contract, self-hosted guards, Supabase boundary, TypeScript build, API tests, full npm test, lint, API build, production build, API-backed access e2e smoke, no-Supabase frontend smoke and diff check."
+    - "Phase 3B is committed locally at 5b96f838."
     - "Phase 3A implementation is recorded in docs/backend/phase-3a-catalog-supabase-fallback-removal.md."
     - "src/lib/legacy-catalog-supabase-adapter.ts was deleted."
     - "src/lib/catalog-api.ts now delegates only to createOfferCatalogApiClient().listOffers() and .getOfferById()."
@@ -60,7 +70,7 @@ active_workstream:
     - "ResetPassword route comments now describe the self-hosted token completion path through ?token=/#token= and /v1/auth/password-reset/complete."
     - "src/lib/auth-runtime.boundary.test.ts asserts the removed legacy auth adapter file does not exist and the auth runtime stays free of Supabase prototype fallback markers."
     - "check:self-hosted-api and check:production-scale-baseline now forbid auth-runtime Supabase fallback markers and require the Phase 2J closure doc."
-    - "docs/backend/phase-2j-auth-surface-closure-audit.md originally listed remaining Supabase/prototype debt outside Phase 2J. Phase 3A has now removed catalog fallback; supplier-access fallback, Supabase reference tooling/tests, empty prototype env keys and @supabase/supabase-js remain."
+    - "docs/backend/phase-2j-auth-surface-closure-audit.md originally listed remaining Supabase/prototype debt outside Phase 2J. Phase 3A has now removed catalog fallback. Phase 3B has now removed supplier-access fallback. Supabase reference tooling/tests, empty prototype env keys and @supabase/supabase-js remain."
     - "Phase 2J release validation passed: auth-runtime tests, supabase boundary, self-hosted API guard, self-hosted production runtime guard, production-scale guard, TypeScript build, API tests, full npm test, lint, API build, self-hosted auth API smoke, diff check and production build."
     - "Phase 2J is committed locally at f753224f."
     - "Phase 2I implementation is recorded in docs/backend/phase-2i-password-recovery-cleanup-runtime.md."
@@ -1814,4 +1824,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 3A implementation question. Next scoped decision: Backend Phase 3B supplier-access Supabase fallback removal."
+  - "No open Phase 3B implementation question. Next scoped decision: Backend Phase 3C Supabase reference tooling retirement."

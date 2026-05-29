@@ -2829,8 +2829,44 @@ Keep this file factual and append-only.
 
 ## 2026-05-29 Latest Checkpoint
 
-- Latest implementation commit: `b5d1e9f8` (`[codex] Backend Phase 3A catalog fallback removal`).
-- Phase 3A status: catalog Supabase fallback removed; `catalog-api.ts` is self-hosted API first with local fixture preview only.
-- Removed file: `src/lib/legacy-catalog-supabase-adapter.ts`.
-- Remaining Supabase/prototype debt: supplier-access fallback, reference tooling/tests, empty prototype env keys and `@supabase/supabase-js`.
-- Next scoped workstream: Backend Phase 3B supplier-access Supabase fallback removal.
+- Latest implementation commit: `5b96f838` (`[codex] Backend Phase 3B supplier access fallback removal`).
+- Phase 3B status: supplier-access Supabase fallback removed; `supplier-access-api.ts` is self-hosted API first with local preview only.
+- Removed file: `src/lib/legacy-supplier-access-supabase-adapter.ts`.
+- Runtime behavior:
+  - configured deployments use `/v1/access/suppliers/:supplierId/request` and
+    `/v1/access/notifications`;
+  - API-disabled preview uses only `src/lib/supplier-access-requests.ts`;
+  - configured API read failure clears stale local approval and returns `null`;
+  - configured API request failure rejects and does not create a local mock
+    request.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Supplier access facade | Убрать runtime-путь `supplier-access-api` → legacy Supabase adapter. | Реализовано: dynamic import/legacy branches удалены, файл adapter удалён. | Не возвращать legacy markers. |
+| Production source of truth | Оставить configured deployments на owned `/v1/access/*`. | Реализовано: read/request/notifications/acknowledge идут через self-hosted API client. | Backend access hardening отдельными phases. |
+| API-disabled preview | Сделать local-only без Supabase auth/RLS. | Реализовано: local mock только при пустом `VITE_YORSO_API_URL`. | Позже решить судьбу preview mock. |
+| Fail-closed | Не разблокировать buyer через stale local data при API failures. | Реализовано: read clears stale approval; request rejects без local create. | UI error copy отдельно, если нужно. |
+| Guards | Запретить возврат fallback. | Реализовано: boundary tests и self-hosted/production-scale guards. | Держать в `ci:core`. |
+
+- Validation passed:
+  - `npx vitest run src/lib/supplier-access-api.boundary.test.ts src/lib/supplier-access-api.test.ts`;
+  - `npm run test:supplier-access-frontend`;
+  - `npm run test:access-contract`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run check:supabase-boundary`;
+  - `npx tsc -b --noEmit`;
+  - `npm run test:api`;
+  - `npm test`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `npm run build`;
+  - `npm run smoke:e2e:api-backed-access-flows`;
+  - `npm run smoke:e2e:frontend-no-supabase-env`;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.
+- Remaining Supabase/prototype debt: reference tooling/tests, empty prototype env keys and `@supabase/supabase-js`.
+- Next scoped workstream: Backend Phase 3C Supabase reference tooling retirement.

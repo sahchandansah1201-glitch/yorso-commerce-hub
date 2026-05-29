@@ -2,10 +2,10 @@
 
 ## Current Next Action
 
-Backend Phase 3A is implemented and committed locally at `b5d1e9f8`.
+Backend Phase 3B is implemented and committed locally at `5b96f838`.
 
-Phase 3A removes the catalog Supabase prototype fallback. Catalog runtime is now
-self-hosted API first with API-disabled local fixture preview only.
+Phase 3B removes the supplier-access Supabase prototype fallback. Supplier
+access runtime is now self-hosted API first with API-disabled local preview only.
 
 ## Plan / Fact
 
@@ -15,27 +15,29 @@ self-hosted API first with API-disabled local fixture preview only.
 | Adapter file | Удалить catalog Supabase fallback файл. | Реализовано: `src/lib/legacy-catalog-supabase-adapter.ts` удалён. | Boundary test проверяет отсутствие файла. |
 | Landing source | Убрать `supabase` из landing offers source/analytics. | Реализовано: `catalog-api` / `mock-fallback`. | Дашборды читать `catalog-api` как self-hosted facade result. |
 | Guards | Запретить возврат catalog Supabase fallback. | Реализовано: `catalog-api.boundary.test.ts`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать guards в `ci:core`. |
-| Debt list | Точно выделить оставшийся debt после Phase 3A. | Реализовано: supplier-access fallback, reference tooling/tests, empty env keys и dependency. | Phase 3B: supplier-access fallback removal. |
+| Supplier access facade | Убрать runtime-путь `supplier-access-api` → legacy Supabase adapter. | Реализовано: dynamic import/legacy branches удалены, `src/lib/legacy-supplier-access-supabase-adapter.ts` удалён. | Не возвращать `readLegacySupplierAccessRequest` / `requestLegacySupplierAccess`. |
+| Supplier access fail-closed | Не использовать local mock при ошибке configured API. | Реализовано: read failure очищает stale approval и возвращает `null`; request failure rejects без local request. | UI error copy можно сделать отдельным UX batch. |
+| Supplier access guards | Запретить возврат supplier-access Supabase fallback. | Реализовано: `supplier-access-api.boundary.test.ts`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать guards в `ci:core`. |
+| Debt list | Точно выделить оставшийся debt после Phase 3B. | Реализовано: reference tooling/tests, empty env keys и dependency. | Phase 3C: Supabase reference tooling retirement. |
 
-## Next Implementation After Phase 3A
+## Next Implementation After Phase 3B
 
 Recommended next scoped workstream:
 
-Backend Phase 3B: supplier-access Supabase fallback removal.
+Backend Phase 3C: Supabase reference tooling retirement.
 
 Concrete scope:
 
-- убрать runtime dependency на `src/lib/legacy-supplier-access-supabase-adapter.ts`
-  из `src/lib/supplier-access-api.ts`;
-- configured deployments оставить на owned `/v1/access/*` API;
-- API-disabled preview сделать local-only без Supabase auth/RLS;
-- обновить `supplier-access-api.boundary.test.ts`, self-hosted guards и docs;
-- удалить legacy supplier-access adapter только если request status, request
-  creation и notification behavior остаются зелёными.
-
-Alternative after Phase 3B:
-
-Backend Phase 3C: Supabase reference tooling retirement.
+- classify remaining Supabase references as historical docs, reference tests,
+  CLI smoke tools, env examples or active package imports;
+- remove or quarantine Supabase reference smoke tooling that no longer protects
+  production behavior;
+- remove empty prototype env keys from production/default examples if no guard
+  needs them;
+- decide whether `@supabase/supabase-js` and `src/integrations/supabase/client.ts`
+  can be removed now or must remain as explicit historical reference artifacts;
+- keep `check:supabase-boundary` or replace it with a provider-free production
+  boundary guard.
 
 ## Guardrails To Preserve
 
