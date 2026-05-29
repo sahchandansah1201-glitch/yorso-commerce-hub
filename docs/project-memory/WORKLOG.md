@@ -2949,5 +2949,14 @@ Keep this file factual and append-only.
   - `npx vitest run src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx`;
   - `npm run check:self-hosted-api`;
   - `npm run check:production-scale-baseline`.
+- Release validation passed:
+  - `npm run test:supplier-directory-frontend`;
+  - `npx tsc -b --noEmit`;
+  - `npm test`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `npm run build`;
+  - `git diff --check`.
+- Implementation commit: `9362f458` (`[codex] Backend Phase 4A supplier source of truth`).
 - Next scoped workstream after Phase 4A commit: Backend Phase 4B Supplier
   Profile Backend-Owned Dossier Completeness.

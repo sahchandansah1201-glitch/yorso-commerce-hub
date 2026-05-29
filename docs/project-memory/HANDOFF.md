@@ -17,8 +17,7 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 ## Current Goal
 
 Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit is
-implemented in the working tree. Focused supplier-directory tests and
-self-hosted/production-scale guards pass.
+committed locally at `9362f458`; release validation passed.
 
 ## Plan / Fact
 
@@ -40,7 +39,7 @@ self-hosted/production-scale guards pass.
 - Backend Phase 3A is committed locally at `b5d1e9f8`; release validation passed.
 - Backend Phase 3B is committed locally at `5b96f838`; release validation passed.
 - Backend Phase 3C is committed locally at `6c2f5368`; release validation passed.
-- Backend Phase 4A is implemented in the working tree; focused validation passed.
+- Backend Phase 4A is committed locally at `9362f458`; release validation passed.
 
 ## Phase 4A Files
 
@@ -88,11 +87,18 @@ Removed active provider surface:
 
 ## Validation
 
-Phase 4A focused validation passed locally on 2026-05-29:
+Phase 4A release validation passed locally on 2026-05-29:
 
 - `npx vitest run src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx`
+- `npm run test:supplier-directory-frontend`
 - `npm run check:self-hosted-api`
 - `npm run check:production-scale-baseline`
+- `npx tsc -b --noEmit`
+- `npm test`
+- `npm run lint`
+- `npm run api:build`
+- `npm run build`
+- `git diff --check`
 
 Phase 3C passed locally on 2026-05-29:
 

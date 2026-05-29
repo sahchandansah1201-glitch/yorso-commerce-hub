@@ -2,7 +2,7 @@
 
 ## Current Next Action
 
-Backend Phase 4A is implemented in the working tree.
+Backend Phase 4A is implemented and committed locally at `9362f458`.
 
 Phase 4A closes the supplier directory/profile configured-mode source-of-truth
 gap. `/suppliers` and `/suppliers/:supplierId` still support API-disabled local

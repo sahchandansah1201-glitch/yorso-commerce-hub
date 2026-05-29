@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "working_tree_phase_4a"
-  head_summary: "Backend Phase 4A supplier directory/profile source-of-truth audit is implemented in the working tree; focused tests and guards pass."
-  dirty_worktree_before_project_memory: true
+  head_commit: "9362f458"
+  head_summary: "Backend Phase 4A supplier directory/profile source-of-truth audit; release validation passed."
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4A implementation before final commit."
+    - "Project-memory checkpoint is being updated after the Phase 4A implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -38,7 +38,7 @@ project_identity:
 active_workstream:
   id: "backend_phase_4a_supplier_directory_source_of_truth_audit"
   summary: "Configured supplier directory/profile reads fail closed to the self-hosted API error state instead of substituting mockSuppliers."
-  status: "working_tree_focused_validation_passed"
+  status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
@@ -47,8 +47,8 @@ active_workstream:
     - "/suppliers shows a localized live directory error and zero prototype rows when /v1/suppliers fails under VITE_YORSO_API_URL."
     - "/suppliers/:supplierId shows a retry state instead of not-found or a local fallback supplier profile when /v1/suppliers/:supplierId fails under VITE_YORSO_API_URL."
     - "API-disabled preview still uses mockSuppliers locally when VITE_YORSO_API_URL is empty."
-    - "Focused validation passed: npx vitest run src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx."
-    - "Guard validation passed: npm run check:self-hosted-api and npm run check:production-scale-baseline."
+    - "Phase 4A release validation passed: focused supplier-directory tests, test:supplier-directory-frontend, self-hosted guards, TypeScript build graph, full npm test, lint, API build, production build and diff check."
+    - "Phase 4A is committed locally at 9362f458."
     - "Phase 3C implementation is recorded in docs/backend/phase-3c-provider-reference-tooling-retirement.md."
     - "The tracked supabase/ project directory and src/integrations/supabase client/types were deleted."
     - "Supabase CLI/access/type scripts and Supabase/RLS reference tests were deleted."
