@@ -12,6 +12,7 @@ const requiredFiles = [
   "docs/backend/phase-2j-auth-surface-closure-audit.md",
   "docs/backend/phase-3a-catalog-supabase-fallback-removal.md",
   "docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md",
+  "docs/backend/phase-3c-provider-reference-tooling-retirement.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -183,7 +184,7 @@ const requiredFiles = [
   "scripts/smoke-self-hosted-account-api.mjs",
   "scripts/smoke-self-hosted-offer-detail.mjs",
   "scripts/smoke-e2e-self-hosted-access-runtime.mjs",
-  "scripts/smoke-frontend-no-supabase-env.mjs",
+  "scripts/smoke-frontend-provider-free-env.mjs",
   "scripts/lib/e2e-script-policy.mjs",
   "scripts/check-engineering-lessons.mjs",
   "scripts/check-self-hosted-production-runtime.mjs",
@@ -196,8 +197,7 @@ const requiredFiles = [
   "src/pages/ResetPassword.tsx",
   "apps/api/src/modules/offers/repository.ts",
   "apps/api/src/modules/offers/postgres-repository.ts",
-  "src/integrations/supabase/client.ts",
-  "src/lib/catalog-api.ts",
+    "src/lib/catalog-api.ts",
   "src/lib/catalog-api.boundary.test.ts",
   "src/lib/offer-catalog-api.ts",
   "src/lib/use-offer-catalog.ts",
@@ -226,7 +226,7 @@ const requiredFiles = [
   "e2e/offer-catalog-detail-api-flow.spec.ts",
   "e2e/supplier-access-notification-center-api-flow.spec.ts",
   "e2e/self-hosted-access-runtime.spec.ts",
-  "e2e/frontend-no-supabase-env.spec.ts",
+  "e2e/frontend-provider-free-env.spec.ts",
   "e2e/signin-self-hosted-auth-flow.spec.ts",
 ];
 
@@ -247,6 +247,7 @@ const phase2iPasswordRecoveryCleanupRuntime = read("docs/backend/phase-2i-passwo
 const phase2jAuthSurfaceClosureAudit = read("docs/backend/phase-2j-auth-surface-closure-audit.md");
 const phase3aCatalogSupabaseFallbackRemoval = read("docs/backend/phase-3a-catalog-supabase-fallback-removal.md");
 const phase3bSupplierAccessSupabaseFallbackRemoval = read("docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md");
+const phase3cProviderReferenceToolingRetirement = read("docs/backend/phase-3c-provider-reference-tooling-retirement.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -405,7 +406,7 @@ const sessionCacheFailClosedSmoke = read("scripts/smoke-self-hosted-session-cach
 const accountApiSmoke = read("scripts/smoke-self-hosted-account-api.mjs");
 const offerDetailSmoke = read("scripts/smoke-self-hosted-offer-detail.mjs");
 const selfHostedAccessRuntimeSmoke = read("scripts/smoke-e2e-self-hosted-access-runtime.mjs");
-const frontendNoSupabaseSmoke = read("scripts/smoke-frontend-no-supabase-env.mjs");
+const frontendProviderFreeSmoke = read("scripts/smoke-frontend-provider-free-env.mjs");
 const productionRuntimeCheck = read("scripts/check-self-hosted-production-runtime.mjs");
 const authRuntime = read("src/lib/auth-runtime.ts");
 const authRuntimeTest = read("src/lib/auth-runtime.test.ts");
@@ -415,7 +416,6 @@ const signInPage = read("src/pages/SignIn.tsx");
 const resetPasswordPage = read("src/pages/ResetPassword.tsx");
 const offerRepository = read("apps/api/src/modules/offers/repository.ts");
 const offerPostgresRepository = read("apps/api/src/modules/offers/postgres-repository.ts");
-const supabaseClient = read("src/integrations/supabase/client.ts");
 const catalogApi = read("src/lib/catalog-api.ts");
 const catalogApiBoundaryTest = read("src/lib/catalog-api.boundary.test.ts");
 const offerApi = read("src/lib/offer-catalog-api.ts");
@@ -445,7 +445,7 @@ const offerCatalogDetailFlowE2E = read("e2e/offer-catalog-detail-flow.spec.ts");
 const offerCatalogDetailApiFlowE2E = read("e2e/offer-catalog-detail-api-flow.spec.ts");
 const supplierAccessNotificationCenterApiFlowE2E = read("e2e/supplier-access-notification-center-api-flow.spec.ts");
 const selfHostedAccessRuntimeE2E = read("e2e/self-hosted-access-runtime.spec.ts");
-const frontendNoSupabaseE2E = read("e2e/frontend-no-supabase-env.spec.ts");
+const frontendProviderFreeE2E = read("e2e/frontend-provider-free-env.spec.ts");
 const selfHostedAuthFrontendE2E = read("e2e/signin-self-hosted-auth-flow.spec.ts");
 
 if (!pkg.dependencies?.redis) {
@@ -569,7 +569,7 @@ for (const marker of [
   "YORSO_AUDIT_DRIVER=postgres",
   "YORSO_AUDIT_MAX_IN_FLIGHT",
   "real self-hosted API browser smoke",
-  "optional Supabase frontend smoke",
+  "provider-free frontend smoke",
   "Phase 2J Auth Surface Closure",
   "Supabase prototype auth fallback removed",
   "self-hosted production policy",
@@ -598,7 +598,7 @@ for (const marker of [
 for (const marker of [
   "YORSO production must run as one self-hosted product on owned server",
   "Production runtime must not depend on Supabase, Firebase, Appwrite, Clerk",
-  "Supabase files in this repository are not production architecture.",
+  "Supabase files must not exist in the active product surface.",
   "Backend Boundary",
   "Deployment Boundary",
   "Batch #71",
@@ -994,7 +994,7 @@ for (const marker of [
   "Batch #101 Admin Incident Response",
   "/v1/admin/incidents",
   "yorso_admin_incident_acknowledgements",
-  "no Supabase",
+  "provider-free",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -1004,7 +1004,7 @@ for (const marker of [
   "/v1/admin/incidents/workflow/bulk",
   "/v1/admin/incidents/export",
   "yorso_admin_incident_events",
-  "no Supabase",
+  "provider-free",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -1014,7 +1014,7 @@ for (const marker of [
   "/v1/admin/incidents/:incidentId/remediation",
   "/v1/admin/incidents/:incidentId/postmortem",
   "/admin/incidents/:incidentId",
-  "no Supabase",
+  "provider-free",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -1022,7 +1022,7 @@ for (const marker of [
   "Batch #104 Admin Incident Execution Tracker",
   "/v1/admin/incidents/:incidentId/execution",
   "yorso_admin_incident_execution_items",
-  "no Supabase",
+  "provider-free",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -1032,7 +1032,7 @@ for (const marker of [
   "/v1/admin/incidents/execution-queue/export",
   "/v1/admin/incidents/execution-queue/bulk",
   "/admin/incident-execution",
-  "no Supabase",
+  "provider-free",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -1042,7 +1042,7 @@ for (const marker of [
   "/v1/admin/incidents/execution-workload/export",
   "/v1/admin/incidents/:incidentId/correlation",
   "/admin/incident-workload",
-  "no Supabase",
+  "provider-free",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -1054,7 +1054,7 @@ for (const marker of [
   "/v1/admin/incidents/trends/briefing",
   "/admin/incident-trends",
   "0023_admin_incident_trend_analytics",
-  "no Supabase",
+  "provider-free",
 ]) {
   requireText("docs/backend/self-hosted-backend-architecture.md", architecture, marker);
 }
@@ -2601,7 +2601,7 @@ for (const marker of [
   "admin_runtime_session_required",
   "admin_role_required",
   "targetConcurrentUsers !== 10_000",
-  "supabaseProductionBackend !== false",
+  "hostedBaasProductionBackend !== false",
   "hostedBaasProductionBackend !== false",
   "secretsIncluded !== false",
 ]) {
@@ -2644,7 +2644,7 @@ for (const marker of [
   "admin-runtime-no-secrets",
   "10,000 concurrent users",
   "10 000 одновременных пользователей",
-  "Supabase production backend",
+  "Hosted BaaS production backend",
   "Hosted BaaS production backend",
 ]) {
   requireText("src/pages/admin/AdminRuntimeStatus.tsx", adminRuntimePage, marker);
@@ -2678,7 +2678,7 @@ for (const marker of [
   "adminRuntimeDiagnosticsSchema",
   "buildDiagnosticChecks",
   "targetConcurrentUsers: 10_000",
-  "supabaseProductionBackend: false",
+  "hostedBaasProductionBackend: false",
   "hostedBaasProductionBackend: false",
   "secretsIncluded: false",
 ]) {
@@ -2902,7 +2902,7 @@ for (const marker of [
 for (const marker of [
   "Backend Phase 3A",
   "Catalog Supabase Fallback Removal",
-  "No catalog path falls back to Supabase",
+  "No catalog path falls back to hosted BaaS or prototype tables",
   "Remaining Supabase / Prototype Debt After Phase 3A",
   "Plan / Fact",
   "10,000 Concurrent-User Review",
@@ -2918,6 +2918,17 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md", phase3bSupplierAccessSupabaseFallbackRemoval, marker);
+}
+for (const marker of [
+  "Backend Phase 3C",
+  "Provider Reference Tooling Retirement",
+  "provider-free",
+  "check:provider-boundary",
+  "frontend-provider-free-env",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-3c-provider-reference-tooling-retirement.md", phase3cProviderReferenceToolingRetirement, marker);
 }
 for (const marker of [
   "PasswordRecoveryDeliveryWorker",
@@ -3095,7 +3106,7 @@ for (const marker of [
 for (const marker of [
   "self-hosted-first catalog facade",
   "createOfferCatalogApiClient",
-  "No catalog path falls back to Supabase",
+  "No catalog path falls back to hosted BaaS or prototype tables",
   "offerCatalog.listOffers",
   "offerCatalog.getOfferById",
 ]) {
@@ -3116,8 +3127,8 @@ if (existsSync("src/lib/legacy-catalog-supabase-adapter.ts")) {
 }
 for (const marker of [
   "uses self-hosted offer catalog as the catalog source of truth",
-  "delegates API-disabled preview to offer-catalog local fixtures, not legacy Supabase",
-  "removes the catalog Supabase fallback adapter from the facade path",
+  "delegates API-disabled preview to offer-catalog local fixtures, not hosted BaaS",
+  "removes the catalog hosted-provider fallback adapter from the facade path",
 ]) {
   requireText("src/lib/catalog-api.boundary.test.ts", catalogApiBoundaryTest, marker);
 }
@@ -3216,7 +3227,7 @@ for (const marker of [
   "acknowledgeSupplierAccessNotifications",
   "/v1/access/notifications",
   "PATCH",
-  "never fall back to Supabase auth, RLS or prototype tables",
+  "never fall back to hosted auth, RLS or prototype tables",
 ]) {
   requireText("src/lib/supplier-access-api.ts", supplierAccessApi, marker);
 }
@@ -3234,8 +3245,8 @@ if (existsSync("src/lib/legacy-supplier-access-supabase-adapter.ts")) {
   failures.push("src/lib/legacy-supplier-access-supabase-adapter.ts: removed supplier-access Supabase fallback file must stay absent");
 }
 for (const marker of [
-  "keeps API-disabled preview local-only without Supabase auth or RLS fallback",
-  "keeps Supabase and the deleted legacy adapter out of supplier-access-api.ts",
+  "keeps API-disabled preview local-only without hosted auth or RLS fallback",
+  "keeps hosted-provider fallbacks and the deleted legacy adapter out of supplier-access-api.ts",
 ]) {
   requireText("src/lib/supplier-access-api.boundary.test.ts", supplierAccessApiBoundaryTest, marker);
 }
@@ -3470,8 +3481,8 @@ for (const spec of [
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run API-backed access browser suite");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:api-backed-access-flows");
-if (pkg.scripts["smoke:e2e:frontend-no-supabase-env"] !== "node scripts/smoke-frontend-no-supabase-env.mjs") {
-  failures.push("package.json: smoke:e2e:frontend-no-supabase-env must run the no-Supabase frontend smoke wrapper");
+if (pkg.scripts["smoke:e2e:frontend-provider-free-env"] !== "node scripts/smoke-frontend-provider-free-env.mjs") {
+  failures.push("package.json: smoke:e2e:frontend-provider-free-env must run the provider-free frontend smoke wrapper");
 }
 if (pkg.scripts["test:auth-runtime"] !== "vitest run src/lib/auth-runtime.test.ts src/lib/auth-runtime.boundary.test.ts src/lib/buyer-session.test.ts") {
   failures.push("package.json: test:auth-runtime must cover the auth runtime adapter boundary and buyer session self-hosted fields");
@@ -3479,33 +3490,24 @@ if (pkg.scripts["test:auth-runtime"] !== "vitest run src/lib/auth-runtime.test.t
 if (!pkg.scripts["ci:core"]?.includes("npm run test:auth-runtime")) {
   failures.push("package.json: ci:core must run test:auth-runtime");
 }
-if (!pkg.scripts["smoke:e2e:frontend-no-supabase-env:run"]?.includes("e2e/frontend-no-supabase-env.spec.ts")) {
-  failures.push("package.json: smoke:e2e:frontend-no-supabase-env:run must cover the no-Supabase frontend e2e spec");
+if (!pkg.scripts["smoke:e2e:frontend-provider-free-env:run"]?.includes("e2e/frontend-provider-free-env.spec.ts")) {
+  failures.push("package.json: smoke:e2e:frontend-provider-free-env:run must cover the provider-free frontend e2e spec");
 }
-if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:frontend-no-supabase-env")) {
-  failures.push("package.json: ci:full must include the no-Supabase frontend smoke");
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:frontend-provider-free-env")) {
+  failures.push("package.json: ci:full must include the provider-free frontend smoke");
 }
 for (const marker of [
-  "VITE_SUPABASE_URL: \"\"",
-  "VITE_SUPABASE_PUBLISHABLE_KEY: \"\"",
   "VITE_YORSO_API_URL: \"\"",
-  "frontend_no_supabase_env_smoke=ok",
+  "frontend_provider_free_env_smoke=ok",
 ]) {
-  requireText("scripts/smoke-frontend-no-supabase-env.mjs", frontendNoSupabaseSmoke, marker);
+  requireText("scripts/smoke-frontend-provider-free-env.mjs", frontendProviderFreeSmoke, marker);
 }
 for (const marker of [
-  "Batch #66 optional Supabase frontend smoke",
-  "VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are intentionally empty",
-  "frontend-no-supabase-env",
+  "Phase 3C provider-free frontend smoke",
+  "without any hosted BaaS client env or SDK dependency",
+  "frontend-provider-free-env",
 ]) {
-  requireText("e2e/frontend-no-supabase-env.spec.ts", frontendNoSupabaseE2E, marker);
-}
-for (const marker of [
-  "isSupabaseConfigured",
-  "SUPABASE_NOT_CONFIGURED_ERROR",
-  "createDisabledSupabaseClient",
-]) {
-  requireText("src/integrations/supabase/client.ts", supabaseClient, marker);
+  requireText("e2e/frontend-provider-free-env.spec.ts", frontendProviderFreeE2E, marker);
 }
 for (const marker of [
   "signInWithEmail",
@@ -3540,7 +3542,7 @@ for (const marker of [
   "returns self-hosted auth errors without falling back to local prototype auth",
   "reads and signs out the current self-hosted browser session",
   "uses local contract auth when self-hosted API is not configured",
-  "ignores prototype Supabase env and stays on the local contract when self-hosted API is disabled",
+  "stays on the local contract when self-hosted API is disabled",
   "uses self-hosted password reset request and token completion when configured",
   "keeps password recovery unavailable without a self-hosted recovery token",
 ]) {
@@ -3576,8 +3578,8 @@ if (signInPage.includes("@/integrations/supabase/client")) {
 if (resetPasswordPage.includes("@/integrations/supabase/client")) {
   failures.push("src/pages/ResetPassword.tsx: must not import Supabase client directly");
 }
-requireText(".github/workflows/ci.yml", ciWorkflow, "Run frontend without Supabase env smoke");
-requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:frontend-no-supabase-env");
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run frontend provider-free env smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:frontend-provider-free-env");
 if (pkg.scripts["smoke:e2e:self-hosted-auth-frontend"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:self-hosted-auth-frontend:run") {
   failures.push("package.json: smoke:e2e:self-hosted-auth-frontend must build with the self-hosted auth frontend API adapter enabled");
 }

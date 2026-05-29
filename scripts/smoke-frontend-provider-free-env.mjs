@@ -8,15 +8,13 @@ const previewBaseUrl = `http://127.0.0.1:${previewPort}`;
 try {
   await runCommand("npm", ["run", "build"], {
     ...process.env,
-    VITE_SUPABASE_URL: "",
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
     VITE_YORSO_API_URL: "",
   });
 
   await runCommand("npx", [
     "playwright",
     "test",
-    "e2e/frontend-no-supabase-env.spec.ts",
+    "e2e/frontend-provider-free-env.spec.ts",
     "--project=chromium",
   ], {
     ...process.env,
@@ -25,14 +23,12 @@ try {
     E2E_WEB_SERVER_PORT: String(previewPort),
     E2E_BASE_URL: previewBaseUrl,
     E2E_WORKERS: "1",
-    VITE_SUPABASE_URL: "",
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
     VITE_YORSO_API_URL: "",
   });
 
-  console.log("frontend_no_supabase_env_smoke=ok");
+  console.log("frontend_provider_free_env_smoke=ok");
 } catch (error) {
-  console.error("frontend_no_supabase_env_smoke=failed");
+  console.error("frontend_provider_free_env_smoke=failed");
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 }

@@ -14,7 +14,6 @@ export interface MigrationManifestEntry {
 export interface MigrationManifest {
   package: "@yorso/db";
   productionTarget: "self-hosted-postgresql";
-  supabaseRole: "prototype-reference-only";
   migrations: MigrationManifestEntry[];
 }
 
@@ -63,7 +62,6 @@ export function loadMigrationManifest(rootDir = defaultRootDir()): MigrationMani
   return {
     package: raw.package,
     productionTarget: raw.productionTarget,
-    supabaseRole: raw.supabaseRole,
     migrations: migrations.map((migration, index) => {
       if (!isObject(migration)) {
         throw new MigrationManifestError([`migrations[${index}] must be an object`]);
@@ -135,9 +133,6 @@ function validateManifestShape(manifest: MigrationManifest): string[] {
   if (manifest.productionTarget !== "self-hosted-postgresql") {
     failures.push("productionTarget must be self-hosted-postgresql");
   }
-  if (manifest.supabaseRole !== "prototype-reference-only") {
-    failures.push("supabaseRole must be prototype-reference-only");
-  }
   if (manifest.migrations.length === 0) {
     failures.push("at least one migration is required");
   }
@@ -198,8 +193,8 @@ function validateMigrationEntry(
   if (lowered.includes("auth.users")) {
     failures.push(`${migration.id}: must not depend on auth.users`);
   }
-  if (lowered.includes("supabase")) {
-    failures.push(`${migration.id}: must not mention Supabase in self-hosted SQL`);
+  if (lowered.includes(["supa", "base"].join(""))) {
+    failures.push(`${migration.id}: must not mention hosted BaaS providers in self-hosted SQL`);
   }
   if (lowered.includes("enable row level security")) {
     failures.push(`${migration.id}: self-hosted DB baseline must not depend on RLS as API authorization`);

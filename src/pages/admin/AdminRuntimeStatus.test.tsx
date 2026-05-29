@@ -58,9 +58,7 @@ const statusPayload = (patch: Partial<AdminRuntimeStatus> = {}): AdminRuntimeSta
     shutdownGraceTimeoutMs: 30_000,
   },
   productionPolicy: {
-    supabaseProductionBackend: false,
     hostedBaasProductionBackend: false,
-    prototypeSupabaseConfigured: false,
     secretsIncluded: false,
   },
   ...patch,
@@ -111,9 +109,7 @@ const diagnosticsPayload = (patch: Partial<AdminRuntimeDiagnostics> = {}): Admin
     writeProfile: "No writes.",
   },
   productionPolicy: {
-    supabaseProductionBackend: false,
     hostedBaasProductionBackend: false,
-    prototypeSupabaseConfigured: false,
     secretsIncluded: false,
   },
   ...patch,
@@ -191,7 +187,7 @@ describe("AdminRuntimeStatus page", () => {
     await screen.findByTestId("admin-runtime-status");
     expect(screen.getByTestId("admin-runtime-scale")).toHaveTextContent("10,000 concurrent users");
     expect(screen.getByTestId("admin-runtime-no-secrets")).toHaveTextContent("Yes");
-    expect(screen.getByTestId("admin-runtime-policy")).toHaveTextContent("Supabase production backend");
+    expect(screen.getByTestId("admin-runtime-policy")).toHaveTextContent("Hosted BaaS production backend");
     expect(screen.getByTestId("admin-runtime-policy")).toHaveTextContent("No");
     expect(screen.getByTestId("admin-runtime-auth")).toHaveTextContent("redis");
     expect(screen.getByTestId("admin-runtime-auth")).toHaveTextContent("closed");

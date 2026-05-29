@@ -3,7 +3,7 @@
  *
  * Configured deployments read through the self-hosted YORSO offer catalog API.
  * API-disabled preview is delegated to `offer-catalog-api` local fixtures.
- * No catalog path falls back to Supabase.
+ * No catalog path falls back to hosted BaaS or prototype tables.
  */
 
 import type { SeafoodOffer } from "@/data/mockOffers";

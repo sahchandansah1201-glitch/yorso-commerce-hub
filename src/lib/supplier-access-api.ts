@@ -7,7 +7,7 @@
  * - when `VITE_YORSO_API_URL` is configured, use the self-hosted YORSO API;
  * - when the self-hosted API is not configured, keep the localStorage preview
  *   mock so the buyer flow remains usable in local/static demos;
- * - never fall back to Supabase auth, RLS or prototype tables;
+ * - never fall back to hosted auth, RLS or prototype tables;
  * - never expose supplier identity here. This adapter only carries status.
  */
 import {

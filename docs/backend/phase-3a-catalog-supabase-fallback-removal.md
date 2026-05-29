@@ -5,6 +5,7 @@ Status: implemented.
 Phase 3A removes the catalog Supabase prototype fallback from the production-facing
 offer catalog facade. The catalog surface is now self-hosted API first, with
 API-disabled preview using local fixtures only. No catalog path falls back to Supabase.
+Phase 3C supersedes the remaining reference-tooling notes below: No catalog path falls back to hosted BaaS or prototype tables.
 
 ## Plan / Fact
 

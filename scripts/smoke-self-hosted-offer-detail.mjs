@@ -33,8 +33,6 @@ const api = spawn(process.execPath, [apiEntry], {
     YORSO_PUBLIC_APP_URL: "http://localhost:8080",
     ACCOUNT_REPOSITORY: "memory",
     STORAGE_DRIVER: "local",
-    VITE_SUPABASE_URL: "",
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
   },
   stdio: ["ignore", "pipe", "pipe"],
 });

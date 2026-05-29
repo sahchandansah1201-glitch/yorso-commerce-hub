@@ -33,8 +33,6 @@ const api = spawn(process.execPath, [apiEntry], {
     NODE_ENV: "test",
     STORAGE_DRIVER: "local",
     STORAGE_LOCAL_ROOT: path.join(storageRoot, "uploads"),
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
-    VITE_SUPABASE_URL: "",
     YORSO_API_HOST: "127.0.0.1",
     YORSO_API_PORT: String(freePort),
     YORSO_AUDIT_DRIVER: "console",
@@ -136,7 +134,6 @@ function assertOverviewShape(value, label) {
   assertEqual(value.ok, true, `${label} ok`);
   assertEqual(value.selfHostedBackend, true, `${label} self-hosted backend`);
   assertEqual(value.productionScaleBaseline?.targetConcurrentUsers, 10_000, `${label} baseline`);
-  assertEqual(value.productionPolicy?.supabaseProductionBackend, false, `${label} no Supabase production`);
   assertEqual(value.productionPolicy?.hostedBaasProductionBackend, false, `${label} no hosted BaaS production`);
   assertEqual(value.productionPolicy?.secretsIncluded, false, `${label} no secrets`);
   assertEqual(value.runtime?.status?.ok, true, `${label} runtime status`);

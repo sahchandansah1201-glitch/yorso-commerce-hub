@@ -192,7 +192,6 @@ function assertOverviewShape(response: AdminOperationsOverview) {
     response?.ok !== true ||
     response.selfHostedBackend !== true ||
     response.productionScaleBaseline?.targetConcurrentUsers !== 10_000 ||
-    response.productionPolicy?.supabaseProductionBackend !== false ||
     response.productionPolicy?.hostedBaasProductionBackend !== false ||
     response.productionPolicy?.secretsIncluded !== false ||
     response.runtime?.status?.ok !== true ||

@@ -152,9 +152,7 @@ const overviewPayload = (patch: Partial<AdminOperationsOverview> = {}): AdminOpe
   ],
   productionPolicy: {
     hostedBaasProductionBackend: false,
-    prototypeSupabaseConfigured: false,
     secretsIncluded: false,
-    supabaseProductionBackend: false,
   },
   productionScaleBaseline: {
     status: "policy_required",
@@ -242,9 +240,7 @@ const overviewPayload = (patch: Partial<AdminOperationsOverview> = {}): AdminOpe
       ok: true,
       productionPolicy: {
         hostedBaasProductionBackend: false,
-        prototypeSupabaseConfigured: false,
         secretsIncluded: false,
-        supabaseProductionBackend: false,
       },
       productionScaleBaseline: {
         status: "policy_required",
@@ -275,9 +271,7 @@ const overviewPayload = (patch: Partial<AdminOperationsOverview> = {}): AdminOpe
       ok: true,
       productionPolicy: {
         hostedBaasProductionBackend: false,
-        prototypeSupabaseConfigured: false,
         secretsIncluded: false,
-        supabaseProductionBackend: false,
       },
       productionScaleBaseline: {
         status: "policy_required",
@@ -361,7 +355,6 @@ describe("admin-operations-api", () => {
       productionPolicy: {
         hostedBaasProductionBackend: false,
         secretsIncluded: false,
-        supabaseProductionBackend: false,
       },
       productionScaleBaseline: { targetConcurrentUsers: 10_000 },
       selfHostedBackend: true,

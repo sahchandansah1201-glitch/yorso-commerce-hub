@@ -35,8 +35,6 @@ const api = spawn(process.execPath, [apiEntry], {
     AUTH_SESSION_CACHE_TTL_MS: "300000",
     AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth:fail-closed-smoke",
     REDIS_URL: `redis://127.0.0.1:${redisPort}`,
-    VITE_SUPABASE_URL: "",
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
   },
   stdio: ["ignore", "pipe", "pipe"],
 });

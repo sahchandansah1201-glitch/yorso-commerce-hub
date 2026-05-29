@@ -40,8 +40,6 @@ const api = spawn(process.execPath, [apiEntry], {
     AUTH_OBSERVABILITY_DRIVER: "console",
     STORAGE_DRIVER: "local",
     STORAGE_LOCAL_ROOT: path.join(storageRoot, "uploads"),
-    VITE_SUPABASE_URL: "",
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
   },
   stdio: ["ignore", "pipe", "pipe"],
 });
@@ -88,7 +86,6 @@ async function runSmoke(baseUrl) {
   assertEqual(status.ok, true, "admin runtime status ok");
   assertEqual(status.selfHostedBackend, true, "admin runtime self-hosted backend");
   assertEqual(status.productionScaleBaseline?.targetConcurrentUsers, 10_000, "admin runtime baseline");
-  assertEqual(status.productionPolicy?.supabaseProductionBackend, false, "admin runtime no Supabase production");
   assertEqual(status.productionPolicy?.hostedBaasProductionBackend, false, "admin runtime no hosted BaaS production");
   assertEqual(status.productionPolicy?.secretsIncluded, false, "admin runtime no secrets flag");
   assertEqual(status.auth?.rateLimitDriver, "memory", "admin runtime rate limit driver");
@@ -108,7 +105,6 @@ async function runSmoke(baseUrl) {
   assertEqual(diagnostics.ok, true, "admin runtime diagnostics ok");
   assertEqual(diagnostics.selfHostedBackend, true, "admin runtime diagnostics self-hosted backend");
   assertEqual(diagnostics.productionScaleBaseline?.targetConcurrentUsers, 10_000, "admin runtime diagnostics baseline");
-  assertEqual(diagnostics.productionPolicy?.supabaseProductionBackend, false, "admin runtime diagnostics no Supabase production");
   assertEqual(diagnostics.productionPolicy?.hostedBaasProductionBackend, false, "admin runtime diagnostics no hosted BaaS production");
   assertEqual(diagnostics.productionPolicy?.secretsIncluded, false, "admin runtime diagnostics no secrets flag");
   assertContains(JSON.stringify(diagnostics.diagnostics?.checks ?? []), "production_policy", "admin runtime diagnostics production policy check");

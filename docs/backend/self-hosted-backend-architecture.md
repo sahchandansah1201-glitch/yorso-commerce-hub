@@ -4,6 +4,10 @@ Status: production direction
 Batch: #39
 Date: 2026-05-14
 
+Phase 3C note: the production architecture is provider-free. Runtime code,
+frontend smoke tests and admin diagnostics must not depend on hosted BaaS SDKs
+or provider-specific frontend env keys.
+
 ## Decision
 
 YORSO production backend must be self-hosted and deployable as one coherent

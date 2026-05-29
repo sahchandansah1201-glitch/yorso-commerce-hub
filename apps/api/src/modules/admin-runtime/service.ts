@@ -67,9 +67,7 @@ export class AdminRuntimeService {
         shutdownGraceTimeoutMs: this.config.shutdownGraceTimeoutMs,
       },
       productionPolicy: {
-        supabaseProductionBackend: false,
         hostedBaasProductionBackend: false,
-        prototypeSupabaseConfigured: Boolean(this.config.supabaseUrl || this.config.supabasePublishableKey),
         secretsIncluded: false,
       },
     });
@@ -115,12 +113,11 @@ export class AdminRuntimeService {
 function buildDiagnosticChecks(status: AdminRuntimeStatus): AdminRuntimeDiagnosticCheck[] {
   return [
     {
-      action: "Keep Supabase and hosted BaaS disabled for production runtime.",
+      action: "Keep hosted BaaS disabled for production runtime.",
       id: "production_policy",
       label: "Self-hosted production policy",
       severity: "critical",
       status: (
-        status.productionPolicy.supabaseProductionBackend === false &&
         status.productionPolicy.hostedBaasProductionBackend === false &&
         status.productionPolicy.secretsIncluded === false
       ) ? "pass" : "fail",

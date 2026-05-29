@@ -4,8 +4,7 @@ Status: self-hosted PostgreSQL migration runtime baseline
 Batch: #37
 
 `packages/db` contains SQL owned by the future self-hosted YORSO backend.
-Supabase migrations may still exist as prototype references, but this package is
-the production-direction database source for YORSO-owned server deployment.
+This package is the production-direction database source for YORSO-owned server deployment.
 It remains the self-hosted PostgreSQL baseline while the runtime layer matures.
 
 ## Current Scope

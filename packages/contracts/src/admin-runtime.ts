@@ -61,9 +61,7 @@ export const adminRuntimeStatusSchema = z.object({
     shutdownGraceTimeoutMs: z.number().int().min(1_000),
   }),
   productionPolicy: z.object({
-    supabaseProductionBackend: z.literal(false),
     hostedBaasProductionBackend: z.literal(false),
-    prototypeSupabaseConfigured: z.boolean(),
     secretsIncluded: z.literal(false),
   }),
 });
@@ -120,9 +118,7 @@ export const adminRuntimeDiagnosticsSchema = z.object({
     loadTestPlan: z.string().min(1),
   }),
   productionPolicy: z.object({
-    supabaseProductionBackend: z.literal(false),
     hostedBaasProductionBackend: z.literal(false),
-    prototypeSupabaseConfigured: z.boolean(),
     secretsIncluded: z.literal(false),
   }),
 });

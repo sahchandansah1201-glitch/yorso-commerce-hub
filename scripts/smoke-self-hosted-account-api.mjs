@@ -37,8 +37,6 @@ const api = spawn(process.execPath, [apiEntry], {
     ACCOUNT_REPOSITORY: "memory",
     STORAGE_DRIVER: "local",
     STORAGE_LOCAL_ROOT: path.join(storageRoot, "uploads"),
-    VITE_SUPABASE_URL: "",
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
   },
   stdio: ["ignore", "pipe", "pipe"],
 });

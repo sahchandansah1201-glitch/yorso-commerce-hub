@@ -1,7 +1,6 @@
 {
   "package": "@yorso/db",
   "productionTarget": "self-hosted-postgresql",
-  "supabaseRole": "prototype-reference-only",
   "migrations": [
     {
       "id": "0000_migration_registry",

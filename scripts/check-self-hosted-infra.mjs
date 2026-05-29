@@ -183,15 +183,12 @@ const requiredEnvKeys = [
   "YORSO_MAX_UPLOAD_BYTES",
   "YORSO_SESSION_SECRET",
   "YORSO_JWT_SECRET",
-  "VITE_SUPABASE_URL",
-  "VITE_SUPABASE_PUBLISHABLE_KEY",
 ];
 
 for (const key of requiredEnvKeys) {
   requirePattern(".env.example", envExample, new RegExp(`^${key}=`, "m"), `env key ${key}`);
 }
 
-requireText(".env.example", envExample, "Supabase prototype only. Do not use as production backend target.");
 requireText(".env.example", envExample, "DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
 requireText(".env.example", envExample, "MIGRATION_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:5432/yorso");
 requireText(".env.example", envExample, "PGBOUNCER_DATABASE_URL=postgres://yorso_app:change-me-local-only@localhost:6432/yorso");
@@ -236,6 +233,7 @@ requireText("docs/backend/self-hosted-backend-architecture.md", architecture, "Y
 
 forbidPattern(".env.example", envExample, /VITE_SUPABASE_URL=https?:\/\//, "non-empty Supabase URL");
 forbidPattern(".env.example", envExample, /VITE_SUPABASE_PUBLISHABLE_KEY=.+/m, "non-empty Supabase public key");
+forbidPattern(".env.example", envExample, /SUPABASE/i, "Supabase env or comment");
 forbidPattern(".env.example", envExample, /service_role/i, "service role key text");
 forbidPattern(".env.example", envExample, /eyJ[A-Za-z0-9_-]{20,}/, "JWT-looking token");
 forbidPattern(".env.example", envExample, /postgres:\/\/[^@\n]+@[^/\n]*supabase/i, "Supabase database URL");
@@ -249,6 +247,6 @@ if (failures.length > 0) {
 
 console.log("Self-hosted infra check passed.");
 console.log("- infra/docker-compose.yml: API, postgres, PgBouncer, Redis, MinIO and upload volume are declared.");
-console.log("- .env.example: self-hosted runtime keys are present and prototype Supabase values are empty.");
-console.log("- infra/docker-compose.yml: production runtime does not require Supabase env.");
+console.log("- .env.example: self-hosted provider-free frontend/runtime env keys are present.");
+console.log("- infra/docker-compose.yml: production runtime does not require hosted BaaS env.");
 console.log("- docs: self-hosted production direction is documented.");

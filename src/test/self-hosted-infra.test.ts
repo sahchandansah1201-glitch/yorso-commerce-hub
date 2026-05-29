@@ -10,8 +10,8 @@ describe("self-hosted infra validation", () => {
 
     expect(output).toContain("Self-hosted infra check passed");
     expect(output).toContain("API, postgres, PgBouncer, Redis, MinIO and upload volume");
-    expect(output).toContain("prototype Supabase values are empty");
-    expect(output).toContain("production runtime does not require Supabase env");
+    expect(output).toContain("provider-free frontend/runtime env");
+    expect(output).toContain("production runtime does not require hosted BaaS env");
   });
 
   it("keeps the local deployment surface self-hosted and Supabase-free", () => {
@@ -59,8 +59,7 @@ describe("self-hosted infra validation", () => {
     expect(env).toContain("YORSO_METRICS_DRIVER=disabled");
     expect(env).toContain("YORSO_REQUEST_OBSERVABILITY_DRIVER=disabled");
     expect(env).toContain("HEALTH_READINESS_TIMEOUT_MS=750");
-    expect(env).toMatch(/^VITE_SUPABASE_URL=$/m);
-    expect(env).toMatch(/^VITE_SUPABASE_PUBLISHABLE_KEY=$/m);
+    expect(env).not.toMatch(/SUPABASE/i);
   });
 
   it("documents that compose validation is a local server baseline, not Supabase deployment", () => {

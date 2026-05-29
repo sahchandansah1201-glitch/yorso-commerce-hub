@@ -1,7 +1,7 @@
 import net from "node:net";
 import type { Server } from "node:http";
 import { afterEach, describe, expect, it } from "vitest";
-import { assertSupabaseIsPrototypeOnly, loadApiConfig, type ApiConfig } from "./config.js";
+import { assertSelfHostedProductionRuntime, loadApiConfig, type ApiConfig } from "./config.js";
 import { MemoryErrorTelemetrySink } from "./error-observability.js";
 import { ApiLifecycle } from "./lifecycle.js";
 import { InMemoryPrometheusMetricsRegistry } from "./metrics.js";
@@ -229,7 +229,7 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(body.ok).toBe(true);
     expect(body.status).toBe("ready");
     expect(body.selfHostedBackend).toBe(true);
-    expect(body.supabaseProductionBackend).toBe(false);
+    expect(body.hostedBaasProductionBackend).toBe(false);
     expect(body.productionScaleBaseline).toMatchObject({
       targetConcurrentUsers: 10_000,
     });
@@ -266,7 +266,6 @@ describe("YORSO self-hosted API skeleton", () => {
             service: "yorso-api",
             status: "not_ready",
             selfHostedBackend: true,
-            supabaseProductionBackend: false,
             productionScaleBaseline: {
               targetConcurrentUsers: 10_000,
               readinessChecks: ["shutdown_drain", "postgres", "redis", "local_storage", "production_runtime_config"],
@@ -338,7 +337,6 @@ describe("YORSO self-hosted API skeleton", () => {
             service: "yorso-api",
             status: "ready",
             selfHostedBackend: true,
-            supabaseProductionBackend: false,
             productionScaleBaseline: {
               targetConcurrentUsers: 10_000,
               readinessChecks: ["shutdown_drain", "postgres", "redis", "local_storage", "production_runtime_config"],
@@ -610,7 +608,7 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
-  it("exposes the account-company contract summary without importing Supabase", async () => {
+  it("exposes the account-company contract summary without hosted BaaS coupling", async () => {
     const response = await request("/v1/account/company/schema");
     const body = (await response.json()) as JsonBody;
 
@@ -652,7 +650,7 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(body.productionTarget).toMatchObject({
       backend: "self-hosted-yorso-api",
       database: "postgresql",
-      supabase: "prototype-only",
+      hostedBaas: "excluded",
     });
   });
 
@@ -789,7 +787,6 @@ describe("YORSO self-hosted API skeleton", () => {
         sessionCacheFailMode: "closed",
       },
       productionPolicy: {
-        supabaseProductionBackend: false,
         hostedBaasProductionBackend: false,
         secretsIncluded: false,
       },
@@ -835,7 +832,6 @@ describe("YORSO self-hosted API skeleton", () => {
         failCount: expect.any(Number),
       },
       productionPolicy: {
-        supabaseProductionBackend: false,
         hostedBaasProductionBackend: false,
         secretsIncluded: false,
       },
@@ -3001,29 +2997,6 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
-  it("rejects Supabase production env values", () => {
-    const productionConfig = loadApiConfig(
-      {
-        NODE_ENV: "production",
-        AUTH_RATE_LIMIT_DRIVER: "redis",
-        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
-        AUTH_SESSION_CACHE_DRIVER: "redis",
-        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
-        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
-        YORSO_AUDIT_DRIVER: "postgres",
-        AUTH_OBSERVABILITY_DRIVER: "console",
-        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
-        YORSO_METRICS_DRIVER: "prometheus",
-        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
-        VITE_SUPABASE_URL: "https://example.supabase.co",
-        VITE_SUPABASE_PUBLISHABLE_KEY: "publishable-key",
-      },
-      { allowLocalDefaults: true },
-    );
-
-    expect(() => assertSupabaseIsPrototypeOnly(productionConfig)).toThrow(/Supabase env values/);
-  });
-
   it("requires account version preconditions in production config", () => {
     const productionConfig = loadApiConfig(
       {
@@ -3042,7 +3015,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(productionConfig))
+    expect(() => assertSelfHostedProductionRuntime(productionConfig))
       .toThrow(/ACCOUNT_VERSION_PRECONDITION_MODE=required/);
   });
 
@@ -3064,7 +3037,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(productionConfig)).toThrow(/AUTH_RATE_LIMIT_DRIVER=redis/);
+    expect(() => assertSelfHostedProductionRuntime(productionConfig)).toThrow(/AUTH_RATE_LIMIT_DRIVER=redis/);
 
     const failOpenConfig = loadApiConfig(
       {
@@ -3083,7 +3056,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(failOpenConfig)).toThrow(/AUTH_RATE_LIMIT_FAIL_MODE=closed/);
+    expect(() => assertSelfHostedProductionRuntime(failOpenConfig)).toThrow(/AUTH_RATE_LIMIT_FAIL_MODE=closed/);
 
     const noObservabilityConfig = loadApiConfig(
       {
@@ -3102,7 +3075,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(noObservabilityConfig)).toThrow(/AUTH_OBSERVABILITY_DRIVER=console/);
+    expect(() => assertSelfHostedProductionRuntime(noObservabilityConfig)).toThrow(/AUTH_OBSERVABILITY_DRIVER=console/);
 
     const noErrorObservabilityConfig = loadApiConfig(
       {
@@ -3121,7 +3094,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(noErrorObservabilityConfig))
+    expect(() => assertSelfHostedProductionRuntime(noErrorObservabilityConfig))
       .toThrow(/YORSO_ERROR_OBSERVABILITY_DRIVER=console/);
 
     const noAuditConfig = loadApiConfig(
@@ -3141,7 +3114,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(noAuditConfig))
+    expect(() => assertSelfHostedProductionRuntime(noAuditConfig))
       .toThrow(/YORSO_AUDIT_DRIVER=postgres/);
 
     const shortAuditRetentionConfig = loadApiConfig(
@@ -3162,7 +3135,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(shortAuditRetentionConfig))
+    expect(() => assertSelfHostedProductionRuntime(shortAuditRetentionConfig))
       .toThrow(/YORSO_ADMIN_AUDIT_RETENTION_DAYS/);
 
     const wideAuditExportConfig = loadApiConfig(
@@ -3183,7 +3156,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(wideAuditExportConfig))
+    expect(() => assertSelfHostedProductionRuntime(wideAuditExportConfig))
       .toThrow(/YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS/);
 
     const noMetricsConfig = loadApiConfig(
@@ -3203,7 +3176,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(noMetricsConfig))
+    expect(() => assertSelfHostedProductionRuntime(noMetricsConfig))
       .toThrow(/YORSO_METRICS_DRIVER=prometheus/);
 
     const noRequestObservabilityConfig = loadApiConfig(
@@ -3223,7 +3196,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(noRequestObservabilityConfig))
+    expect(() => assertSelfHostedProductionRuntime(noRequestObservabilityConfig))
       .toThrow(/YORSO_REQUEST_OBSERVABILITY_DRIVER=console/);
 
     const noRegistrationDeliveryWorkerConfig = loadApiConfig(
@@ -3243,7 +3216,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(noRegistrationDeliveryWorkerConfig))
+    expect(() => assertSelfHostedProductionRuntime(noRegistrationDeliveryWorkerConfig))
       .toThrow(/YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true/);
 
     const disabledRegistrationSenderConfig = loadApiConfig(
@@ -3265,7 +3238,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(disabledRegistrationSenderConfig))
+    expect(() => assertSelfHostedProductionRuntime(disabledRegistrationSenderConfig))
       .toThrow(/YORSO_REGISTRATION_DELIVERY_SENDER=file_spool/);
 
     const relativeSpoolConfig = loadApiConfig(
@@ -3288,7 +3261,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(relativeSpoolConfig))
+    expect(() => assertSelfHostedProductionRuntime(relativeSpoolConfig))
       .toThrow(/absolute YORSO_REGISTRATION_DELIVERY_SPOOL_DIR/);
 
     const noPasswordRecoveryWorkerConfig = loadApiConfig(
@@ -3312,7 +3285,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(noPasswordRecoveryWorkerConfig))
+    expect(() => assertSelfHostedProductionRuntime(noPasswordRecoveryWorkerConfig))
       .toThrow(/YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true/);
 
     const disabledPasswordRecoverySenderConfig = loadApiConfig(
@@ -3338,7 +3311,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(disabledPasswordRecoverySenderConfig))
+    expect(() => assertSelfHostedProductionRuntime(disabledPasswordRecoverySenderConfig))
       .toThrow(/YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool/);
 
     const relativePasswordRecoverySpoolConfig = loadApiConfig(
@@ -3365,7 +3338,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(relativePasswordRecoverySpoolConfig))
+    expect(() => assertSelfHostedProductionRuntime(relativePasswordRecoverySpoolConfig))
       .toThrow(/absolute YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR/);
 
     const noPasswordRecoveryCleanupConfig = loadApiConfig(
@@ -3392,7 +3365,7 @@ describe("YORSO self-hosted API skeleton", () => {
       { allowLocalDefaults: true },
     );
 
-    expect(() => assertSupabaseIsPrototypeOnly(noPasswordRecoveryCleanupConfig))
+    expect(() => assertSelfHostedProductionRuntime(noPasswordRecoveryCleanupConfig))
       .toThrow(/YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true/);
   });
 });

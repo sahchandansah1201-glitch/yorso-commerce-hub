@@ -67,9 +67,7 @@ const runtimeStatus = () => ({
     shutdownGraceTimeoutMs: 30_000,
   },
   productionPolicy: {
-    supabaseProductionBackend: false,
     hostedBaasProductionBackend: false,
-    prototypeSupabaseConfigured: false,
     secretsIncluded: false,
   },
 });
@@ -119,9 +117,7 @@ const runtimeDiagnostics = () => ({
     writeProfile: "No writes.",
   },
   productionPolicy: {
-    supabaseProductionBackend: false,
     hostedBaasProductionBackend: false,
-    prototypeSupabaseConfigured: false,
     secretsIncluded: false,
   },
 });
@@ -185,7 +181,7 @@ test.describe("Admin runtime status UI", () => {
     await expect(page.getByTestId("admin-runtime-auth")).toContainText("closed");
     await expect(page.getByTestId("admin-runtime-drivers")).toContainText("postgres");
     await expect(page.getByTestId("admin-runtime-guardrails")).toContainText("15,000 ms");
-    await expect(page.getByTestId("admin-runtime-policy")).toContainText("Supabase production backend");
+    await expect(page.getByTestId("admin-runtime-policy")).toContainText("Hosted BaaS production backend");
     await expect(page.getByTestId("admin-runtime-no-secrets")).toContainText("Yes");
     await expect(page.getByTestId("admin-runtime-diagnostics")).toContainText("Runtime diagnostics");
     await expect(page.getByTestId("admin-runtime-diagnostics-overall")).toContainText("pass");

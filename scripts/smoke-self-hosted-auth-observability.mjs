@@ -34,8 +34,6 @@ const api = spawn(process.execPath, [apiEntry], {
     AUTH_SESSION_CACHE_TTL_MS: "300000",
     AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth-observability",
     AUTH_OBSERVABILITY_DRIVER: "console",
-    VITE_SUPABASE_URL: "",
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
   },
   stdio: ["ignore", "pipe", "pipe"],
 });

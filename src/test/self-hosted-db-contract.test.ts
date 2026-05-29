@@ -442,7 +442,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("gin_trgm_ops");
   });
 
-  it("does not depend on Supabase auth tables or RLS ownership", () => {
+  it("does not depend on hosted auth tables or RLS ownership", () => {
     const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}\n${adminIncidentTrendActionQueueSql()}\n${authPasswordRecoverySql()}\n${authPasswordRecoveryAbuseCleanupSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
@@ -455,7 +455,6 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
 
     expect(data).toMatchObject({
       productionTarget: "self-hosted-postgresql",
-      supabaseRole: "prototype-reference-only",
     });
     expect(data.migrations.map((migration: { id: string }) => migration.id)).toEqual([
       "0000_migration_registry",

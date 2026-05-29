@@ -4,6 +4,11 @@ Status: mandatory architecture gate
 Batch: #36
 Date: 2026-05-14
 
+Phase 3C provider-free frontend smoke: `smoke:e2e:frontend-provider-free-env`
+builds and boots public/auth/catalog routes with only the owned YORSO API
+contract. Supabase reference tooling, the tracked Supabase project directory
+and hosted BaaS SDK dependency are retired from the active product surface.
+
 ## Mandatory Target
 
 YORSO production frontend, backend, persistence, queues, integrations and
@@ -68,8 +73,8 @@ For the self-hosted YORSO product:
   the frontend.
 - Supabase, Firebase, Appwrite, Clerk, Auth0, hosted BaaS platforms and similar
   third-party application backends must not be production dependencies.
-- Legacy Supabase files may remain only as prototype/reference material while
-  they are being retired behind self-hosted YORSO adapters.
+- Supabase/provider files must not exist in the active product surface after
+  Backend Phase 3C; historical docs remain archival context only.
 
 ## Current Repository Enforcement
 
@@ -342,15 +347,15 @@ without relying on frontend-only localStorage unlocks.
 
 Batch #66 adds an optional Supabase frontend smoke. Supabase remains allowed
 only as prototype/reference tooling, so the production frontend must not crash
-when `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are empty.
-`smoke:e2e:frontend-no-supabase-env` builds the Vite app with Supabase and
-self-hosted API URLs intentionally blank, starts preview on a free port, and
-runs `e2e/frontend-no-supabase-env.spec.ts`. The smoke verifies that public,
-sign-in, reset-password and catalog routes boot without Supabase client
+without hosted BaaS credentials. Backend Phase 3C supersedes this with
+`smoke:e2e:frontend-provider-free-env`, which builds the Vite app with the
+owned API contract only, starts preview on a free port and runs
+`e2e/frontend-provider-free-env.spec.ts`. The smoke verifies that public,
+sign-in, reset-password and catalog routes boot without hosted-provider client
 construction errors. At 10,000 concurrent users this protects deployability:
-missing prototype credentials cannot take down a self-hosted production build,
-and authentication/catalog routes degrade to self-hosted or local fallback
-behavior instead of hard-failing at module import time.
+missing third-party provider credentials cannot take down a self-hosted
+production build, and authentication/catalog routes degrade to self-hosted or
+local-preview behavior instead of hard-failing at module import time.
 
 Batch #67 removed direct Supabase imports from production-facing auth pages.
 Phase 2J then removes the remaining auth Supabase prototype fallback entirely:
@@ -412,11 +417,22 @@ Batch #72 adds the self-hosted production runtime guard. The new
 explicit: production runtime configuration must not require Supabase, Firebase,
 Appwrite, Clerk, Auth0 or similar hosted BaaS/SaaS environment variables.
 `infra/docker-compose.yml` now represents the owned server runtime without
-`VITE_SUPABASE_*` inputs, while the no-Supabase frontend smoke continues to
-prove that public, auth and catalog routes boot without prototype credentials.
+hosted-provider inputs, while the provider-free frontend smoke continues to
+prove that public, auth and catalog routes boot without third-party provider
+credentials.
 At 10,000 concurrent users this matters because the production hot path must
 be operable, observable and recoverable inside the owned stack rather than
 depending on third-party application backend availability.
+
+Backend Phase 3C retires the remaining active Supabase/provider reference
+surface. The tracked `supabase/` project, `src/integrations/supabase`, Supabase
+CLI/type/access smoke scripts, RLS reference tests, `@supabase/supabase-js`
+dependency, `VITE_SUPABASE_*` env examples and old `frontend-no-supabase-env`
+smoke are removed or renamed. `check:provider-boundary` now scans production
+source roots for hosted-provider imports, env keys, legacy adapter markers and
+old admin runtime policy fields. At 10,000 concurrent users this matters
+because the product cannot silently route catalog, access, auth, admin or DB
+work to a hosted BaaS path under load.
 
 Batch #73 adds the self-hosted auth/session foundation. The API now owns
 `POST /v1/auth/sign-in`, `GET /v1/auth/session` and `POST /v1/auth/sign-out`
@@ -5235,11 +5251,11 @@ Observability and load-test plan:
 - Load-test auth through the self-hosted API only; validate no browser auth
   bundle imports the Supabase client or removed auth adapter.
 
-After Backend Phase 3B, remaining Supabase/prototype debt is explicitly scoped
-to Supabase reference tooling/tests, empty prototype env keys and the
-`@supabase/supabase-js` dependency. Catalog and supplier-access runtime
-fallbacks are removed. Those remaining items are separate Phase 3C removal
-targets.
+After Backend Phase 3C, that active Supabase/prototype debt is retired from the
+tracked product surface. Catalog, supplier-access and auth runtime fallbacks are
+removed; reference tooling/tests, empty prototype env keys and
+`@supabase/supabase-js` are removed. Historical docs can still describe earlier
+prototype decisions.
 
 Validation:
 
@@ -5251,6 +5267,61 @@ Validation:
 Marker: Backend Phase 2J.
 Marker: auth surface closure.
 Marker: Supabase prototype auth fallback removed.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
+## Backend Phase 3C Provider Reference Tooling Retirement
+
+Phase 3C makes the active product surface provider-free.
+`check:supabase-boundary` is replaced by `check:provider-boundary`, the
+frontend smoke is now `smoke:e2e:frontend-provider-free-env`, and active
+Supabase project/tooling/dependency/env/reference-test files are removed.
+
+Expected read/write profile:
+
+- No new public request path is introduced.
+- Runtime reads and writes continue through the owned API, PostgreSQL, Redis and
+  owned storage paths already documented in previous phases.
+- Removing hosted-provider tooling eliminates a possible secondary external
+  dependency during auth/catalog/access/admin development and CI.
+
+Cache, queue and backpressure strategy:
+
+- No new cache, queue or worker is introduced.
+- Existing Redis/session/rate-limit/worker controls remain the only production
+  backpressure surface.
+- Provider-free browser smoke does not add polling or subscriptions.
+
+Database indexing and pagination strategy:
+
+- No migrations are added.
+- DB migration validation stays inside `packages/db`; it no longer carries a
+  provider-specific manifest role.
+
+Failure mode and graceful degradation:
+
+- Production source cannot fall back to removed hosted-provider clients because
+  the dependency, integration directory and active scripts are gone.
+- API-disabled preview remains local fixture/local contract only.
+
+Observability and load-test plan:
+
+- CI guards: `check:provider-boundary`,
+  `smoke:e2e:frontend-provider-free-env`, `check:self-hosted-api`,
+  `check:self-hosted-production-runtime` and `check:production-scale-baseline`.
+- Load testing remains scoped to owned API/PostgreSQL/Redis/storage boundaries.
+
+Validation:
+
+- `check:provider-boundary`.
+- `smoke:e2e:frontend-provider-free-env`.
+- `test:backend-contract`.
+- `test:api`.
+- `build`.
+
+Marker: Backend Phase 3C.
+Marker: Provider Reference Tooling Retirement.
+Marker: provider-free frontend smoke.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 

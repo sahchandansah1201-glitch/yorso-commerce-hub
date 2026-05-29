@@ -62,7 +62,7 @@ describe("catalog-api self-hosted boundary", () => {
     expect(runtime.getOfferById).toHaveBeenCalledWith("api-offer", "qualified_unlocked");
   });
 
-  it("delegates API-disabled preview to offer-catalog local fixtures, not legacy Supabase", async () => {
+  it("delegates API-disabled preview to offer-catalog local fixtures, not hosted BaaS", async () => {
     const localPreviewOffer = { ...mockOffers[0], id: "local-preview-offer" };
     const runtime = await importCatalogApi({
       enabled: false,
@@ -81,7 +81,7 @@ describe("catalog-api self-hosted boundary", () => {
     expect(runtime.getOfferById).toHaveBeenCalledWith("local-preview-offer", "anonymous_locked");
   });
 
-  it("removes the catalog Supabase fallback adapter from the facade path", () => {
+  it("removes the catalog hosted-provider fallback adapter from the facade path", () => {
     const catalogApi = readFileSync("src/lib/catalog-api.ts", "utf8");
 
     expect(catalogApi).toContain("self-hosted-first catalog facade");

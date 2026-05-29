@@ -1,15 +1,14 @@
 /**
- * Batch #66 optional Supabase frontend smoke.
+ * Phase 3C provider-free frontend smoke.
  *
- * The production direction is the self-hosted YORSO API. Supabase may remain
- * as a prototype/legacy integration, but the frontend must build and boot when
- * VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are intentionally empty.
- * Guarded by smoke:e2e:frontend-no-supabase-env.
+ * The production direction is the self-hosted YORSO API. The frontend must
+ * build and boot without any hosted BaaS client env or SDK dependency.
+ * Guarded by smoke:e2e:frontend-provider-free-env.
  */
 import { expect, test } from "@playwright/test";
 
-test.describe("Frontend without Supabase env", () => {
-  test("boots public, auth and catalog routes without Supabase configuration", async ({ page }) => {
+test.describe("Frontend with provider-free env", () => {
+  test("boots public, auth and catalog routes without hosted BaaS configuration", async ({ page }) => {
     const consoleErrors: string[] = [];
     page.on("console", (message) => {
       if (message.type() === "error") consoleErrors.push(message.text());
@@ -37,7 +36,7 @@ test.describe("Frontend without Supabase env", () => {
     await expect(page.getByTestId("catalog-offer-row")).not.toHaveCount(0);
 
     const fatalErrors = consoleErrors.filter((entry) =>
-      /supabaseUrl is required|supabaseKey is required|Invalid URL|createClient/i.test(entry),
+      /supabase|firebase|appwrite|clerk|auth0|Invalid URL|createClient/i.test(entry),
     );
     expect(fatalErrors).toEqual([]);
   });

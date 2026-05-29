@@ -47,7 +47,10 @@ describe("self-hosted backend policy", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8"));
 
     expect(pkg.scripts["check:backend-policy"]).toBe("node scripts/check-self-hosted-backend-policy.mjs");
-    expect(pkg.scripts["check:supabase-boundary"]).toBe("node scripts/check-supabase-production-boundary.mjs");
+    expect(pkg.scripts["check:provider-boundary"]).toBe("node scripts/check-provider-production-boundary.mjs");
+    expect(pkg.scripts["check:supabase-boundary"]).toBeUndefined();
+    expect(pkg.scripts["check:supabase-types"]).toBeUndefined();
+    expect(pkg.scripts["check:supabase-types:strict"]).toBeUndefined();
     expect(pkg.scripts["check:self-hosted-infra"]).toBe("node scripts/check-self-hosted-infra.mjs");
     expect(pkg.scripts["check:self-hosted-production-runtime"]).toBe(
       "node scripts/check-self-hosted-production-runtime.mjs",
@@ -68,7 +71,8 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["test:api"]).toBe("npm run contracts:build && vitest run --config apps/api/vitest.config.ts");
     expect(pkg.scripts["test:db-contract"]).toBe("vitest run src/test/self-hosted-db-contract.test.ts");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:backend-policy");
-    expect(pkg.scripts["ci:core"]).toContain("npm run check:supabase-boundary");
+    expect(pkg.scripts["ci:core"]).toContain("npm run check:provider-boundary");
+    expect(pkg.scripts["ci:core"]).not.toContain("check:supabase");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-infra");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-production-runtime");
     expect(pkg.scripts["ci:core"]).toContain("npm run check:self-hosted-api");
@@ -80,13 +84,15 @@ describe("self-hosted backend policy", () => {
     expect(pkg.scripts["ci:core"]).toContain("npm run test:db-contract");
     expect(pkg.scripts["ci:core"]).toContain("npm run test:db-migrations");
     expect(pkg.scripts["ci:core"]).toContain("npm run test:api");
+    expect(pkg.dependencies?.["@supabase/supabase-js"]).toBeUndefined();
+    expect(pkg.devDependencies?.["@supabase/supabase-js"]).toBeUndefined();
   });
 
-  it("keeps Supabase direct imports out of new production UI surfaces", () => {
-    const output = runNode(["scripts/check-supabase-production-boundary.mjs"]);
+  it("keeps hosted BaaS imports and env keys out of production code", () => {
+    const output = runNode(["scripts/check-provider-production-boundary.mjs"]);
 
-    expect(output).toContain("Supabase production boundary check passed");
-    expect(output).toContain("No page/component direct Supabase imports remain");
+    expect(output).toContain("Provider-free production boundary check passed");
+    expect(output).toContain("No production code imports Supabase or hosted BaaS SDKs");
     expect(output).not.toContain("Temporary legacy direct imports allowed");
   });
 });

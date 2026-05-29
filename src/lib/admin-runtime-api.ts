@@ -65,9 +65,7 @@ export interface AdminRuntimeStatus {
     shutdownGraceTimeoutMs: number;
   };
   productionPolicy: {
-    supabaseProductionBackend: false;
     hostedBaasProductionBackend: false;
-    prototypeSupabaseConfigured: boolean;
     secretsIncluded: false;
   };
 }
@@ -174,7 +172,6 @@ const assertStatusShape = (status: AdminRuntimeStatusResponse): AdminRuntimeStat
     status?.ok !== true ||
     status.selfHostedBackend !== true ||
     status.productionScaleBaseline?.targetConcurrentUsers !== 10_000 ||
-    status.productionPolicy?.supabaseProductionBackend !== false ||
     status.productionPolicy?.hostedBaasProductionBackend !== false ||
     status.productionPolicy?.secretsIncluded !== false
   ) {
@@ -192,7 +189,6 @@ const assertDiagnosticsShape = (diagnostics: AdminRuntimeDiagnosticsResponse): A
     diagnostics?.ok !== true ||
     diagnostics.selfHostedBackend !== true ||
     diagnostics.productionScaleBaseline?.targetConcurrentUsers !== 10_000 ||
-    diagnostics.productionPolicy?.supabaseProductionBackend !== false ||
     diagnostics.productionPolicy?.hostedBaasProductionBackend !== false ||
     diagnostics.productionPolicy?.secretsIncluded !== false ||
     !Array.isArray(diagnostics.diagnostics?.checks) ||

@@ -12,18 +12,10 @@ const selfHostedSession = {
 const importRuntime = async (
   options: {
     selfHostedApiUrl?: string;
-    supabaseEnv?: boolean;
   } = {},
 ) => {
   vi.resetModules();
   vi.stubEnv("VITE_YORSO_API_URL", options.selfHostedApiUrl ?? "");
-  if (options.supabaseEnv) {
-    vi.stubEnv("VITE_SUPABASE_URL", "https://prototype.supabase.test");
-    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "prototype-key");
-  } else {
-    vi.stubEnv("VITE_SUPABASE_URL", "");
-    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "");
-  }
   return import("./auth-runtime");
 };
 
@@ -127,9 +119,9 @@ describe("auth-runtime adapter boundary", () => {
     }
   });
 
-  it("ignores prototype Supabase env and stays on the local contract when self-hosted API is disabled", async () => {
+  it("stays on the local contract when self-hosted API is disabled", async () => {
     vi.stubEnv("VITE_MOCK_LATENCY_MS", "0");
-    const runtime = await importRuntime({ supabaseEnv: true });
+    const runtime = await importRuntime();
 
     await expect(
       runtime.signInWithEmail({ email: "buyer@yorso.test", password: "Password1" }),

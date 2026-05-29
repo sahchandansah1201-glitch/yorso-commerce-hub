@@ -9,7 +9,7 @@ const requiredFiles = [
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/production-scale-baseline.md",
   "package.json",
-  "scripts/smoke-frontend-no-supabase-env.mjs",
+  "scripts/smoke-frontend-provider-free-env.mjs",
 ];
 
 const failures = [];
@@ -26,7 +26,7 @@ const compose = read("infra/docker-compose.yml");
 const deployDoc = read("docs/backend/self-hosted-production-deploy.md");
 const policyDoc = read("docs/backend/self-hosted-production-policy.md");
 const baselineDoc = read("docs/backend/production-scale-baseline.md");
-const noSupabaseSmoke = read("scripts/smoke-frontend-no-supabase-env.mjs");
+const providerFreeSmoke = read("scripts/smoke-frontend-provider-free-env.mjs");
 
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
@@ -48,12 +48,12 @@ if (!pkg.scripts["ci:core"]?.includes("npm run check:self-hosted-production-runt
   failures.push("package.json: ci:core must run check:self-hosted-production-runtime");
 }
 
-if (!pkg.scripts["smoke:e2e:frontend-no-supabase-env"]?.includes("scripts/smoke-frontend-no-supabase-env.mjs")) {
-  failures.push("package.json: no-Supabase frontend smoke wrapper must remain available");
+if (!pkg.scripts["smoke:e2e:frontend-provider-free-env"]?.includes("scripts/smoke-frontend-provider-free-env.mjs")) {
+  failures.push("package.json: provider-free frontend smoke wrapper must remain available");
 }
 
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run core CI");
-requireText("scripts/smoke-frontend-no-supabase-env.mjs", noSupabaseSmoke, "frontend_no_supabase_env_smoke=ok");
+requireText("scripts/smoke-frontend-provider-free-env.mjs", providerFreeSmoke, "frontend_provider_free_env_smoke=ok");
 
 for (const key of [
   "NODE_ENV",
@@ -285,7 +285,6 @@ for (const marker of [
   "Self-Hosted Production Deploy",
   "Minimum production topology",
   "Production env must not contain",
-  "VITE_SUPABASE_URL",
   "Firebase, Appwrite, Clerk or Auth0",
   "check:self-hosted-production-runtime",
 ]) {
@@ -316,6 +315,6 @@ if (failures.length > 0) {
 
 console.log("Self-hosted production runtime check passed.");
 console.log("- .env.production.example contains only self-hosted production runtime keys.");
-console.log("- infra/docker-compose.yml does not require Supabase or similar hosted BaaS env.");
+console.log("- infra/docker-compose.yml does not require hosted BaaS env.");
 console.log("- docs/backend/self-hosted-production-deploy.md documents owned-server deployment.");
 console.log("- ci:core enforces check:self-hosted-production-runtime.");

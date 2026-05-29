@@ -130,7 +130,7 @@ const COPY: Record<Language, RuntimeCopy> = {
     targetUsersBody: "Production baseline is policy-required for runtime, storage, queues and observability decisions.",
     policyRequired: "Policy required",
     productionPolicy: "Production policy",
-    productionPolicyBody: "No hosted BaaS is allowed as the production backend. Supabase can only remain a prototype boundary.",
+    productionPolicyBody: "No hosted BaaS is allowed as the production backend. The runtime is owned by the YORSO API.",
     runtimeDrivers: "Runtime drivers",
     runtimeDriversBody: "Configured drivers for the API process. Values are sanitized and operational only.",
     authProtection: "Auth protection",
@@ -214,7 +214,7 @@ const COPY: Record<Language, RuntimeCopy> = {
     targetUsersBody: "Production baseline обязателен для решений по runtime, storage, очередям и observability.",
     policyRequired: "Policy required",
     productionPolicy: "Production policy",
-    productionPolicyBody: "Hosted BaaS не допускается как production backend. Supabase может оставаться только prototype boundary.",
+    productionPolicyBody: "Hosted BaaS не допускается как production backend. Runtime принадлежит YORSO API.",
     runtimeDrivers: "Runtime drivers",
     runtimeDriversBody: "Настроенные drivers API-процесса. Значения очищены и имеют только операционный смысл.",
     authProtection: "Auth protection",
@@ -298,7 +298,7 @@ const COPY: Record<Language, RuntimeCopy> = {
     targetUsersBody: "El baseline de producción es obligatorio para decisiones de runtime, storage, colas y observability.",
     policyRequired: "Policy required",
     productionPolicy: "Production policy",
-    productionPolicyBody: "Hosted BaaS no puede ser backend de producción. Supabase solo puede quedar como límite de prototipo.",
+    productionPolicyBody: "Hosted BaaS no puede ser backend de producción. El runtime pertenece a la API de YORSO.",
     runtimeDrivers: "Runtime drivers",
     runtimeDriversBody: "Drivers configurados del proceso API. Los valores son sanitizados y solo operativos.",
     authProtection: "Auth protection",
@@ -523,9 +523,7 @@ const RuntimeGrid = ({ copy, status }: { copy: RuntimeCopy; status: AdminRuntime
       testId="admin-runtime-policy"
       title={copy.productionPolicy}
     >
-      <RuntimeRow label="Supabase production backend" value={boolLabel(status.productionPolicy.supabaseProductionBackend, copy)} />
       <RuntimeRow label="Hosted BaaS production backend" value={boolLabel(status.productionPolicy.hostedBaasProductionBackend, copy)} />
-      <RuntimeRow label="Prototype Supabase configured" value={boolLabel(status.productionPolicy.prototypeSupabaseConfigured, copy)} />
       <RuntimeRow label="Secrets included" value={boolLabel(status.productionPolicy.secretsIncluded, copy)} />
     </RuntimeCard>
   </div>

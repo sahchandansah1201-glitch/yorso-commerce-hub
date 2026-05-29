@@ -41,8 +41,6 @@ const api = spawn(process.execPath, [apiEntry], {
     YORSO_REQUEST_OBSERVABILITY_DRIVER: "disabled",
     STORAGE_DRIVER: "local",
     STORAGE_LOCAL_ROOT: path.join(storageRoot, "uploads"),
-    VITE_SUPABASE_URL: "",
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
   },
   stdio: ["ignore", "pipe", "pipe"],
 });

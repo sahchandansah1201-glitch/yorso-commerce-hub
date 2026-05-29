@@ -129,9 +129,7 @@ const overviewPayload = (): AdminOperationsOverview => ({
   ],
   productionPolicy: {
     hostedBaasProductionBackend: false,
-    prototypeSupabaseConfigured: false,
     secretsIncluded: false,
-    supabaseProductionBackend: false,
   },
   productionScaleBaseline: { status: "policy_required", targetConcurrentUsers: 10_000 },
   readiness: {
@@ -172,9 +170,7 @@ const overviewPayload = (): AdminOperationsOverview => ({
       ok: true,
       productionPolicy: {
         hostedBaasProductionBackend: false,
-        prototypeSupabaseConfigured: false,
         secretsIncluded: false,
-        supabaseProductionBackend: false,
       },
       productionScaleBaseline: { status: "policy_required", targetConcurrentUsers: 10_000 },
       requestId: "00000000-0000-4000-8000-000000000299",
@@ -202,9 +198,7 @@ const overviewPayload = (): AdminOperationsOverview => ({
       ok: true,
       productionPolicy: {
         hostedBaasProductionBackend: false,
-        prototypeSupabaseConfigured: false,
         secretsIncluded: false,
-        supabaseProductionBackend: false,
       },
       productionScaleBaseline: { status: "policy_required", targetConcurrentUsers: 10_000 },
       requestGuardrails: {

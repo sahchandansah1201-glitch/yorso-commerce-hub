@@ -64,9 +64,7 @@ const statusPayload: AdminRuntimeStatus = {
     shutdownGraceTimeoutMs: 30_000,
   },
   productionPolicy: {
-    supabaseProductionBackend: false,
     hostedBaasProductionBackend: false,
-    prototypeSupabaseConfigured: false,
     secretsIncluded: false,
   },
 };
@@ -108,9 +106,7 @@ const diagnosticsPayload: AdminRuntimeDiagnostics = {
     writeProfile: "No writes.",
   },
   productionPolicy: {
-    supabaseProductionBackend: false,
     hostedBaasProductionBackend: false,
-    prototypeSupabaseConfigured: false,
     secretsIncluded: false,
   },
 };

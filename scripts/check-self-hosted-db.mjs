@@ -649,7 +649,7 @@ for (const marker of [
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");
-requireText("packages/db/README.md", readme, "Supabase migrations may still exist as prototype references");
+requireText("packages/db/README.md", readme, "production-direction database source");
 requireText("packages/db/README.md", readme, "db:migrations:plan");
 requireText("packages/db/README.md", readme, "MIGRATION_DATABASE_URL");
 
@@ -713,4 +713,4 @@ if (failures.length > 0) {
 
 console.log("Self-hosted DB check passed.");
 console.log("- packages/db owns the account/company/files/supplier-directory/offer-catalog/supplier-access/admin-grants/admin-incident PostgreSQL baseline and scaling indexes.");
-console.log("- Supabase auth/RLS dependencies are not used by the self-hosted DB baseline.");
+console.log("- Hosted auth/RLS dependencies are not used by the self-hosted DB baseline.");

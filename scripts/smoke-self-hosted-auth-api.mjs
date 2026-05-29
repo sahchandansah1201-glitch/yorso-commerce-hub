@@ -38,8 +38,6 @@ const api = spawn(process.execPath, [apiEntry], {
     YORSO_PASSWORD_RECOVERY_CLEANUP_DELIVERY_RETENTION_MS: "604800000",
     YORSO_PASSWORD_RECOVERY_CLEANUP_TOKEN_RETENTION_MS: "86400000",
     YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ID: "auth-api-smoke-cleanup-worker",
-    VITE_SUPABASE_URL: "",
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
   },
   stdio: ["ignore", "pipe", "pipe"],
 });

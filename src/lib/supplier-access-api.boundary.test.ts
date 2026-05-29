@@ -22,7 +22,7 @@ describe("supplier-access-api prototype boundary", () => {
     vi.unstubAllGlobals();
   });
 
-  it("keeps API-disabled preview local-only without Supabase auth or RLS fallback", async () => {
+  it("keeps API-disabled preview local-only without hosted auth or RLS fallback", async () => {
     const api = await importSupplierAccessApi();
     const request = await api.requestSupplierAccess(SUPPLIER_ID);
 
@@ -79,7 +79,7 @@ describe("supplier-access-api prototype boundary", () => {
     expect(localStorage.getItem("yorso_supplier_access_requests")).toBeNull();
   });
 
-  it("keeps Supabase and the deleted legacy adapter out of supplier-access-api.ts", () => {
+  it("keeps hosted-provider fallbacks and the deleted legacy adapter out of supplier-access-api.ts", () => {
     const supplierAccessApi = readFileSync("src/lib/supplier-access-api.ts", "utf8");
 
     expect(supplierAccessApi).toContain("createSupplierAccessApiClient");

@@ -1,6 +1,4 @@
 import { z } from "zod";
-
-const optionalUrlSchema = z.string().url().or(z.literal(""));
 const booleanEnvSchema = z.preprocess((value) => {
   if (typeof value !== "string") return value;
   const normalized = value.trim().toLowerCase();
@@ -76,8 +74,6 @@ export const apiConfigSchema = z.object({
   maxUploadBytes: z.coerce.number().int().min(1).max(25 * 1024 * 1024).default(8 * 1024 * 1024),
   sessionSecret: z.string().min(24),
   jwtSecret: z.string().min(24),
-  supabaseUrl: optionalUrlSchema.default(""),
-  supabasePublishableKey: z.string().default(""),
 });
 
 export type ApiConfig = z.infer<typeof apiConfigSchema>;
@@ -151,8 +147,6 @@ const localDefaults = {
   YORSO_MAX_UPLOAD_BYTES: "8388608",
   YORSO_SESSION_SECRET: "change-me-32-bytes-minimum",
   YORSO_JWT_SECRET: "change-me-32-bytes-minimum",
-  VITE_SUPABASE_URL: "",
-  VITE_SUPABASE_PUBLISHABLE_KEY: "",
 } satisfies Record<string, string>;
 
 export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowLocalDefaults?: boolean } = {}) {
@@ -225,15 +219,10 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     maxUploadBytes: source.YORSO_MAX_UPLOAD_BYTES,
     sessionSecret: source.YORSO_SESSION_SECRET,
     jwtSecret: source.YORSO_JWT_SECRET,
-    supabaseUrl: source.VITE_SUPABASE_URL,
-    supabasePublishableKey: source.VITE_SUPABASE_PUBLISHABLE_KEY,
   });
 }
 
 export function assertSelfHostedProductionRuntime(config: ApiConfig) {
-  if (config.nodeEnv === "production" && (config.supabaseUrl || config.supabasePublishableKey)) {
-    throw new Error("Supabase env values must stay empty in production self-hosted API config.");
-  }
   if (config.nodeEnv === "production" && config.authRateLimitDriver !== "redis") {
     throw new Error("Production self-hosted API must use AUTH_RATE_LIMIT_DRIVER=redis.");
   }
@@ -295,5 +284,3 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
     throw new Error("Production self-hosted API must use YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true.");
   }
 }
-
-export const assertSupabaseIsPrototypeOnly = assertSelfHostedProductionRuntime;

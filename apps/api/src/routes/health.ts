@@ -30,7 +30,7 @@ export interface ReadinessReport {
   service: "yorso-api";
   status: "ready" | "not_ready";
   selfHostedBackend: true;
-  supabaseProductionBackend: false;
+  hostedBaasProductionBackend: false;
   productionScaleBaseline: {
     targetConcurrentUsers: 10_000;
     readinessChecks: ["shutdown_drain", "postgres", "redis", "local_storage", "production_runtime_config"];
@@ -85,7 +85,7 @@ export class SelfHostedReadinessProbe implements ReadinessProbe {
       service: "yorso-api",
       status: ok ? "ready" : "not_ready",
       selfHostedBackend: true,
-      supabaseProductionBackend: false,
+      hostedBaasProductionBackend: false,
       productionScaleBaseline: {
         targetConcurrentUsers: 10_000,
         readinessChecks: ["shutdown_drain", "postgres", "redis", "local_storage", "production_runtime_config"],

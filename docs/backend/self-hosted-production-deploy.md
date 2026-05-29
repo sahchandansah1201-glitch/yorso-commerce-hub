@@ -49,10 +49,10 @@ Required groups:
 
 Production env must not contain:
 
-- `VITE_SUPABASE_URL`;
-- `VITE_SUPABASE_PUBLISHABLE_KEY`;
-- Supabase project refs or service-role keys;
-- Firebase, Appwrite, Clerk or Auth0 application-backend settings.
+- provider-specific frontend keys for hosted BaaS runtimes;
+- hosted BaaS project refs or service-role keys;
+- Firebase, Appwrite, Clerk or Auth0 application-backend settings, plus any
+  similar hosted BaaS runtime setting.
 
 ## Deploy Sequence
 
@@ -143,13 +143,17 @@ npm run smoke:self-hosted-audit-persistence
 npm run smoke:self-hosted-admin-audit
 npm run smoke:self-hosted-auth-api
 npm run smoke:e2e:self-hosted-auth-frontend
-npm run smoke:e2e:frontend-no-supabase-env
+npm run smoke:e2e:frontend-provider-free-env
 npm run ci:core
 ```
 
 `check:self-hosted-production-runtime` specifically protects Batch #72. It
 fails if production runtime docs, compose or `.env.production.example` drift
 back toward Supabase or similar hosted application backends.
+
+Backend Phase 3C renames the browser-level provider smoke to
+`smoke:e2e:frontend-provider-free-env`. It verifies that public, auth and
+catalog routes boot without hosted BaaS frontend env values or SDK dependency.
 
 Batch #86 adds `smoke:self-hosted-error-observability` to the deploy
 validation path. It verifies that buyer-visible API errors expose request,

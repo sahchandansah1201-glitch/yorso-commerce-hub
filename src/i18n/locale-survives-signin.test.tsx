@@ -86,8 +86,6 @@ describe("ru locale survives sign-in and post-login navigation", () => {
     document.body.innerHTML = "";
     setBrowserLanguages("en-US", ["en-US", "en"]);
     vi.stubEnv("VITE_YORSO_API_URL", "");
-    vi.stubEnv("VITE_SUPABASE_URL", "");
-    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "");
   });
 
   afterEach(() => {

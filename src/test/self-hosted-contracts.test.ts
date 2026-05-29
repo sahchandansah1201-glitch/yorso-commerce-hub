@@ -417,9 +417,7 @@ describe("self-hosted account/company contracts", () => {
     expect(env).toContain("VITE_YORSO_ACCOUNT_USER_ID=");
     expect(env).toMatch(/^VITE_YORSO_API_URL=$/m);
     expect(env).toContain("PGBOUNCER_DATABASE_URL=");
-    expect(env).toMatch(/^VITE_SUPABASE_URL=$/m);
-    expect(env).toMatch(/^VITE_SUPABASE_PUBLISHABLE_KEY=$/m);
-    expect(env).toContain("Supabase prototype only");
+    expect(env).not.toMatch(/SUPABASE/i);
   });
 
   it("keeps contract package exports compatible with Node ESM runtime", () => {

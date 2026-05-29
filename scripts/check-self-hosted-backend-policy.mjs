@@ -45,7 +45,7 @@ const requiredMarkers = [
     markers: [
       "YORSO production must run as one self-hosted product on owned server",
       "Production runtime must not depend on Supabase, Firebase, Appwrite, Clerk",
-      "Supabase files in this repository are not production architecture.",
+      "Supabase files must not exist in the active product surface.",
       "Batch #71",
     ],
   },

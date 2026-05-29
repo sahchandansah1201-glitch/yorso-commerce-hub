@@ -46,19 +46,18 @@ Any external commodity service must be replaceable by a self-hosted equivalent
 without changing product code or data ownership. It must not become the system
 of record.
 
-## Legacy Supabase Status
+## Provider-Free Product Surface
 
-Supabase files in this repository are not production architecture.
+After Backend Phase 3C, Supabase files must not exist in the active product surface.
+The tracked `supabase/` project, `src/integrations/supabase` client, Supabase
+CLI smoke tooling, RLS reference tests and `@supabase/supabase-js` dependency
+are retired.
 
-They may remain only as:
+Historical docs may still mention the old prototype decisions, but active
+runtime code, env examples, package scripts, CI gates and production docs must
+stay provider-free.
 
-- historical prototype reference;
-- schema comparison material;
-- migration/access-control learning material;
-- temporary compatibility tooling while a feature is being moved to the
-  self-hosted API.
-
-They must not be used as:
+Supabase and similar hosted application backends must not be used as:
 
 - the production database;
 - the production auth provider;
@@ -68,7 +67,7 @@ They must not be used as:
 - a required environment for self-hosted server startup.
 
 Production-ready code must route through YORSO-owned contracts and adapters,
-not through Supabase clients.
+not through hosted BaaS clients.
 
 ## Frontend Boundary
 
@@ -82,8 +81,9 @@ Production-facing frontend modules must call typed YORSO adapters, for example:
 - supplier access API adapter;
 - auth runtime facade.
 
-Legacy Supabase adapters may exist only behind those facades, and only as
-prototype fallback while the self-hosted equivalent is incomplete.
+No legacy hosted-provider adapters remain in the active frontend runtime.
+API-disabled preview may use local fixtures only when a route explicitly
+documents that behavior.
 
 ## Backend Boundary
 
@@ -106,14 +106,14 @@ security boundaries for YORSO.
 A production deployment is acceptable only when it can be started from owned
 configuration:
 
-- no required `VITE_SUPABASE_*` values;
-- no Supabase project ref;
-- no Supabase service role;
+- no required hosted-provider frontend keys;
+- no hosted BaaS project ref;
+- no hosted BaaS service role;
 - no hosted BaaS URL as required runtime input;
 - no production data stored only in third-party dashboards.
 
-The repository may keep prototype smoke scripts, but they must be clearly
-separate from self-hosted production checks.
+Provider-free frontend smoke scripts must prove the app boots without hosted
+BaaS configuration or SDK dependencies.
 
 Batch #72 adds `.env.production.example`,
 `docs/backend/self-hosted-production-deploy.md` and
@@ -127,16 +127,16 @@ This policy is guarded by:
 
 ```bash
 npm run check:backend-policy
-npm run check:supabase-boundary
+npm run check:provider-boundary
 npm run check:self-hosted-api
 npm run check:self-hosted-db
 npm run check:self-hosted-production-runtime
 npm run check:production-scale-baseline
-npm run smoke:e2e:frontend-no-supabase-env
+npm run smoke:e2e:frontend-provider-free-env
 npm run ci:core
 ```
 
 Batch #71 adds this policy to make the production direction explicit: YORSO is
-not a Supabase application. It is a self-hosted marketplace operating system
-with temporary legacy Supabase references only where previous prototype work has
-not yet been fully retired.
+not a Supabase application. It is a self-hosted marketplace operating system.
+Backend Phase 3C retires the active Supabase tooling/reference surface so the
+remaining Supabase mentions are historical documentation, not product runtime.

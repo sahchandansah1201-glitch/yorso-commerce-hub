@@ -14,10 +14,10 @@ This repository is moving toward one deployable YORSO product:
 - object storage;
 - workers and operational tooling.
 
-Supabase remains a historical prototype/reference layer only. It must not be
-treated as the future production backend, production auth provider, production
-database, production storage layer or required deployment dependency. The same
-rule applies to Firebase, Appwrite, Clerk, Auth0 and similar hosted BaaS/SaaS
+Supabase is retired from the active product/tooling surface after Backend Phase
+3C. Historical docs may still mention the prototype, but production code,
+scripts, env examples and CI gates must stay provider-free. The same rule
+applies to Firebase, Appwrite, Clerk, Auth0 and similar hosted BaaS/SaaS
 application backends.
 
 ## Required Commands
@@ -26,7 +26,7 @@ Run these commands before merging backend-direction changes:
 
 ```bash
 npm run check:backend-policy
-npm run check:supabase-boundary
+npm run check:provider-boundary
 npm run check:self-hosted-infra
 npm run check:self-hosted-production-runtime
 npm run check:self-hosted-api
@@ -57,10 +57,10 @@ npm run ci:core
 | Command | Purpose |
 |---|---|
 | `check:backend-policy` | Fails if backend docs describe Supabase as the production target. |
-| `check:supabase-boundary` | Fails if new pages/components import the Supabase client directly. |
+| `check:provider-boundary` | Fails if production source files regain hosted BaaS client imports, env keys, old Supabase integration directories or legacy provider fallback markers. |
 | `check:self-hosted-infra` | Fails if the local self-hosted runtime skeleton loses PostgreSQL, PgBouncer, Redis, MinIO or required env keys. |
 | `check:self-hosted-production-runtime` | Fails if production runtime docs, compose or `.env.production.example` drift back toward Supabase, Firebase, Appwrite, Clerk, Auth0 or similar hosted BaaS/SaaS application backends. |
-| `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook, account API, supplier directory API, offer catalog API, supplier access UX bridge or Supabase production boundary is broken. |
+| `check:self-hosted-api` | Fails if the standalone `apps/api` skeleton, Dockerfile, compose hook, account API, supplier directory API, offer catalog API, supplier access UX bridge or provider-free production boundary is broken. |
 | `check:self-hosted-db` | Fails if the self-hosted PostgreSQL baseline under `packages/db` loses required account/company/supplier-directory/offer-catalog tables, marketplace search scaling indexes or drifts toward Supabase-owned schema. |
 | `check:production-scale-baseline` | Fails if the 10,000 concurrent-user release gate, supplier/offer catalog trigram search indexes, bounded frontend API calls or CI hook are removed. |
 | `db:migrations:check` | Builds the DB package and validates deterministic migration order, dependencies, safe relative paths and SQL checksums. |
@@ -101,9 +101,8 @@ It verifies:
 - Redis persists data locally;
 - MinIO exposes API and console ports;
 - `.env.example` contains all required self-hosted runtime variables;
-- `.env.example` keeps Supabase frontend variables empty;
-- `.env.example` does not contain service-role text, JWT-looking tokens or
-  Supabase database URLs.
+- `.env.example` contains no hosted BaaS frontend variables, service-role text,
+  JWT-looking tokens or hosted-provider database URLs.
 
 ## Production Runtime Validation
 
@@ -121,6 +120,10 @@ It checks:
 - `docs/backend/self-hosted-production-deploy.md` documents the server deploy
   sequence, password recovery delivery runtime and cleanup scheduler knobs;
 - `ci:core` runs the production runtime guard.
+
+Backend Phase 3C adds `check:provider-boundary` and
+`smoke:e2e:frontend-provider-free-env` as the active provider-free guards. The
+old Supabase-specific boundary/type/smoke scripts are retired.
 
 ## DB Baseline Validation
 
@@ -627,18 +630,19 @@ Batch #65 adds real self-hosted API browser validation:
   together instead of validating either the API or mocked API browser mode in
   isolation.
 
-Batch #66 adds optional Supabase frontend validation:
+Batch #66 originally added optional Supabase frontend validation. Backend
+Phase 3C supersedes it with provider-free frontend validation:
 
-- `smoke:e2e:frontend-no-supabase-env` builds the frontend with
-  `VITE_SUPABASE_URL=""`, `VITE_SUPABASE_PUBLISHABLE_KEY=""` and
-  `VITE_YORSO_API_URL=""`;
+- `smoke:e2e:frontend-provider-free-env` builds the frontend with the owned API
+  contract only and no hosted BaaS frontend env;
 - the wrapper starts Vite preview on a free local port and runs
-  `e2e/frontend-no-supabase-env.spec.ts`;
+  `e2e/frontend-provider-free-env.spec.ts`;
 - the spec opens `/`, `/signin`, `/reset-password` and `/offers`, then checks
-  that no fatal Supabase client construction error appears in browser console;
+  that no fatal hosted-provider client construction error appears in browser
+  console;
 - the sign-in screen falls back to the local contract when the self-hosted API
-  is not configured, even if prototype Supabase env values are present;
-- this guard prevents accidental reintroduction of Supabase as a required
+  is not configured;
+- this guard prevents accidental reintroduction of hosted BaaS as a required
   production runtime dependency.
 
 Batch #67 added auth runtime boundary validation; Phase 2J removes the auth
@@ -649,10 +653,10 @@ Supabase fallback from that boundary:
   update;
 - `src/pages/SignIn.tsx` and `src/pages/ResetPassword.tsx` import only that
   adapter, not `@/integrations/supabase/client`;
-- `test:auth-runtime` verifies self-hosted API mode, local fallback mode,
-  ignored `VITE_SUPABASE_*` values and self-hosted password recovery behavior;
-- `check:supabase-boundary` no longer has a legacy allowlist for auth pages and
-  must print `No page/component direct Supabase imports remain.`;
+- `test:auth-runtime` verifies self-hosted API mode, local fallback mode and
+  self-hosted password recovery behavior;
+- `check:provider-boundary` scans production source roots for hosted-provider
+  imports, env keys and legacy runtime markers;
 - `ci:core` runs `test:auth-runtime`, so the boundary is checked before merge.
 
 Backend Phase 3A replaces the old legacy catalog Supabase adapter boundary with
@@ -687,6 +691,17 @@ boundary with a removal guard:
 - `check:self-hosted-api` and `check:production-scale-baseline` fail if the
   supplier access facade regains a direct Supabase client dependency or the
   removed legacy adapter file returns.
+
+Backend Phase 3C replaces remaining active provider reference tooling with
+provider-free guards:
+
+- `supabase/` and `src/integrations/supabase/` are removed from the tracked
+  product surface;
+- Supabase CLI/type/access scripts and RLS reference tests are removed;
+- `@supabase/supabase-js` is removed from package manifests;
+- `.env` and `.env.example` contain no `VITE_SUPABASE_*` keys;
+- `check:provider-boundary` replaces `check:supabase-boundary`;
+- `smoke:e2e:frontend-provider-free-env` replaces the old no-Supabase smoke.
 
 Phase 2J replaces Batch #70's legacy auth Supabase adapter boundary with a
 removal guard:

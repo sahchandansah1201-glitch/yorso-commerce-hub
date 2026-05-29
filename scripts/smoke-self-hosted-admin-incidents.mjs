@@ -33,8 +33,6 @@ const api = spawn(process.execPath, [apiEntry], {
     NODE_ENV: "test",
     STORAGE_DRIVER: "local",
     STORAGE_LOCAL_ROOT: path.join(storageRoot, "uploads"),
-    VITE_SUPABASE_PUBLISHABLE_KEY: "",
-    VITE_SUPABASE_URL: "",
     YORSO_API_HOST: "127.0.0.1",
     YORSO_API_PORT: String(freePort),
     YORSO_AUDIT_DRIVER: "console",

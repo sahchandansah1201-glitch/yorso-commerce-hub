@@ -266,7 +266,7 @@ export function handleAccountCompanyContract(response: ServerResponse, context: 
       database: "postgresql",
       cache: "redis",
       objectStorage: "s3-compatible",
-      supabase: "prototype-only",
+      hostedBaas: "excluded",
     },
     requestId: context.requestId,
   });

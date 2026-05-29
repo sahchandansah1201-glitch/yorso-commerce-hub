@@ -65,7 +65,7 @@ export function resolveMigrationDatabaseUrl(env: NodeJS.ProcessEnv = process.env
   if (!url) {
     throw new MigrationRuntimeError([
       "MIGRATION_DATABASE_URL is required for live migration status/apply commands.",
-      "Do not use frontend Supabase variables for self-hosted migration execution.",
+      "Do not use frontend application variables for self-hosted migration execution.",
     ]);
   }
 

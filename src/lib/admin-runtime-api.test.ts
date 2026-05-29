@@ -57,9 +57,7 @@ const statusPayload = (patch: Partial<AdminRuntimeStatus> = {}): AdminRuntimeSta
     shutdownGraceTimeoutMs: 30_000,
   },
   productionPolicy: {
-    supabaseProductionBackend: false,
     hostedBaasProductionBackend: false,
-    prototypeSupabaseConfigured: false,
     secretsIncluded: false,
   },
   ...patch,
@@ -102,9 +100,7 @@ const diagnosticsPayload = (patch: Partial<AdminRuntimeDiagnostics> = {}): Admin
     writeProfile: "No writes.",
   },
   productionPolicy: {
-    supabaseProductionBackend: false,
     hostedBaasProductionBackend: false,
-    prototypeSupabaseConfigured: false,
     secretsIncluded: false,
   },
   ...patch,
@@ -156,7 +152,6 @@ describe("admin-runtime-api", () => {
       selfHostedBackend: true,
       productionScaleBaseline: { targetConcurrentUsers: 10_000 },
       productionPolicy: {
-        supabaseProductionBackend: false,
         hostedBaasProductionBackend: false,
         secretsIncluded: false,
       },
@@ -200,7 +195,6 @@ describe("admin-runtime-api", () => {
       productionPolicy: {
         hostedBaasProductionBackend: false,
         secretsIncluded: false,
-        supabaseProductionBackend: false,
       },
     });
 
@@ -268,9 +262,7 @@ describe("admin-runtime-api", () => {
       new Response(JSON.stringify({
         ...diagnosticsPayload(),
         productionPolicy: {
-          supabaseProductionBackend: true,
-          hostedBaasProductionBackend: false,
-          prototypeSupabaseConfigured: true,
+          hostedBaasProductionBackend: true,
           secretsIncluded: false,
         },
       }), {

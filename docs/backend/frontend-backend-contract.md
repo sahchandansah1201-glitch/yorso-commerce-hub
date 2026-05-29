@@ -133,10 +133,10 @@ Production adapter rule:
 
 - page/component code calls `src/lib/*-api.ts`;
 - adapters call the self-hosted YORSO API;
-- Supabase-specific runtime adapters must not be production dependencies;
-  remaining Supabase references are historical/tooling debt until Phase 3C;
+- Supabase-specific runtime adapters are retired after Phase 3C and must not
+  return as production dependencies;
 - adapter return shapes must not expose restricted fields in locked states;
-- removing Supabase from production must not require page-level rewrites.
+- provider-free production must not require page-level rewrites.
 
 Required adapters:
 
