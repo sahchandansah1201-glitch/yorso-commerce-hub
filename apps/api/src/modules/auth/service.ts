@@ -36,12 +36,19 @@ import {
   type AuthTelemetryEvent,
   type AuthTelemetrySink,
 } from "./observability.js";
+import { RegistrationVerificationCodeIssuer } from "./verification-code.js";
 
 const authSessionTtlMs = 7 * 24 * 60 * 60 * 1000;
 const registrationDraftTtlMs = 24 * 60 * 60 * 1000;
 const registrationVerificationTtlSeconds = 5 * 60;
-const registrationEmailCode = "123456";
-const registrationPhoneCode = "123456";
+const registrationVerificationMaxAttempts = 5;
+
+export interface AuthServiceVerificationOptions {
+  generateCode?: () => string;
+  maxAttempts?: number;
+  now?: () => Date;
+  ttlSeconds?: number;
+}
 
 export interface AuthRequestMetadata {
   ip?: string | null;
@@ -59,6 +66,7 @@ export class AuthServiceError extends Error {
       | "registration_email_exists"
       | "registration_session_invalid"
       | "registration_invalid_code"
+      | "registration_code_expired"
       | "registration_rate_limited"
       | "registration_email_not_verified"
       | "registration_phone_not_verified"
@@ -72,6 +80,11 @@ export class AuthServiceError extends Error {
 }
 
 export class AuthService {
+  private readonly verificationCodeIssuer: RegistrationVerificationCodeIssuer;
+  private readonly verificationMaxAttempts: number;
+  private readonly verificationNow: () => Date;
+  private readonly verificationTtlSeconds: number;
+
   constructor(
     private readonly repository: AuthRepository,
     private readonly rateLimiter: AuthRateLimiter = new SecurityEventAuthRateLimiter(repository, {
@@ -84,7 +97,17 @@ export class AuthService {
     }),
     private readonly sessionCache: AuthSessionCache = new DisabledAuthSessionCache(),
     private readonly telemetry: AuthTelemetrySink = new NoopAuthTelemetrySink(),
-  ) {}
+    verification: AuthServiceVerificationOptions = {},
+  ) {
+    this.verificationTtlSeconds = verification.ttlSeconds ?? registrationVerificationTtlSeconds;
+    this.verificationNow = verification.now ?? (() => new Date());
+    this.verificationMaxAttempts = verification.maxAttempts ?? registrationVerificationMaxAttempts;
+    this.verificationCodeIssuer = new RegistrationVerificationCodeIssuer({
+      generateCode: verification.generateCode,
+      now: this.verificationNow,
+      ttlSeconds: this.verificationTtlSeconds,
+    });
+  }
 
   async signIn(
     payload: unknown,
@@ -171,6 +194,7 @@ export class AuthService {
       throw new AuthServiceError("registration_email_exists", "An account with this email already exists.");
     }
 
+    const emailCode = this.verificationCodeIssuer.issue();
     const draft = await this.repository.startRegistrationDraft({
       ...parsed,
       delivery: {
@@ -180,8 +204,10 @@ export class AuthService {
         purpose: "email_verification",
         requestId,
         templateKey: "registration_email_verification",
+        verificationCode: emailCode.code,
       },
-      emailCodeSecret: createPasswordSecret(registrationEmailCode),
+      emailCodeExpiresAt: emailCode.expiresAt,
+      emailCodeSecret: emailCode.secret,
       expiresAt: new Date(Date.now() + registrationDraftTtlMs),
     });
 
@@ -190,7 +216,7 @@ export class AuthService {
       sessionId: draft.draft.id,
       emailSent: true,
       delivery: toRegistrationDeliveryResponse(draft.delivery),
-      expiresInSeconds: registrationVerificationTtlSeconds,
+      expiresInSeconds: this.verificationTtlSeconds,
       requestId,
     });
   }
@@ -198,7 +224,13 @@ export class AuthService {
   async verifyRegistrationEmail(payload: unknown, requestId: string) {
     const parsed = authRegisterVerifyEmailSchema.parse(payload);
     const draft = await this.requireRegistrationDraft(parsed.sessionId);
+    this.throwIfVerificationBlocked(draft.emailCodeAttemptCount);
+    this.throwIfVerificationExpired(draft.emailCodeExpiresAt);
     if (!verifyPasswordSecret(parsed.code, { passwordSecret: draft.emailCodeSecret })) {
+      const updated = await this.repository.recordRegistrationEmailCodeAttempt(parsed.sessionId);
+      if (updated.emailCodeAttemptCount >= this.verificationMaxAttempts) {
+        throw new AuthServiceError("registration_rate_limited", "Too many verification attempts.", 60);
+      }
       throw new AuthServiceError("registration_invalid_code", "The verification code is incorrect.");
     }
     await this.repository.markRegistrationEmailVerified(parsed.sessionId);
@@ -234,6 +266,7 @@ export class AuthService {
     if (draft.phoneCodeRequests >= 5) {
       throw new AuthServiceError("registration_rate_limited", "Too many verification code requests.", 60);
     }
+    const phoneCode = this.verificationCodeIssuer.issue();
     const phoneDelivery = await this.repository.recordRegistrationPhoneRequest(parsed.sessionId, {
       ...parsed,
       delivery: {
@@ -243,14 +276,16 @@ export class AuthService {
         purpose: "phone_verification",
         requestId,
         templateKey: parsed.method === "whatsapp" ? "registration_whatsapp_verification" : "registration_sms_verification",
+        verificationCode: phoneCode.code,
       },
-      phoneCodeSecret: createPasswordSecret(registrationPhoneCode),
+      phoneCodeExpiresAt: phoneCode.expiresAt,
+      phoneCodeSecret: phoneCode.secret,
     });
     return authRegisterPhoneRequestResponseSchema.parse({
       ok: true,
       sent: true,
       delivery: toRegistrationDeliveryResponse(phoneDelivery.delivery),
-      expiresInSeconds: registrationVerificationTtlSeconds,
+      expiresInSeconds: this.verificationTtlSeconds,
       requestId,
     });
   }
@@ -261,7 +296,13 @@ export class AuthService {
     if (!draft.phoneCodeSecret || draft.phone !== parsed.phone) {
       throw new AuthServiceError("registration_session_invalid", "Registration phone verification session is invalid.");
     }
+    this.throwIfVerificationBlocked(draft.phoneCodeAttemptCount);
+    this.throwIfVerificationExpired(draft.phoneCodeExpiresAt);
     if (!verifyPasswordSecret(parsed.code, { passwordSecret: draft.phoneCodeSecret })) {
+      const updated = await this.repository.recordRegistrationPhoneCodeAttempt(parsed.sessionId);
+      if (updated.phoneCodeAttemptCount >= this.verificationMaxAttempts) {
+        throw new AuthServiceError("registration_rate_limited", "Too many verification attempts.", 60);
+      }
       throw new AuthServiceError("registration_invalid_code", "The verification code is incorrect.");
     }
     await this.repository.markRegistrationPhoneVerified(parsed.sessionId, parsed.phone);
@@ -446,6 +487,16 @@ export class AuthService {
       throw new AuthServiceError("registration_session_invalid", "Registration session is invalid or expired.");
     }
     return draft;
+  }
+
+  private throwIfVerificationBlocked(attemptCount: number) {
+    if (attemptCount < this.verificationMaxAttempts) return;
+    throw new AuthServiceError("registration_rate_limited", "Too many verification attempts.", 60);
+  }
+
+  private throwIfVerificationExpired(expiresAt: string | null) {
+    if (expiresAt && new Date(expiresAt).getTime() > this.verificationNow().getTime()) return;
+    throw new AuthServiceError("registration_code_expired", "This verification code has expired.");
   }
 
   private async throwIfRateLimited(

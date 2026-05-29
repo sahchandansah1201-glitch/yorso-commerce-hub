@@ -1504,7 +1504,12 @@ describe("YORSO self-hosted API skeleton", () => {
   });
 
   it("creates a self-hosted account workspace from the registration funnel", async () => {
-    const fetchApi = await startRawTestServer();
+    const codes = ["418293", "629104"];
+    const fetchApi = await startRawTestServer({
+      registrationVerification: {
+        generateCode: () => codes.shift() ?? "900001",
+      },
+    });
     const email = "phase2a.buyer@yorso.test";
 
     const start = await fetchApi("/v1/auth/register/start", {
@@ -1530,13 +1535,26 @@ describe("YORSO self-hosted API skeleton", () => {
     });
     expect(JSON.stringify(startBody)).not.toContain(email);
     expect(JSON.stringify(startBody)).not.toContain("123456");
+    expect(JSON.stringify(startBody)).not.toContain("418293");
     const registrationSessionId = String(startBody.sessionId);
+
+    const fixedPrototypeCode = await fetchApi("/v1/auth/register/verify-email", {
+      method: "POST",
+      body: JSON.stringify({
+        sessionId: registrationSessionId,
+        code: "123456",
+      }),
+    });
+    expect(fixedPrototypeCode.status).toBe(400);
+    await expect(fixedPrototypeCode.json()).resolves.toMatchObject({
+      error: { code: "registration_invalid_code" },
+    });
 
     const verifyEmail = await fetchApi("/v1/auth/register/verify-email", {
       method: "POST",
       body: JSON.stringify({
         sessionId: registrationSessionId,
-        code: "123456",
+        code: "418293",
       }),
     });
     await expect(verifyEmail.json()).resolves.toMatchObject({ ok: true, verified: true });
@@ -1577,6 +1595,7 @@ describe("YORSO self-hosted API skeleton", () => {
     });
     expect(JSON.stringify(phoneSendBody)).not.toContain("+34600000000");
     expect(JSON.stringify(phoneSendBody)).not.toContain("123456");
+    expect(JSON.stringify(phoneSendBody)).not.toContain("629104");
     expect(phoneSend.status).toBe(200);
 
     const phoneVerify = await fetchApi("/v1/auth/register/phone/verify", {
@@ -1584,7 +1603,7 @@ describe("YORSO self-hosted API skeleton", () => {
       body: JSON.stringify({
         sessionId: registrationSessionId,
         phone: "+34600000000",
-        code: "123456",
+        code: "629104",
       }),
     });
     await expect(phoneVerify.json()).resolves.toMatchObject({ ok: true, verified: true });
@@ -1684,6 +1703,88 @@ describe("YORSO self-hosted API skeleton", () => {
         displayName: "Phase Buyer",
       },
     });
+  });
+
+  it("enforces registration verification code expiry", async () => {
+    let now = new Date("2026-05-29T12:00:00.000Z");
+    const fetchApi = await startRawTestServer({
+      registrationVerification: {
+        generateCode: () => "111222",
+        now: () => now,
+        ttlSeconds: 300,
+      },
+    });
+
+    const start = await fetchApi("/v1/auth/register/start", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "expired-code@yorso.test",
+        role: "buyer",
+      }),
+    });
+    const startBody = (await start.json()) as JsonBody;
+    now = new Date("2026-05-29T12:05:01.000Z");
+
+    const verify = await fetchApi("/v1/auth/register/verify-email", {
+      method: "POST",
+      body: JSON.stringify({
+        sessionId: String(startBody.sessionId),
+        code: "111222",
+      }),
+    });
+
+    expect(verify.status).toBe(400);
+    await expect(verify.json()).resolves.toMatchObject({
+      error: { code: "registration_code_expired" },
+    });
+  });
+
+  it("rate-limits repeated wrong registration verification attempts", async () => {
+    const fetchApi = await startRawTestServer({
+      registrationVerification: {
+        generateCode: () => "222333",
+        maxAttempts: 2,
+      },
+    });
+
+    const start = await fetchApi("/v1/auth/register/start", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "attempts-code@yorso.test",
+        role: "buyer",
+      }),
+    });
+    const startBody = (await start.json()) as JsonBody;
+
+    const first = await fetchApi("/v1/auth/register/verify-email", {
+      method: "POST",
+      body: JSON.stringify({
+        sessionId: String(startBody.sessionId),
+        code: "000000",
+      }),
+    });
+    expect(first.status).toBe(400);
+
+    const second = await fetchApi("/v1/auth/register/verify-email", {
+      method: "POST",
+      body: JSON.stringify({
+        sessionId: String(startBody.sessionId),
+        code: "000001",
+      }),
+    });
+    expect(second.status).toBe(429);
+    await expect(second.json()).resolves.toMatchObject({
+      error: { code: "registration_rate_limited" },
+    });
+
+    const blocked = await fetchApi("/v1/auth/register/verify-email", {
+      method: "POST",
+      body: JSON.stringify({
+        sessionId: String(startBody.sessionId),
+        code: "222333",
+      }),
+    });
+    expect(blocked.status).toBe(429);
   });
 
   it("unlocks offer exact price and supplier identity for qualified access", async () => {

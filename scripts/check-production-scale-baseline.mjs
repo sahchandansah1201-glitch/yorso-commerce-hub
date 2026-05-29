@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 const requiredFiles = [
   ".github/workflows/ci.yml",
   "docs/backend/production-scale-baseline.md",
+  "docs/backend/phase-2e-registration-verification-code-policy.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -32,6 +33,7 @@ const requiredFiles = [
   "packages/db/migrations/0023_admin_incident_trend_analytics.sql",
   "packages/db/migrations/0024_admin_incident_trend_actions.sql",
   "packages/db/migrations/0025_admin_incident_trend_action_queue.sql",
+  "packages/db/migrations/0028_registration_verification_code_policy.sql",
   "docs/backend/admin-incident-trend-actions.md",
   "docs/backend/admin-incident-trend-actions-api-contract.md",
   "docs/backend/admin-incident-trend-actions-indexing.md",
@@ -224,6 +226,7 @@ for (const file of requiredFiles) {
 const read = (file) => readFileSync(file, "utf8");
 const ciWorkflow = read(".github/workflows/ci.yml");
 const baseline = read("docs/backend/production-scale-baseline.md");
+const phase2eRegistrationVerificationCodePolicy = read("docs/backend/phase-2e-registration-verification-code-policy.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -253,6 +256,7 @@ const adminIncidentWorkloadCorrelationMigration = read("packages/db/migrations/0
 const adminIncidentTrendAnalyticsMigration = read("packages/db/migrations/0023_admin_incident_trend_analytics.sql");
 const adminIncidentTrendActionsMigration = read("packages/db/migrations/0024_admin_incident_trend_actions.sql");
 const adminIncidentTrendActionQueueMigration = read("packages/db/migrations/0025_admin_incident_trend_action_queue.sql");
+const registrationVerificationCodePolicyMigration = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -603,6 +607,7 @@ for (const marker of [
   "YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true",
   "YORSO_REGISTRATION_DELIVERY_SENDER=file_spool",
   "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR=/var/lib/yorso/registration-delivery",
+  "YORSO_REGISTRATION_VERIFICATION_CODE_SECRET=replace-with-owned-registration-code-secret-32-bytes-minimum",
   "STORAGE_DRIVER=local",
 ]) {
   requireText(".env.production.example", productionEnv, marker);
@@ -766,6 +771,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0017_supplier_ac
 }
 if (!manifest.migrations?.some((migration) => migration.id === "0019_admin_incident_acknowledgements")) {
   failures.push("packages/db/migration-manifest.json: missing 0019_admin_incident_acknowledgements");
+}
+if (!manifest.migrations?.some((migration) => migration.id === "0028_registration_verification_code_policy")) {
+  failures.push("packages/db/migration-manifest.json: missing 0028_registration_verification_code_policy");
 }
 
 if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-production-scale-baseline.mjs") {
@@ -2323,6 +2331,18 @@ for (const marker of [
   requireText("packages/db/migrations/0025_admin_incident_trend_action_queue.sql", adminIncidentTrendActionQueueMigration, marker);
 }
 for (const marker of [
+  "Backend Phase 2E",
+  "email_code_expires_at",
+  "email_code_attempt_count",
+  "phone_code_expires_at",
+  "phone_code_attempt_count",
+  "verification_code_sealed",
+  "idx_yorso_registration_drafts_email_code_expiry",
+  "idx_yorso_registration_drafts_phone_code_expiry",
+]) {
+  requireText("packages/db/migrations/0028_registration_verification_code_policy.sql", registrationVerificationCodePolicyMigration, marker);
+}
+for (const marker of [
   "createAdminAuditApiClient",
   "/v1/admin/audit-events",
   "/v1/admin/audit-events/export",
@@ -2687,12 +2707,26 @@ for (const marker of [
   "YORSO_REGISTRATION_DELIVERY_SENDER",
   "registrationDeliverySpoolDir",
   "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR",
+  "registrationVerificationCodeSecret",
+  "YORSO_REGISTRATION_VERIFICATION_CODE_SECRET",
 ]) {
   requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), marker);
 }
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_METRICS_DRIVER=prometheus.");
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_AUDIT_DRIVER=postgres.");
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true.");
+requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must set a non-default YORSO_REGISTRATION_VERIFICATION_CODE_SECRET.");
+
+for (const marker of [
+  "Backend Phase 2E",
+  "Plan / Fact",
+  "YORSO_REGISTRATION_VERIFICATION_CODE_SECRET",
+  "verification_code_sealed",
+  "10,000 Concurrent-User Review",
+  "registration verification code policy",
+]) {
+  requireText("docs/backend/phase-2e-registration-verification-code-policy.md", phase2eRegistrationVerificationCodePolicy, marker);
+}
 
 for (const marker of [
   "createRequestTelemetrySink",

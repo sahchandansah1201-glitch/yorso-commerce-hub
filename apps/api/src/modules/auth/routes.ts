@@ -250,6 +250,7 @@ function statusForAuthError(code: AuthServiceError["code"]) {
   if (
     code === "registration_session_invalid" ||
     code === "registration_invalid_code" ||
+    code === "registration_code_expired" ||
     code === "registration_email_not_verified" ||
     code === "registration_phone_not_verified" ||
     code === "registration_details_required"

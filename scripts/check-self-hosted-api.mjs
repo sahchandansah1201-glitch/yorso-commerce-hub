@@ -249,6 +249,7 @@ const requiredFiles = [
   "docs/backend/self-hosted-admin-audit-events-page.md",
   "docs/backend/self-hosted-account-postgres-smoke.md",
   "docs/backend/self-hosted-workspace-postgres-smoke.md",
+  "docs/backend/phase-2e-registration-verification-code-policy.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -259,6 +260,8 @@ const requiredFiles = [
   "packages/db/migrations/0021_admin_incident_execution.sql",
   "packages/db/migrations/0024_admin_incident_trend_actions.sql",
   "packages/db/migrations/0025_admin_incident_trend_action_queue.sql",
+  "packages/db/migrations/0028_registration_verification_code_policy.sql",
+  "apps/api/src/modules/auth/verification-code.ts",
   "docs/backend/admin-incident-trend-actions.md",
   "docs/backend/admin-incident-trend-actions-api-contract.md",
   "docs/backend/admin-incident-trend-actions-indexing.md",
@@ -438,12 +441,15 @@ const adminIncidentWorkflowMigration = read("packages/db/migrations/0020_admin_i
 const adminIncidentExecutionMigration = read("packages/db/migrations/0021_admin_incident_execution.sql");
 const adminIncidentTrendActionsMigration = read("packages/db/migrations/0024_admin_incident_trend_actions.sql");
 const adminIncidentTrendActionQueueMigration = read("packages/db/migrations/0025_admin_incident_trend_action_queue.sql");
+const registrationVerificationCodePolicyMigration = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
+const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
 const adminIncidentTrendActionsDocs = read("docs/backend/admin-incident-trend-actions.md");
 const adminIncidentTrendActionsApiDocs = read("docs/backend/admin-incident-trend-actions-api-contract.md");
 const adminIncidentTrendActionsIndexingDocs = read("docs/backend/admin-incident-trend-actions-indexing.md");
 const adminIncidentTrendActionQueueDocs = read("docs/backend/admin-incident-trend-action-queue.md");
 const adminIncidentTrendActionQueueApiDocs = read("docs/backend/admin-incident-trend-action-queue-api-contract.md");
 const adminIncidentTrendActionQueueIndexingDocs = read("docs/backend/admin-incident-trend-action-queue-indexing.md");
+const phase2eRegistrationVerificationCodePolicy = read("docs/backend/phase-2e-registration-verification-code-policy.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -2744,6 +2750,33 @@ for (const marker of [
   "idx_yorso_admin_trend_actions_decider_updated",
 ]) {
   requireText("packages/db/migrations/0025_admin_incident_trend_action_queue.sql", adminIncidentTrendActionQueueMigration, marker);
+}
+for (const marker of [
+  "Backend Phase 2E",
+  "email_code_expires_at",
+  "email_code_attempt_count",
+  "phone_code_expires_at",
+  "phone_code_attempt_count",
+  "verification_code_sealed",
+]) {
+  requireText("packages/db/migrations/0028_registration_verification_code_policy.sql", registrationVerificationCodePolicyMigration, marker);
+}
+for (const marker of [
+  "RegistrationVerificationCodeIssuer",
+  "createRegistrationVerificationCodeCodec",
+  "aes-256-gcm",
+  "yorso-registration-verification-code:v1",
+]) {
+  requireText("apps/api/src/modules/auth/verification-code.ts", authVerificationCode, marker);
+}
+for (const marker of [
+  "Backend Phase 2E",
+  "registration verification code policy",
+  "verification_code_sealed",
+  "registration_code_expired",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2e-registration-verification-code-policy.md", phase2eRegistrationVerificationCodePolicy, marker);
 }
 for (const marker of [
   "Batch #108",

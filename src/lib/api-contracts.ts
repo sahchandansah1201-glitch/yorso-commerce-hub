@@ -2,8 +2,9 @@
  * YORSO Registration & Auth API Contracts (v1)
  *
  * Frontend integration contract for the 9 registration / auth operations.
- * No real network calls — every function returns mock data with realistic
- * latency and error triggers so the UI can be exercised end-to-end.
+ * When VITE_YORSO_API_URL is not configured, every function returns local
+ * mock data with realistic latency and error triggers so the UI can be
+ * exercised end-to-end without a backend process.
  *
  * Replace each `authApi.*` body with a real fetch when the backend is ready.
  * Endpoints, payloads and error codes are stable — UI does not need to change.
@@ -13,7 +14,7 @@
  *
  *   email = "taken@yorso.test"   → EMAIL_ALREADY_EXISTS
  *   email = "blocked@yorso.test" → SERVER_ERROR
- *   email-verify code = "123456" → success
+ *   email-verify code = "123456" → success in API-disabled local mock only
  *   email-verify code = anything else → INVALID_CODE
  *   phone-verify code = "0000"   → INVALID_CODE
  *   phone-verify code = anything else (≥4 digits) → success
@@ -141,6 +142,7 @@ const selfHostedRegistrationCodeMap: Record<string, ErrorCode> = {
   registration_email_exists: ERROR_CODES.EMAIL_ALREADY_EXISTS,
   registration_session_invalid: ERROR_CODES.VERIFICATION_FAILED,
   registration_invalid_code: ERROR_CODES.INVALID_CODE,
+  registration_code_expired: ERROR_CODES.CODE_EXPIRED,
   registration_rate_limited: ERROR_CODES.RATE_LIMITED,
   registration_email_not_verified: ERROR_CODES.VERIFICATION_FAILED,
   registration_phone_not_verified: ERROR_CODES.VERIFICATION_FAILED,
@@ -420,7 +422,7 @@ export const authApi = {
     return { ok: true, data: { sessionId, emailSent: true } };
   },
 
-  /** 2. Verify the email OTP. Code "123456" is the only one accepted. */
+  /** 2. Verify the email OTP. API-disabled local mock accepts only "123456". */
   async verifyEmail(payload: VerifyEmailPayload): Promise<ApiResult<VerifyEmailResponse>> {
     if (isSelfHostedRegistrationConfigured()) {
       return requestSelfHostedRegistration<VerifyEmailResponse>(

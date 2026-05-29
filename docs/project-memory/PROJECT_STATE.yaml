@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "backend_phase_2d_registration_delivery_runtime_committed_local"
-  head_summary: "Backend Phase 2D registration delivery runtime committed locally with release validation passed."
-  dirty_worktree_before_project_memory: false
+  head_commit: "backend_phase_2e_registration_verification_code_policy_in_progress"
+  head_summary: "Backend Phase 2E registration verification code policy implemented locally with full release validation passed; commit pending."
+  dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "No expected dirty worktree after the Phase 2D checkpoint commit."
+    - "Backend Phase 2E implementation and docs are staged for validation and commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_2d_registration_delivery_runtime"
-  summary: "Registration verification delivery now has an opt-in self-hosted runtime scheduler and file-spool handoff sender without hosted provider coupling."
-  status: "committed_locally_validation_passed"
+  id: "backend_phase_2e_registration_verification_code_policy"
+  summary: "Registration verification now uses per-request OTP generation, expiry, attempt counters and sealed backend-only delivery handoff material."
+  status: "implemented_locally_validation_passed_commit_pending"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 2E implementation is recorded in docs/backend/phase-2e-registration-verification-code-policy.md."
+    - "RegistrationVerificationCodeIssuer issues fresh numeric codes for email and phone verification requests."
+    - "Registration draft storage keeps hashed code secrets; public responses do not include generated OTP or full contacts."
+    - "Migration 0028_registration_verification_code_policy adds email/phone code expiry, attempt counters and yorso_registration_delivery_outbox.verification_code_sealed."
+    - "Postgres delivery leasing requires non-null sealed code material and decrypts only for backend worker jobs."
+    - "File-spool delivery payload now includes backend-only verificationCode for owned operator/channel handoff; it remains outside browser-visible routes."
+    - "Production config requires a non-default YORSO_REGISTRATION_VERIFICATION_CODE_SECRET."
+    - "RegisterVerify prototype dev-skip remains available only in API-disabled local mock mode."
+    - "Phase 2E release validation passed: verification-code, delivery-worker, delivery-sender and server tests; frontend registration tests; TypeScript build; contracts build; DB migration tests; self-hosted infra/runtime/API guards; production-scale guard; lint; API build; diff check; production build."
+    - "Commit is still pending."
     - "Phase 2D implementation is recorded in docs/backend/phase-2d-registration-delivery-runtime.md."
     - "FileSpoolRegistrationVerificationSender writes one 0600 JSON handoff file per sent registration delivery job to an owned local spool directory."
     - "RegistrationDeliveryScheduler runs bounded RegistrationDeliveryWorker batches outside public request handlers, skips overlapping runs and catches worker-level failures for metrics."

@@ -1034,6 +1034,46 @@
   `docs/backend/self-hosted-production-deploy.md`: Phase 2D contract,
   deployment and production-scale updates.
 
+## Backend Phase 2E Registration Verification Code Policy
+
+- `docs/backend/phase-2e-registration-verification-code-policy.md`: Phase 2E
+  implementation notes, plan/fact table, runtime contract, data model,
+  validation and 10,000 concurrent-user review.
+- `apps/api/src/modules/auth/verification-code.ts`: per-request registration
+  OTP issuer and AES-256-GCM sealed-code codec.
+- `apps/api/src/modules/auth/verification-code.test.ts`: OTP issue/expiry and
+  sealed handoff coverage.
+- `apps/api/src/modules/auth/service.ts`: per-request email/phone codes,
+  expiry enforcement, wrong-code attempt counters and `registration_code_expired`.
+- `apps/api/src/modules/auth/repository.ts`: memory auth registration draft
+  attempt/expiry fields and backend-only delivery code storage.
+- `apps/api/src/modules/auth/postgres-repository.ts`: Postgres draft
+  attempt/expiry fields and sealed delivery-code persistence/decrypt-at-lease.
+- `apps/api/src/modules/auth/delivery-worker.ts`: worker message includes
+  backend-only `verificationCode` and persisted sender errors redact OTP-shaped
+  values.
+- `apps/api/src/modules/auth/delivery-sender.ts`: file-spool handoff writes the
+  verification code for owned operator/channel delivery.
+- `packages/db/migrations/0028_registration_verification_code_policy.sql`:
+  registration code expiry, attempt counters and `verification_code_sealed`.
+- `packages/db/migration-manifest.json`: registers migration `0028`.
+- `apps/api/src/config.ts`, `.env.example`, `.env.production.example`,
+  `infra/docker-compose.yml`: `YORSO_REGISTRATION_VERIFICATION_CODE_SECRET`.
+- `src/pages/register/RegisterVerify.tsx`: prototype dev skip limited to
+  API-disabled local mock mode.
+- `src/lib/api-contracts.ts`: local mock comments clarify `123456` is not the
+  API-enabled self-hosted registration code policy.
+- `scripts/check-self-hosted-infra.mjs`,
+  `scripts/check-self-hosted-production-runtime.mjs`,
+  `scripts/check-production-scale-baseline.mjs` and
+  `scripts/check-self-hosted-api.mjs`: guard coverage for code-secret and
+  Phase 2E migration/docs.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/phase-2d-registration-delivery-runtime.md`,
+  `docs/backend/production-scale-baseline.md` and
+  `docs/backend/self-hosted-production-deploy.md`: Phase 2E contract and
+  production-scale updates.
+
 ## Lovable Sync Prompts
 
 ## Batch #133 Public Breadcrumb Locale A11y

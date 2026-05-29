@@ -29,6 +29,7 @@ describe("file spool registration verification sender", () => {
       draftId: "draft-registration-1",
       purpose: "email_verification",
       templateKey: "registration_email_verification",
+      verificationCode: "418293",
     });
 
     const files = await readdir(spoolDir);
@@ -50,11 +51,12 @@ describe("file spool registration verification sender", () => {
       draftId: "draft-registration-1",
       purpose: "email_verification",
       templateKey: "registration_email_verification",
+      verificationCode: "418293",
       subject: "YORSO registration verification",
     });
     expect(JSON.stringify(payload)).not.toContain("SUPABASE");
     expect(payload).not.toHaveProperty("provider");
-    expect(payload).not.toHaveProperty("verificationCode");
+    expect(payload.verificationCode).toBe("418293");
     expect(payload).not.toHaveProperty("code");
   });
 
@@ -70,6 +72,7 @@ describe("file spool registration verification sender", () => {
       draftId: "draft-registration-2",
       purpose: "phone_verification",
       templateKey: "registration_whatsapp_verification",
+      verificationCode: "629104",
     });
 
     const [file] = await readdir(spoolDir);
@@ -78,6 +81,7 @@ describe("file spool registration verification sender", () => {
     expect(payload.channel).toBe("whatsapp");
     expect(payload.text).toContain("phone verification");
     expect(payload.text).toContain("***00");
+    expect(payload.text).toContain("629104");
     expect(JSON.stringify(payload)).not.toContain("123456");
   });
 });

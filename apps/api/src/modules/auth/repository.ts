@@ -29,6 +29,8 @@ export interface RegistrationDraft {
   country: string | null;
   countryCode: string | null;
   email: string;
+  emailCodeAttemptCount: number;
+  emailCodeExpiresAt: string;
   emailCodeSecret: string;
   emailVerifiedAt: string | null;
   expiresAt: string;
@@ -36,6 +38,8 @@ export interface RegistrationDraft {
   id: string;
   passwordSecret: string | null;
   phone: string | null;
+  phoneCodeAttemptCount: number;
+  phoneCodeExpiresAt: string | null;
   phoneCodeRequests: number;
   phoneCodeSecret: string | null;
   phoneVerifiedAt: string | null;
@@ -69,6 +73,7 @@ export interface RegistrationDeliveryOutboxInput {
   purpose: AuthRegistrationDeliveryPurpose;
   requestId: string;
   templateKey: string;
+  verificationCode: string;
 }
 
 export interface RegistrationDraftDeliveryResult {
@@ -78,6 +83,7 @@ export interface RegistrationDraftDeliveryResult {
 
 export interface RegistrationDeliveryJob extends RegistrationDeliveryOutboxEntry {
   destination: string;
+  verificationCode: string;
 }
 
 export interface RegistrationDeliveryLeaseInput {
@@ -110,15 +116,26 @@ export interface AuthRepository {
   findUserByEmail(email: string): Promise<AuthUser | null>;
   createSession(user: Pick<AuthUser, "id" | "email" | "displayName">, ttlMs: number): Promise<AuthSession>;
   startRegistrationDraft(
-    input: AuthRegisterStart & { delivery: RegistrationDeliveryOutboxInput; emailCodeSecret: string; expiresAt: Date },
+    input: AuthRegisterStart & {
+      delivery: RegistrationDeliveryOutboxInput;
+      emailCodeExpiresAt: Date;
+      emailCodeSecret: string;
+      expiresAt: Date;
+    },
   ): Promise<RegistrationDraftDeliveryResult>;
   getRegistrationDraft(sessionId: string): Promise<RegistrationDraft | null>;
+  recordRegistrationEmailCodeAttempt(sessionId: string): Promise<RegistrationDraft>;
   markRegistrationEmailVerified(sessionId: string): Promise<RegistrationDraft>;
   updateRegistrationDetails(sessionId: string, input: AuthRegisterDetails & { countryCode: string; passwordSecret: string }): Promise<RegistrationDraft>;
   recordRegistrationPhoneRequest(
     sessionId: string,
-    input: AuthRegisterPhoneRequest & { delivery: RegistrationDeliveryOutboxInput; phoneCodeSecret: string },
+    input: AuthRegisterPhoneRequest & {
+      delivery: RegistrationDeliveryOutboxInput;
+      phoneCodeExpiresAt: Date;
+      phoneCodeSecret: string;
+    },
   ): Promise<RegistrationDraftDeliveryResult>;
+  recordRegistrationPhoneCodeAttempt(sessionId: string): Promise<RegistrationDraft>;
   markRegistrationPhoneVerified(sessionId: string, phone: string): Promise<RegistrationDraft>;
   updateRegistrationOnboarding(sessionId: string, input: AuthRegisterOnboarding): Promise<RegistrationDraft>;
   updateRegistrationMarkets(sessionId: string, input: AuthRegisterMarkets): Promise<RegistrationDraft>;
@@ -190,6 +207,7 @@ export class MemoryAuthRepository implements AuthRepository {
   private readonly securityEvents: AuthSecurityEvent[] = [];
   private readonly registrationDrafts = new Map<string, RegistrationDraft>();
   private readonly registrationDeliveryOutbox = new Map<string, RegistrationDeliveryOutboxEntry>();
+  private readonly registrationDeliveryCodes = new Map<string, string>();
 
   constructor(
     users: AuthUser[] = [demoAuthUser, demoAdminUser],
@@ -231,7 +249,12 @@ export class MemoryAuthRepository implements AuthRepository {
   }
 
   async startRegistrationDraft(
-    input: AuthRegisterStart & { delivery: RegistrationDeliveryOutboxInput; emailCodeSecret: string; expiresAt: Date },
+    input: AuthRegisterStart & {
+      delivery: RegistrationDeliveryOutboxInput;
+      emailCodeExpiresAt: Date;
+      emailCodeSecret: string;
+      expiresAt: Date;
+    },
   ) {
     const id = createSessionId();
     const draft: RegistrationDraft = {
@@ -241,6 +264,8 @@ export class MemoryAuthRepository implements AuthRepository {
       country: null,
       countryCode: null,
       email: input.email.toLowerCase(),
+      emailCodeAttemptCount: 0,
+      emailCodeExpiresAt: iso(input.emailCodeExpiresAt),
       emailCodeSecret: input.emailCodeSecret,
       emailVerifiedAt: null,
       expiresAt: iso(input.expiresAt),
@@ -248,6 +273,8 @@ export class MemoryAuthRepository implements AuthRepository {
       id,
       passwordSecret: null,
       phone: null,
+      phoneCodeAttemptCount: 0,
+      phoneCodeExpiresAt: null,
       phoneCodeRequests: 0,
       phoneCodeSecret: null,
       phoneVerifiedAt: null,
@@ -277,6 +304,13 @@ export class MemoryAuthRepository implements AuthRepository {
     return cloneDraft(draft);
   }
 
+  async recordRegistrationEmailCodeAttempt(sessionId: string) {
+    const draft = await this.requireRegistrationDraft(sessionId);
+    draft.emailCodeAttemptCount += 1;
+    this.registrationDrafts.set(sessionId, draft);
+    return cloneDraft(draft);
+  }
+
   async updateRegistrationDetails(
     sessionId: string,
     input: AuthRegisterDetails & { countryCode: string; passwordSecret: string },
@@ -294,10 +328,16 @@ export class MemoryAuthRepository implements AuthRepository {
 
   async recordRegistrationPhoneRequest(
     sessionId: string,
-    input: AuthRegisterPhoneRequest & { delivery: RegistrationDeliveryOutboxInput; phoneCodeSecret: string },
+    input: AuthRegisterPhoneRequest & {
+      delivery: RegistrationDeliveryOutboxInput;
+      phoneCodeExpiresAt: Date;
+      phoneCodeSecret: string;
+    },
   ) {
     const draft = await this.requireRegistrationDraft(sessionId);
     draft.phone = input.phone;
+    draft.phoneCodeAttemptCount = 0;
+    draft.phoneCodeExpiresAt = iso(input.phoneCodeExpiresAt);
     draft.phoneCodeSecret = input.phoneCodeSecret;
     draft.phoneCodeRequests += 1;
     draft.phoneVerifiedAt = null;
@@ -313,6 +353,13 @@ export class MemoryAuthRepository implements AuthRepository {
     const draft = await this.requireRegistrationDraft(sessionId);
     draft.phone = phone;
     draft.phoneVerifiedAt = iso(new Date());
+    this.registrationDrafts.set(sessionId, draft);
+    return cloneDraft(draft);
+  }
+
+  async recordRegistrationPhoneCodeAttempt(sessionId: string) {
+    const draft = await this.requireRegistrationDraft(sessionId);
+    draft.phoneCodeAttemptCount += 1;
     this.registrationDrafts.set(sessionId, draft);
     return cloneDraft(draft);
   }
@@ -444,6 +491,8 @@ export class MemoryAuthRepository implements AuthRepository {
       if (new Date(draft.expiresAt).getTime() <= now) return [];
       const destination = delivery.purpose === "email_verification" ? draft.email : draft.phone;
       if (!destination) return [];
+      const verificationCode = this.registrationDeliveryCodes.get(delivery.id);
+      if (!verificationCode) return [];
       const leased: RegistrationDeliveryOutboxEntry = {
         ...delivery,
         availableAt: leaseExpiresAt,
@@ -456,6 +505,7 @@ export class MemoryAuthRepository implements AuthRepository {
       return [{
         ...cloneDelivery(leased),
         destination,
+        verificationCode,
       }];
     });
   }
@@ -522,6 +572,7 @@ export class MemoryAuthRepository implements AuthRepository {
       updatedAt: iso(new Date()),
     };
     this.registrationDeliveryOutbox.set(delivery.id, delivery);
+    this.registrationDeliveryCodes.set(delivery.id, input.verificationCode);
     return delivery;
   }
 }

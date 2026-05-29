@@ -4853,6 +4853,86 @@ Marker: file_spool sender.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 2E Registration Verification Code Policy
+
+Phase 2E replaces the fixed prototype registration verification code with
+per-request OTP generation, code expiry, attempt counters and sealed backend
+delivery handoff material.
+
+Expected read/write profile:
+
+- Registration start writes one draft row with hashed email code secret and
+  expiry plus one delivery outbox row with sealed code material.
+- Email verification reads the draft by session id and writes either one
+  attempt-counter increment or one verified timestamp.
+- Phone verification request updates the draft with a new hashed phone code
+  secret, resets phone attempt count and writes one delivery outbox row.
+- Worker lease decrypts sealed code material only after claiming a bounded
+  outbox batch.
+
+Cache, queue and backpressure strategy:
+
+- OTP generation is local API CPU work and does not call a hosted provider.
+- OTP attempt counters are durable per draft; sign-in rate limits remain
+  separate Redis/audit-log policy.
+- Delivery backpressure remains governed by Phase 2D batch size, interval,
+  lease timeout and retry delay.
+- Production fails closed without a non-default
+  `YORSO_REGISTRATION_VERIFICATION_CODE_SECRET`.
+
+Database indexing and pagination strategy:
+
+- Draft verification remains primary-key/session-id lookups.
+- `idx_yorso_registration_drafts_email_code_expiry` and
+  `idx_yorso_registration_drafts_phone_code_expiry` support bounded expiry
+  cleanup/ops scans.
+- Outbox leasing requires non-null `verification_code_sealed` and still uses
+  ordered `for update skip locked` batches.
+
+Failure mode and graceful degradation:
+
+- Wrong code returns `registration_invalid_code` until the attempt ceiling.
+- Expired code returns `registration_code_expired`.
+- Max wrong attempts returns `registration_rate_limited` and blocks later
+  correct-code attempts for that code cycle.
+- Delivery rows without sealed material are not leased by the Phase 2E worker
+  path.
+- Delivery sender failures redact email, phone and verification-code shaped
+  values before persisting retry errors.
+- Browser-facing responses keep masked delivery metadata only: no OTP, full
+  email or full phone number.
+
+Observability and load-test plan:
+
+- Existing worker metrics continue to avoid contact/draft/destination labels.
+- Logs and persisted delivery errors must not contain OTP, raw email or raw
+  phone.
+- Load-test 10,000 concurrent-user registration starts, phone sends and verify
+  attempts; inspect p95 latency, attempt-counter write pressure, queue age and
+  spool write latency.
+
+Validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/verification-code.test.ts apps/api/src/modules/auth/delivery-worker.test.ts apps/api/src/modules/auth/delivery-sender.test.ts apps/api/src/server.test.ts`.
+- `npx tsc -b --noEmit`.
+- `npm run contracts:build`.
+- `npm run test:db-migrations`.
+- `npm run check:self-hosted-infra`.
+- `npm run check:self-hosted-production-runtime`.
+- `npm run check:production-scale-baseline`.
+- `npm run check:self-hosted-api`.
+- `npx vitest run src/lib/api-contracts.registration.test.ts src/lib/registration-funnel.e2e.test.tsx src/lib/registration-funnel-degraded.e2e.test.tsx src/i18n/locale-register-substeps-ru.test.tsx`.
+- `npm run lint`.
+- `npm run api:build`.
+- `git diff --check`.
+- `npm run build`.
+
+Marker: Backend Phase 2E.
+Marker: registration verification code policy.
+Marker: sealed verification code handoff.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

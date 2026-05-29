@@ -12,6 +12,7 @@ export interface RegistrationVerificationDeliveryMessage {
   draftId: string;
   purpose: RegistrationDeliveryJob["purpose"];
   templateKey: string;
+  verificationCode: string;
 }
 
 export interface RegistrationVerificationDeliverySender {
@@ -84,6 +85,7 @@ function toDeliveryMessage(job: RegistrationDeliveryJob): RegistrationVerificati
     draftId: job.draftId,
     purpose: job.purpose,
     templateKey: job.templateKey,
+    verificationCode: job.verificationCode,
   };
 }
 
@@ -103,5 +105,6 @@ function sanitizeDeliveryError(error: unknown) {
   return message
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email]")
     .replace(/\+?\d[\d\s().-]{6,}\d/g, "[phone]")
+    .replace(/\b\d{4,8}\b/g, "[verification-code]")
     .slice(0, 500);
 }

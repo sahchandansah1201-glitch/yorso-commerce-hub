@@ -2,43 +2,40 @@
 
 ## Current Next Action
 
-Start the next scoped backend workstream after Backend Phase 2D.
+Commit Backend Phase 2E after completed release validation.
 
-Phase 2D adds the first owned registration verification delivery runtime:
-an opt-in background scheduler and a self-hosted `file_spool` sender that writes
-durable JSON delivery handoff files to a mounted local directory. It does not
-add Supabase, hosted BaaS, SaaS email/SMS/WhatsApp provider coupling or public
-UI changes.
+Phase 2E replaces the self-hosted backend's fixed prototype registration code
+with per-request OTP generation, expiry, attempt counters and sealed
+backend-only delivery handoff material. It does not add Supabase, hosted BaaS,
+SaaS email/SMS/WhatsApp provider coupling or public UI layout changes.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Runtime scheduler | Запускать обработку outbox вне request handlers и не допускать overlap. | Реализовано: `RegistrationDeliveryScheduler` с `start`, `stop`, `runOnce`, bounded worker options и skip при уже активном batch. | Если API-process scheduler станет операционно тесным, вынести в отдельный process/command. |
-| Sender decision | Выбрать первый self-hosted sender без SaaS/provider coupling. | Реализовано: `FileSpoolRegistrationVerificationSender` пишет JSON handoff-файлы с mode `0600` в owned spool dir. | Phase 2E должен решить OTP/channel semantics перед реальной внешней доставкой. |
-| Production guard | Production не должен стартовать без delivery runtime. | Реализовано: production guard требует `YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true`, `YORSO_REGISTRATION_DELIVERY_SENDER=file_spool` и абсолютный spool path. | Добавить sender-specific readiness, когда появится не-file adapter. |
-| Metrics | Видеть worker outcomes без утечки контактов. | Реализовано: Prometheus counters по run outcome/job result/worker id; email/phone/destination не используются как labels. | Добавить queue-age gauges после появления repository queue stats. |
-| Infra/env | Deployment должен иметь owned spool volume и явные env knobs. | Реализовано: `.env.example`, `.env.production.example`, `infra/docker-compose.yml` и guard scripts обновлены. | Нужен operator runbook для retention/архивации spool files. |
-| OTP policy | Не смешивать runtime scheduler с изменением verification-code policy. | Не реализовано в Phase 2D: текущая prototype OTP policy в `AuthService` сохранена. | Следующий конкретный workstream: Phase 2E заменить фиксированный prototype code на per-request OTP и определить безопасный payload/channel handoff. |
-| Validation | Проверить runtime, infra guards, API guards, migrations, lint, build. | Passed: focused API tests, TypeScript, self-hosted infra/runtime/API guards, production-scale guard, DB migrations, lint, api build, diff check, production build. | Можно стартовать Phase 2E. |
+| Per-request OTP | Убрать fixed backend OTP `123456` из API-enabled registration. | Реализовано: `RegistrationVerificationCodeIssuer` выпускает свежий 6-значный код для email/phone request; tests inject deterministic codes. | Commit. |
+| Secret storage | Не хранить plain OTP в registration drafts. | Реализовано: draft хранит salted SHA-256 `emailCodeSecret` / `phoneCodeSecret`; verification сравнивает через safe secret path. | Security-hardening KDF/pepper policy можно выделить отдельно, если потребуется. |
+| Expiry policy | Код должен истекать независимо от 24h registration draft. | Реализовано: `email_code_expires_at` / `phone_code_expires_at`, error `registration_code_expired`. | При UI-задаче добавить copy для expired/resend state. |
+| Attempt policy | Wrong-code attempts должны ограничиваться. | Реализовано: durable attempt counters и `registration_rate_limited` после max attempts; correct code тоже блокируется после ceiling. | При необходимости добавить IP/device-level OTP throttling. |
+| Delivery handoff | Worker/sender должны получить code без browser leak. | Реализовано: outbox хранит `verification_code_sealed`; worker decrypts after lease; file-spool payload includes backend-only `verificationCode`. | Позже можно добавить owned SMTP/SMS/WhatsApp adapter без изменения public responses. |
+| Browser hygiene | Public registration responses не должны отдавать OTP/full contact. | Реализовано: start/phone-send responses содержат только masked delivery metadata; tests assert generated codes are absent. | Сохранять этот contract для любых future channel adapters. |
+| Production guard | Production должен требовать owned sealing secret. | Реализовано: `YORSO_REGISTRATION_VERIFICATION_CODE_SECRET`; production default-secret guard; env/compose/scripts updated. | Secret rotation/runbook вне этого batch. |
+| Dev UX | Self-hosted dev не должен auto-submit prototype code. | Реализовано: Register verify dev-skip доступен только в API-disabled local mock. | Если нужен operator-only helper, делать отдельным backend-only инструментом. |
 
-## Next Implementation
+## Next Implementation After Phase 2E
 
 Recommended next scoped workstream:
 
-Backend Phase 2E: registration OTP generation and channel delivery semantics.
+Backend Phase 2F: self-hosted password recovery/reset source of truth.
 
 Concrete scope:
 
-- replace the fixed prototype registration code policy with per-request OTP
-  generation, expiry and attempt rules;
-- decide how the self-hosted file-spool handoff carries code material safely,
-  or introduce an owned channel adapter boundary without SaaS/provider coupling;
-- preserve browser hygiene: no raw code/full contact in public responses;
-- keep Phase 2A account creation, Phase 2B safe delivery metadata, Phase 2C
-  lease/retry semantics and Phase 2D scheduler/file-spool runtime;
-- add validation for resend, expiry, wrong-code attempts, terminal delivery
-  failures and no contact/code leakage.
+- replace legacy/prototype reset-password behavior with owned API endpoints;
+- store recovery token hashes and expiry in PostgreSQL;
+- deliver recovery handoff through the same self-hosted delivery runtime or a
+  clearly scoped owned channel adapter;
+- preserve no raw tokens in browser responses/logs;
+- keep no hosted BaaS/Supabase production dependency.
 
 Alternative:
 

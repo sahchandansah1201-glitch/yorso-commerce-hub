@@ -16,19 +16,19 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 2D Registration Delivery Runtime is committed locally and release
-validation has passed.
+Backend Phase 2E Registration Verification Code Policy is implemented locally;
+full release validation has passed and commit is pending.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scheduler runtime | Обрабатывать delivery outbox вне публичных registration requests. | Реализовано: `RegistrationDeliveryScheduler` запускает bounded batches, пропускает overlap и останавливается через server close lifecycle. | При необходимости вынести в отдельный process/command. |
-| Sender boundary | Выбрать self-hosted delivery handoff без стороннего провайдера. | Реализовано: `FileSpoolRegistrationVerificationSender` пишет `0600` JSON handoff-файлы в mounted spool dir. | Phase 2E должен решить OTP/channel semantics перед реальной внешней доставкой. |
-| Production config | Production должен fail closed без delivery runtime. | Реализовано: required worker enabled, sender `file_spool`, absolute spool dir. | Добавить sender-specific readiness при появлении других adapters. |
-| Metrics | Наблюдать delivery worker без утечки контактов. | Реализовано: worker run/job counters без email/phone/destination labels. | Добавить queue-age gauges после repository queue stats. |
-| Data hygiene | Не отдавать verification code/raw contact в browser/public surfaces. | Сохранено: browser responses остаются masked metadata only; Phase 2D sender не логирует код и не добавляет public API. | Phase 2E должен сохранить этот контракт при OTP payload decision. |
-| Validation | Проверить runtime, infra guards, API guards, migrations, lint and build. | Passed: focused API tests, TypeScript, self-hosted infra/runtime/API checks, production-scale, DB migrations, lint, api build, diff check, production build. | Start Phase 2E. |
+| Per-request OTP | Убрать fixed backend OTP `123456` из API-enabled registration. | Реализовано: backend выпускает свежий 6-значный code для email/phone request; tests inject deterministic codes. | Полный release validation и commit. |
+| Expiry/attempts | Enforce TTL and wrong-code ceiling. | Реализовано: `email_code_expires_at`, `phone_code_expires_at`, attempt counters, `registration_code_expired`, `registration_rate_limited`. | При необходимости добавить отдельный UI/copy batch для expired/resend state. |
+| Delivery handoff | Дать worker/sender code без browser leak. | Реализовано: Postgres outbox хранит `verification_code_sealed`; worker decrypts after lease; file spool gets backend-only `verificationCode`. | Owned SMTP/SMS/WhatsApp adapter остаётся отдельным будущим workstream. |
+| Browser hygiene | Не отдавать OTP/full contact в public responses. | Реализовано: responses возвращают только masked delivery metadata; tests assert generated code is absent. | Guard for future sender adapters. |
+| Production config | Production должен fail closed без owned sealing secret. | Реализовано: `YORSO_REGISTRATION_VERIFICATION_CODE_SECRET` required and non-default in production. | Secret rotation/runbook отдельно. |
+| Validation | Проверить new OTP policy and preserved delivery runtime. | Full release validation passed: targeted auth/server tests, frontend registration tests, TypeScript, contracts, DB migrations, self-hosted guards, lint, API build, diff check and production build. | Commit. |
 
 ## Current Status
 
@@ -38,6 +38,34 @@ validation has passed.
 - Backend Phase 1 discovery/audit and Phases 1A-1J are complete.
 - Backend Phase 2A, 2B and 2C are committed locally and validation green.
 - Backend Phase 2D is committed locally and validation green.
+- Backend Phase 2E is implemented locally; full validation passed; commit pending.
+
+## Phase 2E Files
+
+- `docs/backend/phase-2e-registration-verification-code-policy.md`
+- `apps/api/src/modules/auth/verification-code.ts`
+- `apps/api/src/modules/auth/verification-code.test.ts`
+- `apps/api/src/modules/auth/service.ts`
+- `apps/api/src/modules/auth/repository.ts`
+- `apps/api/src/modules/auth/postgres-repository.ts`
+- `apps/api/src/modules/auth/delivery-worker.ts`
+- `apps/api/src/modules/auth/delivery-worker.test.ts`
+- `apps/api/src/modules/auth/delivery-sender.ts`
+- `apps/api/src/modules/auth/delivery-sender.test.ts`
+- `apps/api/src/config.ts`
+- `apps/api/src/server.ts`
+- `apps/api/src/server.test.ts`
+- `packages/db/migrations/0028_registration_verification_code_policy.sql`
+- `packages/db/migration-manifest.json`
+- `src/pages/register/RegisterVerify.tsx`
+- `src/lib/api-contracts.ts`
+- `.env.example`
+- `.env.production.example`
+- `infra/docker-compose.yml`
+- `scripts/check-self-hosted-infra.mjs`
+- `scripts/check-self-hosted-production-runtime.mjs`
+- `scripts/check-production-scale-baseline.mjs`
+- `scripts/check-self-hosted-api.mjs`
 
 ## Phase 2D Files
 
@@ -80,6 +108,22 @@ validation has passed.
 
 Passed locally on 2026-05-29:
 
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/verification-code.test.ts apps/api/src/modules/auth/delivery-worker.test.ts apps/api/src/modules/auth/delivery-sender.test.ts apps/api/src/server.test.ts`
+- `npx vitest run src/lib/api-contracts.registration.test.ts src/lib/registration-funnel.e2e.test.tsx src/lib/registration-funnel-degraded.e2e.test.tsx src/i18n/locale-register-substeps-ru.test.tsx`
+- `npx tsc -b --noEmit`
+- `npm run contracts:build`
+- `npm run test:db-migrations`
+- `npm run check:self-hosted-infra`
+- `npm run check:self-hosted-production-runtime`
+- `npm run check:production-scale-baseline`
+- `npm run check:self-hosted-api`
+- `npm run lint`
+- `npm run api:build`
+- `git diff --check`
+- `npm run build`
+
+Earlier Phase 2D validation:
+
 - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/delivery-sender.test.ts apps/api/src/modules/auth/delivery-scheduler.test.ts apps/api/src/modules/auth/delivery-runtime.test.ts apps/api/src/metrics.test.ts apps/api/src/server.test.ts`
 - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/delivery-worker.test.ts`
 - `npx tsc -b --noEmit`
@@ -102,15 +146,16 @@ Known non-blocking warnings:
 
 ## Next Recommended Workstream
 
-Backend Phase 2E: registration OTP generation and channel delivery semantics.
+Backend Phase 2F: self-hosted password recovery/reset source of truth.
 
 Concrete next function:
 
-- replace fixed prototype verification code behavior with per-request generated
-  OTP, expiry and attempt policy;
-- decide safe file-spool payload or owned channel adapter semantics;
+- replace legacy/prototype reset-password behavior with owned API endpoints;
+- store recovery token hashes and expiry in PostgreSQL;
+- deliver recovery handoff through self-hosted delivery runtime or a scoped
+  owned channel adapter;
 - keep no hosted provider/Supabase production dependency;
-- preserve no raw verification code/full contact in browser responses.
+- preserve no raw recovery token/full contact in browser responses.
 
 Alternative:
 

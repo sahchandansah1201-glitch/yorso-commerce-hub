@@ -169,6 +169,13 @@ deployments. Production must run with
 `YORSO_REGISTRATION_DELIVERY_SPOOL_DIR` mounted on owned server storage. The
 file spool is an owned handoff boundary, not a hosted email/SMS provider.
 
+Backend Phase 2E adds the registration verification code sealing secret.
+Production must set a non-default
+`YORSO_REGISTRATION_VERIFICATION_CODE_SECRET` with at least 32 characters.
+This secret protects sealed backend-only OTP material in the registration
+delivery outbox; public registration responses must still expose only masked
+delivery metadata, never the OTP or full contact.
+
 Batch #88 adds `smoke:self-hosted-audit-trail` to the deploy validation path.
 It verifies that the console audit sink writes sanitized `api_audit_event`
 records for auth, account, access, notification and storage actions without

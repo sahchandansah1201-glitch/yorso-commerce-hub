@@ -7,7 +7,7 @@ import {
 } from "./repository.js";
 
 export function createAuthRepository(
-  config: Pick<ApiConfig, "accountRepository" | "databaseUrl">,
+  config: Pick<ApiConfig, "accountRepository" | "databaseUrl" | "registrationVerificationCodeSecret">,
   options: { accountProvisioner?: RegistrationAccountProvisioner } = {},
 ): AuthRepository {
   if (config.accountRepository === "memory") return new MemoryAuthRepository(undefined, undefined, options.accountProvisioner);

@@ -70,6 +70,7 @@ Each successful send writes one JSON file:
 - backend-only destination;
 - masked destination preview;
 - template key;
+- verification code, after Phase 2E, for the owned operator/channel handoff;
 - operator-readable subject/text;
 - creation timestamp.
 
@@ -78,13 +79,13 @@ Phase 2D sender does not add provider credentials or hosted BaaS dependencies.
 
 ## OTP Policy Boundary
 
-Phase 2D intentionally does not change registration code generation. The
-current registration verification policy remains owned by `AuthService`.
+Phase 2D intentionally did not change registration code generation. Phase 2E
+now owns that policy: per-request codes, code expiry, attempt counters and
+sealed backend-only delivery handoff material.
 
-This means Phase 2D solves worker scheduling and self-hosted delivery handoff,
-not final email/SMS channel delivery semantics. A later scoped phase should
-replace the existing fixed-code prototype policy with per-request generated
-codes before treating registration delivery as externally production-ready.
+The Phase 2D runtime remains the scheduler/file-spool boundary; Phase 2E adds
+the OTP payload policy without introducing hosted provider dependencies or
+browser-visible verification codes.
 
 ## 10,000 Concurrent-User Review
 

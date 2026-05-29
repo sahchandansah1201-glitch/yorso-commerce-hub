@@ -23,6 +23,10 @@ import type {
   RegistrationDeliveryJob,
   RegistrationDeliveryLeaseInput,
 } from "./repository.js";
+import {
+  createRegistrationVerificationCodeCodec,
+  type RegistrationVerificationCodeCodec,
+} from "./verification-code.js";
 
 export interface AuthQueryClient {
   query<Row extends Record<string, unknown> = Record<string, unknown>>(
@@ -33,6 +37,7 @@ export interface AuthQueryClient {
 }
 
 interface PostgresAuthRepositoryOptions {
+  codeCodec?: RegistrationVerificationCodeCodec;
   client?: AuthQueryClient;
 }
 
@@ -59,6 +64,8 @@ interface RegistrationDraftRow extends Record<string, unknown> {
   country: string | null;
   country_code: string | null;
   email: string;
+  email_code_attempt_count: number;
+  email_code_expires_at: Date | string;
   email_code_secret: string;
   email_verified_at: Date | string | null;
   expires_at: Date | string;
@@ -66,6 +73,8 @@ interface RegistrationDraftRow extends Record<string, unknown> {
   id: string;
   password_secret: string | null;
   phone: string | null;
+  phone_code_attempt_count: number;
+  phone_code_expires_at: Date | string | null;
   phone_code_requests: number;
   phone_code_secret: string | null;
   phone_verified_at: Date | string | null;
@@ -109,6 +118,7 @@ type RegistrationDraftDeliveryRow = RegistrationDraftRow & RegistrationDeliveryO
 
 interface RegistrationDeliveryJobRow extends RegistrationDeliveryOutboxRow {
   delivery_destination: string | null;
+  delivery_verification_code_sealed: string | null;
 }
 
 const createSessionId = () => randomBytes(32).toString("hex");
@@ -142,6 +152,8 @@ function mapDraft(row: RegistrationDraftRow): RegistrationDraft {
     country: row.country,
     countryCode: row.country_code,
     email: row.email,
+    emailCodeAttemptCount: row.email_code_attempt_count,
+    emailCodeExpiresAt: ensureIso(row.email_code_expires_at),
     emailCodeSecret: row.email_code_secret,
     emailVerifiedAt: row.email_verified_at ? ensureIso(row.email_verified_at) : null,
     expiresAt: ensureIso(row.expires_at),
@@ -149,6 +161,8 @@ function mapDraft(row: RegistrationDraftRow): RegistrationDraft {
     id: row.id,
     passwordSecret: row.password_secret,
     phone: row.phone,
+    phoneCodeAttemptCount: row.phone_code_attempt_count,
+    phoneCodeExpiresAt: row.phone_code_expires_at ? ensureIso(row.phone_code_expires_at) : null,
     phoneCodeRequests: row.phone_code_requests,
     phoneCodeSecret: row.phone_code_secret,
     phoneVerifiedAt: row.phone_verified_at ? ensureIso(row.phone_verified_at) : null,
@@ -178,11 +192,13 @@ function mapDelivery(row: RegistrationDeliveryOutboxRow): RegistrationDeliveryOu
   };
 }
 
-function mapDeliveryJob(row: RegistrationDeliveryJobRow): RegistrationDeliveryJob | null {
+function mapDeliveryJob(row: RegistrationDeliveryJobRow, codeCodec: RegistrationVerificationCodeCodec): RegistrationDeliveryJob | null {
   if (!row.delivery_destination) return null;
+  if (!row.delivery_verification_code_sealed) return null;
   return {
     ...mapDelivery(row),
     destination: row.delivery_destination,
+    verificationCode: codeCodec.open(row.delivery_verification_code_sealed),
   };
 }
 
@@ -219,9 +235,13 @@ function draftReturningSqlFrom(alias = "") {
     ${prefix}email::text as email,
     ${prefix}role,
     ${prefix}email_code_secret,
+    ${prefix}email_code_expires_at,
+    ${prefix}email_code_attempt_count,
     ${prefix}email_verified_at,
     ${prefix}phone,
     ${prefix}phone_code_secret,
+    ${prefix}phone_code_expires_at,
+    ${prefix}phone_code_attempt_count,
     ${prefix}phone_code_requests,
     ${prefix}phone_verified_at,
     ${prefix}full_name,
@@ -240,8 +260,9 @@ function draftReturningSqlFrom(alias = "") {
 
 export class PostgresAuthRepository implements AuthRepository {
   private readonly client: AuthQueryClient;
+  private readonly codeCodec: RegistrationVerificationCodeCodec;
 
-  constructor(config: Pick<ApiConfig, "databaseUrl">, options: PostgresAuthRepositoryOptions = {}) {
+  constructor(config: Pick<ApiConfig, "databaseUrl" | "registrationVerificationCodeSecret">, options: PostgresAuthRepositoryOptions = {}) {
     this.client =
       options.client ??
       new Pool({
@@ -249,6 +270,7 @@ export class PostgresAuthRepository implements AuthRepository {
         max: 5,
         application_name: "yorso-api-auth",
       } satisfies PoolConfig);
+    this.codeCodec = options.codeCodec ?? createRegistrationVerificationCodeCodec(config.registrationVerificationCodeSecret);
   }
 
   async findUserByEmail(email: string): Promise<AuthUser | null> {
@@ -295,6 +317,7 @@ export class PostgresAuthRepository implements AuthRepository {
   async startRegistrationDraft(
     input: AuthRegisterStart & {
       delivery: Parameters<AuthRepository["startRegistrationDraft"]>[0]["delivery"];
+      emailCodeExpiresAt: Date;
       emailCodeSecret: string;
       expiresAt: Date;
     },
@@ -308,9 +331,10 @@ export class PostgresAuthRepository implements AuthRepository {
             email,
             role,
             email_code_secret,
+            email_code_expires_at,
             expires_at
           )
-          values ($1, $2::citext, $3, $4, $5)
+          values ($1, $2::citext, $3, $4, $5, $6)
           returning *
         ),
         inserted_delivery as (
@@ -321,16 +345,18 @@ export class PostgresAuthRepository implements AuthRepository {
             destination_hash,
             destination_preview,
             template_key,
+            verification_code_sealed,
             request_id
           )
           select
             inserted_draft.id,
-            $6,
             $7,
             $8,
             $9,
             $10,
-            $11::uuid
+            $11,
+            $12,
+            $13::uuid
           from inserted_draft
           returning ${deliveryReturningSql}
         )
@@ -345,12 +371,14 @@ export class PostgresAuthRepository implements AuthRepository {
         input.email.toLowerCase(),
         input.role,
         input.emailCodeSecret,
+        input.emailCodeExpiresAt.toISOString(),
         input.expiresAt.toISOString(),
         input.delivery.purpose,
         input.delivery.channel,
         input.delivery.destinationHash,
         input.delivery.destinationPreview,
         input.delivery.templateKey,
+        this.codeCodec.seal(input.delivery.verificationCode),
         input.delivery.requestId,
       ],
     );
@@ -377,6 +405,23 @@ export class PostgresAuthRepository implements AuthRepository {
       `
         update yorso_registration_drafts
         set email_verified_at = now(),
+            updated_at = now()
+        where id = $1
+          and completed_at is null
+          and expires_at > now()
+        returning ${draftReturningSql}
+      `,
+      [sessionId],
+    );
+    if (!result.rows[0]) throw new Error("registration_session_invalid");
+    return mapDraft(result.rows[0]);
+  }
+
+  async recordRegistrationEmailCodeAttempt(sessionId: string) {
+    const result = await this.client.query<RegistrationDraftRow>(
+      `
+        update yorso_registration_drafts
+        set email_code_attempt_count = email_code_attempt_count + 1,
             updated_at = now()
         where id = $1
           and completed_at is null
@@ -418,6 +463,7 @@ export class PostgresAuthRepository implements AuthRepository {
     sessionId: string,
     input: AuthRegisterPhoneRequest & {
       delivery: Parameters<AuthRepository["recordRegistrationPhoneRequest"]>[1]["delivery"];
+      phoneCodeExpiresAt: Date;
       phoneCodeSecret: string;
     },
   ) {
@@ -427,6 +473,8 @@ export class PostgresAuthRepository implements AuthRepository {
           update yorso_registration_drafts
           set phone = $2,
               phone_code_secret = $3,
+              phone_code_expires_at = $4,
+              phone_code_attempt_count = 0,
               phone_code_requests = phone_code_requests + 1,
               phone_verified_at = null,
               updated_at = now()
@@ -444,16 +492,18 @@ export class PostgresAuthRepository implements AuthRepository {
             destination_hash,
             destination_preview,
             template_key,
+            verification_code_sealed,
             request_id
           )
           select
             updated_draft.id,
-            $4,
             $5,
             $6,
             $7,
             $8,
-            $9::uuid
+            $9,
+            $10,
+            $11::uuid
           from updated_draft
           returning ${deliveryReturningSql}
         )
@@ -467,11 +517,13 @@ export class PostgresAuthRepository implements AuthRepository {
         sessionId,
         input.phone,
         input.phoneCodeSecret,
+        input.phoneCodeExpiresAt.toISOString(),
         input.delivery.purpose,
         input.delivery.channel,
         input.delivery.destinationHash,
         input.delivery.destinationPreview,
         input.delivery.templateKey,
+        this.codeCodec.seal(input.delivery.verificationCode),
         input.delivery.requestId,
       ],
     );
@@ -492,6 +544,23 @@ export class PostgresAuthRepository implements AuthRepository {
         returning ${draftReturningSql}
       `,
       [sessionId, phone],
+    );
+    if (!result.rows[0]) throw new Error("registration_session_invalid");
+    return mapDraft(result.rows[0]);
+  }
+
+  async recordRegistrationPhoneCodeAttempt(sessionId: string) {
+    const result = await this.client.query<RegistrationDraftRow>(
+      `
+        update yorso_registration_drafts
+        set phone_code_attempt_count = phone_code_attempt_count + 1,
+            updated_at = now()
+        where id = $1
+          and completed_at is null
+          and expires_at > now()
+        returning ${draftReturningSql}
+      `,
+      [sessionId],
     );
     if (!result.rows[0]) throw new Error("registration_session_invalid");
     return mapDraft(result.rows[0]);
@@ -754,6 +823,7 @@ export class PostgresAuthRepository implements AuthRepository {
               or
               (outbox.purpose = 'phone_verification' and draft.phone is not null)
             )
+            and outbox.verification_code_sealed is not null
           order by outbox.available_at asc, outbox.created_at asc
           limit $1
           for update of outbox skip locked
@@ -774,14 +844,16 @@ export class PostgresAuthRepository implements AuthRepository {
           case
             when leased.delivery_purpose = 'email_verification' then draft.email::text
             else draft.phone
-          end as delivery_destination
+          end as delivery_destination,
+          outbox.verification_code_sealed as delivery_verification_code_sealed
         from leased
+        join yorso_registration_delivery_outbox outbox on outbox.id::text = leased.delivery_id
         join yorso_registration_drafts draft on draft.id = leased.delivery_draft_id
       `,
       [input.limit, input.workerId, input.leaseMs],
     );
     return result.rows.flatMap((row) => {
-      const job = mapDeliveryJob(row);
+      const job = mapDeliveryJob(row, this.codeCodec);
       return job ? [job] : [];
     });
   }

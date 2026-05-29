@@ -324,6 +324,18 @@
       "dependsOn": [
         "0026_registration_account_source"
       ]
+    },
+    {
+      "id": "0028_registration_verification_code_policy",
+      "file": "migrations/0028_registration_verification_code_policy.sql",
+      "description": "Add registration verification code expiry, attempt counters and sealed delivery code material for self-hosted delivery.",
+      "ownedTables": [
+        "yorso_registration_drafts",
+        "yorso_registration_delivery_outbox"
+      ],
+      "dependsOn": [
+        "0027_registration_verification_delivery_outbox"
+      ]
     }
   ]
 }

@@ -1,6 +1,8 @@
 -- Backend Phase 2B: self-hosted registration verification delivery outbox.
 -- Delivery intent is owned by the YORSO backend. The outbox stores routing
--- metadata and masked destinations, not verification codes or raw contacts.
+-- metadata and masked destinations. Phase 2E adds sealed backend-only code
+-- material for the self-hosted delivery worker; browser responses still do
+-- not expose verification codes or raw contacts.
 
 create table if not exists yorso_registration_delivery_outbox (
   id uuid primary key default gen_random_uuid(),
@@ -34,7 +36,7 @@ create index if not exists idx_yorso_registration_delivery_outbox_status_recent
   on yorso_registration_delivery_outbox(status, created_at desc);
 
 comment on table yorso_registration_delivery_outbox is
-  'Self-hosted registration verification delivery outbox. Stores delivery intent without raw email, phone, verification code or hosted BaaS coupling.';
+  'Self-hosted registration verification delivery outbox. Stores delivery intent without raw email, phone or hosted BaaS coupling.';
 
 comment on index idx_yorso_registration_delivery_outbox_ready is
   'Supports bounded worker leasing for pending registration verification delivery jobs.';

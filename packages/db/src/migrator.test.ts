@@ -39,6 +39,7 @@ describe("self-hosted DB migration planner", () => {
       "0025_admin_incident_trend_action_queue",
       "0026_registration_account_source",
       "0027_registration_verification_delivery_outbox",
+      "0028_registration_verification_code_policy",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -69,6 +70,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0025_admin_incident_trend_action_queue.sql",
       "migrations/0026_registration_account_source.sql",
       "migrations/0027_registration_verification_delivery_outbox.sql",
+      "migrations/0028_registration_verification_code_policy.sql",
     ]);
   });
 
@@ -111,6 +113,7 @@ describe("self-hosted DB migration planner", () => {
     const adminIncidentTrendActionQueue = plan.migrations[25];
     const registrationAccountSource = plan.migrations[26];
     const registrationVerificationDeliveryOutbox = plan.migrations[27];
+    const registrationVerificationCodePolicy = plan.migrations[28];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -175,6 +178,9 @@ describe("self-hosted DB migration planner", () => {
     expect(registrationVerificationDeliveryOutbox.dependsOn).toEqual(["0026_registration_account_source"]);
     expect(registrationVerificationDeliveryOutbox.sql).toContain("create table if not exists yorso_registration_delivery_outbox");
     expect(registrationVerificationDeliveryOutbox.sql).toContain("idx_yorso_registration_delivery_outbox_ready");
+    expect(registrationVerificationCodePolicy.dependsOn).toEqual(["0027_registration_verification_delivery_outbox"]);
+    expect(registrationVerificationCodePolicy.sql).toContain("email_code_expires_at");
+    expect(registrationVerificationCodePolicy.sql).toContain("verification_code_sealed");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

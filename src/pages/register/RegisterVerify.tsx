@@ -28,6 +28,7 @@ const RegisterVerify = () => {
   const pendingResendRef = useRef<{ resendIndex: number; resendAt: number } | null>(null);
   const mountedAtRef = useRef(Date.now());
   const firstFocusFiredRef = useRef(false);
+  const canUsePrototypeDevSkip = import.meta.env.DEV && !import.meta.env.VITE_YORSO_API_URL;
   // Mirror `code` into a ref so the unmount/pagehide handler reads the latest
   // value without re-binding listeners on every keystroke.
   const codeRef = useRef(code);
@@ -326,7 +327,7 @@ const RegisterVerify = () => {
           <button type="button" onClick={handleResend} className="inline-flex min-h-11 items-center justify-center rounded px-2 text-sm font-medium text-primary hover:underline" disabled={loading} data-registration-mobile-target="verify-resend">
             {t.reg_didntReceive}
           </button>
-          {import.meta.env.DEV && (
+          {canUsePrototypeDevSkip && (
             <button
               type="button"
               onClick={async () => {

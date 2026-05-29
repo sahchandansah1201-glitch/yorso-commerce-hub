@@ -28,6 +28,7 @@ export class FileSpoolRegistrationVerificationSender implements RegistrationVeri
       draftId: message.draftId,
       purpose: message.purpose,
       templateKey: message.templateKey,
+      verificationCode: message.verificationCode,
       subject: renderSubject(message),
       text: renderText(message),
     };
@@ -52,6 +53,7 @@ function renderText(message: RegistrationVerificationDeliveryMessage) {
     `Create a ${target} delivery using the owned ${channel} channel.`,
     `Destination preview: ${message.destinationPreview}.`,
     `Template key: ${message.templateKey}.`,
+    `Verification code: ${message.verificationCode}.`,
     "Do not copy this handoff file into public logs or browser-visible surfaces.",
   ].join(" ");
 }

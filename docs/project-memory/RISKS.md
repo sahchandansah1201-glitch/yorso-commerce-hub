@@ -18,9 +18,9 @@
   Impact: A future strict type guard may fail until migrations are applied and `src/integrations/supabase/types.ts` is regenerated.
   Mitigation: Keep the non-strict preview/build guard visible, apply pending migrations in the linked project, regenerate types and run `npm run check:supabase-types:strict`.
 
-- Risk: Registration verification still uses the prototype OTP generation policy while Phase 2D only adds scheduler and file-spool delivery handoff.
-  Impact: The owned runtime can move delivery jobs, but external buyer verification is not production-ready until per-request OTP generation, expiry, attempt limits and safe channel payload semantics are implemented.
-  Mitigation: Treat Backend Phase 2E registration OTP generation and channel delivery semantics as the next required backend workstream before enabling real customer delivery.
+- Risk: File-spool registration delivery handoff now contains backend-only OTP material.
+  Impact: Operator/channel handling mistakes could leak verification codes outside owned delivery paths.
+  Mitigation: Keep spool files on mounted server storage with `0600` permissions, do not copy handoff files into public logs, and move to an owned channel adapter/runbook before broad production rollout.
 
 - Risk: API-backed browser specs can fail in generic smoke.
   Impact: Generic local prototype smoke can fail or hide regressions when it includes specs that require `VITE_YORSO_API_URL` and self-hosted API-backed fixtures.
@@ -66,6 +66,11 @@
     API-enabled mode, hydrates account data from backend before render, keeps
     editable sections closed on backend load failure and preserves localStorage
     fallback only for API-disabled local preview.
+
+- Risk: Registration verification still used the prototype OTP generation
+  policy while Phase 2D only added scheduler and file-spool delivery handoff.
+  Resolution: Backend Phase 2E adds per-request OTP generation, code expiry,
+    attempt counters and sealed backend-only delivery handoff material.
 
 - Risk: Browser sessionStorage gated account UI before backend session validation.
   Resolution: Backend Phase 1A requires `/v1/auth/session` validation before

@@ -40,6 +40,7 @@ export const apiConfigSchema = z.object({
   registrationDeliveryWorkerLeaseMs: z.coerce.number().int().min(5_000).max(15 * 60_000).default(60_000),
   registrationDeliveryWorkerRetryAfterMs: z.coerce.number().int().min(1_000).max(24 * 60 * 60_000).default(60_000),
   registrationDeliveryWorkerId: z.string().min(1).max(120).default("registration-delivery-worker"),
+  registrationVerificationCodeSecret: z.string().min(32),
   errorObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   metricsDriver: z.enum(["disabled", "prometheus"]).default("disabled"),
   requestObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
@@ -98,6 +99,7 @@ const localDefaults = {
   YORSO_REGISTRATION_DELIVERY_WORKER_LEASE_MS: "60000",
   YORSO_REGISTRATION_DELIVERY_WORKER_RETRY_AFTER_MS: "60000",
   YORSO_REGISTRATION_DELIVERY_WORKER_ID: "registration-delivery-worker",
+  YORSO_REGISTRATION_VERIFICATION_CODE_SECRET: "change-me-registration-code-secret-32-bytes",
   YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
   YORSO_METRICS_DRIVER: "disabled",
   YORSO_REQUEST_OBSERVABILITY_DRIVER: "disabled",
@@ -155,6 +157,7 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     registrationDeliveryWorkerLeaseMs: source.YORSO_REGISTRATION_DELIVERY_WORKER_LEASE_MS,
     registrationDeliveryWorkerRetryAfterMs: source.YORSO_REGISTRATION_DELIVERY_WORKER_RETRY_AFTER_MS,
     registrationDeliveryWorkerId: source.YORSO_REGISTRATION_DELIVERY_WORKER_ID,
+    registrationVerificationCodeSecret: source.YORSO_REGISTRATION_VERIFICATION_CODE_SECRET,
     errorObservabilityDriver: source.YORSO_ERROR_OBSERVABILITY_DRIVER,
     metricsDriver: source.YORSO_METRICS_DRIVER,
     requestObservabilityDriver: source.YORSO_REQUEST_OBSERVABILITY_DRIVER,
@@ -227,6 +230,9 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   }
   if (config.nodeEnv === "production" && !config.registrationDeliverySpoolDir.startsWith("/")) {
     throw new Error("Production self-hosted API must use an absolute YORSO_REGISTRATION_DELIVERY_SPOOL_DIR.");
+  }
+  if (config.nodeEnv === "production" && config.registrationVerificationCodeSecret === localDefaults.YORSO_REGISTRATION_VERIFICATION_CODE_SECRET) {
+    throw new Error("Production self-hosted API must set a non-default YORSO_REGISTRATION_VERIFICATION_CODE_SECRET.");
   }
 }
 

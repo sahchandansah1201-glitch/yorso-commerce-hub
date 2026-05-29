@@ -2277,6 +2277,55 @@ Keep this file factual and append-only.
 
 ## 2026-05-29
 
+- Implemented Backend Phase 2E: Registration Verification Code Policy.
+- Added per-request OTP generation:
+  - `RegistrationVerificationCodeIssuer` issues fresh numeric email/phone
+    verification codes;
+  - tests can inject deterministic codes without changing production behavior;
+  - API-enabled backend no longer accepts the fixed prototype `123456` code.
+- Added durable expiry and attempt policy:
+  - migration `0028_registration_verification_code_policy.sql`;
+  - `email_code_expires_at`, `phone_code_expires_at`;
+  - `email_code_attempt_count`, `phone_code_attempt_count`;
+  - `registration_code_expired` and `registration_rate_limited` handling.
+- Added sealed backend-only delivery code handoff:
+  - `verification_code_sealed` on `yorso_registration_delivery_outbox`;
+  - AES-256-GCM codec using `YORSO_REGISTRATION_VERIFICATION_CODE_SECRET`;
+  - Postgres worker decrypts only after leasing a delivery job;
+  - file-spool handoff includes backend-only `verificationCode`.
+- Preserved browser hygiene:
+  - registration start and phone-send responses still include only masked
+    delivery metadata;
+  - tests assert generated codes are absent from public responses;
+  - delivery sender failure errors redact email, phone and OTP-shaped values
+    before persistence;
+  - RegisterVerify prototype dev skip is available only in API-disabled local
+    mock mode.
+- Updated env examples, Docker Compose and guard scripts for
+  `YORSO_REGISTRATION_VERIFICATION_CODE_SECRET`.
+- Updated backend docs, production-scale baseline, frontend/backend contract and
+  project-memory.
+- Targeted validation passed:
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/verification-code.test.ts apps/api/src/modules/auth/delivery-worker.test.ts apps/api/src/modules/auth/delivery-sender.test.ts apps/api/src/server.test.ts`.
+- Full release validation passed:
+  - `npx tsc -b --noEmit`;
+  - `npm run contracts:build`;
+  - `npm run test:db-migrations`;
+  - `npm run check:self-hosted-infra`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run check:self-hosted-api`;
+  - `npx vitest run src/lib/api-contracts.registration.test.ts src/lib/registration-funnel.e2e.test.tsx src/lib/registration-funnel-degraded.e2e.test.tsx src/i18n/locale-register-substeps-ru.test.tsx`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `git diff --check`;
+  - `npm run build`.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.
+
+## 2026-05-29
+
 - Implemented Backend Phase 2C: Registration Verification Worker Lease
   Processing.
 - Added `RegistrationDeliveryWorker`:
