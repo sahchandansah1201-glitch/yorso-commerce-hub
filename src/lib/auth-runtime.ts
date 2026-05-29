@@ -1,7 +1,7 @@
 import { authApi, getErrorMessage, isApiError } from "@/lib/api-contracts";
 import { buyerSession } from "@/lib/buyer-session";
 
-export type AuthRuntimeSource = "self_hosted" | "supabase_prototype" | "local_contract";
+export type AuthRuntimeSource = "self_hosted" | "local_contract";
 
 export interface AuthRuntimeSession {
   displayName: string;
@@ -61,15 +61,6 @@ const getSelfHostedAuthBaseUrl = () =>
   normalizeBaseUrl(import.meta.env.VITE_YORSO_API_URL as string | undefined);
 
 export const isSelfHostedAuthConfigured = () => Boolean(getSelfHostedAuthBaseUrl());
-
-const hasLegacyAuthSupabaseEnv = (): boolean =>
-  Boolean(
-    import.meta.env.VITE_SUPABASE_URL &&
-      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-  );
-
-const loadLegacyAuthSupabaseAdapter = async () =>
-  import("@/lib/legacy-auth-supabase-adapter");
 
 interface SelfHostedAuthSessionResponse {
   ok: true;
@@ -152,13 +143,6 @@ export const signInWithEmail = async (input: {
     return signInWithSelfHostedEmail(input);
   }
 
-  if (hasLegacyAuthSupabaseEnv()) {
-    const legacyAuth = await loadLegacyAuthSupabaseAdapter();
-    if (legacyAuth.isLegacyAuthSupabaseConfigured()) {
-      return legacyAuth.signInWithPrototypeSupabase(input);
-    }
-  }
-
   const result = await authApi.signIn({
     method: "email",
     identifier: input.email,
@@ -195,13 +179,6 @@ export const requestPasswordReset = async (input: {
     }
   }
 
-  if (hasLegacyAuthSupabaseEnv()) {
-    const legacyAuth = await loadLegacyAuthSupabaseAdapter();
-    if (legacyAuth.isLegacyAuthSupabaseConfigured()) {
-      return legacyAuth.requestPrototypePasswordReset(input);
-    }
-  }
-
   const result = await authApi.requestPasswordReset({ email: input.email });
   if (isApiError(result)) {
     return localError(result.code, getErrorMessage(result.code));
@@ -217,24 +194,7 @@ export const observePasswordRecovery = (
     return () => undefined;
   }
 
-  if (!hasLegacyAuthSupabaseEnv()) return () => undefined;
-
-  let active = true;
-  let cleanup = () => undefined;
-
-  void loadLegacyAuthSupabaseAdapter()
-    .then((legacyAuth) => {
-      if (!active || !legacyAuth.isLegacyAuthSupabaseConfigured()) return;
-      cleanup = legacyAuth.observePrototypePasswordRecovery(() => {
-        if (active) onReady();
-      });
-    })
-    .catch(() => undefined);
-
-  return () => {
-    active = false;
-    cleanup();
-  };
+  return () => undefined;
 };
 
 export const updateRecoveredPassword = async (
@@ -268,22 +228,10 @@ export const updateRecoveredPassword = async (
     }
   }
 
-  if (!hasLegacyAuthSupabaseEnv()) {
-    return localError(
-      "recovery_unavailable",
-      "Password recovery requires a valid recovery session.",
-    );
-  }
-
-  const legacyAuth = await loadLegacyAuthSupabaseAdapter();
-  if (!legacyAuth.isLegacyAuthSupabaseConfigured()) {
-    return localError(
-      "recovery_unavailable",
-      "Password recovery requires a valid recovery session.",
-    );
-  }
-
-  return legacyAuth.updatePrototypeRecoveredPassword(password);
+  return localError(
+    "recovery_unavailable",
+    "Password recovery requires a valid recovery session.",
+  );
 };
 
 function readSelfHostedRecoveryToken(): string | null {

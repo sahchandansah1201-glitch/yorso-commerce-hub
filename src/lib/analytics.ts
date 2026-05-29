@@ -355,7 +355,7 @@ export interface EventPayloadMap {
   phone_whatsapp_verified: { phone: string };
 
   // Auth ────────────────────────────────────────────────────────
-  signin_email: { email: string; source?: "self_hosted" | "supabase_prototype" | "local_contract" };
+  signin_email: { email: string; source?: "self_hosted" | "local_contract" };
   signin_phone: { phone: string };
   signin_whatsapp: { phone: string };
   forgot_password: { email: string };
@@ -373,7 +373,7 @@ export interface EventPayloadMap {
   // Buyer Workspace ─────────────────────────────────────────────
   workspace_session_started: {
     method: "email" | "phone" | "whatsapp";
-    source?: "self_hosted" | "supabase_prototype" | "local_contract";
+    source?: "self_hosted" | "local_contract";
   };
   workspace_session_ended: Empty;
 

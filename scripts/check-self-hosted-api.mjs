@@ -180,7 +180,6 @@ const requiredFiles = [
   "src/lib/auth-runtime.test.ts",
   "src/lib/auth-runtime.boundary.test.ts",
   "src/lib/buyer-session.test.ts",
-  "src/lib/legacy-auth-supabase-adapter.ts",
   "src/pages/SignIn.tsx",
   "src/pages/ResetPassword.tsx",
   "scripts/smoke-self-hosted-account-postgres.mjs",
@@ -254,6 +253,7 @@ const requiredFiles = [
   "docs/backend/phase-2g-password-recovery-delivery-runtime.md",
   "docs/backend/phase-2h-password-recovery-abuse-cleanup.md",
   "docs/backend/phase-2i-password-recovery-cleanup-runtime.md",
+  "docs/backend/phase-2j-auth-surface-closure-audit.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -476,6 +476,7 @@ const phase2fPasswordRecoverySourceOfTruth = read("docs/backend/phase-2f-passwor
 const phase2gPasswordRecoveryDeliveryRuntime = read("docs/backend/phase-2g-password-recovery-delivery-runtime.md");
 const phase2hPasswordRecoveryAbuseCleanup = read("docs/backend/phase-2h-password-recovery-abuse-cleanup.md");
 const phase2iPasswordRecoveryCleanupRuntime = read("docs/backend/phase-2i-password-recovery-cleanup-runtime.md");
+const phase2jAuthSurfaceClosureAudit = read("docs/backend/phase-2j-auth-surface-closure-audit.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -488,7 +489,6 @@ const authRuntime = read("src/lib/auth-runtime.ts");
 const authRuntimeTest = read("src/lib/auth-runtime.test.ts");
 const authRuntimeBoundaryTest = read("src/lib/auth-runtime.boundary.test.ts");
 const buyerSessionTest = read("src/lib/buyer-session.test.ts");
-const legacyAuthSupabaseAdapter = read("src/lib/legacy-auth-supabase-adapter.ts");
 const signInPage = read("src/pages/SignIn.tsx");
 const resetPasswordPage = read("src/pages/ResetPassword.tsx");
 const accountPostgresSmoke = read("scripts/smoke-self-hosted-account-postgres.mjs");
@@ -1064,34 +1064,34 @@ for (const marker of [
   "observePasswordRecovery",
   "updateRecoveredPassword",
   "self_hosted",
-  "supabase_prototype",
   "local_contract",
-  "legacy-auth-supabase-adapter",
   "buyerSession",
 ]) {
   requireText("src/lib/auth-runtime.ts", authRuntime, marker);
 }
 forbidText("src/lib/auth-runtime.ts", authRuntime, "@/integrations/supabase/client");
+forbidText("src/lib/auth-runtime.ts", authRuntime, "legacy-auth-supabase-adapter");
+forbidText("src/lib/auth-runtime.ts", authRuntime, "supabase_prototype");
+forbidText("src/lib/auth-runtime.ts", authRuntime, "VITE_SUPABASE");
 for (const marker of [
   "auth-runtime adapter boundary",
   "uses self-hosted email sign-in when VITE_YORSO_API_URL is configured",
   "returns self-hosted auth errors without falling back to local prototype auth",
   "reads and signs out the current self-hosted browser session",
-  "uses local contract auth when Supabase is not configured",
-  "delegates email sign-in and reset to prototype Supabase only when configured",
+  "uses local contract auth when self-hosted API is not configured",
+  "ignores prototype Supabase env and stays on the local contract when self-hosted API is disabled",
   "uses self-hosted password reset request and token completion when configured",
-  "observes prototype Supabase recovery events behind the adapter",
+  "keeps password recovery unavailable without a self-hosted recovery token",
 ]) {
   requireText("src/lib/auth-runtime.test.ts", authRuntimeTest, marker);
 }
 for (const marker of [
-  "keeps direct Supabase imports out of auth-runtime.ts",
+  "keeps auth runtime free of Supabase prototype fallback code",
   "self_hosted",
   "/v1/auth/sign-in",
   "/v1/auth/session",
   "/v1/auth/sign-out",
-  "legacy-auth-supabase-adapter",
-  "isLegacyAuthSupabaseConfigured",
+  "existsSync(\"src/lib/legacy-auth-supabase-adapter.ts\")).toBe(false)",
 ]) {
   requireText("src/lib/auth-runtime.boundary.test.ts", authRuntimeBoundaryTest, marker);
 }
@@ -1102,16 +1102,7 @@ for (const marker of [
 ]) {
   requireText("src/lib/buyer-session.test.ts", buyerSessionTest, marker);
 }
-for (const marker of [
-  "@/integrations/supabase/client",
-  "isLegacyAuthSupabaseConfigured",
-  "signInWithPrototypeSupabase",
-  "requestPrototypePasswordReset",
-  "observePrototypePasswordRecovery",
-  "updatePrototypeRecoveredPassword",
-]) {
-  requireText("src/lib/legacy-auth-supabase-adapter.ts", legacyAuthSupabaseAdapter, marker);
-}
+forbidText("src/lib/buyer-session.ts", read("src/lib/buyer-session.ts"), "supabase_prototype");
 requireText("src/pages/SignIn.tsx", signInPage, "@/lib/auth-runtime");
 requireText("src/pages/SignIn.tsx", signInPage, "result.session?.userId");
 requireText("src/pages/SignIn.tsx", signInPage, "source: result.source");
@@ -2878,6 +2869,16 @@ for (const marker of [
   requireText("docs/backend/phase-2i-password-recovery-cleanup-runtime.md", phase2iPasswordRecoveryCleanupRuntime, marker);
 }
 for (const marker of [
+  "Backend Phase 2J",
+  "Auth Surface Closure",
+  "Supabase prototype auth fallback removed",
+  "Remaining Supabase / Prototype Debt Outside Phase 2J",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2j-auth-surface-closure-audit.md", phase2jAuthSurfaceClosureAudit, marker);
+}
+for (const marker of [
   "PasswordRecoveryDeliveryWorker",
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
@@ -4221,7 +4222,7 @@ console.log("- Supplier access API exposes request, decision, grant and notifica
 console.log("- Supplier access UX consumes self-hosted request status and approval notifications with local fallback.");
 console.log("- Account routes require explicit self-hosted session headers instead of hidden demo-user fallback.");
 console.log("- Auth API issues, reads and revokes self-hosted sessions without hosted auth providers.");
-console.log("- Auth pages cross Supabase only through the prototype adapter boundary.");
+console.log("- Auth pages use self-hosted/local auth only; the Supabase prototype auth fallback is removed.");
 console.log("- Runtime auth API smoke is wired into ci:core.");
 console.log("- Runtime account API smoke is wired into ci:core.");
 console.log("- Account UI can bridge company media and documents to the self-hosted file API with local fallback.");

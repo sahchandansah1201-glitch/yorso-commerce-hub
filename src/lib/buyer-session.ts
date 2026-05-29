@@ -15,7 +15,7 @@
 const STORAGE_KEY = "yorso_buyer_session";
 
 export type SignInMethod = "email" | "phone" | "whatsapp";
-export type BuyerSessionSource = "self_hosted" | "local_contract" | "supabase_prototype";
+export type BuyerSessionSource = "self_hosted" | "local_contract";
 
 export interface BuyerSession {
   id: string;

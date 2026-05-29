@@ -742,14 +742,15 @@ adapters or local prototype fallbacks instead of failing during module import.
 empty. This is a production architecture guard: a self-hosted deployment should
 not require Supabase credentials to start.
 
-Batch #67 closes the page-level Supabase boundary. `SignIn` and
-`ResetPassword` no longer import `@/integrations/supabase/client` directly.
-They call the auth runtime adapter in `src/lib/auth-runtime.ts`, and that
-adapter is the only frontend auth boundary allowed to touch prototype Supabase
-auth. The adapter has two explicit modes: `local_contract` for self-hosted or
-no-backend preview, and `supabase_prototype` for temporary recovery links while
-prototype Supabase env variables exist. `check:supabase-boundary` now reports
-that no page/component direct Supabase imports remain.
+Batch #67 closed the page-level Supabase boundary. Phase 2J closes the auth
+runtime boundary itself: `SignIn` and `ResetPassword` call
+`src/lib/auth-runtime.ts`, and that runtime now has only two modes:
+`self_hosted` for configured API deployments and `local_contract` for
+API-disabled preview. The removed `legacy-auth-supabase-adapter.ts`,
+`supabase_prototype` source and `VITE_SUPABASE_*` auth branching must not return.
+`check:supabase-boundary`, `test:auth-runtime`, `check:self-hosted-api` and
+`check:production-scale-baseline` guard that no page/component or auth runtime
+Supabase dependency remains.
 
 Batch #68 closes the catalog Supabase boundary. `src/lib/catalog-api.ts` is a
 self-hosted-first facade over `src/lib/offer-catalog-api.ts`; it reaches the
@@ -770,15 +771,15 @@ legacy adapter is limited to temporary `supplier_access_requests` and
 `log_supplier_access_event` compatibility. Guard scripts fail if
 `supplier-access-api.ts` imports the Supabase client directly.
 
-Batch #70 closes the auth Supabase boundary. `src/lib/auth-runtime.ts` remains
-the only production-facing frontend auth facade used by `SignIn` and
-`ResetPassword`, but it no longer imports `@/integrations/supabase/client`
-directly. Prototype Supabase auth lives in
-`src/lib/legacy-auth-supabase-adapter.ts` and is loaded only when temporary
-Supabase env variables are present. This preserves prototype sign-in/recovery
-compatibility while keeping the self-hosted product free to replace auth behind
-the same runtime contract. Guard scripts fail if `auth-runtime.ts` regains a
-direct Supabase client dependency.
+Phase 2J removes the auth Supabase boundary instead of keeping it isolated.
+`src/lib/auth-runtime.ts` remains the only production-facing frontend auth
+facade used by `SignIn` and `ResetPassword`, but it no longer imports or
+dynamically loads any Supabase auth adapter. API-disabled preview falls back to
+the local contract; configured deployments use `/v1/auth/sign-in`,
+`/v1/auth/password-reset/request`, `/v1/auth/password-reset/complete`,
+`/v1/auth/session` and `/v1/auth/sign-out`. Guard scripts fail if
+`auth-runtime.ts`, `buyer-session.ts` or the auth boundary test regains the
+removed Supabase prototype source.
 
 Batch #82 adds the production health/readiness boundary for the self-hosted API.
 `/health/live` is intentionally cheap and only proves the process is alive.

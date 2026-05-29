@@ -352,17 +352,15 @@ missing prototype credentials cannot take down a self-hosted production build,
 and authentication/catalog routes degrade to self-hosted or local fallback
 behavior instead of hard-failing at module import time.
 
-Batch #67 removes the remaining direct Supabase imports from production-facing
-auth pages. `SignIn` and `ResetPassword` now cross Supabase only through
-`src/lib/auth-runtime.ts`, which exposes `signInWithEmail`,
-`requestPasswordReset`, `observePasswordRecovery` and
-`updateRecoveredPassword`. The adapter uses the local auth contract when
-Supabase is not configured and delegates to prototype Supabase auth only when
-prototype env variables are present. This is the auth runtime adapter boundary.
+Batch #67 removed direct Supabase imports from production-facing auth pages.
+Phase 2J then removes the remaining auth Supabase prototype fallback entirely:
+`SignIn` and `ResetPassword` use `src/lib/auth-runtime.ts`, which exposes
+`signInWithEmail`, `requestPasswordReset`, `observePasswordRecovery` and
+`updateRecoveredPassword` through self-hosted or local-contract behavior only.
 At 10,000 concurrent users this matters because page components cannot become
-implicit production auth gateways to Supabase: the self-hosted product can boot
-without prototype credentials, while future production auth can replace the
-adapter behind the same page contract.
+implicit production auth gateways to Supabase: configured deployments use the
+owned `/v1/auth/*` API, while API-disabled preview remains a local contract and
+does not call hosted auth.
 
 Batch #68 closes the legacy catalog Supabase adapter boundary. `src/lib/catalog-api.ts`
 is now a self-hosted-first catalog facade: when `VITE_YORSO_API_URL` is configured
@@ -389,17 +387,15 @@ unfinished environments. `src/lib/supplier-access-api.boundary.test.ts`,
 `check:self-hosted-api` and `check:production-scale-baseline` prevent direct
 Supabase imports from returning to the supplier access facade.
 
-Batch #70 closes the legacy auth Supabase adapter boundary.
+Phase 2J closes the auth Supabase removal boundary.
 `src/lib/auth-runtime.ts` remains the production-facing auth facade for
 sign-in, password reset, recovery-session observation and recovered password
-updates, but it no longer imports the Supabase client directly. Prototype
-Supabase email auth is isolated in `src/lib/legacy-auth-supabase-adapter.ts`
-and is loaded only when prototype Supabase env variables are present. At 10,000
-concurrent users this keeps sign-in and reset routes deployable without
-prototype credentials and prevents page-level auth flows from becoming hidden
-Supabase production dependencies. `src/lib/auth-runtime.boundary.test.ts`,
-`check:self-hosted-api` and `check:production-scale-baseline` prevent direct
-Supabase imports from returning to the auth runtime facade.
+updates, and no longer contains the legacy Supabase adapter path, the
+`supabase_prototype` source or `VITE_SUPABASE_*` branching. At 10,000
+concurrent users this keeps sign-in and reset routes on the owned API surface
+instead of a hosted auth provider. `src/lib/auth-runtime.boundary.test.ts`,
+`check:self-hosted-api` and `check:production-scale-baseline` prevent the
+removed auth Supabase fallback from returning.
 
 Batch #71 adds the self-hosted production policy and clarifies the production
 third-party boundary. YORSO production is a self-hosted product running on owned
@@ -5194,6 +5190,67 @@ Marker: Backend Phase 2I.
 Marker: password recovery cleanup runtime.
 Marker: createPasswordRecoveryCleanupRuntime.
 Marker: observePasswordRecoveryCleanupWorker.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
+## Backend Phase 2J Auth Surface Closure And Supabase Prototype Removal
+
+Phase 2J closes Phases 2A-2I as one self-hosted auth, registration and password
+recovery surface. The remaining auth Supabase prototype fallback was removed
+from code: `src/lib/auth-runtime.ts` no longer branches on `VITE_SUPABASE_*`,
+no longer emits `supabase_prototype`, and no longer loads
+`legacy-auth-supabase-adapter`.
+
+Expected read/write profile:
+
+- Configured deployments use `/v1/auth/sign-in`, `/v1/auth/session`,
+  `/v1/auth/sign-out`, `/v1/auth/password-reset/request` and
+  `/v1/auth/password-reset/complete`.
+- API-disabled preview uses the local contract only.
+- No browser auth path calls Supabase Auth.
+
+Cache, queue and backpressure strategy:
+
+- Existing Redis-backed auth rate limits, delivery workers and cleanup
+  scheduler remain the production backpressure mechanisms.
+- Removing the hosted auth fallback reduces runtime branching and prevents a
+  hidden hosted provider from absorbing production auth traffic.
+
+Database indexing and pagination strategy:
+
+- No new database tables or queries are introduced.
+- Phase 2A-2I PostgreSQL indexes and bounded worker leases remain active.
+
+Failure mode and graceful degradation:
+
+- Self-hosted auth errors remain fail-closed when `VITE_YORSO_API_URL` is
+  configured; the runtime does not fall back to local or hosted auth.
+- API-disabled preview remains local-contract only.
+- `VITE_SUPABASE_*` values do not change auth runtime behavior.
+
+Observability and load-test plan:
+
+- Existing auth observability, security events, password recovery delivery
+  metrics and cleanup metrics remain active.
+- Load-test auth through the self-hosted API only; validate no browser auth
+  bundle imports the Supabase client or removed auth adapter.
+
+Remaining Supabase/prototype debt outside this closure is explicitly scoped to:
+catalog fallback (`legacy-catalog-supabase-adapter`), supplier-access fallback
+(`legacy-supplier-access-supabase-adapter`), Supabase reference tooling/tests,
+empty prototype env keys and the `@supabase/supabase-js` dependency. Those are
+separate Phase 3 removal targets.
+
+Validation:
+
+- `test:auth-runtime`.
+- `check:self-hosted-api`.
+- `check:production-scale-baseline`.
+- Self-hosted auth API smoke.
+
+Marker: Backend Phase 2J.
+Marker: auth surface closure.
+Marker: Supabase prototype auth fallback removed.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 

@@ -12,10 +12,9 @@ import Footer from "@/components/landing/Footer";
 /**
  * /reset-password
  *
- * Public route reached via the link in the password-recovery email.
- * Supabase puts the recovery tokens in the URL hash and emits a
- * `PASSWORD_RECOVERY` auth event, after which `auth.updateUser({ password })`
- * is allowed to set a new password for the recovered user.
+ * Public route reached via the self-hosted password-recovery link. API-enabled
+ * recovery reads the backend token from `?token=` or `#token=` and completes
+ * the reset through `/v1/auth/password-reset/complete`.
  *
  * Copy is currently localized only between EN and RU based on the active
  * language context — full i18n keys can be added later.

@@ -9,6 +9,7 @@ const requiredFiles = [
   "docs/backend/phase-2g-password-recovery-delivery-runtime.md",
   "docs/backend/phase-2h-password-recovery-abuse-cleanup.md",
   "docs/backend/phase-2i-password-recovery-cleanup-runtime.md",
+  "docs/backend/phase-2j-auth-surface-closure-audit.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -189,7 +190,6 @@ const requiredFiles = [
   "src/lib/auth-runtime.test.ts",
   "src/lib/auth-runtime.boundary.test.ts",
   "src/lib/buyer-session.test.ts",
-  "src/lib/legacy-auth-supabase-adapter.ts",
   "src/pages/SignIn.tsx",
   "src/pages/ResetPassword.tsx",
   "apps/api/src/modules/offers/repository.ts",
@@ -244,6 +244,7 @@ const phase2fPasswordRecoverySourceOfTruth = read("docs/backend/phase-2f-passwor
 const phase2gPasswordRecoveryDeliveryRuntime = read("docs/backend/phase-2g-password-recovery-delivery-runtime.md");
 const phase2hPasswordRecoveryAbuseCleanup = read("docs/backend/phase-2h-password-recovery-abuse-cleanup.md");
 const phase2iPasswordRecoveryCleanupRuntime = read("docs/backend/phase-2i-password-recovery-cleanup-runtime.md");
+const phase2jAuthSurfaceClosureAudit = read("docs/backend/phase-2j-auth-surface-closure-audit.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -408,7 +409,6 @@ const authRuntime = read("src/lib/auth-runtime.ts");
 const authRuntimeTest = read("src/lib/auth-runtime.test.ts");
 const authRuntimeBoundaryTest = read("src/lib/auth-runtime.boundary.test.ts");
 const buyerSessionTest = read("src/lib/buyer-session.test.ts");
-const legacyAuthSupabaseAdapter = read("src/lib/legacy-auth-supabase-adapter.ts");
 const signInPage = read("src/pages/SignIn.tsx");
 const resetPasswordPage = read("src/pages/ResetPassword.tsx");
 const offerRepository = read("apps/api/src/modules/offers/repository.ts");
@@ -487,7 +487,6 @@ for (const marker of [
   "Batch #67",
   "Batch #68",
   "Batch #69",
-  "Batch #70",
   "Batch #71",
   "Batch #72",
   "Batch #73",
@@ -571,8 +570,8 @@ for (const marker of [
   "YORSO_AUDIT_MAX_IN_FLIGHT",
   "real self-hosted API browser smoke",
   "optional Supabase frontend smoke",
-  "auth runtime adapter boundary",
-  "legacy auth Supabase adapter boundary",
+  "Phase 2J Auth Surface Closure",
+  "Supabase prototype auth fallback removed",
   "self-hosted production policy",
   "self-hosted production runtime guard",
   ".env.production.example",
@@ -2891,6 +2890,16 @@ for (const marker of [
   requireText("docs/backend/phase-2i-password-recovery-cleanup-runtime.md", phase2iPasswordRecoveryCleanupRuntime, marker);
 }
 for (const marker of [
+  "Backend Phase 2J",
+  "Auth Surface Closure",
+  "Supabase prototype auth fallback removed",
+  "Remaining Supabase / Prototype Debt Outside Phase 2J",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2j-auth-surface-closure-audit.md", phase2jAuthSurfaceClosureAudit, marker);
+}
+for (const marker of [
   "PasswordRecoveryDeliveryWorker",
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
@@ -3481,9 +3490,7 @@ for (const marker of [
   "observePasswordRecovery",
   "updateRecoveredPassword",
   "self_hosted",
-  "supabase_prototype",
   "local_contract",
-  "legacy-auth-supabase-adapter",
   "buyerSession",
 ]) {
   requireText("src/lib/auth-runtime.ts", authRuntime, marker);
@@ -3491,25 +3498,30 @@ for (const marker of [
 if (authRuntime.includes("@/integrations/supabase/client")) {
   failures.push("src/lib/auth-runtime.ts: must not import Supabase client directly");
 }
+for (const forbidden of ["legacy-auth-supabase-adapter", "supabase_prototype", "VITE_SUPABASE"]) {
+  if (authRuntime.includes(forbidden)) {
+    failures.push(`src/lib/auth-runtime.ts: must not contain ${forbidden}`);
+  }
+}
 for (const marker of [
   "auth-runtime adapter boundary",
   "uses self-hosted email sign-in when VITE_YORSO_API_URL is configured",
   "returns self-hosted auth errors without falling back to local prototype auth",
   "reads and signs out the current self-hosted browser session",
-  "uses local contract auth when Supabase is not configured",
-  "delegates email sign-in and reset to prototype Supabase only when configured",
+  "uses local contract auth when self-hosted API is not configured",
+  "ignores prototype Supabase env and stays on the local contract when self-hosted API is disabled",
   "uses self-hosted password reset request and token completion when configured",
+  "keeps password recovery unavailable without a self-hosted recovery token",
 ]) {
   requireText("src/lib/auth-runtime.test.ts", authRuntimeTest, marker);
 }
 for (const marker of [
-  "keeps direct Supabase imports out of auth-runtime.ts",
+  "keeps auth runtime free of Supabase prototype fallback code",
   "self_hosted",
   "/v1/auth/sign-in",
   "/v1/auth/session",
   "/v1/auth/sign-out",
-  "legacy-auth-supabase-adapter",
-  "isLegacyAuthSupabaseConfigured",
+  "existsSync(\"src/lib/legacy-auth-supabase-adapter.ts\")).toBe(false)",
 ]) {
   requireText("src/lib/auth-runtime.boundary.test.ts", authRuntimeBoundaryTest, marker);
 }
@@ -3520,15 +3532,8 @@ for (const marker of [
 ]) {
   requireText("src/lib/buyer-session.test.ts", buyerSessionTest, marker);
 }
-for (const marker of [
-  "@/integrations/supabase/client",
-  "isLegacyAuthSupabaseConfigured",
-  "signInWithPrototypeSupabase",
-  "requestPrototypePasswordReset",
-  "observePrototypePasswordRecovery",
-  "updatePrototypeRecoveredPassword",
-]) {
-  requireText("src/lib/legacy-auth-supabase-adapter.ts", legacyAuthSupabaseAdapter, marker);
+if (read("src/lib/buyer-session.ts").includes("supabase_prototype")) {
+  failures.push("src/lib/buyer-session.ts: must not keep the removed auth Supabase prototype source");
 }
 requireText("src/pages/SignIn.tsx", signInPage, "@/lib/auth-runtime");
 requireText("src/pages/SignIn.tsx", signInPage, "result.session?.userId");

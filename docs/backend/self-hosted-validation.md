@@ -636,20 +636,21 @@ Batch #66 adds optional Supabase frontend validation:
   `e2e/frontend-no-supabase-env.spec.ts`;
 - the spec opens `/`, `/signin`, `/reset-password` and `/offers`, then checks
   that no fatal Supabase client construction error appears in browser console;
-- the sign-in screen falls back to the existing prototype auth contract when
-  Supabase is not configured;
+- the sign-in screen falls back to the local contract when the self-hosted API
+  is not configured, even if prototype Supabase env values are present;
 - this guard prevents accidental reintroduction of Supabase as a required
   production runtime dependency.
 
-Batch #67 adds auth runtime boundary validation:
+Batch #67 added auth runtime boundary validation; Phase 2J removes the auth
+Supabase fallback from that boundary:
 
-- `src/lib/auth-runtime.ts` owns the temporary Supabase auth bridge for email
-  sign-in, password reset email, recovery-session observation and recovered
-  password update;
+- `src/lib/auth-runtime.ts` owns self-hosted/local-only email sign-in,
+  password reset request, recovery-session observation and recovered password
+  update;
 - `src/pages/SignIn.tsx` and `src/pages/ResetPassword.tsx` import only that
   adapter, not `@/integrations/supabase/client`;
-- `test:auth-runtime` verifies local fallback mode, prototype Supabase
-  delegation and password recovery behavior behind the adapter;
+- `test:auth-runtime` verifies self-hosted API mode, local fallback mode,
+  ignored `VITE_SUPABASE_*` values and self-hosted password recovery behavior;
 - `check:supabase-boundary` no longer has a legacy allowlist for auth pages and
   must print `No page/component direct Supabase imports remain.`;
 - `ci:core` runs `test:auth-runtime`, so the boundary is checked before merge.
@@ -681,18 +682,19 @@ Batch #69 adds legacy supplier access Supabase adapter boundary validation:
 - `check:self-hosted-api` and `check:production-scale-baseline` fail if the
   supplier access facade regains a direct Supabase client dependency.
 
-Batch #70 adds legacy auth Supabase adapter boundary validation:
+Phase 2J replaces Batch #70's legacy auth Supabase adapter boundary with a
+removal guard:
 
 - `src/lib/auth-runtime.ts` remains the production-facing auth facade for
   sign-in, password reset, recovery observation and recovered password update;
-- `src/lib/legacy-auth-supabase-adapter.ts` owns the temporary Supabase email
-  auth and password-recovery bridge;
-- `src/lib/auth-runtime.boundary.test.ts` verifies the legacy adapter boundary
-  and absence of direct Supabase imports in `auth-runtime.ts`;
+- `src/lib/legacy-auth-supabase-adapter.ts` is deleted;
+- `src/lib/auth-runtime.boundary.test.ts` verifies the removed adapter file does
+  not exist and `auth-runtime.ts` contains no `supabase_prototype`,
+  `legacy-auth-supabase-adapter`, `VITE_SUPABASE` or direct Supabase imports;
 - `test:auth-runtime` includes both runtime behavior tests and the boundary
   test;
 - `check:self-hosted-api` and `check:production-scale-baseline` fail if the
-  auth runtime facade regains a direct Supabase client dependency.
+  auth runtime facade regains the removed Supabase prototype fallback.
 
 Batch #71 adds self-hosted production policy validation:
 
