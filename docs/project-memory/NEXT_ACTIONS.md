@@ -2,36 +2,37 @@
 
 ## Current Next Action
 
-Backend Phase 4A is implemented and committed locally at `9362f458`.
+Backend Phase 4B is implemented and committed locally at `799af493`.
 
-Phase 4A closes the supplier directory/profile configured-mode source-of-truth
-gap. `/suppliers` and `/suppliers/:supplierId` still support API-disabled local
-preview, but when `VITE_YORSO_API_URL` is configured they no longer replace
-failed self-hosted supplier API reads with prototype supplier rows or local
-fallback profiles.
+Phase 4B moves `/suppliers/:supplierId` production/logistics dossier facts to
+the self-hosted supplier directory contract. The supplier profile now renders
+`productionFacts` and `logisticsFacts` from the API-shaped supplier record; the
+old page-level `buildProductionFacts` / `buildLogisticsFacts` synthesis is gone.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Data-path audit | Проверить `/suppliers` и `/suppliers/:supplierId` в configured API mode. | Реализовано: оба route surface используют `useSupplierDirectoryList` / `useSupplierDirectoryDetail`, а adapter идет в `/v1/suppliers`. | Phase 4B должен смотреть completeness profile data, не fallback. |
-| Fail-closed | Убрать configured-mode подстановку `mockSuppliers` при ошибке supplier API. | Реализовано: API-enabled state остается `source: "api"`, first-load failure дает пустой list/detail retry state. | API-disabled preview можно убрать только отдельным demo-mode решением. |
-| Buyer UI | Не прятать outage и не показывать ложные данные. | Реализовано: `/suppliers` показывает `Live directory error`; `/suppliers/:supplierId` показывает retry state вместо not-found/mock profile. | Возможная telemetry для API failures отдельным observability batch. |
-| Guards | Зафиксировать контракт тестами и checks. | Реализовано: focused frontend tests, `check:self-hosted-api`, `check:production-scale-baseline` обновлены и проходят. | После полного validation зафиксировать commit. |
+| Backend contract | Добавить production/logistics facts в supplier-directory contract. | Реализовано: `supplierProductionFactsSchema`, `supplierLogisticsFactsSchema`, `productionFacts`, `logisticsFacts`. | Owner/admin write API later. |
+| Persistence | Сохранить facts в self-hosted supplier table. | Реализовано: migration `0031_supplier_profile_dossier_facts` добавляет `production_facts` / `logistics_facts`. | Backfill real verified supplier facts later. |
+| Profile page | Убрать frontend hash-based dossier synthesis. | Реализовано: `SupplierProfile.tsx` читает `supplier?.productionFacts` / `supplier?.logisticsFacts`; старые helpers удалены. | Phase 4C должен проверить evidence/FAQ/shipment sections. |
+| Local preview | Не смешивать local preview с production truth. | Реализовано: explicit helpers в `supplier-dossier-facts.ts` используются только для API-disabled preview. | Demo-mode retirement отдельным решением. |
+| Guards | Зафиксировать контракт тестами и checks. | Реализовано: tests, DB guards, `check:self-hosted-api`, `check:production-scale-baseline` проходят. | Держать в `ci:core`. |
 
-## Next Implementation After Phase 4A
+## Next Implementation After Phase 4B
 
 Recommended next scoped workstream:
 
-Backend Phase 4B: Supplier Profile Backend-Owned Dossier Completeness.
+Backend Phase 4C: Supplier Profile Backend-Owned Evidence Blocks.
 
 Concrete scope:
 
-- audit which `/suppliers/:supplierId` dossier sections still derive rich
-  profile content from frontend helpers/mock supplier shape;
-- map those fields to existing supplier API contracts or missing backend fields;
-- implement the first backend-owned section without weakening access gating or
-  supplier identity redaction.
+- audit which `/suppliers/:supplierId` evidence sections still derive legal,
+  shipment, FAQ or trust text from frontend/mock content;
+- choose one section to move to a backend-owned supplier record field or related
+  table;
+- keep locked-safe evidence separate from restricted legal/contact/document
+  payloads.
 
 ## Guardrails To Preserve
 

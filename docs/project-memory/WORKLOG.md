@@ -2960,3 +2960,55 @@ Keep this file factual and append-only.
 - Implementation commit: `9362f458` (`[codex] Backend Phase 4A supplier source of truth`).
 - Next scoped workstream after Phase 4A commit: Backend Phase 4B Supplier
   Profile Backend-Owned Dossier Completeness.
+
+## 2026-05-29 Phase 4B Checkpoint
+
+- Latest implementation commit: `799af493` (`[codex] Backend Phase 4B supplier dossier facts`).
+- Scoped workstream: Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness.
+- Implemented backend-owned supplier profile facts:
+  - `packages/contracts/src/supplier-directory.ts` now defines
+    `supplierProductionFactsSchema`, `supplierLogisticsFactsSchema`,
+    `productionFacts` and `logisticsFacts`;
+  - memory and PostgreSQL supplier repositories return those facts from the
+    supplier directory record;
+  - migration `0031_supplier_profile_dossier_facts.sql` adds
+    `production_facts` and `logistics_facts` JSONB columns to
+    `yorso_suppliers_directory`;
+  - `SupplierProfile.tsx` renders production/logistics sections from
+    `supplier?.productionFacts` and `supplier?.logisticsFacts`.
+- Removed frontend profile synthesis:
+  - page-level `buildProductionFacts`, `buildLogisticsFacts` and `hashSeed`
+    are gone from `SupplierProfile.tsx`;
+  - API-disabled preview uses explicit helpers in
+    `src/lib/supplier-dossier-facts.ts` instead of hidden production logic.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Contract | Добавить backend-owned production/logistics facts. | Реализовано: contract schemas and fields added. | Owner/admin write API later. |
+| Persistence | Хранить facts в self-hosted supplier table. | Реализовано: migration `0031_supplier_profile_dossier_facts`. | Backfill real supplier facts later. |
+| Profile UI | Убрать hash-based synthesis из page. | Реализовано: profile reads facts from supplier record. | Phase 4C evidence/FAQ/shipment source audit. |
+| Local preview | Сохранить Lovable/local preview separately. | Реализовано: explicit local preview helpers. | Demo-mode retirement later. |
+| Guards | Зафиксировать no-synthesis/no-provider regression. | Реализовано: tests plus self-hosted/scale checks. | Keep in `ci:core`. |
+
+- Validation passed:
+  - `npx vitest run src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-view.test.ts src/pages/__tests__/SupplierProfile.access.test.tsx`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`;
+  - `npm run test:db-migrations`;
+  - `npm run test:db-contract`;
+  - `npm run contracts:build`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run test:supplier-directory-frontend`;
+  - `npm run test:backend-contract`;
+  - `npm run test:api`;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm test`;
+  - `npm run api:build`;
+  - `npm run build`;
+  - `git diff --check`.
+- Known non-blocking warning preserved:
+  - Browserslist data stale.
+- Next scoped workstream: Backend Phase 4C Supplier Profile Backend-Owned
+  Evidence Blocks.

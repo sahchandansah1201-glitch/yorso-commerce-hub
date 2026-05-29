@@ -139,6 +139,41 @@
   `scripts/check-production-scale-baseline.mjs`: guards for Phase 4A doc and
   configured supplier fail-closed hook markers.
 
+## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
+
+- `docs/backend/phase-4b-supplier-profile-dossier-completeness.md`: Phase 4B
+  implementation note, Russian plan/fact table, access decision, runtime
+  contract, remaining debt and 10,000 concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: supplier directory contract
+  now owns `supplierProductionFactsSchema`, `supplierLogisticsFactsSchema`,
+  `productionFacts` and `logisticsFacts`.
+- `apps/api/src/modules/suppliers/repository.ts` and
+  `apps/api/src/modules/suppliers/postgres-repository.ts`: memory and
+  PostgreSQL supplier repositories return production/logistics dossier facts.
+- `packages/db/migrations/0031_supplier_profile_dossier_facts.sql` and
+  `packages/db/migration-manifest.json`: self-hosted DB migration and manifest
+  entry for `production_facts` / `logistics_facts`.
+- `src/lib/supplier-dossier-facts.ts`: explicit API-disabled local preview
+  helpers for supplier production/logistics facts.
+- `src/lib/supplier-directory-api.ts`,
+  `src/lib/supplier-directory-view.ts`,
+  `src/lib/use-supplier-directory.ts` and
+  `src/pages/SupplierProfile.tsx`: frontend adapters/profile render facts from
+  supplier records and keep local preview separate.
+- `src/test/self-hosted-contracts.test.ts`,
+  `src/test/self-hosted-db-contract.test.ts`,
+  `apps/api/src/modules/suppliers/__tests__/repository.test.ts`,
+  `src/lib/supplier-directory-api.test.ts`,
+  `src/lib/supplier-directory-view.test.ts`,
+  `src/lib/use-supplier-directory.test.tsx`,
+  `src/pages/Suppliers.test.tsx` and
+  `src/pages/__tests__/SupplierProfile.access.test.tsx`: regression coverage
+  for contract, DB, API mapping, local preview preservation and supplier profile
+  rendering.
+- `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: guards for Phase 4B docs,
+  migration, contract fields and absence of page-level hash synthesis.
+
 ## Backend Phase 1B Account Section-Scoped Mutations
 
 - `docs/backend/phase-1-account-section-scoped-mutations.md`: implementation

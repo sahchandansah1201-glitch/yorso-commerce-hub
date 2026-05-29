@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "9362f458"
-  head_summary: "Backend Phase 4A supplier directory/profile source-of-truth audit; release validation passed."
+  head_commit: "799af493"
+  head_summary: "Backend Phase 4B supplier profile dossier facts; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4A implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4B implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,21 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4a_supplier_directory_source_of_truth_audit"
-  summary: "Configured supplier directory/profile reads fail closed to the self-hosted API error state instead of substituting mockSuppliers."
+  id: "backend_phase_4b_supplier_profile_dossier_facts"
+  summary: "Supplier profile production/logistics dossier facts are backend-owned through the supplier directory contract/API/DB."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4B implementation is recorded in docs/backend/phase-4b-supplier-profile-dossier-completeness.md."
+    - "packages/contracts/src/supplier-directory.ts now includes supplierProductionFactsSchema, supplierLogisticsFactsSchema, productionFacts and logisticsFacts."
+    - "apps/api supplier repositories return productionFacts/logisticsFacts from memory records and yorso_suppliers_directory production_facts/logistics_facts."
+    - "packages/db/migrations/0031_supplier_profile_dossier_facts.sql adds production_facts and logistics_facts JSONB columns with object/array constraints."
+    - "src/pages/SupplierProfile.tsx now reads supplier?.productionFacts and supplier?.logisticsFacts; page-level buildProductionFacts/buildLogisticsFacts/hashSeed synthesis is removed."
+    - "src/lib/supplier-dossier-facts.ts keeps explicit API-disabled local preview helpers separate from configured production API truth."
+    - "check:self-hosted-api and check:production-scale-baseline guard the Phase 4B contract, migration, docs and no page-level hash synthesis."
+    - "Phase 4B release validation passed: focused supplier contract/view/profile tests, API supplier repository tests, DB migration/contract tests, supplier-directory frontend suite, backend contract suite, API tests, TypeScript build graph, full npm test, lint, API build, production build and diff check."
+    - "Phase 4B is committed locally at 799af493."
     - "Phase 4A implementation is recorded in docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md."
     - "src/lib/use-supplier-directory.ts now initializes API-enabled supplier list/detail state as source api and no longer uses mock fallback on configured API first-load failures."
     - "/suppliers shows a localized live directory error and zero prototype rows when /v1/suppliers fails under VITE_YORSO_API_URL."
@@ -1841,4 +1850,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 3C implementation question. Next scoped decision: Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit."
+  - "No open Phase 4B implementation question. Next scoped decision: Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks."
