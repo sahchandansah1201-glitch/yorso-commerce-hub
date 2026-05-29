@@ -1181,6 +1181,37 @@
   `docs/backend/self-hosted-production-policy.md` and
   `docs/backend/self-hosted-validation.md`: production/readiness updates.
 
+## Backend Phase 2I Password Recovery Cleanup Runtime
+
+- `docs/backend/phase-2i-password-recovery-cleanup-runtime.md`: Phase 2I
+  plan/fact, runtime config, 10,000 concurrent-user review and release
+  validation.
+- `apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts` and
+  `password-recovery-cleanup-scheduler.test.ts`: owned cleanup scheduler,
+  overlap skipping, failure capture and scheduler event coverage.
+- `apps/api/src/modules/auth/password-recovery-cleanup-runtime.ts` and
+  `password-recovery-cleanup-runtime.test.ts`: runtime factory wiring cleanup
+  config to the scheduler and metrics observation.
+- `apps/api/src/config.ts`: cleanup worker env parsing and production
+  fail-closed guard.
+- `apps/api/src/server.ts` and `apps/api/src/server.test.ts`: HTTP lifecycle
+  start/stop integration for the cleanup scheduler.
+- `apps/api/src/metrics.ts` and `apps/api/src/metrics.test.ts`: Prometheus
+  cleanup worker run and deleted-row metrics without PII/token labels.
+- `.env.example`, `.env.production.example` and `infra/docker-compose.yml`:
+  password recovery cleanup worker interval, batch, retention and worker id
+  settings.
+- `scripts/check-self-hosted-infra.mjs`,
+  `scripts/check-self-hosted-production-runtime.mjs`,
+  `scripts/check-self-hosted-api.mjs`,
+  `scripts/check-production-scale-baseline.mjs` and
+  `scripts/smoke-self-hosted-auth-api.mjs`: guard and smoke coverage for
+  Phase 2I.
+- `docs/backend/production-scale-baseline.md`,
+  `docs/backend/self-hosted-auth-api-smoke.md`,
+  `docs/backend/self-hosted-production-deploy.md` and
+  `docs/backend/self-hosted-validation.md`: production/readiness updates.
+
 ## Lovable Sync Prompts
 
 ## Batch #133 Public Breadcrumb Locale A11y

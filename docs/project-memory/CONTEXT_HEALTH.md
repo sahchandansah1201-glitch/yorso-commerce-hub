@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "project_memory_checkpoint_after_8a8ac50f"
+head_commit: "project_memory_checkpoint_after_70d65de6"
 latest_merged_batch: 141
-active_workstream: "backend_phase_2h_password_recovery_abuse_cleanup"
+active_workstream: "backend_phase_2i_password_recovery_cleanup_runtime"
 pull_request: null
-recommended_action: "start Backend Phase 2I password recovery cleanup runtime/scheduler path"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2H are documented, committed and validated."
+recommended_action: "start Backend Phase 2J auth/registration/password recovery closure audit"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2I are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_2h_password_recovery_abuse_cleanup.
-Current HEAD baseline: Backend Phase 2H password recovery abuse-control and cleanup policy implementation commit 8a8ac50f is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_2i_password_recovery_cleanup_runtime.
+Current HEAD baseline: Backend Phase 2I password recovery cleanup runtime implementation commit 70d65de6 is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,13 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: start Backend Phase 2I password recovery cleanup runtime/scheduler path.
+Current recommended action: start Backend Phase 2J auth/registration/password recovery closure audit.
+Phase 2I implemented and committed locally at 70d65de6: docs/backend/phase-2i-password-recovery-cleanup-runtime.md records the owned self-hosted password recovery cleanup runtime.
+Phase 2I runtime: PasswordRecoveryCleanupScheduler runs PasswordRecoveryCleanupWorker outside public request handlers, skips overlapping runs and catches worker failures as metrics events.
+Phase 2I server lifecycle: createApiServer starts the cleanup scheduler on HTTP server listening and stops it on close when YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true.
+Phase 2I production guard: production self-hosted runtime requires YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true, with explicit interval, batch size, delivery retention, token retention and worker id settings in env examples and Docker Compose.
+Phase 2I observability: Prometheus metrics track cleanup runs and deleted row counts without email, destination, recovery id or token labels; self-hosted auth API smoke waits for password_recovery_cleanup_runtime_guard=ok.
+Phase 2I validation passed: focused scheduler/runtime/server/metrics tests; self-hosted infra/runtime/API guards; production-scale guard; TypeScript build; full API tests; full npm test; lint; API build; self-hosted auth API smoke; diff check; production build.
 Phase 2H implemented and committed locally at 8a8ac50f: docs/backend/phase-2h-password-recovery-abuse-cleanup.md records password reset abuse-control and cleanup policy.
 Phase 2H rate limit: requestPasswordReset checks AuthRateLimiter before account lookup, records known and unknown attempts in the same public-response path, returns 429 auth_rate_limited on bursts, and keeps account enumeration closed.
 Phase 2H persistence: migration 0030_auth_password_recovery_abuse_cleanup adds password_reset_rate_limited security event support and cleanup indexes for expired/used recovery tokens plus terminal delivery outbox rows.

@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "project_memory_checkpoint_after_8a8ac50f"
-  head_summary: "Project-memory checkpoint after Backend Phase 2H implementation commit 8a8ac50f; Phase 2H validation passed."
+  head_commit: "project_memory_checkpoint_after_70d65de6"
+  head_summary: "Project-memory checkpoint after Backend Phase 2I implementation commit 70d65de6; Phase 2I validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "No dirty worktree expected after the Phase 2H project-memory checkpoint."
+    - "Project-memory checkpoint is being updated after the Phase 2I implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_2h_password_recovery_abuse_cleanup"
-  summary: "Password reset requests now have account-enumeration-safe abuse control and password recovery token/outbox cleanup policy."
+  id: "backend_phase_2i_password_recovery_cleanup_runtime"
+  summary: "Password recovery cleanup policy is now wired into an owned self-hosted API scheduler with production guards, metrics and smoke coverage."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 2I implementation is recorded in docs/backend/phase-2i-password-recovery-cleanup-runtime.md."
+    - "PasswordRecoveryCleanupScheduler runs PasswordRecoveryCleanupWorker outside public request handlers, skips overlapping runs, emits success/failure/skipped events and catches worker-level failures."
+    - "createPasswordRecoveryCleanupRuntime wires cleanup retention, interval, batch size, worker id and Prometheus observation from self-hosted config."
+    - "createApiServer starts the password recovery cleanup scheduler on HTTP server listening and stops it on close when YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true."
+    - "Production self-hosted runtime now requires YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true."
+    - "Env examples and Docker Compose expose cleanup interval, batch size, delivery retention, token retention and worker id."
+    - "Prometheus metrics track password recovery cleanup worker runs and deleted row counts without email, destination, recovery id or token labels."
+    - "Self-hosted auth API smoke now waits for password_recovery_cleanup_runtime_guard=ok."
+    - "Phase 2I release validation passed: focused scheduler/runtime/server/metrics tests; self-hosted infra/runtime/API guards; production-scale guard; TypeScript build; full API tests; full npm test; lint; API build; self-hosted auth API smoke; diff check; production build."
+    - "Phase 2I is committed locally at 70d65de6."
     - "Phase 2H implementation is recorded in docs/backend/phase-2h-password-recovery-abuse-cleanup.md."
     - "POST /v1/auth/password-reset/request checks AuthRateLimiter before account lookup and keeps known/unknown public responses constant-shape until the shared rate limit is exceeded."
     - "AuthRateLimiter now exposes dedicated password reset methods and config: AUTH_PASSWORD_RESET_WINDOW_MS and AUTH_PASSWORD_RESET_MAX_REQUESTS."

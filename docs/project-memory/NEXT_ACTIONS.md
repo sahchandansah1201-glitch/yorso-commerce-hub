@@ -2,44 +2,42 @@
 
 ## Current Next Action
 
-Backend Phase 2H is implemented and committed locally at `8a8ac50f`.
+Backend Phase 2I is implemented and committed locally at `70d65de6`.
 
-Phase 2H adds account-enumeration-safe password reset abuse control and a
-bounded cleanup policy for password recovery tokens/outbox rows. It does not
-add Supabase, hosted BaaS, SaaS email provider coupling or public UI layout
-changes.
+Phase 2I wires the Phase 2H password recovery cleanup policy into an owned
+self-hosted API scheduler. It does not add Supabase, hosted BaaS, SaaS email
+provider coupling or public UI layout changes.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Password reset rate limit | Ограничить частые reset-запросы по email/IP, не раскрывая наличие аккаунта. | Реализовано: `AuthRateLimiter.checkPasswordReset/recordPasswordReset`; service checks before account lookup; public response remains generic for known/unknown until limit is exceeded. | Наблюдение через security events/telemetry. |
-| Rate-limit event | Нужен отдельный audit/security marker. | Реализовано: `password_reset_rate_limited` in contracts + migration 0030; server test covers 429 without email leak. | В future admin/security dashboard можно вывести агрегаты. |
-| Cleanup repository | Нужна bounded очистка expired/used tokens и terminal outbox rows. | Реализовано: `cleanupPasswordRecovery` in memory/Postgres; ordered limited deletes and retention cutoffs. | Phase 2I подключит runtime/scheduler/CLI. |
-| Cleanup worker | Нужна reusable policy object без request-handler coupling. | Реализовано: `PasswordRecoveryCleanupWorker` computes cutoffs and delegates to repository. | Phase 2I определит запуск и production config. |
-| DB/indexes | Cleanup должен масштабироваться на 10k concurrent-user baseline. | Реализовано: `0030_auth_password_recovery_abuse_cleanup.sql` adds cleanup indexes and security event type. | После runtime wiring добавить queue/cleanup age observability. |
-| Smoke/guards/docs | Self-hosted runtime must fail closed and be проверяемым. | Реализовано: env/compose/guards/smoke/docs updated; `password_reset_rate_limit_guard=ok`. | Закрыто в commit `8a8ac50f`. |
+| Cleanup scheduler | Запускать очистку password recovery вне public request handlers. | Реализовано: `PasswordRecoveryCleanupScheduler` вызывает worker, пропускает overlapping runs и пишет success/failure/skipped события. | Позже можно добавить admin visibility по queue/cleanup age. |
+| Runtime factory | Включать cleanup только явной self-hosted настройкой. | Реализовано: `createPasswordRecoveryCleanupRuntime` создаёт scheduler только при `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true`. | Production держит worker включённым. |
+| API lifecycle | Старт/стоп cleanup должен быть связан с API process, а не с пользовательским запросом. | Реализовано: `createApiServer` стартует scheduler на `listening` и останавливает на `close`. | Закрыто в commit `70d65de6`. |
+| Production guard | Production должен fail closed без cleanup runtime. | Реализовано: `assertSelfHostedProductionRuntime` требует `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true`; env/compose содержат interval, batch, retention и worker id. | Retention values остаются config-owned. |
+| Observability/smoke | Нужна проверка runtime без PII/token labels. | Реализовано: Prometheus metrics `yorso_api_password_recovery_cleanup_worker_*`; smoke ждёт `password_recovery_cleanup_runtime_guard=ok`. | Alert thresholds позже. |
 
-## Next Implementation After Phase 2H
+## Next Implementation After Phase 2I
 
 Recommended next scoped workstream:
 
-Backend Phase 2I: password recovery cleanup runtime/scheduler path.
+Backend Phase 2J: auth/registration/password recovery closure audit.
 
 Concrete scope:
 
-- wire `PasswordRecoveryCleanupWorker` into an owned maintenance runtime,
-  scheduler or explicit CLI command;
-- add runtime config for cleanup interval, retention and batch size if needed;
-- add smoke/guard coverage that cleanup runs outside public request handlers;
-- document read/write profile, backpressure, DB indexes, failure mode and
-  observability for the 10,000 concurrent-user baseline;
-- preserve no hosted provider/Supabase production dependency.
+- проверить Phase 2A-2I как единый self-hosted auth/registration/password
+  recovery surface;
+- подтвердить, что production path не зависит от Supabase/BaaS/provider runtime;
+- сверить env examples, Docker Compose, production guards, smoke markers,
+  metrics and docs;
+- составить точный список оставшегося Supabase/prototype debt;
+- выбрать следующий implementation step только после audit findings.
 
 Alternative:
 
-Self-hosted consolidation pass for remaining legacy Supabase/prototype surfaces
-route-by-route, without changing public UX.
+Backend Phase 3A: scoped legacy Supabase consolidation/removal for the first
+remaining production-relevant surface found by Phase 2J.
 
 ## Guardrails To Preserve
 

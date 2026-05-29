@@ -2651,3 +2651,61 @@ Keep this file factual and append-only.
 - Known non-blocking warnings preserved:
   - Supabase generated types out of sync in non-strict preview/build mode;
   - Browserslist data stale.
+
+## 2026-05-29
+
+- Implemented Backend Phase 2I: Password Recovery Cleanup Runtime.
+- Added `PasswordRecoveryCleanupScheduler`:
+  - runs `PasswordRecoveryCleanupWorker.runOnce()` outside public request
+    handlers;
+  - skips overlapping runs with `already_running`;
+  - emits success, failure and skipped events;
+  - catches worker-level failures and lets the next interval retry.
+- Added `createPasswordRecoveryCleanupRuntime`:
+  - disabled by default for local/dev unless explicitly enabled;
+  - wires cleanup interval, batch size, delivery retention, token retention and
+    worker id from self-hosted config;
+  - connects cleanup observations to the API metrics registry.
+- Wired API server lifecycle:
+  - starts cleanup scheduler on HTTP `listening`;
+  - stops cleanup scheduler on server `close`;
+  - keeps cleanup detached from public auth/password-reset request latency.
+- Added production fail-closed configuration:
+  - `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true`;
+  - `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_INTERVAL_MS`;
+  - `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_BATCH_SIZE`;
+  - `YORSO_PASSWORD_RECOVERY_CLEANUP_DELIVERY_RETENTION_MS`;
+  - `YORSO_PASSWORD_RECOVERY_CLEANUP_TOKEN_RETENTION_MS`;
+  - `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ID`.
+- Added worker metrics:
+  - `yorso_api_password_recovery_cleanup_worker_runs_total`;
+  - `yorso_api_password_recovery_cleanup_worker_rows_total`;
+  - no email, destination, recovery id or token labels.
+- Updated env examples, Docker Compose, self-hosted guard scripts, auth API
+  smoke, deployment docs, validation docs and production-scale baseline.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Scheduler | Запускать cleanup вне request handlers. | Реализовано: scheduler вызывает worker, пропускает overlap и пишет outcome events. | Later queue-age visibility. |
+| Runtime config | Включать worker только явной self-hosted настройкой. | Реализовано: disabled by default; production guard requires enabled worker. | Retention remains config-owned. |
+| Smoke/metrics | Проверять runtime без PII/token labels. | Реализовано: Prometheus metrics + `password_recovery_cleanup_runtime_guard=ok`. | Alert thresholds later. |
+
+- Validation passed:
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/password-recovery-cleanup-scheduler.test.ts apps/api/src/modules/auth/password-recovery-cleanup-runtime.test.ts apps/api/src/modules/auth/password-recovery-cleanup.test.ts apps/api/src/metrics.test.ts apps/api/src/server.test.ts -t "password recovery cleanup|metrics|production config"`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:self-hosted-infra`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run test:api`;
+  - `npm test`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `npm run smoke:self-hosted-auth-api:run`;
+  - `git diff --check`;
+  - `npm run build`.
+- Commit: `70d65de6` (`[codex] Backend Phase 2I password recovery cleanup runtime`).
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.
