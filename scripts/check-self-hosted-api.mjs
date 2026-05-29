@@ -258,6 +258,7 @@ const requiredFiles = [
   "docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md",
   "docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md",
   "docs/backend/phase-4b-supplier-profile-dossier-completeness.md",
+  "docs/backend/phase-4c-supplier-profile-evidence-blocks.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -272,6 +273,7 @@ const requiredFiles = [
   "packages/db/migrations/0029_auth_password_recovery.sql",
   "packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql",
   "packages/db/migrations/0031_supplier_profile_dossier_facts.sql",
+  "packages/db/migrations/0032_supplier_profile_evidence_blocks.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
@@ -463,6 +465,7 @@ const registrationVerificationCodePolicyMigration = read("packages/db/migrations
 const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_password_recovery.sql");
 const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql");
 const supplierProfileDossierFactsMigration = read("packages/db/migrations/0031_supplier_profile_dossier_facts.sql");
+const supplierProfileEvidenceBlocksMigration = read("packages/db/migrations/0032_supplier_profile_evidence_blocks.sql");
 const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
@@ -2804,6 +2807,15 @@ for (const marker of [
   "API-owned and safe for locked buyer views",
 ]) {
   requireText("packages/db/migrations/0031_supplier_profile_dossier_facts.sql", supplierProfileDossierFactsMigration, marker);
+}
+for (const marker of [
+  "Backend Phase 4C",
+  "shipment_cases jsonb not null",
+  "profile_faq_items jsonb not null",
+  "yorso_suppliers_shipment_cases_array",
+  "API-owned and safe for locked buyer views",
+]) {
+  requireText("packages/db/migrations/0032_supplier_profile_evidence_blocks.sql", supplierProfileEvidenceBlocksMigration, marker);
 }
 for (const marker of [
   "PasswordRecoveryTokenIssuer",

@@ -21,6 +21,10 @@ import {
   localPreviewSupplierLogisticsFacts,
   localPreviewSupplierProductionFacts,
 } from "@/lib/supplier-dossier-facts";
+import {
+  localPreviewSupplierFaqItems,
+  localPreviewSupplierShipmentCases,
+} from "@/lib/supplier-evidence-blocks";
 
 const renderPage = (initialEntry = "/suppliers") =>
   render(
@@ -69,6 +73,11 @@ const apiSupplier = (supplier = mockSuppliers[0]) => ({
   productCatalogPreview: supplier.productCatalogPreview.slice(0, 3),
   productionFacts: localPreviewSupplierProductionFacts(supplier.id),
   logisticsFacts: localPreviewSupplierLogisticsFacts(supplier.id),
+  shipmentCases: localPreviewSupplierShipmentCases(
+    supplier.id,
+    supplier.productFocus[0]?.species ?? "Seafood",
+  ),
+  faqItems: localPreviewSupplierFaqItems(supplier.id),
   website: null,
   whatsapp: null,
   updatedAt: "2026-05-14T00:00:00.000Z",

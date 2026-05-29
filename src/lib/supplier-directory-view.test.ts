@@ -52,6 +52,27 @@ const lockedApiItem = (supplier = mockSuppliers[0]): SupplierDirectoryItem => ({
     containers: ["20' Reefer", "40' Reefer HC"],
     tempRange: "-18 C ... -22 C",
   },
+  shipmentCases: [
+    {
+      id: "api-case-1",
+      titleKey: "supplier_cases_caseTitle_de",
+      dateISO: "2026-04-11",
+      destinationKey: "supplier_cases_destination_de",
+      product: "API salmon evidence",
+      volumeTons: 44,
+      incoterm: "CFR Hamburg",
+      buyerTypeKey: "supplier_cases_buyerType_retail",
+      notesKey: "supplier_cases_notes_de",
+      photoCaptionKeys: ["supplier_cases_photoCaption_loading"],
+    },
+  ],
+  faqItems: [
+    {
+      qKey: "supplier_faq_q1",
+      aKey: "supplier_faq_a1",
+      params: { n: 2 },
+    },
+  ],
   updatedAt: "2026-05-14T00:00:00.000Z",
   accessLevel: "anonymous_locked",
 });
@@ -72,6 +93,11 @@ describe("supplier directory API view shaping", () => {
       incoterms: ["FCA", "CIF"],
       tempRange: "-18 C ... -22 C",
     });
+    expect(supplier.shipmentCases?.[0]).toMatchObject({
+      product: "API salmon evidence",
+      volumeTons: 44,
+    });
+    expect(supplier.faqItems?.[0].params).toEqual({ n: 2 });
   });
 
   it("localizes API-shaped suppliers with the same i18n layer as local mocks", () => {

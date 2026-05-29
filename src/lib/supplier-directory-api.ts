@@ -11,6 +11,12 @@ import {
   type SupplierLogisticsFacts,
   type SupplierProductionFacts,
 } from "@/lib/supplier-dossier-facts";
+import {
+  localPreviewSupplierFaqItems,
+  localPreviewSupplierShipmentCases,
+  type SupplierFaqItem,
+  type SupplierShipmentCase,
+} from "@/lib/supplier-evidence-blocks";
 import { getApprovedSupplierAccessIds } from "@/lib/supplier-access-requests";
 
 export type SupplierDirectoryAccessLevel = "anonymous_locked" | "registered_locked" | "qualified_unlocked";
@@ -41,6 +47,8 @@ export interface SupplierDirectoryItem {
   productCatalogPreview: (typeof mockSuppliers)[number]["productCatalogPreview"];
   productionFacts: SupplierProductionFacts;
   logisticsFacts: SupplierLogisticsFacts;
+  shipmentCases: SupplierShipmentCase[];
+  faqItems: SupplierFaqItem[];
   website: string | null;
   whatsapp: string | null;
   updatedAt: string;
@@ -150,6 +158,11 @@ const shapeMockSupplier = (
     productCatalogPreview: unlocked ? supplier.productCatalogPreview : supplier.productCatalogPreview.slice(0, 3),
     productionFacts: supplier.productionFacts ?? localPreviewSupplierProductionFacts(supplier.id),
     logisticsFacts: supplier.logisticsFacts ?? localPreviewSupplierLogisticsFacts(supplier.id),
+    shipmentCases: supplier.shipmentCases ?? localPreviewSupplierShipmentCases(
+      supplier.id,
+      supplier.productFocus[0]?.species ?? "Seafood",
+    ),
+    faqItems: supplier.faqItems ?? localPreviewSupplierFaqItems(supplier.id),
     website: unlocked ? supplier.website ?? null : null,
     whatsapp: unlocked ? supplier.whatsapp ?? null : null,
     updatedAt: "2026-05-14T00:00:00.000Z",

@@ -7,6 +7,10 @@ import {
   localPreviewSupplierProductionFacts,
 } from "@/lib/supplier-dossier-facts";
 import {
+  localPreviewSupplierFaqItems,
+  localPreviewSupplierShipmentCases,
+} from "@/lib/supplier-evidence-blocks";
+import {
   createSupplierDirectoryApiClient,
   type SupplierDirectoryAccessLevel,
   type SupplierDirectoryQuery,
@@ -78,6 +82,11 @@ const withSupplierAccessLevel = (
     accessLevel: supplierAccessLevel(supplier, accessLevel, approvedSupplierIds),
     productionFacts: supplier.productionFacts ?? localPreviewSupplierProductionFacts(supplier.id),
     logisticsFacts: supplier.logisticsFacts ?? localPreviewSupplierLogisticsFacts(supplier.id),
+    shipmentCases: supplier.shipmentCases ?? localPreviewSupplierShipmentCases(
+      supplier.id,
+      supplier.productFocus[0]?.species ?? "Seafood",
+    ),
+    faqItems: supplier.faqItems ?? localPreviewSupplierFaqItems(supplier.id),
   },
   language,
 );

@@ -6,6 +6,10 @@ import {
   localPreviewSupplierProductionFacts,
 } from "@/lib/supplier-dossier-facts";
 import {
+  localPreviewSupplierFaqItems,
+  localPreviewSupplierShipmentCases,
+} from "@/lib/supplier-evidence-blocks";
+import {
   SUPPLIER_ACCESS_CHANGE_EVENT,
   SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY,
 } from "@/lib/supplier-access-requests";
@@ -44,6 +48,11 @@ const apiSupplier = (patch: Partial<SupplierDirectoryItem> = {}): SupplierDirect
     productCatalogPreview: supplier.productCatalogPreview.slice(0, 3),
     productionFacts: localPreviewSupplierProductionFacts(supplier.id),
     logisticsFacts: localPreviewSupplierLogisticsFacts(supplier.id),
+    shipmentCases: localPreviewSupplierShipmentCases(
+      supplier.id,
+      supplier.productFocus[0]?.species ?? "Seafood",
+    ),
+    faqItems: localPreviewSupplierFaqItems(supplier.id),
     website: null,
     whatsapp: null,
     updatedAt: "2026-05-14T00:00:00.000Z",

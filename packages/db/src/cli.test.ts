@@ -66,6 +66,7 @@ describe("self-hosted DB migration CLI", () => {
     expect(output).toContain("0029_auth_password_recovery planned");
     expect(output).toContain("0030_auth_password_recovery_abuse_cleanup planned");
     expect(output).toContain("0031_supplier_profile_dossier_facts planned");
+    expect(output).toContain("0032_supplier_profile_evidence_blocks planned");
   });
 
   it("prints static dry-run apply without requiring a database", () => {
@@ -73,7 +74,7 @@ describe("self-hosted DB migration CLI", () => {
 
     expect(output).toContain("Dry-run apply preview from local plan");
     expect(output).toContain("dryRun=true");
-    expect(output).toContain("pending=32");
+    expect(output).toContain("pending=33");
     expect(output).toContain("pending 0007_supplier_access_flow");
     expect(output).toContain("pending 0008_access_notification_ack");
     expect(output).toContain("pending 0009_supplier_directory_pagination_sort");
@@ -99,6 +100,7 @@ describe("self-hosted DB migration CLI", () => {
     expect(output).toContain("pending 0029_auth_password_recovery");
     expect(output).toContain("pending 0030_auth_password_recovery_abuse_cleanup");
     expect(output).toContain("pending 0031_supplier_profile_dossier_facts");
+    expect(output).toContain("pending 0032_supplier_profile_evidence_blocks");
   });
 
   it("blocks live apply without explicit confirmation", () => {

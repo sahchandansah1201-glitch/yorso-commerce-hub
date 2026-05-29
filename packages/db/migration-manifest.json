@@ -371,6 +371,17 @@
       "dependsOn": [
         "0030_auth_password_recovery_abuse_cleanup"
       ]
+    },
+    {
+      "id": "0032_supplier_profile_evidence_blocks",
+      "file": "migrations/0032_supplier_profile_evidence_blocks.sql",
+      "description": "Move supplier profile shipment evidence and FAQ blocks into the self-hosted supplier directory record.",
+      "ownedTables": [
+        "yorso_suppliers_directory"
+      ],
+      "dependsOn": [
+        "0031_supplier_profile_dossier_facts"
+      ]
     }
   ]
 }

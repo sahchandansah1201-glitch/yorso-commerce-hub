@@ -6,9 +6,11 @@ import type {
   SupplierDeliveryCountry,
   SupplierDirectoryQuery,
   SupplierDirectoryRecord,
+  SupplierFaqItem,
   SupplierLogisticsFacts,
   SupplierProductFocus,
   SupplierProductionFacts,
+  SupplierShipmentCase,
   SupplierType,
 } from "../../../../../packages/contracts/dist/index.js";
 import type { SupplierRepository, SupplierRepositoryListOptions } from "./repository.js";
@@ -51,6 +53,8 @@ interface SupplierRow extends Record<string, unknown> {
   product_catalog_preview: SupplierCatalogPreviewItem[] | null;
   production_facts: SupplierProductionFacts | null;
   logistics_facts: SupplierLogisticsFacts | null;
+  shipment_cases: SupplierShipmentCase[] | null;
+  profile_faq_items: SupplierFaqItem[] | null;
   website: string | null;
   whatsapp: string | null;
   updated_at: Date | string;
@@ -100,6 +104,8 @@ function mapSupplier(row: SupplierRow): SupplierDirectoryRecord {
     productCatalogPreview: row.product_catalog_preview ?? [],
     productionFacts: row.production_facts ?? emptyProductionFacts(),
     logisticsFacts: row.logistics_facts ?? emptyLogisticsFacts(),
+    shipmentCases: row.shipment_cases ?? [],
+    faqItems: row.profile_faq_items ?? [],
     website: row.website,
     whatsapp: row.whatsapp,
     updatedAt: ensureIso(row.updated_at),

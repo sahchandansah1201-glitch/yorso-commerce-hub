@@ -114,6 +114,27 @@ describe("supplier directory repositories", () => {
                 containers: ["20' Reefer", "40' Reefer HC"],
                 tempRange: "-18 C ... -22 C",
               },
+              shipment_cases: [
+                {
+                  id: "row-case-1",
+                  titleKey: "supplier_cases_caseTitle_de",
+                  dateISO: "2026-04-11",
+                  destinationKey: "supplier_cases_destination_de",
+                  product: "Row salmon evidence",
+                  volumeTons: 33,
+                  incoterm: "CFR Hamburg",
+                  buyerTypeKey: "supplier_cases_buyerType_retail",
+                  notesKey: "supplier_cases_notes_de",
+                  photoCaptionKeys: ["supplier_cases_photoCaption_loading"],
+                },
+              ],
+              profile_faq_items: [
+                {
+                  qKey: "supplier_faq_q1",
+                  aKey: "supplier_faq_a1",
+                  params: { n: 2 },
+                },
+              ],
               updated_at: new Date("2026-05-14T00:00:00.000Z"),
               total_count: 1,
             },
@@ -149,6 +170,18 @@ describe("supplier directory repositories", () => {
         incoterms: ["FCA", "CIF"],
         minBatchTons: 2,
       },
+      shipmentCases: [
+        {
+          product: "Row salmon evidence",
+          volumeTons: 33,
+        },
+      ],
+      faqItems: [
+        {
+          qKey: "supplier_faq_q1",
+          params: { n: 2 },
+        },
+      ],
     });
     expect(calls[0].sql).toContain("from yorso_suppliers_directory");
     expect(calls[0].sql).toContain("publication_status = 'published'");

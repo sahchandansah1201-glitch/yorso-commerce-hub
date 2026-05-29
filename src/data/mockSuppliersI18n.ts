@@ -401,6 +401,11 @@ export const localizeSupplier = (
     };
   });
 
+  const shipmentCases = supplier.shipmentCases?.map((shipmentCase) => ({
+    ...shipmentCase,
+    product: pick(SPECIES_LOCALES[shipmentCase.product], language, shipmentCase.product),
+  }));
+
   return {
     ...supplier,
     country,
@@ -411,5 +416,6 @@ export const localizeSupplier = (
     productFocus,
     productCatalogPreview,
     deliveryCountries,
+    ...(shipmentCases ? { shipmentCases } : {}),
   };
 };

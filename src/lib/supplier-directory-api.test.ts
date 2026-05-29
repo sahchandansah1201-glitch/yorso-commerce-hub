@@ -178,6 +178,8 @@ describe("supplier directory API adapter", () => {
             containers: ["TBC"],
             tempRange: "TBC",
           },
+          shipmentCases: [],
+          faqItems: [],
           website: null,
           whatsapp: null,
           updatedAt: "2026-05-14T00:00:00.000Z",

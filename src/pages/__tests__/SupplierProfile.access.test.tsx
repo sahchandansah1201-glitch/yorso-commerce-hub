@@ -148,6 +148,27 @@ const remoteSupplierDetail = {
     containers: ["Backend reefer"],
     tempRange: "-20 C backend-owned",
   },
+  shipmentCases: [
+    {
+      id: "backend-case-001",
+      titleKey: "supplier_cases_caseTitle_de",
+      dateISO: "2026-04-11",
+      destinationKey: "supplier_cases_destination_de",
+      product: "Backend salmon case",
+      volumeTons: 77,
+      incoterm: "DAP Backend Port",
+      buyerTypeKey: "supplier_cases_buyerType_retail",
+      notesKey: "supplier_cases_notes_de",
+      photoCaptionKeys: ["supplier_cases_photoCaption_loading"],
+    },
+  ],
+  faqItems: [
+    {
+      qKey: "supplier_faq_q1",
+      aKey: "supplier_faq_a1",
+      params: { n: 12 },
+    },
+  ],
   updatedAt: "2026-05-14T00:00:00.000Z",
   accessLevel: "anonymous_locked",
 };
@@ -267,6 +288,32 @@ describe("SupplierProfile · access gating", () => {
       expect(screen.getByText("20–28 days")).toBeInTheDocument();
       expect(screen.getByText("Backend reefer")).toBeInTheDocument();
       expect(screen.getByText("-20 C backend-owned")).toBeInTheDocument();
+    });
+
+    it("рендерит shipment evidence и FAQ из self-hosted API, а не пересчитывает их на клиенте", async () => {
+      vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+      vi.stubGlobal("fetch", vi.fn(async () =>
+        new Response(JSON.stringify({
+          ok: true,
+          supplier: remoteSupplierDetail,
+          accessLevel: "anonymous_locked",
+          requestId: "remote-profile-evidence-test",
+        }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      ));
+
+      renderProfile(remoteSupplierDetail.id);
+
+      expect((await screen.findAllByText(/Backend salmon case/)).length).toBeGreaterThan(0);
+      expect(screen.getAllByText("DAP Backend Port").length).toBeGreaterThan(0);
+      expect(screen.getByText("77 t")).toBeInTheDocument();
+      await waitFor(() => {
+        const faq = document.getElementById(`faq-jsonld-${remoteSupplierDetail.id}`);
+        const json = JSON.parse(faq?.textContent ?? "{}");
+        expect(json.mainEntity?.[0]?.acceptedAnswer?.text).toMatch(/from 12 tons per SKU/i);
+      });
     });
 
     it("при ошибке self-hosted API не подставляет локальный fallback-профиль", async () => {

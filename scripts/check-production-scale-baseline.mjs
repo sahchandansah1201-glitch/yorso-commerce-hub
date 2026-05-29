@@ -256,6 +256,7 @@ const phase3bSupplierAccessSupabaseFallbackRemoval = read("docs/backend/phase-3b
 const phase3cProviderReferenceToolingRetirement = read("docs/backend/phase-3c-provider-reference-tooling-retirement.md");
 const phase4aSupplierDirectorySourceOfTruthAudit = read("docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md");
 const phase4bSupplierProfileDossierCompleteness = read("docs/backend/phase-4b-supplier-profile-dossier-completeness.md");
+const phase4cSupplierProfileEvidenceBlocks = read("docs/backend/phase-4c-supplier-profile-evidence-blocks.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -289,6 +290,7 @@ const registrationVerificationCodePolicyMigration = read("packages/db/migrations
 const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_password_recovery.sql");
 const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql");
 const supplierProfileDossierFactsMigration = read("packages/db/migrations/0031_supplier_profile_dossier_facts.sql");
+const supplierProfileEvidenceBlocksMigration = read("packages/db/migrations/0032_supplier_profile_evidence_blocks.sql");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
 const authPasswordRecoveryCleanupScheduler = read("apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts");
@@ -604,9 +606,13 @@ for (const marker of [
   "Supabase, Firebase, Appwrite, Clerk",
   "third-party application backends must not be production dependencies",
   "Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness",
+  "Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks",
   "productionFacts",
   "logisticsFacts",
+  "shipmentCases",
+  "faqItems",
   "0031_supplier_profile_dossier_facts",
+  "0032_supplier_profile_evidence_blocks",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -2968,12 +2974,31 @@ for (const marker of [
   requireText("docs/backend/phase-4b-supplier-profile-dossier-completeness.md", phase4bSupplierProfileDossierCompleteness, marker);
 }
 for (const marker of [
+  "Backend Phase 4C",
+  "Supplier Profile Backend-Owned Evidence Blocks",
+  "shipmentCases",
+  "faqItems",
+  "Plan / Fact",
+  "No frontend hash-based shipment/FAQ synthesis remains",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4c-supplier-profile-evidence-blocks.md", phase4cSupplierProfileEvidenceBlocks, marker);
+}
+for (const marker of [
   "Backend Phase 4B",
   "production_facts jsonb not null",
   "logistics_facts jsonb not null",
   "yorso_suppliers_production_facts_object",
 ]) {
   requireText("packages/db/migrations/0031_supplier_profile_dossier_facts.sql", supplierProfileDossierFactsMigration, marker);
+}
+for (const marker of [
+  "Backend Phase 4C",
+  "shipment_cases jsonb not null",
+  "profile_faq_items jsonb not null",
+  "yorso_suppliers_shipment_cases_array",
+]) {
+  requireText("packages/db/migrations/0032_supplier_profile_evidence_blocks.sql", supplierProfileEvidenceBlocksMigration, marker);
 }
 for (const marker of [
   "PasswordRecoveryDeliveryWorker",

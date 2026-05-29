@@ -321,12 +321,38 @@ describe("self-hosted account/company contracts", () => {
         containers: ["20' Reefer", "40' Reefer HC"],
         tempRange: "-18 C ... -22 C",
       },
+      shipmentCases: [
+        {
+          id: "case-contract-1",
+          titleKey: "supplier_cases_caseTitle_de",
+          dateISO: "2026-04-11",
+          destinationKey: "supplier_cases_destination_de",
+          product: "Atlantic Salmon",
+          volumeTons: 24,
+          incoterm: "CFR Hamburg",
+          buyerTypeKey: "supplier_cases_buyerType_retail",
+          notesKey: "supplier_cases_notes_de",
+          photoCaptionKeys: ["supplier_cases_photoCaption_loading"],
+        },
+      ],
+      faqItems: [
+        {
+          qKey: "supplier_faq_q1",
+          aKey: "supplier_faq_a1",
+          params: { n: 2 },
+        },
+      ],
       updatedAt: "2026-05-14T00:00:00.000Z",
     });
 
     expect(record.companyName).toBe("Contract Salmon AS");
     expect(record.productionFacts.dailyTons).toBe(64);
     expect(record.logisticsFacts.incoterms).toEqual(["FCA", "CIF"]);
+    expect(record.shipmentCases[0]).toMatchObject({
+      product: "Atlantic Salmon",
+      volumeTons: 24,
+    });
+    expect(record.faqItems[0].params).toEqual({ n: 2 });
     expect(
       supplierDirectoryItemSchema.parse({
         ...record,
@@ -350,6 +376,18 @@ describe("self-hosted account/company contracts", () => {
         incoterms: ["FCA", "CIF"],
         minBatchTons: 2,
       },
+      shipmentCases: [
+        {
+          product: "Atlantic Salmon",
+          incoterm: "CFR Hamburg",
+        },
+      ],
+      faqItems: [
+        {
+          qKey: "supplier_faq_q1",
+          params: { n: 2 },
+        },
+      ],
       accessLevel: "anonymous_locked",
     });
   });

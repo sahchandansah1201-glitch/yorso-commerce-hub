@@ -19,6 +19,10 @@ import type {
   SupplierLogisticsFacts,
   SupplierProductionFacts,
 } from "@/lib/supplier-dossier-facts";
+import type {
+  SupplierFaqItem,
+  SupplierShipmentCase,
+} from "@/lib/supplier-evidence-blocks";
 
 export type SupplierType =
   | "producer"
@@ -101,6 +105,10 @@ export interface MockSupplier {
   productionFacts?: SupplierProductionFacts;
   /** Published logistics and delivery facts owned by supplier-directory API when configured. */
   logisticsFacts?: SupplierLogisticsFacts;
+  /** Published shipment evidence blocks owned by supplier-directory API when configured. */
+  shipmentCases?: SupplierShipmentCase[];
+  /** Published profile FAQ blocks owned by supplier-directory API when configured. */
+  faqItems?: SupplierFaqItem[];
 
   // ----- contact channels (gated by UI) -----
   website?: string;

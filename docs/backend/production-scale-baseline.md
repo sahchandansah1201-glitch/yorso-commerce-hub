@@ -5454,6 +5454,70 @@ Marker: 0031_supplier_profile_dossier_facts.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks
+
+Phase 4C moves supplier profile shipment evidence and FAQ blocks into the
+self-hosted supplier directory record. `/suppliers/:supplierId` renders
+`shipmentCases` and `faqItems` from `/v1/suppliers/:supplierId`; local preview
+helpers are explicitly limited to API-disabled preview mode.
+
+Expected read/write profile:
+
+- No new public route, polling loop or write path is introduced.
+- Profile reads remain one `GET /v1/suppliers/:supplierId` request per detail
+  page, with shipment evidence and FAQ blocks included in the existing supplier
+  payload.
+- Future writes to these blocks belong to supplier owner/admin operations, not
+  to the public buyer profile page.
+
+Cache, queue and backpressure strategy:
+
+- No queue, scheduler or worker is added.
+- Existing HTTP/API backpressure remains the scaling boundary for supplier
+  detail reads.
+- Bounded contract fields prevent unbounded profile payload growth:
+  `shipmentCases` caps entries, i18n keys, product labels and photo captions;
+  `faqItems` caps entries, keys and interpolation params.
+
+Database indexing and pagination strategy:
+
+- Migration `0032_supplier_profile_evidence_blocks` adds bounded JSONB array
+  fields to `yorso_suppliers_directory`.
+- No new list filter or sort is introduced, so supplier list pagination still
+  relies on `0005_supplier_directory_search_scaling` and
+  `0009_supplier_directory_pagination_sort`.
+- Detail reads continue to use supplier id lookup plus publication status.
+
+Failure mode and graceful degradation:
+
+- Configured API failures keep Phase 4A fail-closed behavior and do not fall
+  back to local profile synthesis.
+- Legacy rows use empty evidence/FAQ arrays until backfilled, avoiding false
+  frontend-generated evidence.
+- API-disabled local preview remains separate through explicit local preview
+  helpers.
+
+Observability and load-test plan:
+
+- Release validation must include `test:supplier-directory-frontend`,
+  `test:backend-contract`, `test:db-migrations`, `test:db-contract`,
+  `check:self-hosted-api` and `check:production-scale-baseline`.
+- Load tests should include locked and qualified supplier profile detail reads
+  with the enlarged supplier payload.
+- Future write paths must add audit events and metrics before release.
+
+Validation:
+
+- `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx`.
+
+Marker: Backend Phase 4C.
+Marker: Supplier Profile Backend-Owned Evidence Blocks.
+Marker: shipmentCases.
+Marker: faqItems.
+Marker: 0032_supplier_profile_evidence_blocks.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
