@@ -6,7 +6,9 @@ import type {
   SupplierDirectoryRecord,
   SupplierDirectorySortBy,
   SupplierDirectorySortDirection,
+  SupplierLogisticsFacts,
   SupplierProductFocus,
+  SupplierProductionFacts,
   SupplierType,
 } from "../../../../../packages/contracts/dist/index.js";
 
@@ -30,6 +32,28 @@ const preview = (name: string, species: string, form: string, image: string): Su
   species,
   form,
   image,
+});
+const productionFacts = (
+  dailyTons: number,
+  lines: number,
+  coldStorageT: number,
+  blastFreezerT: number,
+  staff: number,
+): SupplierProductionFacts => ({ dailyTons, lines, coldStorageT, blastFreezerT, staff });
+const logisticsFacts = (
+  incoterms: string[],
+  transitDaysMin: number,
+  transitDaysMax: number,
+  minBatchTons: number,
+  containers: string[],
+  tempRange: string,
+): SupplierLogisticsFacts => ({
+  incoterms,
+  transitDaysMin,
+  transitDaysMax,
+  minBatchTons,
+  containers,
+  tempRange,
 });
 
 export const demoSupplierRecords: SupplierDirectoryRecord[] = [
@@ -61,6 +85,8 @@ export const demoSupplierRecords: SupplierDirectoryRecord[] = [
       preview("Salmon HOG 4-5 kg", "Atlantic Salmon", "HOG", "/offers/salmon.webp"),
       preview("Salmon fillet trim D", "Atlantic Salmon", "Fillet", "/images/salmon-fillet.jpg"),
     ],
+    productionFacts: productionFacts(36, 5, 700, 45, 130),
+    logisticsFacts: logisticsFacts(["FCA", "CIF", "DAP"], 11, 18, 2, ["20' Reefer", "40' Reefer HC"], "-18 C ... -22 C"),
     website: "https://example-nordfjord.no",
     whatsapp: "+47 555 0114",
     updatedAt: "2026-05-14T00:00:00.000Z",
@@ -93,6 +119,8 @@ export const demoSupplierRecords: SupplierDirectoryRecord[] = [
       preview("Cod fillet 4-6 oz", "Cod", "Fillet", "/offers/cod.webp"),
       preview("Pollock blocks 16.5 lb", "Pollock", "Blocks", "/offers/cod.webp"),
     ],
+    productionFacts: productionFacts(42, 6, 1000, 55, 170),
+    logisticsFacts: logisticsFacts(["FOB", "CFR", "CIF"], 16, 23, 3, ["40' Reefer HC"], "-18 C ... -22 C"),
     website: "https://example-qingdaooh.com",
     whatsapp: "+86 532 0207",
     updatedAt: "2026-05-14T00:00:00.000Z",
@@ -125,6 +153,8 @@ export const demoSupplierRecords: SupplierDirectoryRecord[] = [
       preview("Vannamei HOSO 30/40", "Vannamei Shrimp", "HOSO", "/offers/shrimp.webp"),
       preview("Vannamei HLSO 21/25", "Vannamei Shrimp", "HLSO", "/offers/shrimp.webp"),
     ],
+    productionFacts: productionFacts(29, 4, 600, 40, 110),
+    logisticsFacts: logisticsFacts(["FOB", "CFR", "CIF"], 14, 21, 2, ["40' Reefer HC"], "-18 C ... -22 C"),
     website: "https://example-pacificblue.ec",
     whatsapp: "+593 4 0051",
     updatedAt: "2026-05-14T00:00:00.000Z",
@@ -157,6 +187,8 @@ export const demoSupplierRecords: SupplierDirectoryRecord[] = [
       preview("Yellowfin tuna loins", "Yellowfin Tuna", "Loins", "/offers/tuna.webp"),
       preview("Tuna saku blocks", "Yellowfin Tuna", "Saku", "/offers/tuna.webp"),
     ],
+    productionFacts: productionFacts(24, 4, 500, 35, 95),
+    logisticsFacts: logisticsFacts(["FCA", "FOB", "CIF"], 9, 16, 1, ["20' Reefer", "40' Reefer HC"], "-18 C ... -22 C"),
     website: "https://example-balituna.id",
     whatsapp: "+62 361 0044",
     updatedAt: "2026-05-14T00:00:00.000Z",

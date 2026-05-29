@@ -133,6 +133,21 @@ const remoteSupplierDetail = {
   ],
   website: null,
   whatsapp: null,
+  productionFacts: {
+    dailyTons: 91,
+    lines: 7,
+    coldStorageT: 1400,
+    blastFreezerT: 95,
+    staff: 260,
+  },
+  logisticsFacts: {
+    incoterms: ["DAP", "CIF"],
+    transitDaysMin: 20,
+    transitDaysMax: 28,
+    minBatchTons: 12,
+    containers: ["Backend reefer"],
+    tempRange: "-20 C backend-owned",
+  },
   updatedAt: "2026-05-14T00:00:00.000Z",
   accessLevel: "anonymous_locked",
 };
@@ -222,6 +237,36 @@ describe("SupplierProfile · access gating", () => {
       );
       expect((await screen.findAllByText(remoteSupplierDetail.maskedName)).length).toBeGreaterThan(0);
       expect(document.body.textContent ?? "").not.toContain("Remote Legal Supplier AS");
+    });
+
+    it("рендерит production/logistics dossier facts из self-hosted API, а не пересчитывает их на клиенте", async () => {
+      vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+      const fetchMock = vi.fn(async (_input: RequestInfo | URL) =>
+        new Response(JSON.stringify({
+          ok: true,
+          supplier: remoteSupplierDetail,
+          accessLevel: "anonymous_locked",
+          requestId: "remote-profile-dossier-test",
+        }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+      vi.stubGlobal("fetch", fetchMock);
+
+      renderProfile(remoteSupplierDetail.id);
+
+      expect((await screen.findAllByText(remoteSupplierDetail.maskedName)).length).toBeGreaterThan(0);
+      expect(await screen.findByText("91 t / day")).toBeInTheDocument();
+      expect(screen.getByText("7")).toBeInTheDocument();
+      expect(screen.getByText("around 260")).toBeInTheDocument();
+      expect(screen.getByText("1400 t simultaneous storage")).toBeInTheDocument();
+      expect(screen.getByText("95 t / day")).toBeInTheDocument();
+      expect(screen.getByText("DAP · CIF")).toBeInTheDocument();
+      expect(screen.getByText("from 12 t / SKU")).toBeInTheDocument();
+      expect(screen.getByText("20–28 days")).toBeInTheDocument();
+      expect(screen.getByText("Backend reefer")).toBeInTheDocument();
+      expect(screen.getByText("-20 C backend-owned")).toBeInTheDocument();
     });
 
     it("при ошибке self-hosted API не подставляет локальный fallback-профиль", async () => {

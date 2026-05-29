@@ -306,10 +306,27 @@ describe("self-hosted account/company contracts", () => {
       productCatalogPreview: [{ name: "Salmon HOG", species: "Atlantic Salmon", form: "HOG", image: "/offers/salmon.webp" }],
       website: "https://supplier.example",
       whatsapp: "+47 555 000",
+      productionFacts: {
+        dailyTons: 64,
+        lines: 5,
+        coldStorageT: 1200,
+        blastFreezerT: 80,
+        staff: 180,
+      },
+      logisticsFacts: {
+        incoterms: ["FCA", "CIF"],
+        transitDaysMin: 7,
+        transitDaysMax: 14,
+        minBatchTons: 2,
+        containers: ["20' Reefer", "40' Reefer HC"],
+        tempRange: "-18 C ... -22 C",
+      },
       updatedAt: "2026-05-14T00:00:00.000Z",
     });
 
     expect(record.companyName).toBe("Contract Salmon AS");
+    expect(record.productionFacts.dailyTons).toBe(64);
+    expect(record.logisticsFacts.incoterms).toEqual(["FCA", "CIF"]);
     expect(
       supplierDirectoryItemSchema.parse({
         ...record,
@@ -325,6 +342,14 @@ describe("self-hosted account/company contracts", () => {
     ).toMatchObject({
       maskedName: "Norwegian salmon supplier · CT-001",
       companyName: null,
+      productionFacts: {
+        dailyTons: 64,
+        lines: 5,
+      },
+      logisticsFacts: {
+        incoterms: ["FCA", "CIF"],
+        minBatchTons: 2,
+      },
       accessLevel: "anonymous_locked",
     });
   });

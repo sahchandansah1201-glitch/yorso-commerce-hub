@@ -1485,3 +1485,36 @@ Required runtime smoke markers:
 - `admin_incidents_trend_action_queue_bulk=ok`;
 - `admin_incidents_trend_action_queue_note_hygiene_guard=ok`;
 - `smoke:e2e:admin-incident-trend-actions`.
+
+## Backend Phase 4B Supplier Profile Dossier Facts Validation
+
+Run:
+
+```bash
+npm run test:supplier-directory-frontend
+npm run test:backend-contract
+npm run test:db-migrations
+npm run test:db-contract
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `productionFacts` and `logisticsFacts` are part of the typed
+  supplier-directory contract.
+- `MemorySupplierRepository` and `PostgresSupplierRepository` return those
+  fields from the self-hosted supplier record.
+- `SupplierProfile.tsx` renders production/logistics dossier sections from
+  `supplier?.productionFacts` and `supplier?.logisticsFacts`.
+- API-disabled preview facts are generated only by explicit local preview
+  helpers, not by page-level profile synthesis.
+- Migration `0031_supplier_profile_dossier_facts` exists and is guarded.
+
+Required markers:
+
+- `Backend Phase 4B`;
+- `Supplier Profile Backend-Owned Dossier Completeness`;
+- `No frontend hash-based production/logistics synthesis remains`;
+- `production_facts`;
+- `logistics_facts`.

@@ -37,6 +37,21 @@ const lockedApiItem = (supplier = mockSuppliers[0]): SupplierDirectoryItem => ({
   productCatalogPreview: supplier.productCatalogPreview.slice(0, 3),
   website: null,
   whatsapp: null,
+  productionFacts: {
+    dailyTons: 64,
+    lines: 5,
+    coldStorageT: 1200,
+    blastFreezerT: 80,
+    staff: 180,
+  },
+  logisticsFacts: {
+    incoterms: ["FCA", "CIF"],
+    transitDaysMin: 7,
+    transitDaysMax: 14,
+    minBatchTons: 2,
+    containers: ["20' Reefer", "40' Reefer HC"],
+    tempRange: "-18 C ... -22 C",
+  },
   updatedAt: "2026-05-14T00:00:00.000Z",
   accessLevel: "anonymous_locked",
 });
@@ -52,6 +67,11 @@ describe("supplier directory API view shaping", () => {
     expect(supplier.totalProductsCount).toBe(3);
     expect(supplier.website).toBeUndefined();
     expect(supplier.whatsapp).toBeUndefined();
+    expect(supplier.productionFacts).toMatchObject({ dailyTons: 64, staff: 180 });
+    expect(supplier.logisticsFacts).toMatchObject({
+      incoterms: ["FCA", "CIF"],
+      tempRange: "-18 C ... -22 C",
+    });
   });
 
   it("localizes API-shaped suppliers with the same i18n layer as local mocks", () => {

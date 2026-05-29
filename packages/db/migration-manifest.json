@@ -360,6 +360,17 @@
       "dependsOn": [
         "0029_auth_password_recovery"
       ]
+    },
+    {
+      "id": "0031_supplier_profile_dossier_facts",
+      "file": "migrations/0031_supplier_profile_dossier_facts.sql",
+      "description": "Move supplier profile production and logistics dossier facts into the self-hosted supplier directory record.",
+      "ownedTables": [
+        "yorso_suppliers_directory"
+      ],
+      "dependsOn": [
+        "0030_auth_password_recovery_abuse_cleanup"
+      ]
     }
   ]
 }

@@ -6,7 +6,9 @@ import type {
   SupplierDeliveryCountry,
   SupplierDirectoryQuery,
   SupplierDirectoryRecord,
+  SupplierLogisticsFacts,
   SupplierProductFocus,
+  SupplierProductionFacts,
   SupplierType,
 } from "../../../../../packages/contracts/dist/index.js";
 import type { SupplierRepository, SupplierRepositoryListOptions } from "./repository.js";
@@ -47,12 +49,29 @@ interface SupplierRow extends Record<string, unknown> {
   delivery_countries_total: number;
   total_products_count: number;
   product_catalog_preview: SupplierCatalogPreviewItem[] | null;
+  production_facts: SupplierProductionFacts | null;
+  logistics_facts: SupplierLogisticsFacts | null;
   website: string | null;
   whatsapp: string | null;
   updated_at: Date | string;
 }
 
 const ensureIso = (value: Date | string) => (value instanceof Date ? value.toISOString() : new Date(value).toISOString());
+const emptyProductionFacts = (): SupplierProductionFacts => ({
+  dailyTons: 0,
+  lines: 0,
+  coldStorageT: 0,
+  blastFreezerT: 0,
+  staff: 0,
+});
+const emptyLogisticsFacts = (): SupplierLogisticsFacts => ({
+  incoterms: ["FCA"],
+  transitDaysMin: 0,
+  transitDaysMax: 0,
+  minBatchTons: 0,
+  containers: ["TBC"],
+  tempRange: "TBC",
+});
 
 function mapSupplier(row: SupplierRow): SupplierDirectoryRecord {
   return {
@@ -79,6 +98,8 @@ function mapSupplier(row: SupplierRow): SupplierDirectoryRecord {
     deliveryCountriesTotal: Number(row.delivery_countries_total),
     totalProductsCount: Number(row.total_products_count),
     productCatalogPreview: row.product_catalog_preview ?? [],
+    productionFacts: row.production_facts ?? emptyProductionFacts(),
+    logisticsFacts: row.logistics_facts ?? emptyLogisticsFacts(),
     website: row.website,
     whatsapp: row.whatsapp,
     updatedAt: ensureIso(row.updated_at),

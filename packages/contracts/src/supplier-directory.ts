@@ -48,6 +48,26 @@ export const supplierCertificationBadgeSchema = z.object({
   logo: z.string().max(260).nullable(),
 });
 
+export const supplierProductionFactsSchema = z.object({
+  dailyTons: z.number().int().min(0).max(100000),
+  lines: z.number().int().min(0).max(10000),
+  coldStorageT: z.number().int().min(0).max(1000000),
+  blastFreezerT: z.number().int().min(0).max(100000),
+  staff: z.number().int().min(0).max(1000000),
+});
+
+export const supplierLogisticsFactsSchema = z.object({
+  incoterms: z.array(z.string().min(2).max(12)).min(1).max(12),
+  transitDaysMin: z.number().int().min(0).max(365),
+  transitDaysMax: z.number().int().min(0).max(365),
+  minBatchTons: z.number().int().min(0).max(100000),
+  containers: z.array(z.string().min(1).max(80)).min(1).max(12),
+  tempRange: z.string().min(1).max(80),
+}).refine((facts) => facts.transitDaysMax >= facts.transitDaysMin, {
+  message: "transitDaysMax must be greater than or equal to transitDaysMin",
+  path: ["transitDaysMax"],
+});
+
 export const supplierDirectoryRecordSchema = z.object({
   id: z.string().min(1).max(80),
   companyName: z.string().min(2).max(180),
@@ -72,6 +92,8 @@ export const supplierDirectoryRecordSchema = z.object({
   deliveryCountriesTotal: z.number().int().min(0).max(1000),
   totalProductsCount: z.number().int().min(0).max(100000),
   productCatalogPreview: z.array(supplierCatalogPreviewItemSchema).max(12),
+  productionFacts: supplierProductionFactsSchema,
+  logisticsFacts: supplierLogisticsFactsSchema,
   website: z.string().url().nullable(),
   whatsapp: z.string().min(5).max(80).nullable(),
   updatedAt: z.string().datetime(),
@@ -140,6 +162,8 @@ export type SupplierDirectoryResponseSignal = z.infer<typeof supplierResponseSig
 export type SupplierDirectorySortBy = z.infer<typeof supplierDirectorySortBySchema>;
 export type SupplierDirectorySortDirection = z.infer<typeof supplierDirectorySortDirectionSchema>;
 export type SupplierDocumentReadiness = z.infer<typeof supplierDocumentReadinessSchema>;
+export type SupplierLogisticsFacts = z.infer<typeof supplierLogisticsFactsSchema>;
 export type SupplierProductFocus = z.infer<typeof supplierProductFocusSchema>;
+export type SupplierProductionFacts = z.infer<typeof supplierProductionFactsSchema>;
 export type SupplierType = z.infer<typeof supplierTypeSchema>;
 export type SupplierVerificationLevel = z.infer<typeof supplierVerificationLevelSchema>;

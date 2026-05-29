@@ -186,7 +186,7 @@ starts.
 | `/offers` | self-hosted catalog API when configured; API-disabled local fixture preview; no Supabase fallback | offer catalog API, public and qualified views | Phase 3A closed |
 | `/offers/:id` | self-hosted catalog API when configured; API-disabled local fixture preview; no Supabase fallback | offer detail API, documents, related offers | Phase 3A closed |
 | `/suppliers` | self-hosted supplier directory API when configured; API-disabled mock preview only | supplier directory public/qualified views | Phase 4A source-of-truth audit |
-| `/suppliers/:supplierId` | self-hosted supplier detail API when configured; API-disabled mock preview only | supplier profile public/qualified/owner views | Phase 4A source-of-truth audit |
+| `/suppliers/:supplierId` | self-hosted supplier detail API when configured; API-disabled mock preview only; production/logistics dossier facts from backend-owned `productionFacts` / `logisticsFacts` | supplier profile public/qualified/owner views, backend-owned dossier facts | Phase 4B dossier facts |
 | Supplier access panel | self-hosted access API when configured; API-disabled local preview; no Supabase fallback | access request workflow, grants, notifications and audit | Phase 3B closed |
 | Catalog request form | sessionStorage mock | RFQ request API | P1 |
 | Blog | static data files | content source, SEO metadata, sitemap/RSS | P2 |
@@ -538,6 +538,8 @@ Tasks:
 - connect `/suppliers/:supplierId`;
 - keep configured API failures fail-closed without substituting mock supplier
   rows or fallback profiles;
+- keep production/logistics dossier facts in the supplier directory contract/API,
+  not in frontend hash-based profile synthesis;
 - keep locked DOM free of hidden real values;
 - add supplier owner view for own company.
 
@@ -705,13 +707,11 @@ Required tests:
 
 Current known quality risks from audit:
 
-- full `npm test` is failing;
-- `npm run lint` is failing;
-- SupplierProfile has a hook-order lint error;
-- some i18n tests are outdated or catching regressions;
-- supplier row snapshots need review after layout changes.
-
-These should be fixed before serious backend expansion.
+- supplier legal/compliance details, shipment evidence and FAQ source still
+  need a backend-owned evidence pass;
+- supplier owner/admin editing is not implemented yet;
+- API-disabled `mockSuppliers` preview still exists for local/Lovable preview
+  and should be retired only by a separate demo-mode decision.
 
 ## Data Migration Rules
 

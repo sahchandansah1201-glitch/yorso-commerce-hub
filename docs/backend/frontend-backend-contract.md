@@ -70,7 +70,7 @@ mistaken for production data surfaces.
 | `/offers` | Procurement catalog workspace | self-hosted `catalog-api` when configured; API-disabled local fixture preview; local UI state | offer catalog API, public/qualified views, backend filters | Phase 3A catalog fallback removed |
 | `/offers/:id` | Offer decision page | self-hosted `catalog-api` when configured; API-disabled local fixture preview | offer detail API, documents, supplier trust, related offers | Phase 3A catalog fallback removed |
 | `/suppliers` | Supplier directory | self-hosted supplier directory API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; session shortlist | supplier directory API, public/qualified views, shortlist API | Phase 4A source-of-truth audit |
-| `/suppliers/:supplierId` | Supplier dossier | self-hosted supplier detail API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; local access request bridge | supplier profile API, supplier offers API, access workflow | Phase 4A source-of-truth audit |
+| `/suppliers/:supplierId` | Supplier dossier | self-hosted supplier detail API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; local access request bridge; production/logistics facts from backend-owned `productionFacts` / `logisticsFacts` | supplier profile API, supplier offers API, backend-owned dossier facts, access workflow | Phase 4B dossier facts |
 | `/about` | Public company/trust page | static info page content, route-owned SEO | CMS-ready static page or local content source with route SEO | P3 |
 | `/contact` | Public contact/trust page | static info page content, route-owned SEO | CMS-ready contact content, support/contact routing later | P3 |
 | `/terms` | Legal page | static legal copy, route-owned SEO | versioned legal document source | P3 |
@@ -115,7 +115,7 @@ mistaken for production data surfaces.
 |---|---|---|
 | `src/data/mockAccount.ts` | account fixtures | `profiles`, `companies`, `company_branches`, `company_products`, `company_meta_regions`, `notification_preferences` |
 | `src/lib/account-store.ts` | API-disabled account preview cache only after Phase 1 | `account-api.ts` using self-hosted YORSO API as production authority |
-| `src/data/mockSuppliers.ts` | supplier directory/profile fixtures | `supplier_profiles`, `supplier_certifications`, `supplier_delivery_markets`, `supplier_documents` |
+| `src/data/mockSuppliers.ts` | API-disabled supplier directory/profile preview fixtures | `supplier_profiles`, `supplier_certifications`, `supplier_delivery_markets`, `supplier_documents`, `production_facts`, `logistics_facts` |
 | `src/data/mockOffers.ts` | catalog and offer fixtures | `products`, `offers`, `offer_prices`, `offer_media`, `offer_delivery_terms`, `offer_documents` |
 | `src/data/mockIntelligence.ts` | price/news/doc readiness fixtures | market intelligence tables or external ingestion later |
 | `src/lib/supplier-access-api.ts` / `src/lib/supplier-access-requests.ts` | self-hosted access API when configured; API-disabled local preview only; no Supabase fallback | `supplier_access_requests`, `access_grants`, `access_events`, `access_notifications` |
@@ -394,6 +394,8 @@ Locked response:
 - dossier structure;
 - safe placeholders;
 - non-sensitive trust summary;
+- published `productionFacts`;
+- published `logisticsFacts`;
 - gated access panel;
 - safe catalog preview.
 
@@ -422,6 +424,8 @@ Acceptance:
 - supplier offers are truly tied to supplier id;
 - configured deployments do not substitute a local fallback profile when
   `/v1/suppliers/:supplierId` fails;
+- production/logistics dossier facts are read from the self-hosted supplier
+  record and are not synthesized inside `SupplierProfile.tsx`;
 - access request panel uses backend statuses;
 - canonical and SEO rules are defined before public indexing.
 

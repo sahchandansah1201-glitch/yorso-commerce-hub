@@ -512,41 +512,6 @@ const TrustFactsBlock = ({
   );
 };
 
-/* ===== Mock-данные для новых SEO-вкладок (детерминированно от id) ===== */
-
-const hashSeed = (s: string) => {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
-};
-
-const buildProductionFacts = (supplier: MockSupplier) => {
-  const seed = hashSeed(supplier.id);
-  const dailyTons = 8 + (seed % 35);
-  const lines = 2 + (seed % 4);
-  const coldStorageT = 200 + (seed % 9) * 100;
-  const blastFreezerT = 20 + (seed % 8) * 5;
-  const staff = 40 + (seed % 12) * 10;
-  return { dailyTons, lines, coldStorageT, blastFreezerT, staff };
-};
-
-const buildLogisticsFacts = (supplier: MockSupplier) => {
-  const seed = hashSeed(supplier.id);
-  const incoterms = ["FCA", "CFR", "CIF", "FOB", "DAP"];
-  const chosen = [incoterms[seed % 5], incoterms[(seed + 2) % 5], incoterms[(seed + 4) % 5]];
-  const transit = 5 + (seed % 14);
-  const minBatch = 1 + (seed % 4);
-  const containers = ["20' Reefer", "40' Reefer HC"];
-  return {
-    incoterms: Array.from(new Set(chosen)),
-    transitDaysMin: transit,
-    transitDaysMax: transit + 7,
-    minBatchTons: minBatch,
-    containers,
-    tempRange: "−18 °C … −22 °C",
-  };
-};
-
 /* Shipment-кейсы и FAQ собираются key-based в @/lib/supplier-content
  * (buildShipmentCasesI18n / buildFaqItemsI18n). Старые хардкод-строки
  * на русском удалены вместе с типом ShipmentCase — теперь рендерим
@@ -609,8 +574,8 @@ const SupplierProfile = () => {
     return getOffersForSupplier(baseSupplier.country, species, 4);
   }, [baseSupplier]);
 
-  const production = useMemo(() => (supplier ? buildProductionFacts(supplier) : null), [supplier]);
-  const logistics = useMemo(() => (supplier ? buildLogisticsFacts(supplier) : null), [supplier]);
+  const production = supplier?.productionFacts ?? null;
+  const logistics = supplier?.logisticsFacts ?? null;
 
   // Локализованное название продукта для подстановки в кейсы (поле product
   // в карточке кейса). Берём из productFocus уже локализованного supplier'а.

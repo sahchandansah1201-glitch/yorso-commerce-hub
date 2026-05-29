@@ -231,10 +231,13 @@ const requiredFiles = [
   "src/components/suppliers/SupplierAccessRefreshBanner.tsx",
   "src/components/suppliers/SupplierAccessRefreshBanner.test.tsx",
   "src/components/landing/Header.tsx",
+  "src/lib/supplier-dossier-facts.ts",
   "src/lib/supplier-directory-api.ts",
+  "src/lib/supplier-directory-view.ts",
   "src/lib/supplier-directory-api.test.ts",
   "src/lib/use-supplier-directory.ts",
   "src/lib/use-supplier-directory.test.tsx",
+  "src/pages/SupplierProfile.tsx",
   "docs/backend/self-hosted-auth-api-smoke.md",
   "docs/backend/self-hosted-account-api-smoke.md",
   "docs/backend/self-hosted-offer-detail-smoke.md",
@@ -254,6 +257,7 @@ const requiredFiles = [
   "docs/backend/phase-3a-catalog-supabase-fallback-removal.md",
   "docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md",
   "docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md",
+  "docs/backend/phase-4b-supplier-profile-dossier-completeness.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -267,6 +271,7 @@ const requiredFiles = [
   "packages/db/migrations/0028_registration_verification_code_policy.sql",
   "packages/db/migrations/0029_auth_password_recovery.sql",
   "packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql",
+  "packages/db/migrations/0031_supplier_profile_dossier_facts.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
@@ -457,6 +462,7 @@ const adminIncidentTrendActionQueueMigration = read("packages/db/migrations/0025
 const registrationVerificationCodePolicyMigration = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
 const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_password_recovery.sql");
 const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql");
+const supplierProfileDossierFactsMigration = read("packages/db/migrations/0031_supplier_profile_dossier_facts.sql");
 const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
@@ -480,6 +486,7 @@ const phase2jAuthSurfaceClosureAudit = read("docs/backend/phase-2j-auth-surface-
 const phase3aCatalogSupabaseFallbackRemoval = read("docs/backend/phase-3a-catalog-supabase-fallback-removal.md");
 const phase3bSupplierAccessSupabaseFallbackRemoval = read("docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md");
 const phase4aSupplierDirectorySourceOfTruthAudit = read("docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md");
+const phase4bSupplierProfileDossierCompleteness = read("docs/backend/phase-4b-supplier-profile-dossier-completeness.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -528,8 +535,11 @@ const supplierAccessNotificationCenterTest = read("src/components/suppliers/Supp
 const supplierAccessRefreshBanner = read("src/components/suppliers/SupplierAccessRefreshBanner.tsx");
 const supplierAccessRefreshBannerTest = read("src/components/suppliers/SupplierAccessRefreshBanner.test.tsx");
 const header = read("src/components/landing/Header.tsx");
+const supplierDossierFacts = read("src/lib/supplier-dossier-facts.ts");
 const supplierDirectoryApi = read("src/lib/supplier-directory-api.ts");
+const supplierDirectoryView = read("src/lib/supplier-directory-view.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
+const supplierProfilePage = read("src/pages/SupplierProfile.tsx");
 const authApiSmokeDocs = read("docs/backend/self-hosted-auth-api-smoke.md");
 const supplierProfileDetailE2E = read("e2e/supplier-profile-detail.spec.ts");
 const supplierDirectoryProfileFlowE2E = read("e2e/supplier-directory-profile-flow.spec.ts");
@@ -2787,6 +2797,15 @@ for (const marker of [
   requireText("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql", authPasswordRecoveryAbuseCleanupMigration, marker);
 }
 for (const marker of [
+  "Backend Phase 4B",
+  "production_facts jsonb not null",
+  "logistics_facts jsonb not null",
+  "yorso_suppliers_production_facts_object",
+  "API-owned and safe for locked buyer views",
+]) {
+  requireText("packages/db/migrations/0031_supplier_profile_dossier_facts.sql", supplierProfileDossierFactsMigration, marker);
+}
+for (const marker of [
   "PasswordRecoveryTokenIssuer",
   "createPasswordRecoveryTokenCodec",
   "hashPasswordRecoveryToken",
@@ -2894,6 +2913,17 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md", phase4aSupplierDirectorySourceOfTruthAudit, marker);
+}
+for (const marker of [
+  "Backend Phase 4B",
+  "Supplier Profile Backend-Owned Dossier Completeness",
+  "productionFacts",
+  "logisticsFacts",
+  "Plan / Fact",
+  "No frontend hash-based production/logistics synthesis remains",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4b-supplier-profile-dossier-completeness.md", phase4bSupplierProfileDossierCompleteness, marker);
 }
 for (const marker of [
   "PasswordRecoveryDeliveryWorker",
@@ -3605,8 +3635,12 @@ requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPos
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "from yorso_suppliers_directory");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "publication_status = 'published'");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "certifications_search ilike");
+requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "production_facts");
+requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "logistics_facts");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "interface SupplierRepository");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "class MemorySupplierRepository");
+requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "productionFacts(");
+requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "logisticsFacts(");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers/");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession");
@@ -3689,6 +3723,10 @@ requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryCon
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectorySortBySchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDirectorySortDirectionSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "qualified_unlocked");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierProductionFactsSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierLogisticsFactsSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "productionFacts: supplierProductionFactsSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "logisticsFacts: supplierLogisticsFactsSchema");
 requireText("apps/api/src/modules/auth/session.ts", authSession, "resolveOptionalAccountSession");
 for (const marker of [
   "auth_sign_in=ok",
@@ -3871,6 +3909,9 @@ requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "qualifie
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "ACCOUNT_USER_ID_HEADER");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "ACCOUNT_SESSION_ID_HEADER");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "getApprovedSupplierAccessIds");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "productionFacts");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "logisticsFacts");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "localPreviewSupplierProductionFacts");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSupplierDirectoryList");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSupplierDirectoryDetail");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizeSupplierDirectoryItem");
@@ -3886,6 +3927,13 @@ requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "emptyApi
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "emptyApiDetailState");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "current.source === \"api\" ? current.suppliers : []");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "current.source === \"api\" ? current.supplier : undefined");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localPreviewSupplierProductionFacts");
+requireText("src/lib/supplier-directory-view.ts", supplierDirectoryView, "productionFacts: item.productionFacts");
+requireText("src/lib/supplier-directory-view.ts", supplierDirectoryView, "logisticsFacts: item.logisticsFacts");
+requireText("src/lib/supplier-dossier-facts.ts", supplierDossierFacts, "localPreviewSupplierProductionFacts");
+requireText("src/lib/supplier-dossier-facts.ts", supplierDossierFacts, "localPreviewSupplierLogisticsFacts");
+requireText("src/pages/SupplierProfile.tsx", supplierProfilePage, "supplier?.productionFacts");
+requireText("src/pages/SupplierProfile.tsx", supplierProfilePage, "supplier?.logisticsFacts");
 for (const marker of [
   "Batch #57 browser-level guard",
   "supplier-request-price-access",
@@ -4229,6 +4277,9 @@ forbidText("src/lib/catalog-api.ts", catalogApi, "@/integrations/supabase/client
 forbidText("src/lib/offer-catalog-api.ts", offerCatalogApi, "@/integrations/supabase/client");
 forbidText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "@/integrations/supabase/client");
 forbidText("src/lib/supplier-access-api.ts", supplierAccessApi, "@/integrations/supabase/client");
+forbidText("src/pages/SupplierProfile.tsx", supplierProfilePage, "buildProductionFacts");
+forbidText("src/pages/SupplierProfile.tsx", supplierProfilePage, "buildLogisticsFacts");
+forbidText("src/pages/SupplierProfile.tsx", supplierProfilePage, "hashSeed");
 forbidText("apps/api/src/modules/account/routes.ts", accountRoutes, "x-demo-user-id");
 forbidText("apps/api/src/modules/storage/routes.ts", storageRoutes, "x-demo-user-id");
 forbidText("apps/api/src/server.ts", server, "x-demo-user-id");
@@ -4244,6 +4295,7 @@ console.log("- apps/api exposes health and account-contract endpoints.");
 console.log("- apps/api builds as a standalone Node service.");
 console.log("- Account and file repositories implement self-hosted profile, workspace and document storage.");
 console.log("- Supplier directory API exposes access-shaped supplier discovery without Supabase production coupling.");
+console.log("- Supplier profile production and logistics dossier facts are backend-owned in the supplier directory contract.");
 console.log("- Offer catalog API exposes access-shaped offer discovery without Supabase production coupling.");
 console.log("- Supplier access API exposes request, decision, grant and notification flow without Supabase production coupling.");
 console.log("- Supplier access UX consumes self-hosted request status and approval notifications with local fallback.");

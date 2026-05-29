@@ -5,6 +5,12 @@ import {
   getConfiguredAccountUserId,
 } from "@/lib/account-api";
 import { buyerSession } from "@/lib/buyer-session";
+import {
+  localPreviewSupplierLogisticsFacts,
+  localPreviewSupplierProductionFacts,
+  type SupplierLogisticsFacts,
+  type SupplierProductionFacts,
+} from "@/lib/supplier-dossier-facts";
 import { getApprovedSupplierAccessIds } from "@/lib/supplier-access-requests";
 
 export type SupplierDirectoryAccessLevel = "anonymous_locked" | "registered_locked" | "qualified_unlocked";
@@ -33,6 +39,8 @@ export interface SupplierDirectoryItem {
   deliveryCountriesTotal: number | null;
   totalProductsCount: number | null;
   productCatalogPreview: (typeof mockSuppliers)[number]["productCatalogPreview"];
+  productionFacts: SupplierProductionFacts;
+  logisticsFacts: SupplierLogisticsFacts;
   website: string | null;
   whatsapp: string | null;
   updatedAt: string;
@@ -140,6 +148,8 @@ const shapeMockSupplier = (
     deliveryCountriesTotal: unlocked ? supplier.deliveryCountriesTotal : null,
     totalProductsCount: unlocked ? supplier.totalProductsCount : null,
     productCatalogPreview: unlocked ? supplier.productCatalogPreview : supplier.productCatalogPreview.slice(0, 3),
+    productionFacts: supplier.productionFacts ?? localPreviewSupplierProductionFacts(supplier.id),
+    logisticsFacts: supplier.logisticsFacts ?? localPreviewSupplierLogisticsFacts(supplier.id),
     website: unlocked ? supplier.website ?? null : null,
     whatsapp: unlocked ? supplier.whatsapp ?? null : null,
     updatedAt: "2026-05-14T00:00:00.000Z",

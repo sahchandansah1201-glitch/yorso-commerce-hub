@@ -2,6 +2,10 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { mockSuppliers } from "@/data/mockSuppliers";
 import {
+  localPreviewSupplierLogisticsFacts,
+  localPreviewSupplierProductionFacts,
+} from "@/lib/supplier-dossier-facts";
+import {
   SUPPLIER_ACCESS_CHANGE_EVENT,
   SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY,
 } from "@/lib/supplier-access-requests";
@@ -38,6 +42,8 @@ const apiSupplier = (patch: Partial<SupplierDirectoryItem> = {}): SupplierDirect
     deliveryCountriesTotal: null,
     totalProductsCount: null,
     productCatalogPreview: supplier.productCatalogPreview.slice(0, 3),
+    productionFacts: localPreviewSupplierProductionFacts(supplier.id),
+    logisticsFacts: localPreviewSupplierLogisticsFacts(supplier.id),
     website: null,
     whatsapp: null,
     updatedAt: "2026-05-14T00:00:00.000Z",

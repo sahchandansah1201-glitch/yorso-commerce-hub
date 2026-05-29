@@ -41,6 +41,8 @@ const authPasswordRecoverySql = () =>
   readFileSync("packages/db/migrations/0029_auth_password_recovery.sql", "utf8");
 const authPasswordRecoveryAbuseCleanupSql = () =>
   readFileSync("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql", "utf8");
+const supplierProfileDossierFactsSql = () =>
+  readFileSync("packages/db/migrations/0031_supplier_profile_dossier_facts.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -113,6 +115,17 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_suppliers_directory_verification_level");
     expect(text).toContain("gin_trgm_ops");
     expect(supplierSql()).not.toContain("create extension if not exists pg_trgm");
+  });
+
+  it("adds backend-owned supplier profile dossier facts to the supplier directory record", () => {
+    const text = supplierProfileDossierFactsSql();
+
+    expect(text).toContain("alter table yorso_suppliers_directory");
+    expect(text).toContain("production_facts jsonb not null");
+    expect(text).toContain("logistics_facts jsonb not null");
+    expect(text).toContain("yorso_suppliers_production_facts_object");
+    expect(text).toContain("yorso_suppliers_logistics_facts_object");
+    expect(text).toContain("API-owned and safe for locked buyer views");
   });
 
   it("declares offer catalog tables and search indexes owned by YORSO", () => {
@@ -443,7 +456,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on hosted auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}\n${adminIncidentTrendActionQueueSql()}\n${authPasswordRecoverySql()}\n${authPasswordRecoveryAbuseCleanupSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}\n${adminIncidentTrendActionQueueSql()}\n${authPasswordRecoverySql()}\n${authPasswordRecoveryAbuseCleanupSql()}\n${supplierProfileDossierFactsSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -488,6 +501,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0028_registration_verification_code_policy",
       "0029_auth_password_recovery",
       "0030_auth_password_recovery_abuse_cleanup",
+      "0031_supplier_profile_dossier_facts",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -645,6 +659,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
             "yorso_auth_password_recovery_outbox",
           ],
           dependsOn: ["0029_auth_password_recovery"],
+        }),
+        expect.objectContaining({
+          id: "0031_supplier_profile_dossier_facts",
+          ownedTables: ["yorso_suppliers_directory"],
+          dependsOn: ["0030_auth_password_recovery_abuse_cleanup"],
         }),
       ]),
     );

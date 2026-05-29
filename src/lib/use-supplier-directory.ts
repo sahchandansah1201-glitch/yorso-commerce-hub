@@ -3,6 +3,10 @@ import type { MockSupplier } from "@/data/mockSuppliers";
 import { localizeSupplier } from "@/data/mockSuppliersI18n";
 import type { Language } from "@/i18n/translations";
 import {
+  localPreviewSupplierLogisticsFacts,
+  localPreviewSupplierProductionFacts,
+} from "@/lib/supplier-dossier-facts";
+import {
   createSupplierDirectoryApiClient,
   type SupplierDirectoryAccessLevel,
   type SupplierDirectoryQuery,
@@ -72,6 +76,8 @@ const withSupplierAccessLevel = (
   {
     ...supplier,
     accessLevel: supplierAccessLevel(supplier, accessLevel, approvedSupplierIds),
+    productionFacts: supplier.productionFacts ?? localPreviewSupplierProductionFacts(supplier.id),
+    logisticsFacts: supplier.logisticsFacts ?? localPreviewSupplierLogisticsFacts(supplier.id),
   },
   language,
 );

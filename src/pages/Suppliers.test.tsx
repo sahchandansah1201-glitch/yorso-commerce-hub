@@ -17,6 +17,10 @@ import Suppliers from "@/pages/Suppliers";
 import { mockSuppliers } from "@/data/mockSuppliers";
 import { BUYER_SESSION_STORAGE_KEY } from "@/lib/buyer-session";
 import { setQualified } from "@/lib/access-level";
+import {
+  localPreviewSupplierLogisticsFacts,
+  localPreviewSupplierProductionFacts,
+} from "@/lib/supplier-dossier-facts";
 
 const renderPage = (initialEntry = "/suppliers") =>
   render(
@@ -63,6 +67,8 @@ const apiSupplier = (supplier = mockSuppliers[0]) => ({
   deliveryCountriesTotal: null,
   totalProductsCount: null,
   productCatalogPreview: supplier.productCatalogPreview.slice(0, 3),
+  productionFacts: localPreviewSupplierProductionFacts(supplier.id),
+  logisticsFacts: localPreviewSupplierLogisticsFacts(supplier.id),
   website: null,
   whatsapp: null,
   updatedAt: "2026-05-14T00:00:00.000Z",

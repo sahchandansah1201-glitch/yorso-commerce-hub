@@ -1,6 +1,10 @@
 import { mockSuppliers, type MockSupplier } from "@/data/mockSuppliers";
 import { localizeSupplier } from "@/data/mockSuppliersI18n";
 import type { Language } from "@/i18n/translations";
+import {
+  localPreviewSupplierLogisticsFacts,
+  localPreviewSupplierProductionFacts,
+} from "@/lib/supplier-dossier-facts";
 import type { SupplierDirectoryItem } from "@/lib/supplier-directory-api";
 
 const currentYear = () => new Date().getFullYear();
@@ -43,6 +47,8 @@ export const supplierDirectoryItemToMockSupplier = (
     deliveryCountriesTotal: item.deliveryCountriesTotal ?? deliveryCountries.length,
     totalProductsCount: item.totalProductsCount ?? catalogPreview.length,
     productCatalogPreview: catalogPreview,
+    productionFacts: item.productionFacts,
+    logisticsFacts: item.logisticsFacts,
     ...(unlocked && item.website ? { website: item.website } : {}),
     ...(unlocked && item.whatsapp ? { whatsapp: item.whatsapp } : {}),
   };
@@ -54,4 +60,10 @@ export const localizeSupplierDirectoryItem = (
 ): MockSupplier => localizeSupplier(supplierDirectoryItemToMockSupplier(item), language);
 
 export const localizedMockSuppliers = (language: Language) =>
-  mockSuppliers.map((supplier) => localizeSupplier(supplier, language));
+  mockSuppliers.map((supplier) =>
+    localizeSupplier({
+      ...supplier,
+      productionFacts: supplier.productionFacts ?? localPreviewSupplierProductionFacts(supplier.id),
+      logisticsFacts: supplier.logisticsFacts ?? localPreviewSupplierLogisticsFacts(supplier.id),
+    }, language),
+  );

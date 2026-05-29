@@ -99,6 +99,21 @@ describe("supplier directory repositories", () => {
               product_catalog_preview: [{ name: "Salmon HOG", species: "Atlantic Salmon", form: "HOG", image: "/offers/salmon.webp" }],
               website: "https://supplier.example",
               whatsapp: "+47 000 999",
+              production_facts: {
+                dailyTons: 64,
+                lines: 5,
+                coldStorageT: 1200,
+                blastFreezerT: 80,
+                staff: 180,
+              },
+              logistics_facts: {
+                incoterms: ["FCA", "CIF"],
+                transitDaysMin: 7,
+                transitDaysMax: 14,
+                minBatchTons: 2,
+                containers: ["20' Reefer", "40' Reefer HC"],
+                tempRange: "-18 C ... -22 C",
+              },
               updated_at: new Date("2026-05-14T00:00:00.000Z"),
               total_count: 1,
             },
@@ -126,6 +141,14 @@ describe("supplier directory repositories", () => {
       id: "sup-row",
       companyName: "Supplier Legal Ltd.",
       deliveryCountriesTotal: 8,
+      productionFacts: {
+        dailyTons: 64,
+        staff: 180,
+      },
+      logisticsFacts: {
+        incoterms: ["FCA", "CIF"],
+        minBatchTons: 2,
+      },
     });
     expect(calls[0].sql).toContain("from yorso_suppliers_directory");
     expect(calls[0].sql).toContain("publication_status = 'published'");

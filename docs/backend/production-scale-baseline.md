@@ -5387,6 +5387,73 @@ Marker: no configured supplier prototype fallback.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
+
+Phase 4B moves supplier profile production/logistics dossier facts into the
+self-hosted supplier directory record. `/suppliers/:supplierId` renders
+`productionFacts` and `logisticsFacts` from `/v1/suppliers/:supplierId`; local
+preview helpers are explicitly limited to API-disabled preview mode.
+
+Expected read/write profile:
+
+- No new public route, polling loop or write path is introduced.
+- Profile reads remain one `GET /v1/suppliers/:supplierId` request per detail
+  page, with production/logistics facts included in the existing supplier
+  payload.
+- Future writes to these facts belong to supplier owner/admin operations, not
+  to the public buyer profile page.
+
+Cache, queue and backpressure strategy:
+
+- No queue, scheduler or worker is added.
+- Existing HTTP/API backpressure remains the scaling boundary for supplier
+  detail reads.
+- Bounded contract fields prevent unbounded profile payload growth:
+  `productionFacts` contains numeric capability fields, while `logisticsFacts`
+  caps array and string lengths.
+
+Database indexing and pagination strategy:
+
+- Migration `0031_supplier_profile_dossier_facts` adds bounded JSONB fields to
+  `yorso_suppliers_directory`.
+- No new list filter or sort is introduced, so supplier list pagination still
+  relies on `0005_supplier_directory_search_scaling` and
+  `0009_supplier_directory_pagination_sort`.
+- Detail reads continue to use supplier id lookup plus publication status.
+
+Failure mode and graceful degradation:
+
+- Configured API failures keep Phase 4A fail-closed behavior and do not fall
+  back to local profile synthesis.
+- Legacy rows use conservative backend defaults (`0`/`TBC`) until backfilled,
+  avoiding false frontend precision.
+- API-disabled local preview remains separate through explicit local preview
+  helpers.
+
+Observability and load-test plan:
+
+- Release validation must include `test:supplier-directory-frontend`,
+  `test:backend-contract`, `test:db-migrations`, `test:db-contract`,
+  `check:self-hosted-api` and `check:production-scale-baseline`.
+- Load tests should include locked and qualified supplier profile detail reads
+  with the enlarged supplier payload.
+- Future write paths must add audit events and metrics before release.
+
+Validation:
+
+- `npx vitest run src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-view.test.ts src/pages/__tests__/SupplierProfile.access.test.tsx`.
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`.
+- `test:db-migrations`.
+- `test:db-contract`.
+
+Marker: Backend Phase 4B.
+Marker: Supplier Profile Backend-Owned Dossier Completeness.
+Marker: productionFacts.
+Marker: logisticsFacts.
+Marker: 0031_supplier_profile_dossier_facts.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

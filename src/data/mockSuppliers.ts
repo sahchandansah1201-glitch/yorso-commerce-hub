@@ -15,6 +15,10 @@
  */
 
 import type { AccessLevel } from "@/lib/access-level";
+import type {
+  SupplierLogisticsFacts,
+  SupplierProductionFacts,
+} from "@/lib/supplier-dossier-facts";
 
 export type SupplierType =
   | "producer"
@@ -93,6 +97,10 @@ export interface MockSupplier {
   totalProductsCount: number;
   /** Up to ~6 named products for the catalog preview strip. */
   productCatalogPreview: SupplierCatalogPreviewItem[];
+  /** Published production capability facts owned by supplier-directory API when configured. */
+  productionFacts?: SupplierProductionFacts;
+  /** Published logistics and delivery facts owned by supplier-directory API when configured. */
+  logisticsFacts?: SupplierLogisticsFacts;
 
   // ----- contact channels (gated by UI) -----
   website?: string;

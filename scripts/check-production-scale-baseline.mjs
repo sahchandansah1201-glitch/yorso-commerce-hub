@@ -14,6 +14,7 @@ const requiredFiles = [
   "docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md",
   "docs/backend/phase-3c-provider-reference-tooling-retirement.md",
   "docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md",
+  "docs/backend/phase-4b-supplier-profile-dossier-completeness.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -45,6 +46,7 @@ const requiredFiles = [
   "packages/db/migrations/0028_registration_verification_code_policy.sql",
   "packages/db/migrations/0029_auth_password_recovery.sql",
   "packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql",
+  "packages/db/migrations/0031_supplier_profile_dossier_facts.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
@@ -205,7 +207,10 @@ const requiredFiles = [
   "src/lib/use-offer-detail.ts",
   "src/components/catalog/SelectedOfferPanel.tsx",
   "src/lib/supplier-directory-api.ts",
+  "src/lib/supplier-directory-view.ts",
+  "src/lib/supplier-dossier-facts.ts",
   "src/lib/use-supplier-directory.ts",
+  "src/pages/SupplierProfile.tsx",
   "src/lib/supplier-access-api.ts",
   "src/lib/supplier-access-api.boundary.test.ts",
   "src/lib/supplier-access-requests.ts",
@@ -250,6 +255,7 @@ const phase3aCatalogSupabaseFallbackRemoval = read("docs/backend/phase-3a-catalo
 const phase3bSupplierAccessSupabaseFallbackRemoval = read("docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md");
 const phase3cProviderReferenceToolingRetirement = read("docs/backend/phase-3c-provider-reference-tooling-retirement.md");
 const phase4aSupplierDirectorySourceOfTruthAudit = read("docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md");
+const phase4bSupplierProfileDossierCompleteness = read("docs/backend/phase-4b-supplier-profile-dossier-completeness.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -282,6 +288,7 @@ const adminIncidentTrendActionQueueMigration = read("packages/db/migrations/0025
 const registrationVerificationCodePolicyMigration = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
 const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_password_recovery.sql");
 const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql");
+const supplierProfileDossierFactsMigration = read("packages/db/migrations/0031_supplier_profile_dossier_facts.sql");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
 const authPasswordRecoveryCleanupScheduler = read("apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts");
@@ -425,7 +432,10 @@ const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
 const useOfferDetail = read("src/lib/use-offer-detail.ts");
 const selectedOfferPanel = read("src/components/catalog/SelectedOfferPanel.tsx");
 const supplierApi = read("src/lib/supplier-directory-api.ts");
+const supplierDirectoryView = read("src/lib/supplier-directory-view.ts");
+const supplierDossierFacts = read("src/lib/supplier-dossier-facts.ts");
 const useSupplierDirectory = read("src/lib/use-supplier-directory.ts");
+const supplierProfilePage = read("src/pages/SupplierProfile.tsx");
 const supplierAccessApi = read("src/lib/supplier-access-api.ts");
 const supplierAccessApiBoundaryTest = read("src/lib/supplier-access-api.boundary.test.ts");
 const supplierAccessRequests = read("src/lib/supplier-access-requests.ts");
@@ -593,6 +603,10 @@ for (const marker of [
   "API-backed access browser suite",
   "Supabase, Firebase, Appwrite, Clerk",
   "third-party application backends must not be production dependencies",
+  "Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness",
+  "productionFacts",
+  "logisticsFacts",
+  "0031_supplier_profile_dossier_facts",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -2943,6 +2957,25 @@ for (const marker of [
   requireText("docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md", phase4aSupplierDirectorySourceOfTruthAudit, marker);
 }
 for (const marker of [
+  "Backend Phase 4B",
+  "Supplier Profile Backend-Owned Dossier Completeness",
+  "productionFacts",
+  "logisticsFacts",
+  "Plan / Fact",
+  "No frontend hash-based production/logistics synthesis remains",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4b-supplier-profile-dossier-completeness.md", phase4bSupplierProfileDossierCompleteness, marker);
+}
+for (const marker of [
+  "Backend Phase 4B",
+  "production_facts jsonb not null",
+  "logistics_facts jsonb not null",
+  "yorso_suppliers_production_facts_object",
+]) {
+  requireText("packages/db/migrations/0031_supplier_profile_dossier_facts.sql", supplierProfileDossierFactsMigration, marker);
+}
+for (const marker of [
   "PasswordRecoveryDeliveryWorker",
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
@@ -3215,6 +3248,9 @@ for (const marker of [
   "limit",
   "offset",
   "verificationLevel",
+  "productionFacts",
+  "logisticsFacts",
+  "localPreviewSupplierProductionFacts",
 ]) {
   requireText("src/lib/supplier-directory-api.ts", supplierApi, marker);
 }
@@ -3224,8 +3260,32 @@ for (const marker of [
   "useSupplierDirectoryDetail",
   "serverFiltered",
   "SUPPLIER_ACCESS_CHANGE_EVENT",
+  "localPreviewSupplierProductionFacts",
 ]) {
   requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, marker);
+}
+for (const marker of [
+  "productionFacts: item.productionFacts",
+  "logisticsFacts: item.logisticsFacts",
+]) {
+  requireText("src/lib/supplier-directory-view.ts", supplierDirectoryView, marker);
+}
+for (const marker of [
+  "localPreviewSupplierProductionFacts",
+  "localPreviewSupplierLogisticsFacts",
+]) {
+  requireText("src/lib/supplier-dossier-facts.ts", supplierDossierFacts, marker);
+}
+for (const marker of [
+  "supplier?.productionFacts",
+  "supplier?.logisticsFacts",
+]) {
+  requireText("src/pages/SupplierProfile.tsx", supplierProfilePage, marker);
+}
+for (const forbidden of ["buildProductionFacts", "buildLogisticsFacts", "hashSeed"]) {
+  if (supplierProfilePage.includes(forbidden)) {
+    failures.push(`src/pages/SupplierProfile.tsx: must not contain ${forbidden}`);
+  }
 }
 
 for (const marker of [
