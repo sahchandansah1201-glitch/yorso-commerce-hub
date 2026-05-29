@@ -16,18 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 2G Password Recovery Delivery Runtime is committed locally at
-`9485bd36`; release validation passed.
+Backend Phase 2H Password Recovery Abuse-Control And Cleanup Policy is
+committed locally at `8a8ac50f`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Worker leasing | Owned recovery delivery queue processing. | Реализовано: `leasePasswordRecoveryDeliveryJobs` leases bounded rows and excludes expired/used recoveries. | Queue-age stats later. |
-| File-spool sender | Self-hosted reset-link handoff without provider coupling. | Реализовано: `FileSpoolPasswordRecoverySender` writes `password_recovery_delivery` JSON files with mode `0600`. | SMTP only if self-hosted/operator-owned. |
-| Runtime scheduler | Background worker outside public requests. | Реализовано: `PasswordRecoveryDeliveryScheduler` and runtime factory; server starts/stops scheduler with HTTP lifecycle. | Admin visibility later if needed. |
-| Retry/failure hygiene | Failed sends retry without persisting secrets. | Реализовано: sent/requeued/failed states and sanitizer for email, phone and reset-token shaped values. | Dead-letter review later. |
-| Production readiness | 10k review, env, compose and guards updated. | Реализовано: production config requires enabled worker, `file_spool` and absolute spool dir. | Закрыто в commit `9485bd36`. |
+| Rate limit | Ограничить burst-запросы password reset без раскрытия, есть ли аккаунт. | Реализовано: `requestPasswordReset` вызывает `AuthRateLimiter` до lookup пользователя; known/unknown идут через одинаковый публичный ответ до лимита. | Наблюдать метрики и security events. |
+| Security event | Зафиксировать отдельное событие для rate-limit. | Реализовано: `password_reset_rate_limited` добавлен в contracts и migration 0030. | Использовать в будущей admin/security visibility. |
+| Cleanup policy | Удалять expired/used reset tokens и terminal delivery rows ограниченными batch'ами. | Реализовано: `cleanupPasswordRecovery` в memory/Postgres и `PasswordRecoveryCleanupWorker` с retention cutoffs. | Phase 2I: подключить cleanup runtime/scheduler/CLI. |
+| DB indexes | Поддержать bounded cleanup при росте данных. | Реализовано: migration `0030_auth_password_recovery_abuse_cleanup.sql` добавляет cleanup indexes. | Мониторить volume после подключения runtime. |
+| Guards/docs | Зафиксировать env, smoke, 10k review и self-hosted boundary. | Реализовано: env examples, compose, guards, smoke, deploy/policy/validation docs обновлены. | Закрыто в commit `8a8ac50f`. |
 
 ## Current Status
 
@@ -35,49 +35,58 @@ Backend Phase 2G Password Recovery Delivery Runtime is committed locally at
 - Latest public UX/a11y safeguard batch synced: Batch #141.
 - Backend Phase 0 closure audit and remediation are complete.
 - Backend Phase 1 discovery/audit and Phases 1A-1J are complete.
-- Backend Phase 2A-2F are committed locally and validation green.
-- Backend Phase 2G is committed locally at `9485bd36`; release validation passed.
+- Backend Phase 2A-2G are committed locally and validation green.
+- Backend Phase 2H is committed locally at `8a8ac50f`; release validation passed.
 
-## Phase 2G Files
+## Phase 2H Files
 
-- `docs/backend/phase-2g-password-recovery-delivery-runtime.md`
-- `apps/api/src/modules/auth/password-recovery-delivery-worker.ts`
-- `apps/api/src/modules/auth/password-recovery-delivery-sender.ts`
-- `apps/api/src/modules/auth/password-recovery-delivery-scheduler.ts`
-- `apps/api/src/modules/auth/password-recovery-delivery-runtime.ts`
+- `docs/backend/phase-2h-password-recovery-abuse-cleanup.md`
+- `apps/api/src/modules/auth/rate-limit.ts`
+- `apps/api/src/modules/auth/rate-limit.test.ts`
+- `apps/api/src/modules/auth/password-recovery-cleanup.ts`
+- `apps/api/src/modules/auth/password-recovery-cleanup.test.ts`
+- `apps/api/src/modules/auth/service.ts`
 - `apps/api/src/modules/auth/repository.ts`
 - `apps/api/src/modules/auth/postgres-repository.ts`
-- `apps/api/src/config.ts`
-- `apps/api/src/metrics.ts`
-- `apps/api/src/server.ts`
 - `apps/api/src/server.test.ts`
+- `apps/api/src/modules/auth/observability.test.ts`
+- `packages/contracts/src/auth.ts`
+- `packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql`
+- `packages/db/migration-manifest.json`
 - `.env.example`
 - `.env.production.example`
 - `infra/docker-compose.yml`
 - `scripts/check-self-hosted-api.mjs`
+- `scripts/check-self-hosted-db.mjs`
 - `scripts/check-self-hosted-infra.mjs`
 - `scripts/check-self-hosted-production-runtime.mjs`
 - `scripts/check-production-scale-baseline.mjs`
-- `docs/backend/frontend-backend-contract.md`
+- `scripts/smoke-self-hosted-auth-api.mjs`
 - `docs/backend/production-scale-baseline.md`
+- `docs/backend/self-hosted-auth-api-smoke.md`
 - `docs/backend/self-hosted-production-deploy.md`
+- `docs/backend/self-hosted-production-policy.md`
+- `docs/backend/self-hosted-validation.md`
 
 ## Validation
 
 Passed locally on 2026-05-29:
 
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/rate-limit.test.ts apps/api/src/modules/auth/password-recovery-cleanup.test.ts`
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/rate-limit.test.ts apps/api/src/modules/auth/password-recovery-cleanup.test.ts apps/api/src/modules/auth/observability.test.ts apps/api/src/server.test.ts -t "password reset|rate limiters|cleanup policy|auth observability"`
 - `npm run contracts:build`
-- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/password-recovery-delivery-worker.test.ts apps/api/src/modules/auth/password-recovery-delivery-sender.test.ts apps/api/src/modules/auth/password-recovery-delivery-runtime.test.ts apps/api/src/modules/auth/delivery-worker.test.ts apps/api/src/modules/auth/delivery-sender.test.ts apps/api/src/modules/auth/delivery-runtime.test.ts apps/api/src/metrics.test.ts apps/api/src/server.test.ts`
-- `npx tsc -b --noEmit`
 - `npm run test:db-migrations`
 - `npm run check:self-hosted-db`
 - `npm run check:self-hosted-infra`
 - `npm run check:self-hosted-production-runtime`
 - `npm run check:self-hosted-api`
 - `npm run check:production-scale-baseline`
+- `npx tsc -b --noEmit`
 - `npm run test:api`
+- `npm test`
 - `npm run lint`
 - `npm run api:build`
+- `npm run smoke:self-hosted-auth-api:run`
 - `git diff --check`
 - `npm run build`
 
@@ -88,16 +97,16 @@ Known non-blocking warnings:
 
 ## Next Recommended Workstream
 
-Backend Phase 2H: password recovery abuse-control and cleanup policy.
+Backend Phase 2I: password recovery cleanup runtime/scheduler path.
 
 Concrete next function:
 
-- rate-limit password reset request bursts without account enumeration;
-- add cleanup/retention policy for expired/used password recovery tokens and
-  sent/failed delivery rows;
-- keep public responses constant-shape for known and unknown accounts;
-- preserve self-contained production direction with no hosted BaaS/Supabase
-  production dependency.
+- wire `PasswordRecoveryCleanupWorker` into an owned maintenance runtime,
+  scheduler or explicit CLI command;
+- add production config for retention limits if runtime-level override is
+  required;
+- add smoke/guard coverage proving cleanup runs outside public request handlers;
+- preserve no hosted BaaS/Supabase production dependency.
 
 ## Preserve
 

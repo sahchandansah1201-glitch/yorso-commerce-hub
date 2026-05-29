@@ -2591,3 +2591,63 @@ Keep this file factual and append-only.
 - Known non-blocking warnings preserved:
   - Supabase generated types out of sync in non-strict preview/build mode;
   - Browserslist data stale.
+
+## 2026-05-29
+
+- Implemented Backend Phase 2H: Password Recovery Abuse-Control And Cleanup
+  Policy.
+- Added account-enumeration-safe password reset rate limiting:
+  - `AuthRateLimiter` now has dedicated password reset check/record methods;
+  - config adds `AUTH_PASSWORD_RESET_WINDOW_MS` and
+    `AUTH_PASSWORD_RESET_MAX_REQUESTS`;
+  - `requestPasswordReset` checks rate limit before account lookup;
+  - known and unknown account requests keep the same public response shape until
+    the shared rate limit is exceeded;
+  - rate-limited responses return `auth_rate_limited` without email/account
+    existence leakage.
+- Added security/audit contract support:
+  - `password_reset_rate_limited` security event type;
+  - telemetry marker `auth.password_reset.rate_limited`;
+  - no email, token or account-existence labels.
+- Added password recovery cleanup policy:
+  - `cleanupPasswordRecovery` repository method;
+  - memory and PostgreSQL implementations;
+  - `PasswordRecoveryCleanupWorker` with bounded retention cutoffs;
+  - cleanup for expired/used reset tokens and terminal sent/failed/cancelled
+    delivery rows.
+- Added migration `0030_auth_password_recovery_abuse_cleanup.sql`:
+  - password reset rate-limit security event type;
+  - cleanup indexes for expired/used recovery tokens;
+  - cleanup index for terminal recovery outbox rows.
+- Updated env examples, Docker Compose, self-hosted guard scripts, runtime
+  smoke, deployment docs, validation docs and production-scale baseline.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Rate limit | Защитить password reset от burst abuse без enumeration. | Реализовано и покрыто API/server тестами. | Наблюдать security event aggregates. |
+| Cleanup | Удалять устаревшие token/outbox rows bounded batch'ами. | Реализовано repository + worker policy. | Phase 2I: подключить runtime/scheduler/CLI. |
+| Self-hosted boundary | Не добавлять Supabase/BaaS/provider dependency. | Сохранено: только owned API, PostgreSQL, local runtime policy. | Продолжать тот же boundary. |
+
+- Validation passed:
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/rate-limit.test.ts apps/api/src/modules/auth/password-recovery-cleanup.test.ts`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/rate-limit.test.ts apps/api/src/modules/auth/password-recovery-cleanup.test.ts apps/api/src/modules/auth/observability.test.ts apps/api/src/server.test.ts -t "password reset|rate limiters|cleanup policy|auth observability"`;
+  - `npm run contracts:build`;
+  - `npm run test:db-migrations`;
+  - `npm run check:self-hosted-db`;
+  - `npm run check:self-hosted-infra`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run test:api`;
+  - `npm test`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `npm run smoke:self-hosted-auth-api:run`;
+  - `git diff --check`;
+  - `npm run build`.
+- Commit: `8a8ac50f` (`[codex] Backend Phase 2H password recovery abuse cleanup`).
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.

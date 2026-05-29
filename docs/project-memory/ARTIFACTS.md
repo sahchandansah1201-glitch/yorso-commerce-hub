@@ -1142,6 +1142,45 @@
   `docs/backend/self-hosted-production-deploy.md`: route data-source,
   production-scale and deploy updates.
 
+## Backend Phase 2H Password Recovery Abuse-Control And Cleanup
+
+- `docs/backend/phase-2h-password-recovery-abuse-cleanup.md`: Phase 2H
+  plan/fact, abuse-control contract, cleanup policy, validation and 10,000
+  concurrent-user review.
+- `apps/api/src/modules/auth/rate-limit.ts` and `rate-limit.test.ts`:
+  dedicated password reset rate limiter methods and memory/Redis/security-event
+  coverage.
+- `apps/api/src/modules/auth/service.ts`: password reset request path checks
+  rate limit before account lookup and keeps known/unknown public response
+  shape aligned until rate limit is exceeded.
+- `apps/api/src/modules/auth/password-recovery-cleanup.ts` and
+  `password-recovery-cleanup.test.ts`: reusable cleanup worker and retention
+  cutoff tests.
+- `apps/api/src/modules/auth/repository.ts` and `postgres-repository.ts`:
+  memory/PostgreSQL `cleanupPasswordRecovery` contract and bounded cleanup
+  implementation.
+- `packages/contracts/src/auth.ts`: `password_reset_rate_limited` security
+  event type.
+- `packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql`:
+  password reset rate-limit security event support and cleanup indexes for
+  expired/used recovery tokens plus terminal recovery outbox rows.
+- `packages/db/migration-manifest.json`, DB migrator/CLI tests and
+  `src/test/self-hosted-db-contract.test.ts`: migration manifest and contract
+  coverage.
+- `.env.example`, `.env.production.example` and `infra/docker-compose.yml`:
+  password reset rate-limit settings.
+- `scripts/check-self-hosted-api.mjs`, `scripts/check-self-hosted-db.mjs`,
+  `scripts/check-self-hosted-infra.mjs`,
+  `scripts/check-self-hosted-production-runtime.mjs`,
+  `scripts/check-production-scale-baseline.mjs` and
+  `scripts/smoke-self-hosted-auth-api.mjs`: guard and smoke coverage for
+  Phase 2H.
+- `docs/backend/production-scale-baseline.md`,
+  `docs/backend/self-hosted-auth-api-smoke.md`,
+  `docs/backend/self-hosted-production-deploy.md`,
+  `docs/backend/self-hosted-production-policy.md` and
+  `docs/backend/self-hosted-validation.md`: production/readiness updates.
+
 ## Lovable Sync Prompts
 
 ## Batch #133 Public Breadcrumb Locale A11y

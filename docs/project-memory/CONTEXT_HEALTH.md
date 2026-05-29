@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "project_memory_checkpoint_after_9485bd36"
+head_commit: "project_memory_checkpoint_after_8a8ac50f"
 latest_merged_batch: 141
-active_workstream: "backend_phase_2g_password_recovery_delivery_runtime"
+active_workstream: "backend_phase_2h_password_recovery_abuse_cleanup"
 pull_request: null
-recommended_action: "start Backend Phase 2H password recovery abuse-control and cleanup policy"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2G are documented, committed and validated."
+recommended_action: "start Backend Phase 2I password recovery cleanup runtime/scheduler path"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2H are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_2g_password_recovery_delivery_runtime.
-Current HEAD baseline: Backend Phase 2G password recovery delivery runtime implementation commit 9485bd36 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_2h_password_recovery_abuse_cleanup.
+Current HEAD baseline: Backend Phase 2H password recovery abuse-control and cleanup policy implementation commit 8a8ac50f is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,12 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: start Backend Phase 2H password recovery abuse-control and cleanup policy.
+Current recommended action: start Backend Phase 2I password recovery cleanup runtime/scheduler path.
+Phase 2H implemented and committed locally at 8a8ac50f: docs/backend/phase-2h-password-recovery-abuse-cleanup.md records password reset abuse-control and cleanup policy.
+Phase 2H rate limit: requestPasswordReset checks AuthRateLimiter before account lookup, records known and unknown attempts in the same public-response path, returns 429 auth_rate_limited on bursts, and keeps account enumeration closed.
+Phase 2H persistence: migration 0030_auth_password_recovery_abuse_cleanup adds password_reset_rate_limited security event support and cleanup indexes for expired/used recovery tokens plus terminal delivery outbox rows.
+Phase 2H cleanup policy: AuthRepository cleanupPasswordRecovery and PasswordRecoveryCleanupWorker delete bounded expired/used recovery rows and sent/failed/cancelled delivery rows by retention cutoffs, with PostgreSQL using ordered limited deletes and skip-locked candidates.
+Phase 2H validation passed: focused auth rate-limit/cleanup/server/observability tests; contracts build; DB migration tests; self-hosted DB/infra/runtime/API guards; production-scale guard; TypeScript build; full API tests; full npm test; lint; API build; self-hosted auth API smoke; diff check; production build.
 Phase 2G implemented and committed locally at 9485bd36: docs/backend/phase-2g-password-recovery-delivery-runtime.md records the self-hosted password recovery delivery runtime.
 Phase 2G runtime: PasswordRecoveryDeliveryWorker leases yorso_auth_password_recovery_outbox jobs, excludes expired/used recoveries, sends through FileSpoolPasswordRecoverySender, and marks rows sent, requeued or failed.
 Phase 2G delivery handoff: file-spool JSON contains reset URL/token for owned operator/channel delivery, uses mode 0600, and stays outside browser-visible API responses and logs.

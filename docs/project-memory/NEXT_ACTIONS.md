@@ -2,37 +2,39 @@
 
 ## Current Next Action
 
-Backend Phase 2G is implemented and committed locally at `9485bd36`.
+Backend Phase 2H is implemented and committed locally at `8a8ac50f`.
 
-Phase 2G turns the Phase 2F password recovery outbox into an owned
-self-hosted delivery runtime. It does not add Supabase, hosted BaaS, SaaS email
-provider coupling or public UI layout changes.
+Phase 2H adds account-enumeration-safe password reset abuse control and a
+bounded cleanup policy for password recovery tokens/outbox rows. It does not
+add Supabase, hosted BaaS, SaaS email provider coupling or public UI layout
+changes.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Worker leasing | Обрабатывать `yorso_auth_password_recovery_outbox` bounded batches. | Реализовано: `leasePasswordRecoveryDeliveryJobs`; PostgreSQL uses ordered `for update skip locked`, excludes expired/used recoveries and decrypts only after lease. | Queue-age stats позже. |
-| Sender | Нужен self-hosted provider-neutral handoff. | Реализовано: `FileSpoolPasswordRecoverySender` writes `0600` JSON handoff with reset URL/token. | SMTP only if self-hosted/operator-owned. |
-| Scheduler/runtime | Worker должен работать вне public request handlers. | Реализовано: `PasswordRecoveryDeliveryScheduler`, `createPasswordRecoveryDeliveryRuntime`, server start/stop lifecycle. | Admin runtime visibility later if needed. |
-| Retry/failure | Failed sends должны retry/backoff без секретов в ошибках. | Реализовано: sent/failed/requeued states, retry delay, max attempts, sanitized email/phone/reset-token errors. | Dead-letter review later. |
-| Production guard | Production must fail closed without owned recovery delivery runtime. | Реализовано: config requires enabled worker, `file_spool`, absolute spool dir; env/compose/guards updated. | Retention runbook later. |
-| Metrics | Нужны worker metrics без PII/token labels. | Реализовано: password recovery delivery worker runs/jobs metrics by worker id/result only. | Queue-age gauges later. |
-| Documentation | План/факт и 10k review должны быть зафиксированы. | Реализовано: Phase 2G doc, production baseline, deployment doc and frontend/backend contract updated. | Закрыто в commit `9485bd36`. |
+| Password reset rate limit | Ограничить частые reset-запросы по email/IP, не раскрывая наличие аккаунта. | Реализовано: `AuthRateLimiter.checkPasswordReset/recordPasswordReset`; service checks before account lookup; public response remains generic for known/unknown until limit is exceeded. | Наблюдение через security events/telemetry. |
+| Rate-limit event | Нужен отдельный audit/security marker. | Реализовано: `password_reset_rate_limited` in contracts + migration 0030; server test covers 429 without email leak. | В future admin/security dashboard можно вывести агрегаты. |
+| Cleanup repository | Нужна bounded очистка expired/used tokens и terminal outbox rows. | Реализовано: `cleanupPasswordRecovery` in memory/Postgres; ordered limited deletes and retention cutoffs. | Phase 2I подключит runtime/scheduler/CLI. |
+| Cleanup worker | Нужна reusable policy object без request-handler coupling. | Реализовано: `PasswordRecoveryCleanupWorker` computes cutoffs and delegates to repository. | Phase 2I определит запуск и production config. |
+| DB/indexes | Cleanup должен масштабироваться на 10k concurrent-user baseline. | Реализовано: `0030_auth_password_recovery_abuse_cleanup.sql` adds cleanup indexes and security event type. | После runtime wiring добавить queue/cleanup age observability. |
+| Smoke/guards/docs | Self-hosted runtime must fail closed and be проверяемым. | Реализовано: env/compose/guards/smoke/docs updated; `password_reset_rate_limit_guard=ok`. | Закрыто в commit `8a8ac50f`. |
 
-## Next Implementation After Phase 2G
+## Next Implementation After Phase 2H
 
 Recommended next scoped workstream:
 
-Backend Phase 2H: password recovery abuse-control and cleanup policy.
+Backend Phase 2I: password recovery cleanup runtime/scheduler path.
 
 Concrete scope:
 
-- rate-limit password reset request bursts without account enumeration;
-- add cleanup/retention policy for expired/used password recovery tokens and
-  sent/failed delivery rows;
-- keep public responses constant-shape for known and unknown accounts;
-- preserve self-hosted production-only runtime and no hosted provider coupling.
+- wire `PasswordRecoveryCleanupWorker` into an owned maintenance runtime,
+  scheduler or explicit CLI command;
+- add runtime config for cleanup interval, retention and batch size if needed;
+- add smoke/guard coverage that cleanup runs outside public request handlers;
+- document read/write profile, backpressure, DB indexes, failure mode and
+  observability for the 10,000 concurrent-user baseline;
+- preserve no hosted provider/Supabase production dependency.
 
 Alternative:
 
