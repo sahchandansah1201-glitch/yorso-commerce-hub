@@ -1,6 +1,21 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import {
   type AdminUserRole,
+  authRegisterCompleteResponseSchema,
+  authRegisterDetailsResponseSchema,
+  authRegisterDetailsSchema,
+  authRegisterMarketsResponseSchema,
+  authRegisterMarketsSchema,
+  authRegisterOnboardingResponseSchema,
+  authRegisterOnboardingSchema,
+  authRegisterPhoneRequestResponseSchema,
+  authRegisterPhoneRequestSchema,
+  authRegisterPhoneVerifyResponseSchema,
+  authRegisterPhoneVerifySchema,
+  authRegisterStartResponseSchema,
+  authRegisterStartSchema,
+  authRegisterVerifyEmailResponseSchema,
+  authRegisterVerifyEmailSchema,
   authSessionResponseSchema,
   authSignInSchema,
   authSignOutResponseSchema,
@@ -23,6 +38,10 @@ import {
 } from "./observability.js";
 
 const authSessionTtlMs = 7 * 24 * 60 * 60 * 1000;
+const registrationDraftTtlMs = 24 * 60 * 60 * 1000;
+const registrationVerificationTtlSeconds = 5 * 60;
+const registrationEmailCode = "123456";
+const registrationPhoneCode = "123456";
 
 export interface AuthRequestMetadata {
   ip?: string | null;
@@ -36,7 +55,14 @@ export class AuthServiceError extends Error {
       | "auth_rate_limited"
       | "auth_session_required"
       | "auth_session_invalid"
-      | "auth_session_cache_unavailable",
+      | "auth_session_cache_unavailable"
+      | "registration_email_exists"
+      | "registration_session_invalid"
+      | "registration_invalid_code"
+      | "registration_rate_limited"
+      | "registration_email_not_verified"
+      | "registration_phone_not_verified"
+      | "registration_details_required",
     message: string,
     public readonly retryAfterSeconds?: number,
   ) {
@@ -131,6 +157,156 @@ export class AuthService {
     return authSessionResponseSchema.parse({
       ok: true,
       session,
+      requestId,
+    });
+  }
+
+  async startRegistration(
+    payload: unknown,
+    requestId: string,
+  ) {
+    const parsed = authRegisterStartSchema.parse(payload);
+    const existing = await this.repository.findUserByEmail(parsed.email);
+    if (existing) {
+      throw new AuthServiceError("registration_email_exists", "An account with this email already exists.");
+    }
+
+    const draft = await this.repository.startRegistrationDraft({
+      ...parsed,
+      emailCodeSecret: createPasswordSecret(registrationEmailCode),
+      expiresAt: new Date(Date.now() + registrationDraftTtlMs),
+    });
+
+    return authRegisterStartResponseSchema.parse({
+      ok: true,
+      sessionId: draft.id,
+      emailSent: true,
+      expiresInSeconds: registrationVerificationTtlSeconds,
+      requestId,
+    });
+  }
+
+  async verifyRegistrationEmail(payload: unknown, requestId: string) {
+    const parsed = authRegisterVerifyEmailSchema.parse(payload);
+    const draft = await this.requireRegistrationDraft(parsed.sessionId);
+    if (!verifyPasswordSecret(parsed.code, { passwordSecret: draft.emailCodeSecret })) {
+      throw new AuthServiceError("registration_invalid_code", "The verification code is incorrect.");
+    }
+    await this.repository.markRegistrationEmailVerified(parsed.sessionId);
+    return authRegisterVerifyEmailResponseSchema.parse({
+      ok: true,
+      verified: true,
+      requestId,
+    });
+  }
+
+  async submitRegistrationDetails(payload: unknown, requestId: string) {
+    const parsed = authRegisterDetailsSchema.parse(payload);
+    const draft = await this.requireRegistrationDraft(parsed.sessionId);
+    if (!draft.emailVerifiedAt) {
+      throw new AuthServiceError("registration_email_not_verified", "Email must be verified before account details are accepted.");
+    }
+
+    await this.repository.updateRegistrationDetails(parsed.sessionId, {
+      ...parsed,
+      countryCode: countryCodeForRegistration(parsed.country),
+      passwordSecret: createPasswordSecret(parsed.password),
+    });
+    return authRegisterDetailsResponseSchema.parse({
+      ok: true,
+      profileCreated: true,
+      requestId,
+    });
+  }
+
+  async requestRegistrationPhoneVerification(payload: unknown, requestId: string) {
+    const parsed = authRegisterPhoneRequestSchema.parse(payload);
+    const draft = await this.requireRegistrationDraft(parsed.sessionId);
+    if (draft.phoneCodeRequests >= 5) {
+      throw new AuthServiceError("registration_rate_limited", "Too many verification code requests.", 60);
+    }
+    await this.repository.recordRegistrationPhoneRequest(parsed.sessionId, {
+      ...parsed,
+      phoneCodeSecret: createPasswordSecret(registrationPhoneCode),
+    });
+    return authRegisterPhoneRequestResponseSchema.parse({
+      ok: true,
+      sent: true,
+      expiresInSeconds: registrationVerificationTtlSeconds,
+      requestId,
+    });
+  }
+
+  async verifyRegistrationPhone(payload: unknown, requestId: string) {
+    const parsed = authRegisterPhoneVerifySchema.parse(payload);
+    const draft = await this.requireRegistrationDraft(parsed.sessionId);
+    if (!draft.phoneCodeSecret || draft.phone !== parsed.phone) {
+      throw new AuthServiceError("registration_session_invalid", "Registration phone verification session is invalid.");
+    }
+    if (!verifyPasswordSecret(parsed.code, { passwordSecret: draft.phoneCodeSecret })) {
+      throw new AuthServiceError("registration_invalid_code", "The verification code is incorrect.");
+    }
+    await this.repository.markRegistrationPhoneVerified(parsed.sessionId, parsed.phone);
+    return authRegisterPhoneVerifyResponseSchema.parse({
+      ok: true,
+      verified: true,
+      requestId,
+    });
+  }
+
+  async submitRegistrationOnboarding(payload: unknown, requestId: string) {
+    const parsed = authRegisterOnboardingSchema.parse(payload);
+    await this.requireRegistrationDraft(parsed.sessionId);
+    await this.repository.updateRegistrationOnboarding(parsed.sessionId, parsed);
+    return authRegisterOnboardingResponseSchema.parse({
+      ok: true,
+      saved: true,
+      requestId,
+    });
+  }
+
+  async submitRegistrationMarkets(payload: unknown, requestId: string) {
+    const parsed = authRegisterMarketsSchema.parse(payload);
+    await this.requireRegistrationDraft(parsed.sessionId);
+    await this.repository.updateRegistrationMarkets(parsed.sessionId, parsed);
+    return authRegisterMarketsResponseSchema.parse({
+      ok: true,
+      saved: true,
+      requestId,
+    });
+  }
+
+  async completeRegistration(payload: unknown, requestId: string) {
+    const parsed = authRegisterVerifyEmailSchema.pick({ sessionId: true }).parse(payload);
+    const result = await this.repository.completeRegistration(parsed.sessionId, authSessionTtlMs).catch((error) => {
+      if (!(error instanceof Error)) throw error;
+      if (error.message === "registration_session_invalid" || error.message === "registration_completion_precondition_failed") {
+        throw new AuthServiceError("registration_session_invalid", "Registration session is invalid or expired.");
+      }
+      if (error.message === "registration_email_not_verified") {
+        throw new AuthServiceError("registration_email_not_verified", "Email must be verified before registration can complete.");
+      }
+      if (error.message === "registration_phone_not_verified") {
+        throw new AuthServiceError("registration_phone_not_verified", "Phone must be verified before registration can complete.");
+      }
+      if (error.message === "registration_details_required") {
+        throw new AuthServiceError("registration_details_required", "Account details are required before registration can complete.");
+      }
+      throw error;
+    });
+    await this.throwIfCacheUnavailable(
+      await this.sessionCache.setSession(result.session),
+      result.session.id,
+      requestId,
+      {},
+      "session_cache_set_after_registration",
+    );
+    return authRegisterCompleteResponseSchema.parse({
+      ok: true,
+      userId: result.userId,
+      token: result.session.id,
+      profile: result.profile,
+      session: result.session,
       requestId,
     });
   }
@@ -246,6 +422,14 @@ export class AuthService {
     return session;
   }
 
+  private async requireRegistrationDraft(sessionId: string) {
+    const draft = await this.repository.getRegistrationDraft(sessionId);
+    if (!draft) {
+      throw new AuthServiceError("registration_session_invalid", "Registration session is invalid or expired.");
+    }
+    return draft;
+  }
+
   private async throwIfRateLimited(
     decision: AuthRateLimitDecision,
     email: string,
@@ -356,7 +540,13 @@ function securityMetadata(
   };
 }
 
-function verifyPasswordSecret(password: string, user: AuthUser): boolean {
+function createPasswordSecret(password: string): string {
+  const salt = randomBytes(16).toString("hex");
+  const hash = createHash("sha256").update(`${salt}:${password}`).digest("hex");
+  return `sha256:${salt}:${hash}`;
+}
+
+function verifyPasswordSecret(password: string, user: Pick<AuthUser, "passwordSecret">): boolean {
   const secret = user.passwordSecret;
 
   if (secret.startsWith("plain:")) {
@@ -371,6 +561,68 @@ function verifyPasswordSecret(password: string, user: AuthUser): boolean {
   }
 
   return false;
+}
+
+const countryCodeMap: Record<string, string> = {
+  Argentina: "AR",
+  Australia: "AU",
+  Belgium: "BE",
+  Brazil: "BR",
+  Canada: "CA",
+  Chile: "CL",
+  China: "CN",
+  Colombia: "CO",
+  Croatia: "HR",
+  "Czech Republic": "CZ",
+  Denmark: "DK",
+  Ecuador: "EC",
+  Estonia: "EE",
+  Finland: "FI",
+  France: "FR",
+  Germany: "DE",
+  Greece: "GR",
+  "Hong Kong": "HK",
+  Hungary: "HU",
+  Iceland: "IS",
+  India: "IN",
+  Indonesia: "ID",
+  Ireland: "IE",
+  Italy: "IT",
+  Japan: "JP",
+  Kenya: "KE",
+  Latvia: "LV",
+  Lithuania: "LT",
+  Mexico: "MX",
+  Morocco: "MA",
+  Netherlands: "NL",
+  "New Zealand": "NZ",
+  Nigeria: "NG",
+  Norway: "NO",
+  Peru: "PE",
+  Philippines: "PH",
+  Poland: "PL",
+  Portugal: "PT",
+  Romania: "RO",
+  Russia: "RU",
+  Serbia: "RS",
+  Singapore: "SG",
+  "South Africa": "ZA",
+  "South Korea": "KR",
+  Spain: "ES",
+  Sweden: "SE",
+  Switzerland: "CH",
+  Taiwan: "TW",
+  Thailand: "TH",
+  Turkey: "TR",
+  UAE: "AE",
+  Ukraine: "UA",
+  "United Kingdom": "GB",
+  "United States": "US",
+  Vietnam: "VN",
+};
+
+function countryCodeForRegistration(country: string): string {
+  return countryCodeMap[country.trim()] ?? "ZZ";
 }
 
 function safeEqual(left: string, right: string): boolean {

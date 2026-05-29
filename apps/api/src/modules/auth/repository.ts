@@ -1,10 +1,16 @@
-import { randomBytes } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import type {
   AdminUserRole,
+  AuthRegisterDetails,
+  AuthRegisterMarkets,
+  AuthRegisterOnboarding,
+  AuthRegisterPhoneRequest,
+  AuthRegisterStart,
   AuthSecurityEvent,
   AuthSecurityEventType,
   AuthSession,
 } from "../../../../../packages/contracts/dist/index.js";
+import type { RegisteredAccountProvision } from "../account/repository.js";
 
 export interface AuthUser {
   id: string;
@@ -13,9 +19,56 @@ export interface AuthUser {
   passwordSecret: string;
 }
 
+export interface RegistrationDraft {
+  categories: string[];
+  certifications: string[];
+  companyName: string | null;
+  country: string | null;
+  countryCode: string | null;
+  email: string;
+  emailCodeSecret: string;
+  emailVerifiedAt: string | null;
+  expiresAt: string;
+  fullName: string | null;
+  id: string;
+  passwordSecret: string | null;
+  phone: string | null;
+  phoneCodeRequests: number;
+  phoneCodeSecret: string | null;
+  phoneVerifiedAt: string | null;
+  role: AuthRegisterStart["role"];
+  targetCountries: string[];
+  vatTin: string | null;
+  volume: string;
+}
+
+export interface RegistrationAccountProvisioner {
+  provisionRegisteredAccount(input: RegisteredAccountProvision): Promise<void>;
+}
+
+export interface RegistrationCompleteResult {
+  profile: {
+    company: string;
+    country: string;
+    fullName: string;
+    role: AuthRegisterStart["role"];
+  };
+  session: AuthSession;
+  userId: string;
+}
+
 export interface AuthRepository {
   findUserByEmail(email: string): Promise<AuthUser | null>;
   createSession(user: Pick<AuthUser, "id" | "email" | "displayName">, ttlMs: number): Promise<AuthSession>;
+  startRegistrationDraft(input: AuthRegisterStart & { emailCodeSecret: string; expiresAt: Date }): Promise<RegistrationDraft>;
+  getRegistrationDraft(sessionId: string): Promise<RegistrationDraft | null>;
+  markRegistrationEmailVerified(sessionId: string): Promise<RegistrationDraft>;
+  updateRegistrationDetails(sessionId: string, input: AuthRegisterDetails & { countryCode: string; passwordSecret: string }): Promise<RegistrationDraft>;
+  recordRegistrationPhoneRequest(sessionId: string, input: AuthRegisterPhoneRequest & { phoneCodeSecret: string }): Promise<RegistrationDraft>;
+  markRegistrationPhoneVerified(sessionId: string, phone: string): Promise<RegistrationDraft>;
+  updateRegistrationOnboarding(sessionId: string, input: AuthRegisterOnboarding): Promise<RegistrationDraft>;
+  updateRegistrationMarkets(sessionId: string, input: AuthRegisterMarkets): Promise<RegistrationDraft>;
+  completeRegistration(sessionId: string, ttlMs: number): Promise<RegistrationCompleteResult>;
   getSession(sessionId: string): Promise<AuthSession | null>;
   deleteSession(sessionId: string): Promise<boolean>;
   hasRole(userId: string, role: AdminUserRole): Promise<boolean>;
@@ -54,12 +107,27 @@ const demoAdminUser: AuthUser = {
 
 const createSessionId = () => randomBytes(32).toString("hex");
 const iso = (value: Date) => value.toISOString();
+const cloneDraft = (draft: RegistrationDraft): RegistrationDraft => ({
+  ...draft,
+  categories: [...draft.categories],
+  certifications: [...draft.certifications],
+  targetCountries: [...draft.targetCountries],
+});
+
+const splitFullName = (fullName: string) => {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  return {
+    firstName: parts[0] || "YORSO",
+    lastName: parts.slice(1).join(" ") || "-",
+  };
+};
 
 export class MemoryAuthRepository implements AuthRepository {
   private readonly usersByEmail = new Map<string, AuthUser>();
   private readonly rolesByUserId = new Map<string, Set<AdminUserRole>>();
   private readonly sessions = new Map<string, AuthSession>();
   private readonly securityEvents: AuthSecurityEvent[] = [];
+  private readonly registrationDrafts = new Map<string, RegistrationDraft>();
 
   constructor(
     users: AuthUser[] = [demoAuthUser, demoAdminUser],
@@ -67,6 +135,7 @@ export class MemoryAuthRepository implements AuthRepository {
       [demoAuthUser.id]: ["buyer"],
       [demoAdminUser.id]: ["admin"],
     },
+    private readonly accountProvisioner?: RegistrationAccountProvisioner,
   ) {
     for (const user of users) {
       this.usersByEmail.set(user.email.toLowerCase(), { ...user, email: user.email.toLowerCase() });
@@ -97,6 +166,147 @@ export class MemoryAuthRepository implements AuthRepository {
     };
     this.sessions.set(session.id, session);
     return { ...session };
+  }
+
+  async startRegistrationDraft(input: AuthRegisterStart & { emailCodeSecret: string; expiresAt: Date }) {
+    const id = createSessionId();
+    const draft: RegistrationDraft = {
+      categories: [],
+      certifications: [],
+      companyName: null,
+      country: null,
+      countryCode: null,
+      email: input.email.toLowerCase(),
+      emailCodeSecret: input.emailCodeSecret,
+      emailVerifiedAt: null,
+      expiresAt: iso(input.expiresAt),
+      fullName: null,
+      id,
+      passwordSecret: null,
+      phone: null,
+      phoneCodeRequests: 0,
+      phoneCodeSecret: null,
+      phoneVerifiedAt: null,
+      role: input.role,
+      targetCountries: [],
+      vatTin: null,
+      volume: "",
+    };
+    this.registrationDrafts.set(id, draft);
+    return cloneDraft(draft);
+  }
+
+  async getRegistrationDraft(sessionId: string) {
+    const draft = this.registrationDrafts.get(sessionId);
+    if (!draft || new Date(draft.expiresAt).getTime() <= Date.now()) return null;
+    return cloneDraft(draft);
+  }
+
+  async markRegistrationEmailVerified(sessionId: string) {
+    const draft = await this.requireRegistrationDraft(sessionId);
+    draft.emailVerifiedAt = iso(new Date());
+    this.registrationDrafts.set(sessionId, draft);
+    return cloneDraft(draft);
+  }
+
+  async updateRegistrationDetails(
+    sessionId: string,
+    input: AuthRegisterDetails & { countryCode: string; passwordSecret: string },
+  ) {
+    const draft = await this.requireRegistrationDraft(sessionId);
+    draft.fullName = input.fullName;
+    draft.companyName = input.company;
+    draft.country = input.country;
+    draft.countryCode = input.countryCode;
+    draft.vatTin = input.vatTin;
+    draft.passwordSecret = input.passwordSecret;
+    this.registrationDrafts.set(sessionId, draft);
+    return cloneDraft(draft);
+  }
+
+  async recordRegistrationPhoneRequest(
+    sessionId: string,
+    input: AuthRegisterPhoneRequest & { phoneCodeSecret: string },
+  ) {
+    const draft = await this.requireRegistrationDraft(sessionId);
+    draft.phone = input.phone;
+    draft.phoneCodeSecret = input.phoneCodeSecret;
+    draft.phoneCodeRequests += 1;
+    draft.phoneVerifiedAt = null;
+    this.registrationDrafts.set(sessionId, draft);
+    return cloneDraft(draft);
+  }
+
+  async markRegistrationPhoneVerified(sessionId: string, phone: string) {
+    const draft = await this.requireRegistrationDraft(sessionId);
+    draft.phone = phone;
+    draft.phoneVerifiedAt = iso(new Date());
+    this.registrationDrafts.set(sessionId, draft);
+    return cloneDraft(draft);
+  }
+
+  async updateRegistrationOnboarding(sessionId: string, input: AuthRegisterOnboarding) {
+    const draft = await this.requireRegistrationDraft(sessionId);
+    draft.categories = [...input.categories];
+    draft.certifications = [...input.certifications];
+    draft.volume = input.volume;
+    this.registrationDrafts.set(sessionId, draft);
+    return cloneDraft(draft);
+  }
+
+  async updateRegistrationMarkets(sessionId: string, input: AuthRegisterMarkets) {
+    const draft = await this.requireRegistrationDraft(sessionId);
+    draft.targetCountries = [...input.countries];
+    this.registrationDrafts.set(sessionId, draft);
+    return cloneDraft(draft);
+  }
+
+  async completeRegistration(sessionId: string, ttlMs: number) {
+    const draft = await this.requireRegistrationDraft(sessionId);
+    if (!draft.emailVerifiedAt) throw new Error("registration_email_not_verified");
+    if (!draft.phoneVerifiedAt) throw new Error("registration_phone_not_verified");
+    if (!draft.fullName || !draft.companyName || !draft.country || !draft.countryCode || !draft.passwordSecret || !draft.vatTin) {
+      throw new Error("registration_details_required");
+    }
+    if (this.usersByEmail.has(draft.email)) throw new Error("registration_email_exists");
+
+    const { firstName, lastName } = splitFullName(draft.fullName);
+    const user: AuthUser = {
+      id: randomUUID(),
+      email: draft.email,
+      displayName: draft.fullName,
+      passwordSecret: draft.passwordSecret,
+    };
+    this.usersByEmail.set(user.email, user);
+    this.rolesByUserId.set(user.id, new Set([draft.role, "company_admin"]));
+    await this.accountProvisioner?.provisionRegisteredAccount({
+      categories: draft.categories,
+      certifications: draft.certifications,
+      companyName: draft.companyName,
+      country: draft.country,
+      countryCode: draft.countryCode,
+      email: draft.email,
+      fullName: `${firstName} ${lastName === "-" ? "" : lastName}`.trim(),
+      phone: draft.phone,
+      role: draft.role,
+      targetCountries: draft.targetCountries,
+      userId: user.id,
+      vatTin: draft.vatTin,
+      volume: draft.volume,
+    });
+
+    const session = await this.createSession(user, ttlMs);
+    this.registrationDrafts.delete(sessionId);
+    return {
+      profile: {
+        company: draft.companyName,
+        country: draft.country,
+        fullName: draft.fullName,
+        role: draft.role,
+      },
+      session,
+      userId: user.id,
+    };
   }
 
   async getSession(sessionId: string): Promise<AuthSession | null> {
@@ -138,5 +348,11 @@ export class MemoryAuthRepository implements AuthRepository {
       if (email && event.email !== email) return false;
       return new Date(event.occurredAt).getTime() >= since;
     }).length;
+  }
+
+  private async requireRegistrationDraft(sessionId: string) {
+    const draft = await this.getRegistrationDraft(sessionId);
+    if (!draft) throw new Error("registration_session_invalid");
+    return draft;
   }
 }

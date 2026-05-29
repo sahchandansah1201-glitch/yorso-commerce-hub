@@ -64,7 +64,7 @@ mistaken for production data surfaces.
 | Route | Current frontend role | Current data source | Backend target | Priority |
 |---|---|---|---|---|
 | `/` | Public entry, trust, live offers | landing components, `mockOffers`, partial catalog fetch | public catalog preview, marketplace stats, homepage CMS blocks | P1 |
-| `/register` and steps | Buyer/supplier onboarding | registration context, sessionStorage, mock API contracts | self-hosted auth onboarding, profile draft, company draft | P0 |
+| `/register` and steps | Buyer/supplier onboarding | self-hosted registration draft and account creation when `VITE_YORSO_API_URL` is configured; registration context/sessionStorage only for transient form continuity and API-disabled preview | `/v1/auth/register/*`, `yorso_registration_drafts`, account creation source of truth | Phase 2A in progress |
 | `/signin` | Sign-in to workspace | legacy prototype auth adapter plus buyer-session bridge | self-hosted auth/session API, user-company resolution, role/session adapter | P0 |
 | `/reset-password` | Password recovery | legacy prototype auth adapter | self-hosted auth recovery flow | P0 |
 | `/offers` | Procurement catalog workspace | `mockOffers`, `catalog-api`, local UI state | offer catalog API, public/qualified views, backend filters | P0 |

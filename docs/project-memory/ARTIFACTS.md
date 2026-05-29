@@ -909,6 +909,44 @@
 - `src/pages/ForSuppliers.tsx`: mobile-safe breadcrumb and request access CTA.
 - `src/components/suppliers/SupplierRow.tsx`: supplier title link touch target.
 
+## Backend Phase 2A Registration-To-Account Source Of Truth
+
+- `docs/backend/phase-2a-registration-account-source-of-truth.md`: plan/fact,
+  runtime contract, data ownership, 10,000 concurrent-user review and
+  validation record for Phase 2A.
+- `packages/db/migrations/0026_registration_account_source.sql`: backend-owned
+  registration draft table and indexes.
+- `packages/db/migration-manifest.json`: migration manifest entry for
+  `0026_registration_account_source`.
+- `packages/contracts/src/auth.ts`: shared registration request/response
+  schemas for `/v1/auth/register/*`.
+- `apps/api/src/modules/auth/routes.ts`: self-hosted registration route
+  handlers for start, verification, details, onboarding, markets and complete.
+- `apps/api/src/modules/auth/service.ts`: registration draft validation,
+  verification-state transitions and completion orchestration.
+- `apps/api/src/modules/auth/repository.ts`: memory registration draft and
+  completion implementation for local/test runtime.
+- `apps/api/src/modules/auth/postgres-repository.ts`: PostgreSQL registration
+  draft persistence and atomic account/session creation path.
+- `apps/api/src/modules/auth/factory.ts`, `apps/api/src/server.ts`: account
+  provisioner wiring for self-hosted runtime.
+- `apps/api/src/modules/account/repository.ts`: memory account provisioning for
+  registration completion tests.
+- `apps/api/src/server.test.ts`: API integration coverage for the registration
+  funnel creating a self-hosted account workspace and sign-in credential.
+- `src/lib/api-contracts.ts`: frontend registration API boundary for
+  self-hosted `/v1/auth/register/*` calls and error mapping.
+- `src/lib/api-contracts.registration.test.ts`: registration API client
+  contract tests.
+- `src/pages/register/RegisterVerify.tsx`: dev skip path advances backend email
+  verification state in self-hosted mode.
+- `src/pages/register/RegisterReady.tsx`: stores backend-issued self-hosted
+  session on registration completion and fails closed on self-hosted errors.
+- `docs/backend/frontend-backend-contract.md`: `/register/*` route/data-source
+  contract updated for Phase 2A.
+- `docs/backend/production-scale-baseline.md`: Phase 2A capacity review and
+  validation/build metrics.
+
 ## Lovable Sync Prompts
 
 ## Batch #133 Public Breadcrumb Locale A11y

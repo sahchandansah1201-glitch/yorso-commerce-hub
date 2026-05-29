@@ -37,6 +37,115 @@ export async function handleAuthRoute(
   auditSink: AuditSink,
 ) {
   try {
+    if (pathname === "/v1/auth/register/start") {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      const result = await service.startRegistration(payload, context.requestId);
+      auditFromRequest(auditSink, context, request, {
+        action: "auth.register.start",
+        outcome: "success",
+        resourceId: result.sessionId,
+        resourceType: "registration_draft",
+        route: pathname,
+        sessionId: result.sessionId,
+        statusCode: 200,
+      });
+      sendJson(response, 200, result);
+      return true;
+    }
+
+    if (pathname === "/v1/auth/register/verify-email") {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      sendJson(response, 200, await service.verifyRegistrationEmail(payload, context.requestId));
+      return true;
+    }
+
+    if (pathname === "/v1/auth/register/details") {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      sendJson(response, 200, await service.submitRegistrationDetails(payload, context.requestId));
+      return true;
+    }
+
+    if (pathname === "/v1/auth/register/phone/send") {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      sendJson(response, 200, await service.requestRegistrationPhoneVerification(payload, context.requestId));
+      return true;
+    }
+
+    if (pathname === "/v1/auth/register/phone/verify") {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      sendJson(response, 200, await service.verifyRegistrationPhone(payload, context.requestId));
+      return true;
+    }
+
+    if (pathname === "/v1/auth/register/onboarding") {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      sendJson(response, 200, await service.submitRegistrationOnboarding(payload, context.requestId));
+      return true;
+    }
+
+    if (pathname === "/v1/auth/register/markets") {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      sendJson(response, 200, await service.submitRegistrationMarkets(payload, context.requestId));
+      return true;
+    }
+
+    if (pathname === "/v1/auth/register/complete") {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      const result = await service.completeRegistration(payload, context.requestId);
+      auditFromRequest(auditSink, context, request, {
+        action: "auth.register.complete",
+        actorUserId: result.userId,
+        outcome: "success",
+        resourceId: result.session.id,
+        resourceType: "auth_session",
+        route: pathname,
+        sessionId: result.session.id,
+        statusCode: 200,
+      });
+      sendJson(response, 200, result);
+      return true;
+    }
+
     if (pathname === "/v1/auth/sign-in") {
       if (request.method !== "POST") {
         methodNotAllowed(response, context, "POST");
@@ -98,12 +207,7 @@ export async function handleAuthRoute(
       if (error.code === "auth_rate_limited" && error.retryAfterSeconds) {
         response.setHeader("retry-after", String(error.retryAfterSeconds));
       }
-      const status =
-        error.code === "auth_rate_limited"
-          ? 429
-          : error.code === "auth_session_cache_unavailable"
-            ? 503
-            : 401;
+      const status = statusForAuthError(error.code);
       auditAuthFailure(auditSink, context, request, pathname, error.code, status);
       sendError(response, status, error.code, error.message, context);
       return true;
@@ -139,6 +243,22 @@ export async function handleAuthRoute(
   return false;
 }
 
+function statusForAuthError(code: AuthServiceError["code"]) {
+  if (code === "auth_rate_limited" || code === "registration_rate_limited") return 429;
+  if (code === "auth_session_cache_unavailable") return 503;
+  if (code === "registration_email_exists") return 409;
+  if (
+    code === "registration_session_invalid" ||
+    code === "registration_invalid_code" ||
+    code === "registration_email_not_verified" ||
+    code === "registration_phone_not_verified" ||
+    code === "registration_details_required"
+  ) {
+    return 400;
+  }
+  return 401;
+}
+
 function auditAuthFailure(
   auditSink: AuditSink,
   context: ApiRequestContext,
@@ -151,7 +271,9 @@ function auditAuthFailure(
     ? "auth.sign_out"
     : pathname === "/v1/auth/session"
       ? "auth.session.read"
-      : "auth.sign_in";
+      : pathname.startsWith("/v1/auth/register/")
+        ? "auth.register"
+        : "auth.sign_in";
   auditFromRequest(auditSink, context, request, {
     action,
     outcome: statusCode === 429 || statusCode === 413 || statusCode === 408 ? "blocked" : "failure",

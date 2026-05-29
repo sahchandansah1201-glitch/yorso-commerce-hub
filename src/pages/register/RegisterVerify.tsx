@@ -329,7 +329,13 @@ const RegisterVerify = () => {
           {import.meta.env.DEV && (
             <button
               type="button"
-              onClick={() => {
+              onClick={async () => {
+                const result = await authApi.verifyEmail({ sessionId: data.sessionId, code: "123456" });
+                if (isApiError(result)) {
+                  setError(getErrorMessage(result.code));
+                  toast.error(t.reg_verificationFailed, { description: result.message });
+                  return;
+                }
                 setField("emailVerified", true);
                 analytics.track("registration_email_verified", {
                   role: data.role || "unknown",

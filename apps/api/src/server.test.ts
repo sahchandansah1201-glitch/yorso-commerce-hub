@@ -1503,6 +1503,169 @@ describe("YORSO self-hosted API skeleton", () => {
     ]);
   });
 
+  it("creates a self-hosted account workspace from the registration funnel", async () => {
+    const fetchApi = await startRawTestServer();
+    const email = "phase2a.buyer@yorso.test";
+
+    const start = await fetchApi("/v1/auth/register/start", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        role: "buyer",
+      }),
+    });
+    const startBody = (await start.json()) as JsonBody;
+
+    expect(start.status).toBe(200);
+    expect(startBody).toMatchObject({
+      ok: true,
+      emailSent: true,
+      expiresInSeconds: 300,
+    });
+    const registrationSessionId = String(startBody.sessionId);
+
+    const verifyEmail = await fetchApi("/v1/auth/register/verify-email", {
+      method: "POST",
+      body: JSON.stringify({
+        sessionId: registrationSessionId,
+        code: "123456",
+      }),
+    });
+    await expect(verifyEmail.json()).resolves.toMatchObject({ ok: true, verified: true });
+    expect(verifyEmail.status).toBe(200);
+
+    const details = await fetchApi("/v1/auth/register/details", {
+      method: "POST",
+      body: JSON.stringify({
+        sessionId: registrationSessionId,
+        fullName: "Phase Buyer",
+        company: "Phase 2A Procurement LLC",
+        country: "Spain",
+        vatTin: "ES-123456",
+        password: "Password1",
+      }),
+    });
+    await expect(details.json()).resolves.toMatchObject({ ok: true, profileCreated: true });
+    expect(details.status).toBe(200);
+
+    const phoneSend = await fetchApi("/v1/auth/register/phone/send", {
+      method: "POST",
+      body: JSON.stringify({
+        sessionId: registrationSessionId,
+        phone: "+34600000000",
+        method: "sms",
+      }),
+    });
+    await expect(phoneSend.json()).resolves.toMatchObject({ ok: true, sent: true });
+    expect(phoneSend.status).toBe(200);
+
+    const phoneVerify = await fetchApi("/v1/auth/register/phone/verify", {
+      method: "POST",
+      body: JSON.stringify({
+        sessionId: registrationSessionId,
+        phone: "+34600000000",
+        code: "123456",
+      }),
+    });
+    await expect(phoneVerify.json()).resolves.toMatchObject({ ok: true, verified: true });
+    expect(phoneVerify.status).toBe(200);
+
+    await expect(
+      (await fetchApi("/v1/auth/register/onboarding", {
+        method: "POST",
+        body: JSON.stringify({
+          sessionId: registrationSessionId,
+          categories: ["Salmon & Trout"],
+          certifications: ["ASC"],
+          volume: "10-50 tons/month",
+        }),
+      })).json(),
+    ).resolves.toMatchObject({ ok: true, saved: true });
+
+    await expect(
+      (await fetchApi("/v1/auth/register/markets", {
+        method: "POST",
+        body: JSON.stringify({
+          sessionId: registrationSessionId,
+          countries: ["Norway", "Chile"],
+        }),
+      })).json(),
+    ).resolves.toMatchObject({ ok: true, saved: true });
+
+    const complete = await fetchApi("/v1/auth/register/complete", {
+      method: "POST",
+      body: JSON.stringify({
+        sessionId: registrationSessionId,
+      }),
+    });
+    const completeBody = (await complete.json()) as JsonBody;
+
+    expect(complete.status).toBe(200);
+    expect(completeBody).toMatchObject({
+      ok: true,
+      profile: {
+        fullName: "Phase Buyer",
+        company: "Phase 2A Procurement LLC",
+        role: "buyer",
+        country: "Spain",
+      },
+      session: {
+        email,
+        displayName: "Phase Buyer",
+      },
+    });
+
+    const session = completeBody.session as JsonBody;
+    const accountWorkspace = await fetchApi("/v1/account/workspace", {
+      headers: {
+        "x-yorso-user-id": String(session.userId),
+        "x-yorso-session-id": String(session.id),
+      },
+    });
+    const workspaceBody = (await accountWorkspace.json()) as JsonBody;
+
+    expect(accountWorkspace.status).toBe(200);
+    expect(workspaceBody).toMatchObject({
+      ok: true,
+      user: {
+        email,
+        firstName: "Phase",
+        lastName: "Buyer",
+        phone: "+34600000000",
+      },
+      company: {
+        tradeName: "Phase 2A Procurement LLC",
+        accountRole: "buyer",
+        countryCode: "ES",
+        contactEmail: email,
+        productFocus: ["Salmon & Trout"],
+        certificates: ["ASC"],
+      },
+      metaRegions: [
+        expect.objectContaining({
+          id: "mr_target_markets",
+          countries: ["Norway", "Chile"],
+        }),
+      ],
+    });
+
+    const signIn = await fetchApi("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        password: "Password1",
+      }),
+    });
+    expect(signIn.status).toBe(200);
+    await expect(signIn.json()).resolves.toMatchObject({
+      ok: true,
+      session: {
+        email,
+        displayName: "Phase Buyer",
+      },
+    });
+  });
+
   it("unlocks offer exact price and supplier identity for qualified access", async () => {
     const fetchApi = await startTestServer();
     const accessRequest = await fetchApi("/v1/access/suppliers/sup-no-001/request", {

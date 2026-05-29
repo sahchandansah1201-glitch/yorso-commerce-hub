@@ -33,7 +33,7 @@ import { SupplierAccessService } from "./modules/access/service.js";
 import { createAuthRepository } from "./modules/auth/factory.js";
 import { createAuthTelemetrySink } from "./modules/auth/observability.js";
 import { createAuthRateLimiter } from "./modules/auth/rate-limit.js";
-import type { AuthRepository } from "./modules/auth/repository.js";
+import type { AuthRepository, RegistrationAccountProvisioner } from "./modules/auth/repository.js";
 import { handleAuthRoute } from "./modules/auth/routes.js";
 import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
 import { createAuthSessionCache } from "./modules/auth/session-cache.js";
@@ -79,7 +79,10 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
   const metricsRegistry = options.metricsRegistry ?? createMetricsRegistry(config);
   const auditSink = options.auditSink ?? createAuditSink(config);
   const authTelemetrySink = createAuthTelemetrySink(config);
-  const authRepository = options.authRepository ?? createAuthRepository(config);
+  const accountRepository = options.accountRepository ?? createAccountRepository(config);
+  const authRepository = options.authRepository ?? createAuthRepository(config, {
+    accountProvisioner: isRegistrationAccountProvisioner(accountRepository) ? accountRepository : undefined,
+  });
   const authService = new AuthService(
     authRepository,
     createAuthRateLimiter(config, authRepository),
@@ -91,7 +94,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       },
     },
   );
-  const accountService = new AccountService(options.accountRepository ?? createAccountRepository(config));
+  const accountService = new AccountService(accountRepository);
   const adminAuditService = new AdminAuditService(options.adminAuditRepository ?? createAdminAuditRepository(config), config);
   const lifecycle = options.lifecycle ?? new ApiLifecycle();
   const adminRuntimeService = new AdminRuntimeService(config, lifecycle);
@@ -242,6 +245,14 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     }
   });
   return server;
+}
+
+function isRegistrationAccountProvisioner(value: unknown): value is RegistrationAccountProvisioner {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      typeof (value as { provisionRegisteredAccount?: unknown }).provisionRegisteredAccount === "function",
+  );
 }
 
 function emitTelemetry<T>(sink: { emit(event: T): Promise<void> }, event: T, failureMarker: string) {

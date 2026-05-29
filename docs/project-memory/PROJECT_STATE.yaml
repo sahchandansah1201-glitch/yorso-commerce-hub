@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "phase_1j_account_source_of_truth_closure_audit_committed_local"
-  head_summary: "Backend Phase 1J Account Source Of Truth Closure Audit committed locally with validation passed."
+  head_commit: "backend_phase_2a_registration_account_source_of_truth_committed_local"
+  head_summary: "Backend Phase 2A registration-to-account source of truth committed locally with release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "No expected dirty worktree after the Phase 1J checkpoint commit."
+    - "No expected dirty worktree after the Phase 2A checkpoint commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_1j_account_source_of_truth_closure_audit"
-  summary: "Backend Phase 1 Account Source Of Truth is closure-audited as self-hosted account authority, with remaining non-account Supabase/prototype debt explicitly out of scope."
+  id: "backend_phase_2a_registration_account_source_of_truth"
+  summary: "API-enabled registration now stores funnel progress in the self-hosted backend and completes by creating the account workspace and auth session in owned storage."
   status: "committed_locally_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 2A implementation is recorded in docs/backend/phase-2a-registration-account-source-of-truth.md."
+    - "API-enabled /register/* now calls self-hosted /v1/auth/register/* routes when VITE_YORSO_API_URL is configured; API-disabled Lovable/local preview keeps the mock flow as non-production."
+    - "Backend registration state is stored in yorso_registration_drafts through migration 0026_registration_account_source.sql."
+    - "Registration completion creates the self-hosted user, credential, company, company media row, roles, notification defaults, optional target-market meta-region and auth session."
+    - "RegisterReady stores the backend-issued self_hosted session after completion and fails closed on self-hosted completion errors instead of silently creating a local buyer session."
+    - "No hosted BaaS/Supabase production dependency was added; Supabase generated type warnings remain non-strict legacy/prototype debt."
+    - "External email/SMS delivery is intentionally out of Phase 2A; backend owns verification state and self-hosted delivery/outbox remains a future infrastructure decision."
+    - "Phase 2A targeted validation passed: contracts build; registration API contract tests; API server registration/auth session tests; registration funnel/auth runtime frontend tests; TypeScript build."
+    - "Phase 2A release validation passed: npm run test:db-migrations; focused API repository/server/storage tests; npm run lint; npm run check:production-scale-baseline; npm run check:self-hosted-production-runtime; npm run api:build; git diff --check; npm run build."
+    - "Recommended next implementation after Phase 2A: Backend Phase 2B self-hosted verification delivery/outbox decision if product wants real email/SMS delivery, or a scoped legacy Supabase consolidation pass."
     - "Phase 1J closure audit is recorded in docs/backend/phase-1-account-source-of-truth-closure-audit.md."
     - "Phase 1J does not add runtime code; it closes Backend Phase 1 Account Source Of Truth as a documented gate after Phases 1A-1I."
     - "Phase 1J verifies that API-enabled /account/* validates the self-hosted session, hydrates account workspace from the self-hosted API, saves through backend authority, enforces accountVersion conflicts/preconditions and no longer uses localStorage as production write source."
@@ -144,6 +154,22 @@ active_workstream:
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "Next planned workstream after Phase 1J checkpoint: Backend Phase 2A registration-to-account creation and verification source of truth, or a scoped self-hosted consolidation pass for remaining legacy Supabase surfaces."
   confirmed_files:
+    - "docs/backend/phase-2a-registration-account-source-of-truth.md"
+    - "packages/db/migrations/0026_registration_account_source.sql"
+    - "packages/db/migration-manifest.json"
+    - "packages/contracts/src/auth.ts"
+    - "apps/api/src/modules/auth/routes.ts"
+    - "apps/api/src/modules/auth/service.ts"
+    - "apps/api/src/modules/auth/repository.ts"
+    - "apps/api/src/modules/auth/postgres-repository.ts"
+    - "apps/api/src/modules/auth/factory.ts"
+    - "apps/api/src/modules/account/repository.ts"
+    - "apps/api/src/server.ts"
+    - "apps/api/src/server.test.ts"
+    - "src/lib/api-contracts.ts"
+    - "src/lib/api-contracts.registration.test.ts"
+    - "src/pages/register/RegisterVerify.tsx"
+    - "src/pages/register/RegisterReady.tsx"
     - "docs/backend/phase-1-account-source-of-truth-closure-audit.md"
     - "docs/backend/phase-1-account-workspace-aggregate-read.md"
     - "docs/backend/phase-1-account-media-document-version-boundary.md"

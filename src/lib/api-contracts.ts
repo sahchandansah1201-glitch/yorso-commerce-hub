@@ -122,6 +122,75 @@ const err = (code: ErrorCode, field?: string): ApiError => ({
   ...(field ? { field } : {}),
 });
 
+const normalizeBaseUrl = (value: string | undefined) => value?.trim().replace(/\/+$/, "") ?? "";
+const getSelfHostedRegistrationBaseUrl = () =>
+  normalizeBaseUrl(import.meta.env.VITE_YORSO_API_URL as string | undefined);
+
+export const isSelfHostedRegistrationConfigured = () => Boolean(getSelfHostedRegistrationBaseUrl());
+
+interface SelfHostedApiErrorBody {
+  error?: {
+    code?: string;
+    message?: string;
+  };
+  ok?: false;
+  requestId?: string;
+}
+
+const selfHostedRegistrationCodeMap: Record<string, ErrorCode> = {
+  registration_email_exists: ERROR_CODES.EMAIL_ALREADY_EXISTS,
+  registration_session_invalid: ERROR_CODES.VERIFICATION_FAILED,
+  registration_invalid_code: ERROR_CODES.INVALID_CODE,
+  registration_rate_limited: ERROR_CODES.RATE_LIMITED,
+  registration_email_not_verified: ERROR_CODES.VERIFICATION_FAILED,
+  registration_phone_not_verified: ERROR_CODES.VERIFICATION_FAILED,
+  registration_details_required: ERROR_CODES.MISSING_REQUIRED_FIELD,
+};
+
+const selfHostedRegistrationError = (
+  code: string,
+  message?: string,
+  retryAfterSec?: number,
+): ApiError => {
+  const mapped = selfHostedRegistrationCodeMap[code] ?? ERROR_CODES.SERVER_ERROR;
+  return {
+    ok: false,
+    code: mapped,
+    message: message || getErrorMessage(mapped),
+    ...(retryAfterSec ? { retryAfterSec } : {}),
+  };
+};
+
+const requestSelfHostedRegistration = async <T>(
+  path: string,
+  body: unknown,
+): Promise<ApiResult<T>> => {
+  const baseUrl = getSelfHostedRegistrationBaseUrl();
+  if (!baseUrl) return err(ERROR_CODES.SERVICE_UNAVAILABLE);
+
+  try {
+    const response = await fetch(`${baseUrl}${path}`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    const payload = (await response.json().catch(() => ({}))) as (T & { ok?: true }) & SelfHostedApiErrorBody;
+    if (!response.ok) {
+      const retryAfter = Number(response.headers.get("retry-after") ?? "");
+      return selfHostedRegistrationError(
+        payload.error?.code ?? `http_${response.status}`,
+        payload.error?.message,
+        Number.isFinite(retryAfter) ? retryAfter : undefined,
+      );
+    }
+    return { ok: true, data: payload as T };
+  } catch {
+    return err(ERROR_CODES.NETWORK_ERROR);
+  }
+};
+
 // ─── Mock infrastructure ─────────────────────────────────────────────────────
 
 const DEFAULT_LATENCY: Record<string, number> = {
@@ -276,6 +345,14 @@ export interface CompleteRegistrationResponse {
     role: "buyer" | "supplier";
     country: string;
   };
+  session?: {
+    displayName: string;
+    email: string;
+    expiresAt: string;
+    id: string;
+    issuedAt: string;
+    userId: string;
+  };
 }
 
 /** 9a. POST /api/auth/signin */
@@ -307,6 +384,13 @@ export interface PasswordResetResponse {
 export const authApi = {
   /** 1. Start registration — creates a session and "sends" the email OTP. */
   async startRegistration(payload: StartRegistrationPayload): Promise<ApiResult<StartRegistrationResponse>> {
+    if (isSelfHostedRegistrationConfigured()) {
+      return requestSelfHostedRegistration<StartRegistrationResponse>(
+        "/v1/auth/register/start",
+        payload,
+      );
+    }
+
     await delay("startRegistration");
     const flake = maybeFlake();
     if (flake) return flake;
@@ -329,6 +413,13 @@ export const authApi = {
 
   /** 2. Verify the email OTP. Code "123456" is the only one accepted. */
   async verifyEmail(payload: VerifyEmailPayload): Promise<ApiResult<VerifyEmailResponse>> {
+    if (isSelfHostedRegistrationConfigured()) {
+      return requestSelfHostedRegistration<VerifyEmailResponse>(
+        "/v1/auth/register/verify-email",
+        payload,
+      );
+    }
+
     await delay("verifyEmail");
     const flake = maybeFlake();
     if (flake) return flake;
@@ -357,6 +448,13 @@ export const authApi = {
 
   /** 3. Submit account details (name, company, country, VAT, password). */
   async submitDetails(payload: SubmitDetailsPayload): Promise<ApiResult<SubmitDetailsResponse>> {
+    if (isSelfHostedRegistrationConfigured()) {
+      return requestSelfHostedRegistration<SubmitDetailsResponse>(
+        "/v1/auth/register/details",
+        payload,
+      );
+    }
+
     await delay("submitDetails");
     const flake = maybeFlake();
     if (flake) return flake;
@@ -377,6 +475,13 @@ export const authApi = {
   async requestPhoneVerification(
     payload: RequestPhoneVerificationPayload,
   ): Promise<ApiResult<RequestPhoneVerificationResponse>> {
+    if (isSelfHostedRegistrationConfigured()) {
+      return requestSelfHostedRegistration<RequestPhoneVerificationResponse>(
+        "/v1/auth/register/phone/send",
+        payload,
+      );
+    }
+
     await delay("requestPhoneVerification");
     const flake = maybeFlake();
     if (flake) return flake;
@@ -396,6 +501,13 @@ export const authApi = {
 
   /** 5. Verify the phone OTP. Code "0000" is rejected; anything else (≥4 digits) accepted. */
   async verifyPhone(payload: VerifyPhonePayload): Promise<ApiResult<VerifyPhoneResponse>> {
+    if (isSelfHostedRegistrationConfigured()) {
+      return requestSelfHostedRegistration<VerifyPhoneResponse>(
+        "/v1/auth/register/phone/verify",
+        payload,
+      );
+    }
+
     await delay("verifyPhone");
     const flake = maybeFlake();
     if (flake) return flake;
@@ -411,6 +523,13 @@ export const authApi = {
 
   /** 6. Save onboarding (categories, volume, certifications). */
   async submitOnboarding(payload: SubmitOnboardingPayload): Promise<ApiResult<SubmitOnboardingResponse>> {
+    if (isSelfHostedRegistrationConfigured()) {
+      return requestSelfHostedRegistration<SubmitOnboardingResponse>(
+        "/v1/auth/register/onboarding",
+        payload,
+      );
+    }
+
     await delay("submitOnboarding");
     const flake = maybeFlake();
     if (flake) return flake;
@@ -423,6 +542,13 @@ export const authApi = {
 
   /** 7. Save target markets / countries. */
   async submitMarkets(payload: SubmitMarketsPayload): Promise<ApiResult<SubmitMarketsResponse>> {
+    if (isSelfHostedRegistrationConfigured()) {
+      return requestSelfHostedRegistration<SubmitMarketsResponse>(
+        "/v1/auth/register/markets",
+        payload,
+      );
+    }
+
     await delay("submitMarkets");
     const flake = maybeFlake();
     if (flake) return flake;
@@ -437,6 +563,13 @@ export const authApi = {
   async completeRegistration(
     payload: CompleteRegistrationPayload,
   ): Promise<ApiResult<CompleteRegistrationResponse>> {
+    if (isSelfHostedRegistrationConfigured()) {
+      return requestSelfHostedRegistration<CompleteRegistrationResponse>(
+        "/v1/auth/register/complete",
+        payload,
+      );
+    }
+
     await delay("completeRegistration");
     const flake = maybeFlake();
     if (flake) return flake;

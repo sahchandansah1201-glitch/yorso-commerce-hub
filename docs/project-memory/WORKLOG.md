@@ -2217,3 +2217,60 @@ Keep this file factual and append-only.
 - Known non-blocking warnings preserved:
   - Supabase generated types out of sync in non-strict mode;
   - Browserslist data stale.
+
+## 2026-05-29
+
+- Implemented Backend Phase 2A: Registration-To-Account Source Of Truth.
+- Added backend-owned registration draft persistence:
+  - migration `0026_registration_account_source.sql`;
+  - manifest and migration test updates;
+  - draft indexes for email diagnostics and expired-draft cleanup.
+- Added self-hosted `/v1/auth/register/*` route set:
+  - start;
+  - verify email;
+  - details;
+  - phone send;
+  - phone verify;
+  - onboarding;
+  - markets;
+  - complete.
+- Added shared registration contracts in `packages/contracts/src/auth.ts`.
+- Implemented registration completion against owned storage:
+  - user;
+  - auth credential;
+  - company;
+  - company media row;
+  - roles;
+  - notification defaults;
+  - optional target-market meta-region;
+  - auth session.
+- Updated frontend registration API boundary:
+  - API-enabled registration calls the self-hosted backend;
+  - API-disabled Lovable/local preview keeps the mock flow;
+  - self-hosted completion errors fail closed instead of creating a local
+    pseudo-session.
+- Updated `RegisterReady` so successful self-hosted completion stores the
+  backend-issued session with `source: "self_hosted"`.
+- Kept external email/SMS delivery out of scope; backend owns verification
+  state and delivery/outbox remains a future self-hosted infrastructure
+  decision.
+- Added `docs/backend/phase-2a-registration-account-source-of-truth.md`.
+- Updated `docs/backend/frontend-backend-contract.md` and
+  `docs/backend/production-scale-baseline.md`.
+- Validation passed:
+  - `npm run contracts:build`;
+  - `npx vitest run src/lib/api-contracts.registration.test.ts`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts --testNamePattern "registration funnel|auth sessions"`;
+  - `npx vitest run src/lib/registration-funnel.e2e.test.tsx src/lib/registration-funnel-degraded.e2e.test.tsx src/lib/auth-runtime.test.ts`;
+  - `npx tsc -b --noEmit`;
+  - `npm run test:db-migrations`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run api:build`;
+  - `git diff --check`;
+  - `npm run build`.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.

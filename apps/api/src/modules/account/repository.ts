@@ -1,4 +1,6 @@
+import { randomUUID } from "node:crypto";
 import type {
+  AccountRole,
   AccountBranchesUpdate,
   AccountMetaRegionsUpdate,
   AccountNotificationsUpdate,
@@ -21,6 +23,22 @@ import type {
   UserProfile,
   UserProfileUpdate,
 } from "../../../../../packages/contracts/dist/index.js";
+
+export interface RegisteredAccountProvision {
+  categories: string[];
+  certifications: string[];
+  companyName: string;
+  country: string;
+  countryCode: string;
+  email: string;
+  fullName: string;
+  phone: string | null;
+  role: Exclude<AccountRole, "both">;
+  targetCountries: string[];
+  userId: string;
+  vatTin: string;
+  volume: string;
+}
 
 export interface AccountRepository {
   getAccountVersion(userId: string): Promise<string>;
@@ -103,6 +121,14 @@ const mergeCompanyProfile = (current: CompanyProfile, update: CompanyProfileUpda
   media: update.media ? { ...current.media, ...update.media } : current.media,
   updatedAt: new Date().toISOString(),
 });
+
+const splitFullName = (fullName: string) => {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  return {
+    firstName: parts[0] || "YORSO",
+    lastName: parts.slice(1).join(" ") || "-",
+  };
+};
 
 const demoBranches: CompanyBranch[] = [
   {
@@ -261,6 +287,87 @@ export class MemoryAccountRepository implements AccountRepository {
   async touchAccountVersion(userId: string) {
     await this.getAccountVersion(userId);
     this.bumpAccountVersion(userId);
+  }
+
+  async provisionRegisteredAccount(input: RegisteredAccountProvision) {
+    const { firstName, lastName } = splitFullName(input.fullName);
+    const now = new Date().toISOString();
+    const user: UserProfile = {
+      id: input.userId,
+      firstName,
+      lastName,
+      email: input.email,
+      phone: input.phone,
+      preferredLanguage: "en",
+      timezone: "UTC",
+      updatedAt: now,
+    };
+    const company: CompanyProfile = {
+      id: randomUUID(),
+      legalName: input.companyName,
+      tradeName: input.companyName,
+      accountRole: input.role,
+      countryCode: input.countryCode,
+      website: null,
+      yearFounded: null,
+      contactEmail: input.email,
+      contactPhone: input.phone,
+      messengerHandle: input.phone,
+      description: null,
+      productFocus: input.categories,
+      certificates: input.certifications,
+      paymentTerms: [],
+      publicationStatus: "draft",
+      buyerQualificationStatus: "not_started",
+      media: {
+        logoObjectKey: null,
+        coverObjectKey: null,
+        logoAlt: null,
+        coverAlt: null,
+        logoFit: "contain",
+        coverFocalX: 0.5,
+        coverFocalY: 0.5,
+      },
+      updatedAt: now,
+    };
+
+    this.users.set(input.userId, user);
+    this.companies.set(input.userId, company);
+    this.branches.set(input.userId, []);
+    this.products.set(input.userId, []);
+    this.metaRegions.set(
+      input.userId,
+      input.targetCountries.length > 0
+        ? [
+            {
+              id: "mr_target_markets",
+              name: "Target markets",
+              countries: input.targetCountries,
+              logisticsReason: "manual",
+              defaultCurrency: "USD",
+              notes: input.volume,
+              usedFor: ["supplier_matching"],
+            },
+          ]
+        : [],
+    );
+    this.notifications.set(input.userId, [
+      {
+        id: "n_email",
+        channel: "email",
+        enabled: true,
+        events: ["price_access_approved", "rfq_response", "document_readiness"],
+        frequency: "instant",
+      },
+      {
+        id: "n_in_app",
+        channel: "in_app",
+        enabled: true,
+        events: ["price_access_approved", "new_matching_product", "document_readiness"],
+        frequency: "instant",
+      },
+    ]);
+    this.accountVersions.set(input.userId, nextAccountVersion());
   }
 
   async getWorkspaceSnapshot(userId: string) {

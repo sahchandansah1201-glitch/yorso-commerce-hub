@@ -16,58 +16,76 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 1J Account Source Of Truth Closure Audit is committed locally
-with validation green. Next step: start the next scoped backend workstream.
+Backend Phase 2A Registration-To-Account Source Of Truth is committed locally
+and release validation has passed. Next step: choose Phase 2B verification
+delivery/outbox or a legacy Supabase consolidation pass.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Phase 1 account authority | Закрыть Phase 1 только если `/account/*` в API-enabled режиме опирается на self-hosted backend, а не на localStorage. | Закрыто: Phase 1A-1I дают session gate, backend hydration, section-scoped writes, conflict/precondition handling, storage boundary, transactional writes and aggregate workspace read. | Не расширять Phase 1; перейти к следующему scoped workstream. |
-| Self-contained production boundary | Зафиксировать, что account production path не зависит от Supabase. | Закрыто для account Phase 1: self-hosted auth/session/account API, PostgreSQL and self-hosted file storage. Supabase remains legacy/prototype debt outside this closure. | Отдельно решить legacy Supabase removal/consolidation. |
-| Contract/docs | Обновить route/data-source contract и memory files. | `frontend-backend-contract.md`, Phase 1J closure audit and project-memory files updated. | Использовать как Phase 2 guardrail. |
-| Validation | Проверить policy/scale/lint/diff. | Passed: `npm run check:self-hosted-production-runtime`; `npm run check:production-scale-baseline`; `npm run lint`; `git diff --check`. | Для следующего workstream снова валидировать точечно и release-гейтами. |
+| Registration source of truth | Перенести API-enabled registration funnel из browser-only state в self-hosted backend. | Реализовано: `yorso_registration_drafts` и `/v1/auth/register/*` хранят шаги регистрации на backend. | Добавить delivery/outbox только отдельным решением. |
+| Account creation | На завершении регистрации создать полноценный backend account workspace. | Реализовано: user, credential, company, media row, roles, notification defaults, optional target-market meta-region и auth session создаются в owned storage. | Расширять bootstrap только под подтвержденные onboarding-требования. |
+| Frontend boundary | `/register/*` должен использовать self-hosted API при `VITE_YORSO_API_URL`. | Реализовано: `authApi` вызывает backend routes; mock остался только API-disabled preview. | Не использовать preview-flow как production behavior. |
+| Self-contained runtime | Не добавлять hosted BaaS/Supabase dependency. | Сохранено: Phase 2A использует owned API/PostgreSQL/session path; Supabase warning остался legacy/prototype debt. | Выносить оставшиеся Supabase references в отдельный consolidation workstream. |
+| Validation | Проверить контракты, DB migration, API, frontend funnel, lint, build and runtime guards. | Passed: contracts, focused API/frontend/DB tests, TypeScript, lint, production-scale, self-hosted runtime, api build, diff check, production build. | Выбрать следующий scoped workstream. |
 
 ## Current Status
 
 - Repository branch: `main`.
 - Latest public UX/a11y safeguard batch synced: Batch #141.
 - Backend Phase 0 closure audit and remediation are complete.
-- Backend Phase 1 discovery/audit is complete.
-- Backend Phase 1A-1I are implemented, validated and committed.
-- Backend Phase 1J closure audit is committed locally and validates the
-  Phase 1 exit criteria.
+- Backend Phase 1 discovery/audit and Phases 1A-1J are complete.
+- Backend Phase 2A is committed locally and validation green.
 
-## Phase 1J Files
+## Phase 2A Files
 
-- `docs/backend/phase-1-account-source-of-truth-closure-audit.md`
+- `docs/backend/phase-2a-registration-account-source-of-truth.md`
+- `packages/db/migrations/0026_registration_account_source.sql`
+- `packages/db/migration-manifest.json`
+- `packages/contracts/src/auth.ts`
+- `apps/api/src/modules/auth/routes.ts`
+- `apps/api/src/modules/auth/service.ts`
+- `apps/api/src/modules/auth/repository.ts`
+- `apps/api/src/modules/auth/postgres-repository.ts`
+- `apps/api/src/modules/auth/factory.ts`
+- `apps/api/src/modules/account/repository.ts`
+- `apps/api/src/server.ts`
+- `apps/api/src/server.test.ts`
+- `src/lib/api-contracts.ts`
+- `src/lib/api-contracts.registration.test.ts`
+- `src/pages/register/RegisterVerify.tsx`
+- `src/pages/register/RegisterReady.tsx`
 - `docs/backend/frontend-backend-contract.md`
-- `docs/project-memory/PROJECT_STATE.yaml`
-- `docs/project-memory/CONTEXT_HEALTH.md`
-- `docs/project-memory/NEXT_ACTIONS.md`
-- `docs/project-memory/HANDOFF.md`
-- `docs/project-memory/WORKLOG.md`
-- `docs/project-memory/ARTIFACTS.md`
+- `docs/backend/production-scale-baseline.md`
 
 ## Validation
 
 Passed locally on 2026-05-29:
 
-- `npm run check:self-hosted-production-runtime`
-- `npm run check:production-scale-baseline`
+- `npm run contracts:build`
+- `npx vitest run src/lib/api-contracts.registration.test.ts`
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts --testNamePattern "registration funnel|auth sessions"`
+- `npx vitest run src/lib/registration-funnel.e2e.test.tsx src/lib/registration-funnel-degraded.e2e.test.tsx src/lib/auth-runtime.test.ts`
+- `npx tsc -b --noEmit`
+- `npm run test:db-migrations`
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`
 - `npm run lint`
+- `npm run check:production-scale-baseline`
+- `npm run check:self-hosted-production-runtime`
+- `npm run api:build`
 - `git diff --check`
+- `npm run build`
+
+Known non-blocking warnings:
+
+- Supabase generated types out of sync in non-strict preview/build mode.
+- Browserslist data stale.
 
 ## Next Recommended Workstream
 
-Backend Phase 2A: Registration-to-account creation source of truth.
-
-Concrete scope:
-
-- self-hosted registration creates or attaches the account in backend storage;
-- email/phone verification state becomes backend-owned;
-- post-registration account workspace initializes from PostgreSQL;
-- local/Lovable preview remains explicitly API-disabled and non-production.
+Backend Phase 2B: self-hosted registration verification delivery/outbox
+decision.
 
 Alternative:
 

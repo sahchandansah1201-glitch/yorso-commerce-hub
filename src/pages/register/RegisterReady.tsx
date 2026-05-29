@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import analytics from "@/lib/analytics";
-import { authApi, isApiError } from "@/lib/api-contracts";
+import { authApi, isApiError, isSelfHostedRegistrationConfigured } from "@/lib/api-contracts";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
@@ -43,6 +43,7 @@ const RegisterReady = () => {
   const isReturningBuyer = guardPassed && data.role === "buyer" && isSignedIn && data.completed === true;
   const REDIRECT_SECONDS = 5;
   const [secondsLeft, setSecondsLeft] = useState(REDIRECT_SECONDS);
+  const [completionError, setCompletionError] = useState<string | null>(null);
   const completionRan = useRef(false);
 
   useEffect(() => {
@@ -55,7 +56,23 @@ const RegisterReady = () => {
       const result = await authApi.completeRegistration({ sessionId: data.sessionId });
       if (isApiError(result)) {
         analytics.track("api_error", { endpoint: "auth/register/complete", code: result.code });
-        // Soft-fail: still show the success screen so the user is not blocked.
+        if (isSelfHostedRegistrationConfigured()) {
+          setCompletionError(result.message);
+          return;
+        }
+        // API-disabled preview keeps the historical soft-fail behavior.
+      } else if (result.data.session && data.role === "buyer" && !isSignedIn) {
+        signIn({
+          displayName: result.data.session.displayName,
+          expiresAt: result.data.session.expiresAt,
+          id: result.data.session.id,
+          identifier: result.data.session.email,
+          method: "email",
+          signedInAt: result.data.session.issuedAt,
+          source: "self_hosted",
+          userId: result.data.session.userId,
+        });
+        analytics.track("workspace_session_started", { method: "email", source: "self_hosted" });
       }
       setField("completed", true);
       const funnelDurationMs = data.startedAt > 0 ? Date.now() - data.startedAt : null;
@@ -97,7 +114,7 @@ const RegisterReady = () => {
       resetRegistrationAttemptId();
 
       // Buyers came here to find products fast — sign them in and route to /offers.
-      if (data.role === "buyer" && data.email && !isSignedIn) {
+      if (data.role === "buyer" && data.email && !isSignedIn && (!result.ok || !result.data.session)) {
         signIn({ identifier: data.email, method: "email" });
         analytics.track("workspace_session_started", { method: "email" });
       }
@@ -114,6 +131,7 @@ const RegisterReady = () => {
   // Auto-redirect verified buyers to the procurement workspace with a visible countdown.
   useEffect(() => {
     if (!guardPassed) return;
+    if (completionError) return;
     if (data.role !== "buyer") return;
     if (isReturningBuyer) return;
 
@@ -140,10 +158,31 @@ const RegisterReady = () => {
       window.clearInterval(tick);
       window.clearTimeout(redirect);
     };
-  }, [guardPassed, data.role, data.sessionId, isReturningBuyer, navigate]);
+  }, [guardPassed, data.role, data.sessionId, isReturningBuyer, navigate, completionError]);
 
   if (!guardPassed) return null;
   if (isReturningBuyer) return null;
+
+  if (completionError) {
+    return (
+      <RegistrationLayout hideProgress>
+        <div className="text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10">
+            <ShieldCheck className="h-8 w-8 text-destructive" />
+          </div>
+          <h1 className="font-heading text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
+            {t.reg_couldNotContinue}
+          </h1>
+          <p role="alert" className="mt-3 text-base text-muted-foreground">
+            {completionError}
+          </p>
+          <Button asChild size="lg" className="mt-6 w-full h-14 text-base font-semibold rounded-xl gap-2">
+            <Link to="/register/details">{t.account_unavailable_retry}</Link>
+          </Button>
+        </div>
+      </RegistrationLayout>
+    );
+  }
 
   const categoriesCount = data.categories.length;
   const countriesCount = data.countries.length;

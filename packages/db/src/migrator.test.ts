@@ -37,6 +37,7 @@ describe("self-hosted DB migration planner", () => {
       "0023_admin_incident_trend_analytics",
       "0024_admin_incident_trend_actions",
       "0025_admin_incident_trend_action_queue",
+      "0026_registration_account_source",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -65,6 +66,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0023_admin_incident_trend_analytics.sql",
       "migrations/0024_admin_incident_trend_actions.sql",
       "migrations/0025_admin_incident_trend_action_queue.sql",
+      "migrations/0026_registration_account_source.sql",
     ]);
   });
 

@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "phase_1j_account_source_of_truth_closure_audit_committed_local"
+head_commit: "backend_phase_2a_registration_account_source_of_truth_committed_local"
 latest_merged_batch: 141
-active_workstream: "backend_phase_1j_account_source_of_truth_closure_audit"
+active_workstream: "backend_phase_2a_registration_account_source_of_truth"
 pull_request: null
-recommended_action: "start Backend Phase 2A registration-to-account creation source of truth, unless the user chooses legacy Supabase consolidation first"
-why_low: "Backend Phase 0 closure audit and remediation are recorded in docs/backend/phase-0-closure-audit.md. Phase 1 discovery/audit is recorded in docs/backend/phase-1-account-source-of-truth-discovery-audit.md. Phase 1A-1I are documented, committed and validated. Phase 1J closure audit is recorded in docs/backend/phase-1-account-source-of-truth-closure-audit.md; self-hosted production runtime, production-scale baseline, lint and diff checks passed."
+recommended_action: "choose Backend Phase 2B verification delivery/outbox or legacy Supabase consolidation"
+why_low: "Backend Phase 0 closure audit/remediation and Phase 1A-1J are documented and validated. Phase 2A registration-to-account source of truth is committed locally with release validation passed."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_1j_account_source_of_truth_closure_audit.
-Current HEAD baseline: Phase 1J closure audit committed locally after Backend Phase 1I; Batch #141 merge commit 5eafcb7 is preserved.
+Current workstream: backend_phase_2a_registration_account_source_of_truth.
+Current HEAD baseline: Backend Phase 2A registration-to-account source of truth committed locally after Backend Phase 1J; Batch #141 merge commit 5eafcb7 is preserved.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,11 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: start Backend Phase 2A registration-to-account creation source of truth, unless the user chooses the legacy Supabase consolidation workstream first.
+Current recommended action: choose Backend Phase 2B self-hosted registration verification delivery/outbox decision or the legacy Supabase consolidation workstream.
+Phase 2A implemented and committed locally: docs/backend/phase-2a-registration-account-source-of-truth.md records registration-to-account creation as a self-hosted backend source of truth.
+Phase 2A runtime: API-enabled /register/* calls /v1/auth/register/*; yorso_registration_drafts stores funnel state; completion creates user, credential, company, company media row, roles, notification defaults, optional target-market meta-region and auth session.
+Phase 2A frontend boundary: RegisterReady stores the backend-issued self_hosted session and fails closed on self-hosted completion errors; API-disabled Lovable/local preview keeps the old mock flow as non-production.
+Phase 2A validation passed: npm run contracts:build; npx vitest run src/lib/api-contracts.registration.test.ts; npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts --testNamePattern "registration funnel|auth sessions"; npx vitest run src/lib/registration-funnel.e2e.test.tsx src/lib/registration-funnel-degraded.e2e.test.tsx src/lib/auth-runtime.test.ts; npx tsc -b --noEmit; npm run test:db-migrations; focused API repository/server/storage tests; npm run lint; npm run check:production-scale-baseline; npm run check:self-hosted-production-runtime; npm run api:build; git diff --check; npm run build.
 Phase 1J implemented locally: docs/backend/phase-1-account-source-of-truth-closure-audit.md closes Backend Phase 1 Account Source Of Truth as a documented gate after Phases 1A-1I. It does not add runtime code.
 Phase 1J account authority finding: API-enabled /account/* now validates the self-hosted session, hydrates through self-hosted account API, saves through backend authority, uses accountVersion conflict/precondition handling and keeps localStorage/mock only for API-disabled preview.
 Phase 1J self-contained product boundary: account Phase 1 production path uses self-hosted auth/session/account API, PostgreSQL and self-hosted file storage. Existing Supabase references remain legacy/prototype debt outside this Phase 1 closure and need a separate consolidation/removal workstream.
@@ -120,7 +124,7 @@ Lovable sync for Batch #141 is confirmed clean by the user at main @ Batch #141,
 Lovable confirmed Batch #141 files/routes checked: sheet.tsx, CompareTray, IntelligenceRail, SheetCloseLocale.test.tsx, public-sheet-close-locale-a11y e2e, package.json and production-scale baseline.
 Lovable confirmed Batch #141 sheet close a11y: SheetContent accepts optional closeLabel with Close fallback, CompareTray and IntelligenceRail pass t.aria_close, RU/ES unit and e2e guards are present, Close does not leak into RU/ES drawer states.
 Lovable confirmed Batch #141 catalog drawer behavior: visible /offers layout, compare tray open/clear/remove, signal drawer toggles, analytics, supplier identity redaction, access gating, exact-price locks, public SEO, route structure, language selector, localStorage yorso-lang, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#140 safeguards are preserved.
-Current Batch #141 next step: start the next scoped public UX/UI audit batch from current main.
+Current Batch #141 next step was superseded by the backend Phase 2A workstream requested by the user.
 Current Batch #140 scope: make signed-in public header account controls explicit to assistive tech without changing visible header layout, account destinations, session storage, routes, access behavior or SEO.
 Current Batch #140 finding: the desktop signed-in account chip exposed only the buyer display name/email without a localized menu purpose; the dropdown was not associated through aria-controls and did not expose a named group; the mobile account panel did not expose localized account-menu context.
 Current Batch #140 implementation: Header adds localized account menu/current account labels, aria-haspopup/aria-controls on the desktop account chip, role=group around desktop dropdown and mobile account panel, unit coverage in Header.landmarks.test.tsx and RU leak coverage in aria-tooltips-localized.ru.test.tsx, plus e2e/public-account-menu-a11y.spec.ts and package smoke wiring.
@@ -155,8 +159,8 @@ Lovable sync for Batch #138 is confirmed clean by the user at main @ Batch #138,
 Lovable confirmed Batch #138 files/routes checked: InfoPageLayout, all 10 info/legal pages, InfoPageSeo.test.tsx, locale-document-meta-ru.test.tsx, public-info-route-seo e2e, package.json and production-scale baseline.
 Lovable confirmed Batch #138 route SEO: localized `{title} | YORSO`, canonical paths, localized descriptions, OG/Twitter metadata, one info-page JSON-LD script, AboutPage/ContactPage/WebPage schema split and RU direct entry on /anti-fraud with localized RU metadata and og:locale=ru_RU.
 Lovable confirmed Batch #138 mobile/CTA status: Back to homepage remains a single direct link, nested controls are absent, 390px overflow is absent, Header/footer/skip link/landmarks/route structure are unchanged and Batches #110-#137 plus Batch #113 are preserved.
-Latest merged batch: Batch #140 public account menu a11y is merged to main as 8ad19a6 via PR #192.
-Latest Lovable-synced batch: Batch #140 public account menu a11y is merged to main as 8ad19a6 via PR #192 and Lovable sync is confirmed clean.
+Latest merged public UX/a11y batch: Batch #141 public sheet close locale a11y is merged to main as 5eafcb7 via PR #193.
+Latest Lovable-synced public UX/a11y batch: Batch #141 public sheet close locale a11y is merged to main as 5eafcb7 via PR #193 and Lovable sync is confirmed clean.
 Current Batch #137 scope: localize lower buyer decision-support blocks on /offers/:id and harden locked-buyer recommendations without changing product data fetching.
 Current Batch #137 finding: /offers/:id lower sections still had hardcoded English UI labels in TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ. SimilarOffers/SimilarProducts also rendered raw mock offer price ranges for locked buyers.
 Current Batch #137 implementation: TrustSection, FullSpecifications, SimilarOffers, SimilarProducts, RelatedArticles and DecisionFAQ now use typed EN/RU/ES offerDetail decision-support keys; OfferDetail passes renderAccessLevel into lower trust/recommendation blocks; similar offer/product cards show exact prices only for qualified_unlocked buyers; related insight cards are real React Router links; FAQ disclosures expose aria-expanded, aria-controls and mobile-safe targets; e2e/offer-detail-decision-support-locale-a11y.spec.ts and DecisionSupport.locale.test.tsx guard the contract.

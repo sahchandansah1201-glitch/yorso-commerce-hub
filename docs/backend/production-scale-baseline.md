@@ -4539,6 +4539,88 @@ Marker: account workspace aggregate read.
 Marker: account source of truth.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 2A Registration-To-Account Source Of Truth
+
+Phase 2A moves API-enabled `/register/*` from frontend-only prototype state to
+the self-hosted backend. Registration steps are stored in
+`yorso_registration_drafts`; completion creates the user, credential, company,
+workspace defaults and auth session in owned storage.
+
+Expected read/write profile:
+
+- Registration start creates one backend draft row.
+- Email/phone verification, details, onboarding and markets each update one
+  draft row by primary key.
+- Completion performs one account creation write path and issues one auth
+  session.
+- API-disabled Lovable/local preview keeps the existing mock flow and is not a
+  production source of truth.
+
+Cache, queue and backpressure strategy:
+
+- No external hosted BaaS, polling or subscription dependency is introduced.
+- Verification request count is stored on the draft and capped.
+- Request schema/body limits remain the first backpressure boundary.
+- Email/SMS delivery outbox is deferred until YORSO chooses self-hosted delivery
+  infrastructure; Phase 2A owns state, not external delivery.
+
+Database indexing and pagination strategy:
+
+- `yorso_registration_drafts.id` is the primary registration-step path.
+- `idx_yorso_registration_drafts_email_recent` supports email checks and
+  support diagnostics.
+- `idx_yorso_registration_drafts_active_expiry` supports expired-draft cleanup.
+- Account completion relies on existing user/company/session indexes and
+  inserts bounded default workspace rows.
+
+Failure mode and graceful degradation:
+
+- Duplicate account email returns a conflict before creating a draft account.
+- Missing/expired registration sessions fail closed.
+- Invalid verification code does not advance the draft.
+- Self-hosted completion failure does not silently create a local buyer session.
+- Public catalog/supplier browsing remains redacted and unaffected.
+
+Observability and load-test plan:
+
+- Track registration route p95/p99 latency and status-code distribution.
+- Track draft completion, invalid-code, duplicate-email and expired-session
+  counts without logging credentials or full private contact data.
+- Load-test registration start, verification updates and completion under
+  10,000 concurrent-user pressure with duplicate email and expired draft mixes.
+
+Validation:
+
+- `npm run contracts:build`;
+- `npx vitest run src/lib/api-contracts.registration.test.ts`;
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts --testNamePattern "registration funnel|auth sessions"`;
+- `npx vitest run src/lib/registration-funnel.e2e.test.tsx src/lib/registration-funnel-degraded.e2e.test.tsx src/lib/auth-runtime.test.ts`;
+- `npx tsc -b --noEmit`;
+- `npm run test:db-migrations`;
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `npm run check:self-hosted-production-runtime`;
+- `npm run api:build`;
+- `git diff --check`;
+- `npm run build`.
+
+Production build metrics:
+
+- CSS `index-DbM2SN9t.css` 126.84 kB / 21.02 kB gzip.
+- Entry `index-BqYFae4R.js` 358.21 kB / 114.93 kB gzip.
+- `i18n-translations-Co3DNZMT.js` 343.80 kB / 107.82 kB gzip.
+- Registration route chunks:
+  - `RegisterEmail-BcWzA97r.js` 3.50 kB / 1.60 kB gzip;
+  - `RegisterVerify-6Et16ypU.js` 7.50 kB / 2.92 kB gzip;
+  - `RegisterDetails-Dc2ayIXr.js` 11.92 kB / 3.55 kB gzip;
+  - `RegisterReady-BoqIOkCC.js` 9.43 kB / 3.22 kB gzip.
+
+Marker: Backend Phase 2A.
+Marker: registration account source of truth.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
