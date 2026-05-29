@@ -49,6 +49,9 @@ const requiredComposeMarkers = [
   "YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS:",
   "YORSO_ADMIN_AUDIT_RETENTION_DAYS:",
   "AUTH_OBSERVABILITY_DRIVER: console",
+  "YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED:",
+  "YORSO_REGISTRATION_DELIVERY_SENDER: file_spool",
+  "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR: /var/lib/yorso/registration-delivery",
   "YORSO_ERROR_OBSERVABILITY_DRIVER: console",
   "YORSO_METRICS_DRIVER: prometheus",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER: console",
@@ -82,6 +85,7 @@ const requiredComposeMarkers = [
   "9001:9001",
   "yorso-postgres-data:",
   "yorso-api-uploads:",
+  "yorso-registration-delivery:",
   "yorso-redis-data:",
   "yorso-minio-data:",
 ];
@@ -119,6 +123,14 @@ const requiredEnvKeys = [
   "YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS",
   "YORSO_ADMIN_AUDIT_RETENTION_DAYS",
   "AUTH_OBSERVABILITY_DRIVER",
+  "YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED",
+  "YORSO_REGISTRATION_DELIVERY_SENDER",
+  "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR",
+  "YORSO_REGISTRATION_DELIVERY_WORKER_INTERVAL_MS",
+  "YORSO_REGISTRATION_DELIVERY_WORKER_BATCH_SIZE",
+  "YORSO_REGISTRATION_DELIVERY_WORKER_LEASE_MS",
+  "YORSO_REGISTRATION_DELIVERY_WORKER_RETRY_AFTER_MS",
+  "YORSO_REGISTRATION_DELIVERY_WORKER_ID",
   "YORSO_ERROR_OBSERVABILITY_DRIVER",
   "YORSO_METRICS_DRIVER",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
@@ -161,6 +173,9 @@ requireText(".env.example", envExample, "YORSO_AUDIT_MAX_IN_FLIGHT=2000");
 requireText(".env.example", envExample, "YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS=31");
 requireText(".env.example", envExample, "YORSO_ADMIN_AUDIT_RETENTION_DAYS=365");
 requireText(".env.example", envExample, "AUTH_OBSERVABILITY_DRIVER=disabled");
+requireText(".env.example", envExample, "YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=false");
+requireText(".env.example", envExample, "YORSO_REGISTRATION_DELIVERY_SENDER=disabled");
+requireText(".env.example", envExample, "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR=.data/registration-delivery");
 requireText(".env.example", envExample, "YORSO_ERROR_OBSERVABILITY_DRIVER=disabled");
 requireText(".env.example", envExample, "YORSO_METRICS_DRIVER=disabled");
 requireText(".env.example", envExample, "YORSO_REQUEST_OBSERVABILITY_DRIVER=disabled");

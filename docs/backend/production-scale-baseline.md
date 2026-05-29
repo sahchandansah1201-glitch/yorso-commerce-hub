@@ -4778,6 +4778,81 @@ Marker: registration verification worker lease.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 2D Registration Delivery Runtime
+
+Phase 2D adds the self-hosted runtime decision for registration verification
+delivery: a background scheduler and `file_spool` sender. The scheduler runs
+the Phase 2C worker outside request handlers, while the sender writes durable
+handoff JSON files to an owned local directory.
+
+Expected read/write profile:
+
+- Public registration routes remain unchanged.
+- Scheduler reads at most one bounded batch per configured interval.
+- Each job receives the Phase 2C lease and sent/retry/failure writes.
+- File spool writes one local JSON handoff file per successfully handed-off job.
+
+Cache, queue and backpressure strategy:
+
+- `YORSO_REGISTRATION_DELIVERY_WORKER_BATCH_SIZE` bounds work per run.
+- `YORSO_REGISTRATION_DELIVERY_WORKER_INTERVAL_MS` bounds scheduler frequency.
+- Scheduler skips overlapping runs.
+- File spool uses an owned mounted volume; no hosted provider queue, Supabase
+  function or browser polling is introduced.
+
+Database indexing and pagination strategy:
+
+- Phase 2C ready index and `for update skip locked` lease query remain the DB
+  queue strategy.
+- Runtime never paginates through the full outbox; it repeatedly runs bounded
+  lease batches.
+
+Failure mode and graceful degradation:
+
+- File-spool write failure propagates to the worker and uses Phase 2C retry /
+  terminal failure semantics.
+- Scheduler catches worker-level failures and records failure metrics instead
+  of crashing request handling.
+- The HTTP server stops the scheduler on `close`.
+- Production config fails closed unless the worker is enabled, the sender is
+  `file_spool` and the spool directory is absolute.
+
+Observability and load-test plan:
+
+- Metrics expose worker run outcomes and job result counts.
+- Metrics do not contain destination, email, phone, draft id or delivery id.
+- Load-test 10,000 concurrent-user registration pressure with worker enabled,
+  multiple intervals and a mounted spool volume; inspect queue age, terminal
+  failures and filesystem write latency.
+
+Validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/delivery-sender.test.ts apps/api/src/modules/auth/delivery-scheduler.test.ts apps/api/src/modules/auth/delivery-runtime.test.ts apps/api/src/metrics.test.ts apps/api/src/server.test.ts`;
+- `npx tsc -b --noEmit`;
+- `npm run check:self-hosted-infra`;
+- `npm run check:self-hosted-production-runtime`;
+- `npm run check:production-scale-baseline`;
+- `npm run check:self-hosted-api`;
+- `npm run contracts:build`;
+- `npm run test:db-migrations`;
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/delivery-worker.test.ts apps/api/src/modules/auth/delivery-sender.test.ts apps/api/src/modules/auth/delivery-scheduler.test.ts apps/api/src/modules/auth/delivery-runtime.test.ts apps/api/src/metrics.test.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+- `npm run lint`;
+- `npm run api:build`;
+- `git diff --check`;
+- `npm run build`.
+
+Production build metrics:
+
+- CSS `index-DbM2SN9t.css` 126.84 kB / 21.02 kB gzip.
+- Entry `index-BqYFae4R.js` 358.21 kB / 114.93 kB gzip.
+- `i18n-translations-Co3DNZMT.js` 343.80 kB / 107.82 kB gzip.
+
+Marker: Backend Phase 2D.
+Marker: registration delivery runtime.
+Marker: file_spool sender.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

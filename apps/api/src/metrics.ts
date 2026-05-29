@@ -10,6 +10,7 @@ export interface MetricsRegistry {
   enabled: boolean;
   observeAdminAudit(event: AdminAuditMetricsEvent): void;
   observeAdminRuntime(event: AdminRuntimeMetricsEvent): void;
+  observeRegistrationDeliveryWorker(event: RegistrationDeliveryWorkerMetricsEvent): void;
   observeRequest(event: RequestTelemetryEvent): void;
   observeError(event: ErrorTelemetryEvent): void;
   observeAuth(event: AuthTelemetryEvent): void;
@@ -30,6 +31,17 @@ export interface AdminRuntimeMetricsEvent {
   reason?: string | null;
 }
 
+export interface RegistrationDeliveryWorkerMetricsEvent {
+  durationMs: number;
+  failed: number;
+  leased: number;
+  outcome: "failure" | "skipped" | "success";
+  reason?: string | null;
+  requeued: number;
+  sent: number;
+  workerId: string;
+}
+
 const durationBuckets = [0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10];
 const maxLabelLength = 96;
 
@@ -46,6 +58,10 @@ export class NoopMetricsRegistry implements MetricsRegistry {
   }
 
   observeAdminRuntime(): void {
+    // Metrics stay disabled in local prototype mode unless explicitly enabled.
+  }
+
+  observeRegistrationDeliveryWorker(): void {
     // Metrics stay disabled in local prototype mode unless explicitly enabled.
   }
 
@@ -97,6 +113,34 @@ export class InMemoryPrometheusMetricsRegistry implements MetricsRegistry {
       outcome: label(event.outcome),
       reason: label(event.reason ?? "none"),
     });
+  }
+
+  observeRegistrationDeliveryWorker(event: RegistrationDeliveryWorkerMetricsEvent): void {
+    this.increment("yorso_api_registration_delivery_worker_runs_total", {
+      outcome: label(event.outcome),
+      reason: label(event.reason ?? "none"),
+      worker_id: label(event.workerId),
+    });
+
+    for (const [result, count] of [
+      ["leased", event.leased],
+      ["sent", event.sent],
+      ["requeued", event.requeued],
+      ["failed", event.failed],
+    ] as const) {
+      if (count > 0) {
+        this.increment("yorso_api_registration_delivery_worker_jobs_total", {
+          result,
+          worker_id: label(event.workerId),
+        }, count);
+      }
+    }
+
+    this.observeDuration({
+      method: "WORKER",
+      outcome: label(event.outcome),
+      route: "/worker/registration-delivery",
+    }, event.durationMs / 1000);
   }
 
   observeRequest(event: RequestTelemetryEvent): void {

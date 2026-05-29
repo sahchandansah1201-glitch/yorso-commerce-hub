@@ -2,44 +2,43 @@
 
 ## Current Next Action
 
-Start the next scoped backend workstream after Backend Phase 2C.
+Start the next scoped backend workstream after Backend Phase 2D.
 
-Phase 2C adds a self-hosted registration verification delivery worker boundary.
-It leases queued `yorso_registration_delivery_outbox` jobs, sends them through
-an injectable sender interface, and marks each job `sent`, requeued or `failed`
-without adding Supabase, hosted BaaS, external provider coupling or public UI
-changes.
+Phase 2D adds the first owned registration verification delivery runtime:
+an opt-in background scheduler and a self-hosted `file_spool` sender that writes
+durable JSON delivery handoff files to a mounted local directory. It does not
+add Supabase, hosted BaaS, SaaS email/SMS/WhatsApp provider coupling or public
+UI changes.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Worker lease boundary | Обрабатывать delivery outbox через bounded backend worker, а не через browser/mock state. | Реализовано: `RegistrationDeliveryWorker.processBatch` вызывает `leaseRegistrationDeliveryJobs` с `limit`, `workerId`, `leaseMs`. | Подключать runtime scheduler только отдельным Phase 2D решением. |
-| PostgreSQL lease safety | Не допускать double-processing и не забирать невалидные registration drafts. | Реализовано: ordered `for update skip locked`, `attempt_count < max_attempts`, фильтр active draft до lease. | Нагрузочно проверить lease contention несколькими worker-процессами. |
-| Sender boundary | Не хардкодить сторонний провайдер в backend core. | Реализовано: injectable `RegistrationVerificationDeliverySender`; sender получает backend-only destination и template key. | Реализовать self-hosted SMTP/SMS/WhatsApp adapter или явный no-provider dev sender. |
-| Retry/failure | Не терять job при ошибке и не ретраить бесконечно. | Реализовано: `markRegistrationDeliveryFailed` requeue до `max_attempts`, затем `failed`; error text sanitization. | Добавить operator visibility/alerting для terminal failures. |
-| Hygiene | Не отдавать verification code/full contact в browser или публичные surfaces. | Реализовано: worker message не содержит `code`/`verificationCode`; browser responses по Phase 2B остаются masked metadata only. | Сохранить контракт при sender adapter/admin console. |
-| Validation | Проверить worker, repository boundary, contracts, migrations, runtime guards и build. | Passed: delivery-worker tests, TypeScript, contracts, DB migrations, focused API tests, lint, production-scale, self-hosted runtime, api build, diff check, production build. | Можно стартовать Phase 2D. |
+| Runtime scheduler | Запускать обработку outbox вне request handlers и не допускать overlap. | Реализовано: `RegistrationDeliveryScheduler` с `start`, `stop`, `runOnce`, bounded worker options и skip при уже активном batch. | Если API-process scheduler станет операционно тесным, вынести в отдельный process/command. |
+| Sender decision | Выбрать первый self-hosted sender без SaaS/provider coupling. | Реализовано: `FileSpoolRegistrationVerificationSender` пишет JSON handoff-файлы с mode `0600` в owned spool dir. | Phase 2E должен решить OTP/channel semantics перед реальной внешней доставкой. |
+| Production guard | Production не должен стартовать без delivery runtime. | Реализовано: production guard требует `YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true`, `YORSO_REGISTRATION_DELIVERY_SENDER=file_spool` и абсолютный spool path. | Добавить sender-specific readiness, когда появится не-file adapter. |
+| Metrics | Видеть worker outcomes без утечки контактов. | Реализовано: Prometheus counters по run outcome/job result/worker id; email/phone/destination не используются как labels. | Добавить queue-age gauges после появления repository queue stats. |
+| Infra/env | Deployment должен иметь owned spool volume и явные env knobs. | Реализовано: `.env.example`, `.env.production.example`, `infra/docker-compose.yml` и guard scripts обновлены. | Нужен operator runbook для retention/архивации spool files. |
+| OTP policy | Не смешивать runtime scheduler с изменением verification-code policy. | Не реализовано в Phase 2D: текущая prototype OTP policy в `AuthService` сохранена. | Следующий конкретный workstream: Phase 2E заменить фиксированный prototype code на per-request OTP и определить безопасный payload/channel handoff. |
+| Validation | Проверить runtime, infra guards, API guards, migrations, lint, build. | Passed: focused API tests, TypeScript, self-hosted infra/runtime/API guards, production-scale guard, DB migrations, lint, api build, diff check, production build. | Можно стартовать Phase 2E. |
 
 ## Next Implementation
 
 Recommended next scoped workstream:
 
-Backend Phase 2D: self-hosted verification sender and runtime scheduler
-decision.
+Backend Phase 2E: registration OTP generation and channel delivery semantics.
 
 Concrete scope:
 
-- choose the first production delivery adapter boundary for registration
-  verification: self-hosted SMTP, owned SMS/WhatsApp gateway, or explicit
-  operator/manual delivery mode;
-- add a runtime scheduler/runner that calls `RegistrationDeliveryWorker`
-  without blocking public registration routes;
-- add provider/config fail-closed checks for production;
-- add metrics for leased/sent/requeued/failed, queued job age and terminal
-  failures;
-- preserve Phase 2A account creation, Phase 2B safe delivery metadata and
-  Phase 2C lease/retry semantics.
+- replace the fixed prototype registration code policy with per-request OTP
+  generation, expiry and attempt rules;
+- decide how the self-hosted file-spool handoff carries code material safely,
+  or introduce an owned channel adapter boundary without SaaS/provider coupling;
+- preserve browser hygiene: no raw code/full contact in public responses;
+- keep Phase 2A account creation, Phase 2B safe delivery metadata, Phase 2C
+  lease/retry semantics and Phase 2D scheduler/file-spool runtime;
+- add validation for resend, expiry, wrong-code attempts, terminal delivery
+  failures and no contact/code leakage.
 
 Alternative:
 

@@ -997,6 +997,43 @@
 - `docs/backend/production-scale-baseline.md`: Phase 2C capacity review and
   validation/build metrics.
 
+## Backend Phase 2D Registration Delivery Runtime
+
+- `docs/backend/phase-2d-registration-delivery-runtime.md`: plan/fact, runtime
+  contract, OTP boundary, 10,000 concurrent-user review and validation record
+  for Phase 2D.
+- `apps/api/src/modules/auth/delivery-sender.ts`: self-hosted file-spool
+  registration verification sender that writes owned JSON handoff files with
+  `0600` permissions.
+- `apps/api/src/modules/auth/delivery-sender.test.ts`: sender behavior,
+  file-mode and no-code/provider-leakage coverage.
+- `apps/api/src/modules/auth/delivery-scheduler.ts`: bounded background
+  scheduler for `RegistrationDeliveryWorker` with no-overlap and failure
+  observation behavior.
+- `apps/api/src/modules/auth/delivery-scheduler.test.ts`: scheduler run,
+  no-overlap and sanitized failure coverage.
+- `apps/api/src/modules/auth/delivery-runtime.ts`: config-driven runtime
+  factory that creates the file-spool sender, worker and scheduler.
+- `apps/api/src/modules/auth/delivery-runtime.test.ts`: disabled/enabled
+  runtime behavior and metrics coverage.
+- `apps/api/src/config.ts`: registration delivery worker/sender/spool config
+  and production fail-closed guard.
+- `apps/api/src/server.ts`: scheduler lifecycle wiring on server `listening`
+  and `close`.
+- `apps/api/src/metrics.ts`: worker run/job counters without contact labels.
+- `.env.example`, `.env.production.example` and `infra/docker-compose.yml`:
+  runtime env knobs and mounted registration-delivery spool volume.
+- `scripts/check-self-hosted-infra.mjs`,
+  `scripts/check-self-hosted-production-runtime.mjs`,
+  `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: guard coverage for the
+  registration delivery runtime.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/phase-2c-registration-verification-worker-lease.md`,
+  `docs/backend/production-scale-baseline.md` and
+  `docs/backend/self-hosted-production-deploy.md`: Phase 2D contract,
+  deployment and production-scale updates.
+
 ## Lovable Sync Prompts
 
 ## Batch #133 Public Breadcrumb Locale A11y

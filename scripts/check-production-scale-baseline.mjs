@@ -600,6 +600,9 @@ for (const marker of [
   "AUTH_RATE_LIMIT_FAIL_MODE=closed",
   "AUTH_SESSION_CACHE_DRIVER=redis",
   "AUTH_SESSION_CACHE_FAIL_MODE=closed",
+  "YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true",
+  "YORSO_REGISTRATION_DELIVERY_SENDER=file_spool",
+  "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR=/var/lib/yorso/registration-delivery",
   "STORAGE_DRIVER=local",
 ]) {
   requireText(".env.production.example", productionEnv, marker);
@@ -2649,6 +2652,8 @@ for (const marker of [
   "yorso_api_auth_events_total",
   "yorso_api_admin_audit_requests_total",
   "yorso_api_admin_audit_rows_total",
+  "yorso_api_registration_delivery_worker_runs_total",
+  "yorso_api_registration_delivery_worker_jobs_total",
   "yorso_api_readiness_checks_total",
   "yorso_api_production_baseline_concurrent_users",
 ]) {
@@ -2676,11 +2681,18 @@ for (const marker of [
   "YORSO_ADMIN_AUDIT_RETENTION_DAYS",
   "requestObservabilityDriver",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
+  "registrationDeliveryWorkerEnabled",
+  "YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED",
+  "registrationDeliverySender",
+  "YORSO_REGISTRATION_DELIVERY_SENDER",
+  "registrationDeliverySpoolDir",
+  "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR",
 ]) {
   requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), marker);
 }
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_METRICS_DRIVER=prometheus.");
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_AUDIT_DRIVER=postgres.");
+requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true.");
 
 for (const marker of [
   "createRequestTelemetrySink",

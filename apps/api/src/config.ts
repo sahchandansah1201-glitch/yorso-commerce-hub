@@ -1,6 +1,13 @@
 import { z } from "zod";
 
 const optionalUrlSchema = z.string().url().or(z.literal(""));
+const booleanEnvSchema = z.preprocess((value) => {
+  if (typeof value !== "string") return value;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+  return value;
+}, z.boolean());
 
 export const apiConfigSchema = z.object({
   nodeEnv: z.enum(["development", "test", "production"]).default("development"),
@@ -25,6 +32,14 @@ export const apiConfigSchema = z.object({
   adminAuditExportMaxWindowDays: z.coerce.number().int().min(1).max(366).default(31),
   adminAuditRetentionDays: z.coerce.number().int().min(30).max(3_650).default(365),
   authObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
+  registrationDeliveryWorkerEnabled: booleanEnvSchema.default(false),
+  registrationDeliverySender: z.enum(["disabled", "file_spool"]).default("disabled"),
+  registrationDeliverySpoolDir: z.string().min(1).default(".data/registration-delivery"),
+  registrationDeliveryWorkerIntervalMs: z.coerce.number().int().min(1_000).max(60_000).default(5_000),
+  registrationDeliveryWorkerBatchSize: z.coerce.number().int().min(1).max(500).default(25),
+  registrationDeliveryWorkerLeaseMs: z.coerce.number().int().min(5_000).max(15 * 60_000).default(60_000),
+  registrationDeliveryWorkerRetryAfterMs: z.coerce.number().int().min(1_000).max(24 * 60 * 60_000).default(60_000),
+  registrationDeliveryWorkerId: z.string().min(1).max(120).default("registration-delivery-worker"),
   errorObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   metricsDriver: z.enum(["disabled", "prometheus"]).default("disabled"),
   requestObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
@@ -75,6 +90,14 @@ const localDefaults = {
   YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS: "31",
   YORSO_ADMIN_AUDIT_RETENTION_DAYS: "365",
   AUTH_OBSERVABILITY_DRIVER: "disabled",
+  YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED: "false",
+  YORSO_REGISTRATION_DELIVERY_SENDER: "disabled",
+  YORSO_REGISTRATION_DELIVERY_SPOOL_DIR: ".data/registration-delivery",
+  YORSO_REGISTRATION_DELIVERY_WORKER_INTERVAL_MS: "5000",
+  YORSO_REGISTRATION_DELIVERY_WORKER_BATCH_SIZE: "25",
+  YORSO_REGISTRATION_DELIVERY_WORKER_LEASE_MS: "60000",
+  YORSO_REGISTRATION_DELIVERY_WORKER_RETRY_AFTER_MS: "60000",
+  YORSO_REGISTRATION_DELIVERY_WORKER_ID: "registration-delivery-worker",
   YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
   YORSO_METRICS_DRIVER: "disabled",
   YORSO_REQUEST_OBSERVABILITY_DRIVER: "disabled",
@@ -124,6 +147,14 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     adminAuditExportMaxWindowDays: source.YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS,
     adminAuditRetentionDays: source.YORSO_ADMIN_AUDIT_RETENTION_DAYS,
     authObservabilityDriver: source.AUTH_OBSERVABILITY_DRIVER,
+    registrationDeliveryWorkerEnabled: source.YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED,
+    registrationDeliverySender: source.YORSO_REGISTRATION_DELIVERY_SENDER,
+    registrationDeliverySpoolDir: source.YORSO_REGISTRATION_DELIVERY_SPOOL_DIR,
+    registrationDeliveryWorkerIntervalMs: source.YORSO_REGISTRATION_DELIVERY_WORKER_INTERVAL_MS,
+    registrationDeliveryWorkerBatchSize: source.YORSO_REGISTRATION_DELIVERY_WORKER_BATCH_SIZE,
+    registrationDeliveryWorkerLeaseMs: source.YORSO_REGISTRATION_DELIVERY_WORKER_LEASE_MS,
+    registrationDeliveryWorkerRetryAfterMs: source.YORSO_REGISTRATION_DELIVERY_WORKER_RETRY_AFTER_MS,
+    registrationDeliveryWorkerId: source.YORSO_REGISTRATION_DELIVERY_WORKER_ID,
     errorObservabilityDriver: source.YORSO_ERROR_OBSERVABILITY_DRIVER,
     metricsDriver: source.YORSO_METRICS_DRIVER,
     requestObservabilityDriver: source.YORSO_REQUEST_OBSERVABILITY_DRIVER,
@@ -187,6 +218,15 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   }
   if (config.nodeEnv === "production" && config.requestObservabilityDriver !== "console") {
     throw new Error("Production self-hosted API must use YORSO_REQUEST_OBSERVABILITY_DRIVER=console.");
+  }
+  if (config.nodeEnv === "production" && !config.registrationDeliveryWorkerEnabled) {
+    throw new Error("Production self-hosted API must use YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true.");
+  }
+  if (config.nodeEnv === "production" && config.registrationDeliverySender !== "file_spool") {
+    throw new Error("Production self-hosted API must use YORSO_REGISTRATION_DELIVERY_SENDER=file_spool.");
+  }
+  if (config.nodeEnv === "production" && !config.registrationDeliverySpoolDir.startsWith("/")) {
+    throw new Error("Production self-hosted API must use an absolute YORSO_REGISTRATION_DELIVERY_SPOOL_DIR.");
   }
 }
 

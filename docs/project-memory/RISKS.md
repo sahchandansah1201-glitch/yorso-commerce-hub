@@ -18,6 +18,10 @@
   Impact: A future strict type guard may fail until migrations are applied and `src/integrations/supabase/types.ts` is regenerated.
   Mitigation: Keep the non-strict preview/build guard visible, apply pending migrations in the linked project, regenerate types and run `npm run check:supabase-types:strict`.
 
+- Risk: Registration verification still uses the prototype OTP generation policy while Phase 2D only adds scheduler and file-spool delivery handoff.
+  Impact: The owned runtime can move delivery jobs, but external buyer verification is not production-ready until per-request OTP generation, expiry, attempt limits and safe channel payload semantics are implemented.
+  Mitigation: Treat Backend Phase 2E registration OTP generation and channel delivery semantics as the next required backend workstream before enabling real customer delivery.
+
 - Risk: API-backed browser specs can fail in generic smoke.
   Impact: Generic local prototype smoke can fail or hide regressions when it includes specs that require `VITE_YORSO_API_URL` and self-hosted API-backed fixtures.
   Mitigation: Keep API-backed browser specs in dedicated package scripts and preserve the `check:engineering-lessons` guard.

@@ -155,4 +155,39 @@ describe("self-hosted API metrics registry", () => {
     expect(text).not.toContain("postgres://");
     expect(text).not.toContain("redis://");
   });
+
+  it("collects registration delivery worker metrics without contact values", () => {
+    const registry = new InMemoryPrometheusMetricsRegistry();
+
+    registry.observeRegistrationDeliveryWorker({
+      durationMs: 125,
+      failed: 1,
+      leased: 5,
+      outcome: "success",
+      reason: null,
+      requeued: 2,
+      sent: 3,
+      workerId: "worker-phase-2d",
+    });
+
+    const text = registry.renderPrometheusText();
+
+    expect(text).toContain(
+      'yorso_api_registration_delivery_worker_runs_total{outcome="success",reason="none",worker_id="worker-phase-2d"} 1',
+    );
+    expect(text).toContain(
+      'yorso_api_registration_delivery_worker_jobs_total{result="leased",worker_id="worker-phase-2d"} 5',
+    );
+    expect(text).toContain(
+      'yorso_api_registration_delivery_worker_jobs_total{result="sent",worker_id="worker-phase-2d"} 3',
+    );
+    expect(text).toContain(
+      'yorso_api_registration_delivery_worker_jobs_total{result="requeued",worker_id="worker-phase-2d"} 2',
+    );
+    expect(text).toContain(
+      'yorso_api_registration_delivery_worker_jobs_total{result="failed",worker_id="worker-phase-2d"} 1',
+    );
+    expect(text).not.toContain("buyer@yorso.test");
+    expect(text).not.toContain("+34600000000");
+  });
 });

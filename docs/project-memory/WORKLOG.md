@@ -2368,3 +2368,59 @@ Keep this file factual and append-only.
 - Known non-blocking warnings preserved:
   - Supabase generated types out of sync in non-strict preview/build mode;
   - Browserslist data stale.
+
+## 2026-05-29
+
+- Implemented Backend Phase 2D: Registration Delivery Runtime.
+- Added `FileSpoolRegistrationVerificationSender`:
+  - writes one JSON handoff file per sent delivery job;
+  - uses owned local spool storage;
+  - writes files with mode `0600`;
+  - includes delivery id, draft id, purpose, channel, destination,
+    destination preview, template key and operator-readable text;
+  - does not add provider credentials, Supabase functions or hosted SaaS
+    delivery coupling.
+- Added `RegistrationDeliveryScheduler`:
+  - runs `RegistrationDeliveryWorker.processBatch` outside public request
+    handlers;
+  - passes bounded batch, lease and retry settings;
+  - skips overlapping runs;
+  - catches worker-level failures and emits metrics events.
+- Added registration delivery runtime factory and server lifecycle wiring:
+  - `createRegistrationDeliveryRuntime`;
+  - scheduler starts on HTTP server `listening`;
+  - scheduler stops on server `close`;
+  - worker remains disabled by default outside explicit config.
+- Added production fail-closed configuration:
+  - `YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true`;
+  - `YORSO_REGISTRATION_DELIVERY_SENDER=file_spool`;
+  - absolute `YORSO_REGISTRATION_DELIVERY_SPOOL_DIR`.
+- Added worker metrics:
+  - `yorso_api_registration_delivery_worker_runs_total`;
+  - `yorso_api_registration_delivery_worker_jobs_total`;
+  - no email, phone, destination or draft identifiers in metric labels.
+- Updated env examples, Docker Compose spool volume and self-hosted guard
+  scripts for the registration delivery runtime.
+- Updated backend docs, production-scale baseline, frontend/backend contract,
+  deployment docs and project-memory.
+- Kept out of scope:
+  - hosted SMTP/SMS/WhatsApp provider integration;
+  - public registration UI changes;
+  - changing OTP generation/verification policy.
+- Validation passed:
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/delivery-sender.test.ts apps/api/src/modules/auth/delivery-scheduler.test.ts apps/api/src/modules/auth/delivery-runtime.test.ts apps/api/src/metrics.test.ts apps/api/src/server.test.ts`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:self-hosted-infra`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run check:self-hosted-api`;
+  - `npm run contracts:build`;
+  - `npm run test:db-migrations`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/delivery-worker.test.ts apps/api/src/modules/auth/delivery-sender.test.ts apps/api/src/modules/auth/delivery-scheduler.test.ts apps/api/src/modules/auth/delivery-runtime.test.ts apps/api/src/metrics.test.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `git diff --check`;
+  - `npm run build`.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.

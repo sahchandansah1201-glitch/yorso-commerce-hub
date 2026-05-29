@@ -162,6 +162,13 @@ Prometheus-compatible request, error, auth, guardrail and readiness metrics
 without leaking buyer emails, passwords, supplier ids, offer ids, query values
 or session ids.
 
+Backend Phase 2D adds the registration delivery runtime knobs to production
+deployments. Production must run with
+`YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true`,
+`YORSO_REGISTRATION_DELIVERY_SENDER=file_spool` and an absolute
+`YORSO_REGISTRATION_DELIVERY_SPOOL_DIR` mounted on owned server storage. The
+file spool is an owned handoff boundary, not a hosted email/SMS provider.
+
 Batch #88 adds `smoke:self-hosted-audit-trail` to the deploy validation path.
 It verifies that the console audit sink writes sanitized `api_audit_event`
 records for auth, account, access, notification and storage actions without

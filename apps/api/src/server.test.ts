@@ -2932,5 +2932,70 @@ describe("YORSO self-hosted API skeleton", () => {
 
     expect(() => assertSupabaseIsPrototypeOnly(noRequestObservabilityConfig))
       .toThrow(/YORSO_REQUEST_OBSERVABILITY_DRIVER=console/);
+
+    const noRegistrationDeliveryWorkerConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
+        YORSO_AUDIT_DRIVER: "postgres",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(noRegistrationDeliveryWorkerConfig))
+      .toThrow(/YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true/);
+
+    const disabledRegistrationSenderConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
+        YORSO_AUDIT_DRIVER: "postgres",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+        YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED: "true",
+        YORSO_REGISTRATION_DELIVERY_SENDER: "disabled",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(disabledRegistrationSenderConfig))
+      .toThrow(/YORSO_REGISTRATION_DELIVERY_SENDER=file_spool/);
+
+    const relativeSpoolConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
+        YORSO_AUDIT_DRIVER: "postgres",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+        YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED: "true",
+        YORSO_REGISTRATION_DELIVERY_SENDER: "file_spool",
+        YORSO_REGISTRATION_DELIVERY_SPOOL_DIR: ".data/registration-delivery",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(relativeSpoolConfig))
+      .toThrow(/absolute YORSO_REGISTRATION_DELIVERY_SPOOL_DIR/);
   });
 });

@@ -27,6 +27,14 @@ services:
       YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS: ${YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS:-31}
       YORSO_ADMIN_AUDIT_RETENTION_DAYS: ${YORSO_ADMIN_AUDIT_RETENTION_DAYS:-365}
       AUTH_OBSERVABILITY_DRIVER: console
+      YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED: ${YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED:-true}
+      YORSO_REGISTRATION_DELIVERY_SENDER: file_spool
+      YORSO_REGISTRATION_DELIVERY_SPOOL_DIR: /var/lib/yorso/registration-delivery
+      YORSO_REGISTRATION_DELIVERY_WORKER_INTERVAL_MS: ${YORSO_REGISTRATION_DELIVERY_WORKER_INTERVAL_MS:-5000}
+      YORSO_REGISTRATION_DELIVERY_WORKER_BATCH_SIZE: ${YORSO_REGISTRATION_DELIVERY_WORKER_BATCH_SIZE:-25}
+      YORSO_REGISTRATION_DELIVERY_WORKER_LEASE_MS: ${YORSO_REGISTRATION_DELIVERY_WORKER_LEASE_MS:-60000}
+      YORSO_REGISTRATION_DELIVERY_WORKER_RETRY_AFTER_MS: ${YORSO_REGISTRATION_DELIVERY_WORKER_RETRY_AFTER_MS:-60000}
+      YORSO_REGISTRATION_DELIVERY_WORKER_ID: ${YORSO_REGISTRATION_DELIVERY_WORKER_ID:-registration-delivery-worker}
       YORSO_ERROR_OBSERVABILITY_DRIVER: console
       YORSO_METRICS_DRIVER: prometheus
       YORSO_REQUEST_OBSERVABILITY_DRIVER: console
@@ -58,6 +66,7 @@ services:
     stop_grace_period: 40s
     volumes:
       - yorso-api-uploads:/var/lib/yorso/uploads
+      - yorso-registration-delivery:/var/lib/yorso/registration-delivery
     healthcheck:
       test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
       interval: 10s
@@ -120,6 +129,7 @@ services:
 
 volumes:
   yorso-api-uploads:
+  yorso-registration-delivery:
   yorso-postgres-data:
   yorso-redis-data:
   yorso-minio-data:

@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "backend_phase_2c_registration_verification_worker_lease_committed_local"
+head_commit: "backend_phase_2d_registration_delivery_runtime_committed_local"
 latest_merged_batch: 141
-active_workstream: "backend_phase_2c_registration_verification_worker_lease"
+active_workstream: "backend_phase_2d_registration_delivery_runtime"
 pull_request: null
-recommended_action: "choose Backend Phase 2D sender/scheduler or legacy Supabase consolidation"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2C are documented and validated. Phase 2C registration verification worker lease processing is committed locally with release validation passed."
+recommended_action: "start Backend Phase 2E registration OTP generation/channel semantics or legacy Supabase consolidation"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2D are documented and validated. Phase 2D registration delivery runtime is committed locally with release validation passed."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_2c_registration_verification_worker_lease.
-Current HEAD baseline: Backend Phase 2C registration verification worker lease processing committed locally after Backend Phase 2B; Batch #141 merge commit 5eafcb7 is preserved.
+Current workstream: backend_phase_2d_registration_delivery_runtime.
+Current HEAD baseline: Backend Phase 2D registration delivery runtime committed locally after Backend Phase 2C; Batch #141 merge commit 5eafcb7 is preserved.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,14 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: choose Backend Phase 2D self-hosted verification sender/runtime scheduler or the legacy Supabase consolidation workstream.
+Current recommended action: start Backend Phase 2E registration OTP generation/channel delivery semantics or the legacy Supabase consolidation workstream.
+Phase 2D implemented locally: docs/backend/phase-2d-registration-delivery-runtime.md records the self-hosted registration delivery runtime.
+Phase 2D runtime: createApiServer can start a RegistrationDeliveryScheduler when YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true. The scheduler runs bounded RegistrationDeliveryWorker batches outside public request handlers, skips overlap and stops on server close.
+Phase 2D sender: FileSpoolRegistrationVerificationSender writes one 0600 JSON delivery handoff file per sent job to YORSO_REGISTRATION_DELIVERY_SPOOL_DIR. This is an owned local handoff boundary, not hosted email/SMS/WhatsApp delivery.
+Phase 2D production guard: production self-hosted runtime requires YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true, YORSO_REGISTRATION_DELIVERY_SENDER=file_spool and an absolute YORSO_REGISTRATION_DELIVERY_SPOOL_DIR.
+Phase 2D observability: Prometheus metrics track registration delivery worker runs and job counts without email, phone, destination or draft identifiers as labels.
+Phase 2D boundary: no hosted provider, Supabase function, public UI change or OTP generation change was added. The current fixed-code prototype policy remains a Phase 2E risk.
+Phase 2D validation passed: focused sender/scheduler/runtime/API metrics/server tests; npx tsc -b --noEmit; npm run check:self-hosted-infra; npm run check:self-hosted-production-runtime; npm run check:production-scale-baseline; npm run check:self-hosted-api; npm run contracts:build; npm run test:db-migrations; focused API repository/server/storage tests; npm run lint; npm run api:build; git diff --check; npm run build.
 Phase 2C implemented locally: docs/backend/phase-2c-registration-verification-worker-lease.md records the self-hosted registration verification worker lease boundary.
 Phase 2C runtime: RegistrationDeliveryWorker leases bounded queued/stale outbox rows, passes jobs to an injectable self-hosted sender, then marks jobs sent, requeued or failed. PostgreSQL leasing uses ordered for update skip locked candidates and excludes expired/completed drafts before lease.
 Phase 2C hygiene: worker messages include backend-only destination, masked preview and template key, but no verification code/code properties; sender errors are sanitized before persistence. No hosted BaaS, Supabase function, external provider, auto daemon or public UI change was added.

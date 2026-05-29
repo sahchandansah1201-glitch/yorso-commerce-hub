@@ -33,6 +33,9 @@ import { SupplierAccessService } from "./modules/access/service.js";
 import { createAuthRepository } from "./modules/auth/factory.js";
 import { createAuthTelemetrySink } from "./modules/auth/observability.js";
 import { createAuthRateLimiter } from "./modules/auth/rate-limit.js";
+import { createRegistrationDeliveryRuntime } from "./modules/auth/delivery-runtime.js";
+import type { RegistrationDeliveryScheduler } from "./modules/auth/delivery-scheduler.js";
+import type { RegistrationVerificationDeliverySender } from "./modules/auth/delivery-worker.js";
 import type { AuthRepository, RegistrationAccountProvisioner } from "./modules/auth/repository.js";
 import { handleAuthRoute } from "./modules/auth/routes.js";
 import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
@@ -70,6 +73,8 @@ export interface ApiServerOptions {
   offerCatalogRepository?: OfferCatalogRepository;
   errorTelemetrySink?: ErrorTelemetrySink;
   readinessProbe?: ReadinessProbe;
+  registrationDeliveryScheduler?: RegistrationDeliveryScheduler | null;
+  registrationDeliverySender?: RegistrationVerificationDeliverySender;
   requestTelemetrySink?: RequestTelemetrySink;
   supplierAccessRepository?: SupplierAccessRepository;
   supplierRepository?: SupplierRepository;
@@ -83,6 +88,11 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
   const authRepository = options.authRepository ?? createAuthRepository(config, {
     accountProvisioner: isRegistrationAccountProvisioner(accountRepository) ? accountRepository : undefined,
   });
+  const registrationDeliveryScheduler = options.registrationDeliveryScheduler === undefined
+    ? createRegistrationDeliveryRuntime(config, authRepository, metricsRegistry, {
+      sender: options.registrationDeliverySender,
+    })
+    : options.registrationDeliveryScheduler;
   const authService = new AuthService(
     authRepository,
     createAuthRateLimiter(config, authRepository),
@@ -215,6 +225,12 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
   server.requestTimeout = config.requestTimeoutMs;
   server.headersTimeout = config.headersTimeoutMs;
   server.keepAliveTimeout = config.keepAliveTimeoutMs;
+  server.once("listening", () => {
+    registrationDeliveryScheduler?.start();
+  });
+  server.once("close", () => {
+    registrationDeliveryScheduler?.stop();
+  });
   server.on("clientError", (error: NodeJS.ErrnoException, socket) => {
     const headerOverflow = error.code === "HPE_HEADER_OVERFLOW";
     const statusCode = headerOverflow ? 431 : 400;

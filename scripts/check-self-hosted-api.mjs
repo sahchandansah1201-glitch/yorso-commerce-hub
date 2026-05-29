@@ -1157,8 +1157,10 @@ for (const [file, text] of [
   requireText(file, text, "resolveOptionalAuthenticatedAccountSession");
 }
 for (const marker of [
-  "handleAccountRoute(request, response, context, accountService, authService",
-  "handleStorageRoute(request, response, context, accountService, fileService, authService",
+  "handleAccountRoute(",
+  "accountService,\n    authService",
+  "handleStorageRoute(",
+  "fileService,\n    authService",
   "handleOfferCatalogRoute(request, response, context, offerCatalogService, authService",
   "handleSupplierAccessRoute(request, response, context, supplierAccessService, authService",
   "handleSupplierDirectoryRoute(request, response, context, supplierService, authService",
@@ -1195,7 +1197,7 @@ requireText("apps/api/src/server.ts", server, "supplierAccessRepository");
 requireText("apps/api/src/server.ts", server, "handleSupplierAccessRoute");
 requireText("apps/api/src/server.ts", server, "createSupplierAccessRepository(config)");
 requireText("apps/api/src/server.ts", server, "handleAuthRoute");
-requireText("apps/api/src/server.ts", server, "createAuthRepository(config)");
+requireText("apps/api/src/server.ts", server, "createAuthRepository(config");
 requireText("apps/api/src/server.ts", server, "AuthService");
 requireText("apps/api/src/server.ts", server, "handleSupplierDirectoryRoute");
 requireText("apps/api/src/server.ts", server, "createSupplierRepository(config)");
