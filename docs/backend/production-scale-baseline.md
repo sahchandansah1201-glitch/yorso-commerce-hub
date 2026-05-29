@@ -4621,6 +4621,90 @@ Marker: registration account source of truth.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 2B Registration Verification Delivery Outbox
+
+Phase 2B adds a self-hosted delivery outbox boundary for registration
+verification. Registration start and phone verification request now create
+durable delivery-intent rows in `yorso_registration_delivery_outbox` without
+adding an external hosted email/SMS provider.
+
+Expected read/write profile:
+
+- Registration start writes one registration draft and one email verification
+  outbox row.
+- Phone verification request updates one registration draft and writes one
+  SMS/WhatsApp outbox row.
+- Future worker reads must lease bounded ready rows by index.
+- No browser polling, subscription or hosted BaaS queue is introduced.
+
+Cache, queue and backpressure strategy:
+
+- The existing phone verification request cap remains the first per-session
+  backpressure control.
+- Outbox rows include `status`, `attempt_count`, `max_attempts`,
+  `available_at`, `locked_at` and `locked_by` so worker retry/lease behavior can
+  be added without changing the registration API contract.
+- Outbox persistence happens in the same PostgreSQL statement as the triggering
+  registration mutation.
+- The outbox stores masked destinations and destination hashes, not
+  verification codes, full contacts or provider credentials.
+
+Database indexing and pagination strategy:
+
+- `idx_yorso_registration_delivery_outbox_ready` supports bounded worker scans
+  for queued delivery jobs.
+- `idx_yorso_registration_delivery_outbox_draft_recent` supports support/debug
+  lookup by draft id.
+- `idx_yorso_registration_delivery_outbox_status_recent` supports operational
+  status diagnostics.
+- Worker reads must page or lease rows from the ready index and must not full
+  scan the outbox.
+
+Failure mode and graceful degradation:
+
+- If delivery outbox persistence fails, registration start/phone-send fails
+  instead of returning a false delivery success.
+- Verification code and full destination are not returned to browser responses.
+- API-disabled Lovable/local preview keeps its mock behavior and remains
+  non-production.
+- No Supabase or hosted BaaS runtime dependency is added.
+
+Observability and load-test plan:
+
+- Track delivery outbox insert success/failure by purpose and channel.
+- When a worker is added, track queued job age, lease latency, retry counts and
+  terminal failures.
+- Load-test start and phone-send under 10,000 concurrent-user pressure with
+  duplicate email, expired draft and phone rate-limit mixes.
+- Audit and telemetry payloads must not include verification codes, raw email,
+  raw phone or provider credentials.
+
+Validation:
+
+- `npm run contracts:build`;
+- `npx vitest run src/lib/api-contracts.registration.test.ts`;
+- `npm run test:db-migrations`;
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts --testNamePattern "registration funnel|auth sessions"`;
+- `npx tsc -b --noEmit`;
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `npm run check:self-hosted-production-runtime`;
+- `npm run api:build`;
+- `git diff --check`;
+- `npm run build`.
+
+Production build metrics:
+
+- CSS `index-DbM2SN9t.css` 126.84 kB / 21.02 kB gzip.
+- Entry `index-BqYFae4R.js` 358.21 kB / 114.93 kB gzip.
+- `i18n-translations-Co3DNZMT.js` 343.80 kB / 107.82 kB gzip.
+
+Marker: Backend Phase 2B.
+Marker: registration verification delivery outbox.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -9,6 +9,17 @@ export const authSignInSchema = z.object({
 });
 
 export const authRegistrationRoleSchema = z.enum(["buyer", "supplier"]);
+export const authRegistrationDeliveryPurposeSchema = z.enum(["email_verification", "phone_verification"]);
+export const authRegistrationDeliveryChannelSchema = z.enum(["email", "sms", "whatsapp"]);
+export const authRegistrationDeliveryStatusSchema = z.enum(["queued", "leased", "sent", "failed", "cancelled"]);
+
+export const authRegistrationDeliverySchema = z.object({
+  id: z.string().uuid(),
+  purpose: authRegistrationDeliveryPurposeSchema,
+  channel: authRegistrationDeliveryChannelSchema,
+  status: authRegistrationDeliveryStatusSchema,
+  destinationPreview: z.string().min(1).max(80),
+});
 
 export const authRegisterStartSchema = z.object({
   email: authEmailSchema,
@@ -78,6 +89,7 @@ export const authRegisterStartResponseSchema = z.object({
   ok: z.literal(true),
   sessionId: z.string().min(32).max(160),
   emailSent: z.boolean(),
+  delivery: authRegistrationDeliverySchema,
   expiresInSeconds: z.number().int().min(60),
   requestId: z.string().uuid(),
 });
@@ -97,6 +109,7 @@ export const authRegisterDetailsResponseSchema = z.object({
 export const authRegisterPhoneRequestResponseSchema = z.object({
   ok: z.literal(true),
   sent: z.literal(true),
+  delivery: authRegistrationDeliverySchema,
   expiresInSeconds: z.number().int().min(60),
   requestId: z.string().uuid(),
 });
@@ -155,6 +168,10 @@ export const authSecurityEventSchema = z.object({
 
 export type AuthSignIn = z.infer<typeof authSignInSchema>;
 export type AuthRegisterStart = z.infer<typeof authRegisterStartSchema>;
+export type AuthRegistrationDeliveryPurpose = z.infer<typeof authRegistrationDeliveryPurposeSchema>;
+export type AuthRegistrationDeliveryChannel = z.infer<typeof authRegistrationDeliveryChannelSchema>;
+export type AuthRegistrationDeliveryStatus = z.infer<typeof authRegistrationDeliveryStatusSchema>;
+export type AuthRegistrationDelivery = z.infer<typeof authRegistrationDeliverySchema>;
 export type AuthRegisterVerifyEmail = z.infer<typeof authRegisterVerifyEmailSchema>;
 export type AuthRegisterDetails = z.infer<typeof authRegisterDetailsSchema>;
 export type AuthRegisterPhoneRequest = z.infer<typeof authRegisterPhoneRequestSchema>;

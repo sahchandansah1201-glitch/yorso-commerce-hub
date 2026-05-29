@@ -313,6 +313,17 @@
       "dependsOn": [
         "0025_admin_incident_trend_action_queue"
       ]
+    },
+    {
+      "id": "0027_registration_verification_delivery_outbox",
+      "file": "migrations/0027_registration_verification_delivery_outbox.sql",
+      "description": "Create self-hosted registration verification delivery outbox for email, SMS and WhatsApp code delivery intent.",
+      "ownedTables": [
+        "yorso_registration_delivery_outbox"
+      ],
+      "dependsOn": [
+        "0026_registration_account_source"
+      ]
     }
   ]
 }

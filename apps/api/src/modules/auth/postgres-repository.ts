@@ -13,6 +13,8 @@ import type { ApiConfig } from "../../config.js";
 import type {
   AuthRepository,
   RegistrationCompleteResult,
+  RegistrationDeliveryOutboxEntry,
+  RegistrationDraftDeliveryResult,
   RegistrationDraft,
   AuthSecurityEventCountQuery,
   AuthSecurityEventInput,
@@ -83,6 +85,18 @@ interface RegistrationCompleteRow extends Record<string, unknown> {
   user_id: string;
 }
 
+interface RegistrationDeliveryOutboxRow extends Record<string, unknown> {
+  delivery_channel: "email" | "sms" | "whatsapp";
+  delivery_created_at: Date | string;
+  delivery_destination_preview: string;
+  delivery_draft_id: string;
+  delivery_id: string;
+  delivery_purpose: "email_verification" | "phone_verification";
+  delivery_status: "queued" | "leased" | "sent" | "failed" | "cancelled";
+}
+
+type RegistrationDraftDeliveryRow = RegistrationDraftRow & RegistrationDeliveryOutboxRow;
+
 const createSessionId = () => randomBytes(32).toString("hex");
 const ensureIso = (value: Date | string) => (value instanceof Date ? value.toISOString() : new Date(value).toISOString());
 
@@ -131,28 +145,52 @@ function mapDraft(row: RegistrationDraftRow): RegistrationDraft {
   };
 }
 
-const draftReturningSql = `
-  id,
-  email::text as email,
-  role,
-  email_code_secret,
-  email_verified_at,
-  phone,
-  phone_code_secret,
-  phone_code_requests,
-  phone_verified_at,
-  full_name,
-  company_name,
-  country,
-  country_code,
-  vat_tin,
-  password_secret,
-  categories,
-  certifications,
-  target_countries,
-  volume,
-  expires_at
-`;
+function mapDelivery(row: RegistrationDeliveryOutboxRow): RegistrationDeliveryOutboxEntry {
+  return {
+    channel: row.delivery_channel,
+    createdAt: ensureIso(row.delivery_created_at),
+    destinationPreview: row.delivery_destination_preview,
+    draftId: row.delivery_draft_id,
+    id: row.delivery_id,
+    purpose: row.delivery_purpose,
+    status: row.delivery_status,
+  };
+}
+
+function mapDraftDelivery(row: RegistrationDraftDeliveryRow): RegistrationDraftDeliveryResult {
+  return {
+    delivery: mapDelivery(row),
+    draft: mapDraft(row),
+  };
+}
+
+const draftReturningSql = draftReturningSqlFrom();
+
+function draftReturningSqlFrom(alias = "") {
+  const prefix = alias ? `${alias}.` : "";
+  return `
+    ${prefix}id,
+    ${prefix}email::text as email,
+    ${prefix}role,
+    ${prefix}email_code_secret,
+    ${prefix}email_verified_at,
+    ${prefix}phone,
+    ${prefix}phone_code_secret,
+    ${prefix}phone_code_requests,
+    ${prefix}phone_verified_at,
+    ${prefix}full_name,
+    ${prefix}company_name,
+    ${prefix}country,
+    ${prefix}country_code,
+    ${prefix}vat_tin,
+    ${prefix}password_secret,
+    ${prefix}categories,
+    ${prefix}certifications,
+    ${prefix}target_countries,
+    ${prefix}volume,
+    ${prefix}expires_at
+  `;
+}
 
 export class PostgresAuthRepository implements AuthRepository {
   private readonly client: AuthQueryClient;
@@ -208,23 +246,82 @@ export class PostgresAuthRepository implements AuthRepository {
     return mapSession(result.rows[0]);
   }
 
-  async startRegistrationDraft(input: AuthRegisterStart & { emailCodeSecret: string; expiresAt: Date }) {
+  async startRegistrationDraft(
+    input: AuthRegisterStart & {
+      delivery: Parameters<AuthRepository["startRegistrationDraft"]>[0]["delivery"];
+      emailCodeSecret: string;
+      expiresAt: Date;
+    },
+  ) {
     const sessionId = createSessionId();
-    const result = await this.client.query<RegistrationDraftRow>(
+    const result = await this.client.query<RegistrationDraftDeliveryRow>(
       `
-        insert into yorso_registration_drafts (
-          id,
-          email,
-          role,
-          email_code_secret,
-          expires_at
+        with inserted_draft as (
+          insert into yorso_registration_drafts (
+            id,
+            email,
+            role,
+            email_code_secret,
+            expires_at
+          )
+          values ($1, $2::citext, $3, $4, $5)
+          returning *
+        ),
+        inserted_delivery as (
+          insert into yorso_registration_delivery_outbox (
+            draft_id,
+            purpose,
+            channel,
+            destination_hash,
+            destination_preview,
+            template_key,
+            request_id
+          )
+          select
+            inserted_draft.id,
+            $6,
+            $7,
+            $8,
+            $9,
+            $10,
+            $11::uuid
+          from inserted_draft
+          returning
+            id::text as delivery_id,
+            draft_id as delivery_draft_id,
+            purpose as delivery_purpose,
+            channel as delivery_channel,
+            status as delivery_status,
+            destination_preview as delivery_destination_preview,
+            created_at as delivery_created_at
         )
-        values ($1, $2::citext, $3, $4, $5)
-        returning ${draftReturningSql}
+        select
+          ${draftReturningSqlFrom("inserted_draft")},
+          inserted_delivery.delivery_id,
+          inserted_delivery.delivery_draft_id,
+          inserted_delivery.delivery_purpose,
+          inserted_delivery.delivery_channel,
+          inserted_delivery.delivery_status,
+          inserted_delivery.delivery_destination_preview,
+          inserted_delivery.delivery_created_at
+        from inserted_draft
+        cross join inserted_delivery
       `,
-      [sessionId, input.email.toLowerCase(), input.role, input.emailCodeSecret, input.expiresAt.toISOString()],
+      [
+        sessionId,
+        input.email.toLowerCase(),
+        input.role,
+        input.emailCodeSecret,
+        input.expiresAt.toISOString(),
+        input.delivery.purpose,
+        input.delivery.channel,
+        input.delivery.destinationHash,
+        input.delivery.destinationPreview,
+        input.delivery.templateKey,
+        input.delivery.requestId,
+      ],
     );
-    return mapDraft(result.rows[0]);
+    return mapDraftDelivery(result.rows[0]);
   }
 
   async getRegistrationDraft(sessionId: string): Promise<RegistrationDraft | null> {
@@ -286,26 +383,80 @@ export class PostgresAuthRepository implements AuthRepository {
 
   async recordRegistrationPhoneRequest(
     sessionId: string,
-    input: AuthRegisterPhoneRequest & { phoneCodeSecret: string },
+    input: AuthRegisterPhoneRequest & {
+      delivery: Parameters<AuthRepository["recordRegistrationPhoneRequest"]>[1]["delivery"];
+      phoneCodeSecret: string;
+    },
   ) {
-    const result = await this.client.query<RegistrationDraftRow>(
+    const result = await this.client.query<RegistrationDraftDeliveryRow>(
       `
-        update yorso_registration_drafts
-        set phone = $2,
-            phone_code_secret = $3,
-            phone_code_requests = phone_code_requests + 1,
-            phone_verified_at = null,
-            updated_at = now()
-        where id = $1
-          and completed_at is null
-          and expires_at > now()
-          and phone_code_requests < 5
-        returning ${draftReturningSql}
+        with updated_draft as (
+          update yorso_registration_drafts
+          set phone = $2,
+              phone_code_secret = $3,
+              phone_code_requests = phone_code_requests + 1,
+              phone_verified_at = null,
+              updated_at = now()
+          where id = $1
+            and completed_at is null
+            and expires_at > now()
+            and phone_code_requests < 5
+          returning *
+        ),
+        inserted_delivery as (
+          insert into yorso_registration_delivery_outbox (
+            draft_id,
+            purpose,
+            channel,
+            destination_hash,
+            destination_preview,
+            template_key,
+            request_id
+          )
+          select
+            updated_draft.id,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8,
+            $9::uuid
+          from updated_draft
+          returning
+            id::text as delivery_id,
+            draft_id as delivery_draft_id,
+            purpose as delivery_purpose,
+            channel as delivery_channel,
+            status as delivery_status,
+            destination_preview as delivery_destination_preview,
+            created_at as delivery_created_at
+        )
+        select
+          ${draftReturningSqlFrom("updated_draft")},
+          inserted_delivery.delivery_id,
+          inserted_delivery.delivery_draft_id,
+          inserted_delivery.delivery_purpose,
+          inserted_delivery.delivery_channel,
+          inserted_delivery.delivery_status,
+          inserted_delivery.delivery_destination_preview,
+          inserted_delivery.delivery_created_at
+        from updated_draft
+        cross join inserted_delivery
       `,
-      [sessionId, input.phone, input.phoneCodeSecret],
+      [
+        sessionId,
+        input.phone,
+        input.phoneCodeSecret,
+        input.delivery.purpose,
+        input.delivery.channel,
+        input.delivery.destinationHash,
+        input.delivery.destinationPreview,
+        input.delivery.templateKey,
+        input.delivery.requestId,
+      ],
     );
     if (!result.rows[0]) throw new Error("registration_session_invalid");
-    return mapDraft(result.rows[0]);
+    return mapDraftDelivery(result.rows[0]);
   }
 
   async markRegistrationPhoneVerified(sessionId: string, phone: string) {

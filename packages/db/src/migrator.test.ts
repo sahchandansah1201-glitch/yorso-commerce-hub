@@ -38,6 +38,7 @@ describe("self-hosted DB migration planner", () => {
       "0024_admin_incident_trend_actions",
       "0025_admin_incident_trend_action_queue",
       "0026_registration_account_source",
+      "0027_registration_verification_delivery_outbox",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -67,6 +68,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0024_admin_incident_trend_actions.sql",
       "migrations/0025_admin_incident_trend_action_queue.sql",
       "migrations/0026_registration_account_source.sql",
+      "migrations/0027_registration_verification_delivery_outbox.sql",
     ]);
   });
 
@@ -107,6 +109,8 @@ describe("self-hosted DB migration planner", () => {
     const adminIncidentTrendAnalytics = plan.migrations[23];
     const adminIncidentTrendActions = plan.migrations[24];
     const adminIncidentTrendActionQueue = plan.migrations[25];
+    const registrationAccountSource = plan.migrations[26];
+    const registrationVerificationDeliveryOutbox = plan.migrations[27];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -166,6 +170,11 @@ describe("self-hosted DB migration planner", () => {
     expect(adminIncidentTrendActionQueue.dependsOn).toEqual(["0024_admin_incident_trend_actions"]);
     expect(adminIncidentTrendActionQueue.sql).toContain("idx_yorso_admin_trend_actions_owner_priority");
     expect(adminIncidentTrendActionQueue.sql).toContain("idx_yorso_admin_trend_actions_status_kind_priority");
+    expect(registrationAccountSource.dependsOn).toEqual(["0025_admin_incident_trend_action_queue"]);
+    expect(registrationAccountSource.sql).toContain("create table if not exists yorso_registration_drafts");
+    expect(registrationVerificationDeliveryOutbox.dependsOn).toEqual(["0026_registration_account_source"]);
+    expect(registrationVerificationDeliveryOutbox.sql).toContain("create table if not exists yorso_registration_delivery_outbox");
+    expect(registrationVerificationDeliveryOutbox.sql).toContain("idx_yorso_registration_delivery_outbox_ready");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

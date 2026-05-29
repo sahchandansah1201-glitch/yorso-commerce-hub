@@ -16,19 +16,19 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 2A Registration-To-Account Source Of Truth is committed locally
-and release validation has passed. Next step: choose Phase 2B verification
-delivery/outbox or a legacy Supabase consolidation pass.
+Backend Phase 2B Registration Verification Delivery Outbox is committed
+locally and release validation has passed. Next step: choose Phase 2C
+worker/lease processing or legacy Supabase consolidation.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Registration source of truth | Перенести API-enabled registration funnel из browser-only state в self-hosted backend. | Реализовано: `yorso_registration_drafts` и `/v1/auth/register/*` хранят шаги регистрации на backend. | Добавить delivery/outbox только отдельным решением. |
-| Account creation | На завершении регистрации создать полноценный backend account workspace. | Реализовано: user, credential, company, media row, roles, notification defaults, optional target-market meta-region и auth session создаются в owned storage. | Расширять bootstrap только под подтвержденные onboarding-требования. |
-| Frontend boundary | `/register/*` должен использовать self-hosted API при `VITE_YORSO_API_URL`. | Реализовано: `authApi` вызывает backend routes; mock остался только API-disabled preview. | Не использовать preview-flow как production behavior. |
-| Self-contained runtime | Не добавлять hosted BaaS/Supabase dependency. | Сохранено: Phase 2A использует owned API/PostgreSQL/session path; Supabase warning остался legacy/prototype debt. | Выносить оставшиеся Supabase references в отдельный consolidation workstream. |
-| Validation | Проверить контракты, DB migration, API, frontend funnel, lint, build and runtime guards. | Passed: contracts, focused API/frontend/DB tests, TypeScript, lint, production-scale, self-hosted runtime, api build, diff check, production build. | Выбрать следующий scoped workstream. |
+| Delivery source | Перевести registration verification delivery из mock-only события в backend-owned durable intent. | Реализовано: `yorso_registration_delivery_outbox` хранит purpose, channel, status, destination hash, masked preview, retry and lease fields. | Добавить worker только отдельным решением. |
+| Email delivery intent | При `/v1/auth/register/start` создавать email verification outbox job. | Реализовано: draft insert и outbox insert идут одним PostgreSQL CTE. | Worker сможет резолвить raw destination backend-only через draft. |
+| Phone delivery intent | При `/v1/auth/register/phone/send` создавать SMS/WhatsApp outbox job. | Реализовано: phone verification state update и outbox insert идут одним PostgreSQL CTE. | Добавить lease/retry processing в Phase 2C, если выбираем delivery infrastructure. |
+| Browser hygiene | Не отдавать verification code или полный контакт в API response. | Реализовано: response содержит только delivery id, purpose, channel, status, masked destination preview. | Сохранять same hygiene в будущих worker/admin surfaces. |
+| Validation | Проверить контракты, migration, API, frontend boundary, lint/build/runtime guards. | Passed: contracts, registration API client, DB migrations, API tests, TypeScript, lint, production-scale, self-hosted runtime, api build, diff check, production build. | Выбрать следующий scoped workstream. |
 
 ## Current Status
 
@@ -37,26 +37,22 @@ delivery/outbox or a legacy Supabase consolidation pass.
 - Backend Phase 0 closure audit and remediation are complete.
 - Backend Phase 1 discovery/audit and Phases 1A-1J are complete.
 - Backend Phase 2A is committed locally and validation green.
+- Backend Phase 2B is committed locally and validation green.
 
-## Phase 2A Files
+## Phase 2B Files
 
-- `docs/backend/phase-2a-registration-account-source-of-truth.md`
-- `packages/db/migrations/0026_registration_account_source.sql`
+- `docs/backend/phase-2b-registration-verification-delivery-outbox.md`
+- `packages/db/migrations/0027_registration_verification_delivery_outbox.sql`
 - `packages/db/migration-manifest.json`
 - `packages/contracts/src/auth.ts`
-- `apps/api/src/modules/auth/routes.ts`
 - `apps/api/src/modules/auth/service.ts`
 - `apps/api/src/modules/auth/repository.ts`
 - `apps/api/src/modules/auth/postgres-repository.ts`
-- `apps/api/src/modules/auth/factory.ts`
-- `apps/api/src/modules/account/repository.ts`
-- `apps/api/src/server.ts`
 - `apps/api/src/server.test.ts`
 - `src/lib/api-contracts.ts`
 - `src/lib/api-contracts.registration.test.ts`
-- `src/pages/register/RegisterVerify.tsx`
-- `src/pages/register/RegisterReady.tsx`
 - `docs/backend/frontend-backend-contract.md`
+- `docs/backend/phase-2a-registration-account-source-of-truth.md`
 - `docs/backend/production-scale-baseline.md`
 
 ## Validation
@@ -65,10 +61,9 @@ Passed locally on 2026-05-29:
 
 - `npm run contracts:build`
 - `npx vitest run src/lib/api-contracts.registration.test.ts`
-- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts --testNamePattern "registration funnel|auth sessions"`
-- `npx vitest run src/lib/registration-funnel.e2e.test.tsx src/lib/registration-funnel-degraded.e2e.test.tsx src/lib/auth-runtime.test.ts`
-- `npx tsc -b --noEmit`
 - `npm run test:db-migrations`
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts --testNamePattern "registration funnel|auth sessions"`
+- `npx tsc -b --noEmit`
 - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`
 - `npm run lint`
 - `npm run check:production-scale-baseline`
@@ -84,8 +79,7 @@ Known non-blocking warnings:
 
 ## Next Recommended Workstream
 
-Backend Phase 2B: self-hosted registration verification delivery/outbox
-decision.
+Backend Phase 2C: self-hosted verification worker/lease processing.
 
 Alternative:
 

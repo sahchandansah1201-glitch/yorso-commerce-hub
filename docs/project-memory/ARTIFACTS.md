@@ -947,6 +947,33 @@
 - `docs/backend/production-scale-baseline.md`: Phase 2A capacity review and
   validation/build metrics.
 
+## Backend Phase 2B Registration Verification Delivery Outbox
+
+- `docs/backend/phase-2b-registration-verification-delivery-outbox.md`:
+  plan/fact, runtime contract, data ownership, 10,000 concurrent-user review
+  and validation record for Phase 2B.
+- `packages/db/migrations/0027_registration_verification_delivery_outbox.sql`:
+  self-hosted registration verification delivery outbox table and indexes.
+- `packages/db/migration-manifest.json`: migration manifest entry for
+  `0027_registration_verification_delivery_outbox`.
+- `packages/contracts/src/auth.ts`: registration delivery metadata schema and
+  response contract additions.
+- `apps/api/src/modules/auth/service.ts`: delivery metadata creation, masking
+  and response shaping for email and phone verification requests.
+- `apps/api/src/modules/auth/repository.ts`: memory registration delivery
+  outbox implementation.
+- `apps/api/src/modules/auth/postgres-repository.ts`: atomic draft/outbox and
+  phone-request/outbox CTE write paths.
+- `apps/api/src/server.test.ts`: API coverage for queued delivery metadata and
+  no code/full-contact leakage.
+- `src/lib/api-contracts.ts`: frontend registration delivery metadata type.
+- `src/lib/api-contracts.registration.test.ts`: frontend API client coverage
+  for delivery metadata.
+- `docs/backend/frontend-backend-contract.md`: `/register/*` route/data-source
+  contract updated for Phase 2B.
+- `docs/backend/production-scale-baseline.md`: Phase 2B capacity review and
+  validation/build metrics.
+
 ## Lovable Sync Prompts
 
 ## Batch #133 Public Breadcrumb Locale A11y

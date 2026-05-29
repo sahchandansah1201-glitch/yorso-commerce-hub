@@ -25,7 +25,7 @@ Out of scope:
 
 | Пункт плана | Что должно быть реализовано | Факт реализации | Что дальше | Проверка |
 |---|---|---|---|---|
-| Backend registration draft | Registration steps must be stored server-side, not only in browser `sessionStorage`. | Added `yorso_registration_drafts` and `/v1/auth/register/*` endpoints for start, email verify, details, phone send/verify, onboarding, markets and complete. | Add delivery/outbox only when self-hosted email/SMS infrastructure is chosen. | `packages/db/migrations/0026_registration_account_source.sql`, `apps/api/src/modules/auth/routes.ts`. |
+| Backend registration draft | Registration steps must be stored server-side, not only in browser `sessionStorage`. | Added `yorso_registration_drafts` and `/v1/auth/register/*` endpoints for start, email verify, details, phone send/verify, onboarding, markets and complete. | Delivery outbox is handled by Phase 2B. | `packages/db/migrations/0026_registration_account_source.sql`, `apps/api/src/modules/auth/routes.ts`. |
 | Account creation source | Registration completion must create the account workspace in owned storage. | Completion creates user, auth credential, company, company media row, roles, notification defaults, optional target-market meta-region and auth session. | Expand workspace initialization only with real buyer/supplier onboarding requirements. | `apps/api/src/modules/auth/postgres-repository.ts`, memory server test. |
 | Frontend API boundary | `/register/*` must call self-hosted backend when API URL exists. | `authApi` routes registration calls to `/v1/auth/register/*` under `VITE_YORSO_API_URL`; mock remains only API-disabled preview. | Remove preview fallback only if Lovable/local demo mode is retired. | `src/lib/api-contracts.ts`, `api-contracts.registration.test.ts`. |
 | Signed-in result | Completed buyer registration must produce a usable self-hosted session. | `RegisterReady` stores the backend session in buyer session storage with `source: "self_hosted"` and `userId`; self-hosted completion failures are fail-closed. | Later auth hardening can move the browser bridge to httpOnly cookies. | `src/pages/register/RegisterReady.tsx`. |
@@ -84,8 +84,8 @@ Cache, queue and backpressure strategy:
 - No polling, subscription or external hosted BaaS dependency is introduced.
 - Verification code request count is stored on the draft and capped.
 - Request body/schema validation remains the first backpressure boundary.
-- Delivery outbox is intentionally deferred until YORSO chooses self-hosted
-  mail/SMS delivery infrastructure.
+- Delivery outbox is handled by Phase 2B; worker/provider delivery remains a
+  separate self-hosted infrastructure decision.
 
 Database indexing and pagination strategy:
 

@@ -2274,3 +2274,47 @@ Keep this file factual and append-only.
 - Known non-blocking warnings preserved:
   - Supabase generated types out of sync in non-strict preview/build mode;
   - Browserslist data stale.
+
+## 2026-05-29
+
+- Implemented Backend Phase 2B: Registration Verification Delivery Outbox.
+- Added migration `0027_registration_verification_delivery_outbox.sql`:
+  - `yorso_registration_delivery_outbox`;
+  - purpose/channel/status fields;
+  - destination hash and masked destination preview;
+  - retry and worker lease fields;
+  - ready, draft-recent and status-recent indexes.
+- Updated registration auth contracts so start and phone-send responses can
+  include delivery metadata.
+- Updated self-hosted registration start:
+  - creates the registration draft;
+  - creates an email verification outbox row in the same PostgreSQL CTE;
+  - returns only delivery id, purpose, channel, status and masked destination
+    preview.
+- Updated phone verification request:
+  - updates phone verification state;
+  - creates SMS/WhatsApp outbox row in the same PostgreSQL CTE;
+  - does not return the verification code or full phone number.
+- Updated memory auth runtime to mirror the delivery outbox contract for tests
+  and local API runtime.
+- Updated frontend API contract types and tests for delivery metadata.
+- Updated `docs/backend/phase-2a-registration-account-source-of-truth.md`,
+  `docs/backend/phase-2b-registration-verification-delivery-outbox.md`,
+  `docs/backend/frontend-backend-contract.md` and
+  `docs/backend/production-scale-baseline.md`.
+- Validation passed:
+  - `npm run contracts:build`;
+  - `npx vitest run src/lib/api-contracts.registration.test.ts`;
+  - `npm run test:db-migrations`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts --testNamePattern "registration funnel|auth sessions"`;
+  - `npx tsc -b --noEmit`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run api:build`;
+  - `git diff --check`;
+  - `npm run build`.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.

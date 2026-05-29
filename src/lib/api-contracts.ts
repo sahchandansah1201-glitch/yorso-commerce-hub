@@ -264,9 +264,17 @@ export interface StartRegistrationPayload {
   email: string;
   role: "buyer" | "supplier";
 }
+export interface RegistrationVerificationDelivery {
+  id: string;
+  purpose: "email_verification" | "phone_verification";
+  channel: "email" | "sms" | "whatsapp";
+  status: "queued" | "leased" | "sent" | "failed" | "cancelled";
+  destinationPreview: string;
+}
 export interface StartRegistrationResponse {
   sessionId: string;
   emailSent: boolean;
+  delivery?: RegistrationVerificationDelivery;
 }
 
 /** 2. POST /api/auth/register/verify-email */
@@ -299,6 +307,7 @@ export interface RequestPhoneVerificationPayload {
 }
 export interface RequestPhoneVerificationResponse {
   sent: boolean;
+  delivery?: RegistrationVerificationDelivery;
   expiresInSeconds: number;
 }
 

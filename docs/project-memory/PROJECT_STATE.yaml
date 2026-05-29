@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "backend_phase_2a_registration_account_source_of_truth_committed_local"
-  head_summary: "Backend Phase 2A registration-to-account source of truth committed locally with release validation passed."
+  head_commit: "backend_phase_2b_registration_verification_delivery_outbox_committed_local"
+  head_summary: "Backend Phase 2B registration verification delivery outbox committed locally with release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "No expected dirty worktree after the Phase 2A checkpoint commit."
+    - "No expected dirty worktree after the Phase 2B checkpoint commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_2a_registration_account_source_of_truth"
-  summary: "API-enabled registration now stores funnel progress in the self-hosted backend and completes by creating the account workspace and auth session in owned storage."
+  id: "backend_phase_2b_registration_verification_delivery_outbox"
+  summary: "API-enabled registration now records durable self-hosted delivery intent for email, SMS and WhatsApp verification without adding hosted BaaS/provider coupling."
   status: "committed_locally_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 2B implementation is recorded in docs/backend/phase-2b-registration-verification-delivery-outbox.md."
+    - "Migration 0027_registration_verification_delivery_outbox creates yorso_registration_delivery_outbox with purpose, channel, status, destination hash, masked destination preview, retry and leasing fields."
+    - "Registration start creates an email verification outbox row in the same PostgreSQL CTE as the registration draft insert."
+    - "Phone verification request updates the draft and creates an SMS/WhatsApp delivery outbox row in the same PostgreSQL CTE."
+    - "Start and phone-send responses include delivery metadata only: id, purpose, channel, status and masked destination preview."
+    - "Verification codes, full email, full phone, provider credentials and worker lease metadata are not returned to the browser."
+    - "No hosted BaaS/Supabase/provider runtime dependency was added; future worker/provider implementation remains a separate self-hosted workstream."
+    - "Phase 2B targeted validation passed: contracts build; registration API client test; DB migration tests; API server registration/auth-session tests; TypeScript build."
+    - "Phase 2B release validation passed: focused API repository/server/storage tests; npm run lint; npm run check:production-scale-baseline; npm run check:self-hosted-production-runtime; npm run api:build; git diff --check; npm run build."
+    - "Recommended next implementation after Phase 2B: Backend Phase 2C self-hosted verification worker/lease processing if delivery infrastructure is chosen, or legacy Supabase consolidation."
     - "Phase 2A implementation is recorded in docs/backend/phase-2a-registration-account-source-of-truth.md."
     - "API-enabled /register/* now calls self-hosted /v1/auth/register/* routes when VITE_YORSO_API_URL is configured; API-disabled Lovable/local preview keeps the mock flow as non-production."
     - "Backend registration state is stored in yorso_registration_drafts through migration 0026_registration_account_source.sql."
@@ -154,6 +164,16 @@ active_workstream:
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "Next planned workstream after Phase 1J checkpoint: Backend Phase 2A registration-to-account creation and verification source of truth, or a scoped self-hosted consolidation pass for remaining legacy Supabase surfaces."
   confirmed_files:
+    - "docs/backend/phase-2b-registration-verification-delivery-outbox.md"
+    - "packages/db/migrations/0027_registration_verification_delivery_outbox.sql"
+    - "packages/db/migration-manifest.json"
+    - "packages/contracts/src/auth.ts"
+    - "apps/api/src/modules/auth/service.ts"
+    - "apps/api/src/modules/auth/repository.ts"
+    - "apps/api/src/modules/auth/postgres-repository.ts"
+    - "apps/api/src/server.test.ts"
+    - "src/lib/api-contracts.ts"
+    - "src/lib/api-contracts.registration.test.ts"
     - "docs/backend/phase-2a-registration-account-source-of-truth.md"
     - "packages/db/migrations/0026_registration_account_source.sql"
     - "packages/db/migration-manifest.json"

@@ -21,6 +21,13 @@ describe("registration API contract boundary", () => {
           ok: true,
           sessionId: "registration-session-12345678901234567890",
           emailSent: true,
+          delivery: {
+            id: "00000000-0000-4000-8000-000000000203",
+            purpose: "email_verification",
+            channel: "email",
+            status: "queued",
+            destinationPreview: "b***@yorso.test",
+          },
           expiresInSeconds: 300,
           requestId: "00000000-0000-4000-8000-000000000201",
         }),
@@ -40,6 +47,12 @@ describe("registration API contract boundary", () => {
       data: {
         sessionId: "registration-session-12345678901234567890",
         emailSent: true,
+        delivery: {
+          purpose: "email_verification",
+          channel: "email",
+          status: "queued",
+          destinationPreview: "b***@yorso.test",
+        },
       },
     });
     expect(fetchMock).toHaveBeenCalledWith(

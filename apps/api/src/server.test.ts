@@ -1520,8 +1520,16 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(startBody).toMatchObject({
       ok: true,
       emailSent: true,
+      delivery: {
+        purpose: "email_verification",
+        channel: "email",
+        status: "queued",
+        destinationPreview: "p***@yorso.test",
+      },
       expiresInSeconds: 300,
     });
+    expect(JSON.stringify(startBody)).not.toContain(email);
+    expect(JSON.stringify(startBody)).not.toContain("123456");
     const registrationSessionId = String(startBody.sessionId);
 
     const verifyEmail = await fetchApi("/v1/auth/register/verify-email", {
@@ -1556,7 +1564,19 @@ describe("YORSO self-hosted API skeleton", () => {
         method: "sms",
       }),
     });
-    await expect(phoneSend.json()).resolves.toMatchObject({ ok: true, sent: true });
+    const phoneSendBody = (await phoneSend.json()) as JsonBody;
+    expect(phoneSendBody).toMatchObject({
+      ok: true,
+      sent: true,
+      delivery: {
+        purpose: "phone_verification",
+        channel: "sms",
+        status: "queued",
+        destinationPreview: "***00",
+      },
+    });
+    expect(JSON.stringify(phoneSendBody)).not.toContain("+34600000000");
+    expect(JSON.stringify(phoneSendBody)).not.toContain("123456");
     expect(phoneSend.status).toBe(200);
 
     const phoneVerify = await fetchApi("/v1/auth/register/phone/verify", {

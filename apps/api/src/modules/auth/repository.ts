@@ -1,6 +1,9 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import type {
   AdminUserRole,
+  AuthRegistrationDeliveryChannel,
+  AuthRegistrationDeliveryPurpose,
+  AuthRegistrationDeliveryStatus,
   AuthRegisterDetails,
   AuthRegisterMarkets,
   AuthRegisterOnboarding,
@@ -42,6 +45,30 @@ export interface RegistrationDraft {
   volume: string;
 }
 
+export interface RegistrationDeliveryOutboxEntry {
+  channel: AuthRegistrationDeliveryChannel;
+  createdAt: string;
+  destinationPreview: string;
+  draftId: string;
+  id: string;
+  purpose: AuthRegistrationDeliveryPurpose;
+  status: AuthRegistrationDeliveryStatus;
+}
+
+export interface RegistrationDeliveryOutboxInput {
+  channel: AuthRegistrationDeliveryChannel;
+  destinationHash: string;
+  destinationPreview: string;
+  purpose: AuthRegistrationDeliveryPurpose;
+  requestId: string;
+  templateKey: string;
+}
+
+export interface RegistrationDraftDeliveryResult {
+  delivery: RegistrationDeliveryOutboxEntry;
+  draft: RegistrationDraft;
+}
+
 export interface RegistrationAccountProvisioner {
   provisionRegisteredAccount(input: RegisteredAccountProvision): Promise<void>;
 }
@@ -60,11 +87,16 @@ export interface RegistrationCompleteResult {
 export interface AuthRepository {
   findUserByEmail(email: string): Promise<AuthUser | null>;
   createSession(user: Pick<AuthUser, "id" | "email" | "displayName">, ttlMs: number): Promise<AuthSession>;
-  startRegistrationDraft(input: AuthRegisterStart & { emailCodeSecret: string; expiresAt: Date }): Promise<RegistrationDraft>;
+  startRegistrationDraft(
+    input: AuthRegisterStart & { delivery: RegistrationDeliveryOutboxInput; emailCodeSecret: string; expiresAt: Date },
+  ): Promise<RegistrationDraftDeliveryResult>;
   getRegistrationDraft(sessionId: string): Promise<RegistrationDraft | null>;
   markRegistrationEmailVerified(sessionId: string): Promise<RegistrationDraft>;
   updateRegistrationDetails(sessionId: string, input: AuthRegisterDetails & { countryCode: string; passwordSecret: string }): Promise<RegistrationDraft>;
-  recordRegistrationPhoneRequest(sessionId: string, input: AuthRegisterPhoneRequest & { phoneCodeSecret: string }): Promise<RegistrationDraft>;
+  recordRegistrationPhoneRequest(
+    sessionId: string,
+    input: AuthRegisterPhoneRequest & { delivery: RegistrationDeliveryOutboxInput; phoneCodeSecret: string },
+  ): Promise<RegistrationDraftDeliveryResult>;
   markRegistrationPhoneVerified(sessionId: string, phone: string): Promise<RegistrationDraft>;
   updateRegistrationOnboarding(sessionId: string, input: AuthRegisterOnboarding): Promise<RegistrationDraft>;
   updateRegistrationMarkets(sessionId: string, input: AuthRegisterMarkets): Promise<RegistrationDraft>;
@@ -113,6 +145,7 @@ const cloneDraft = (draft: RegistrationDraft): RegistrationDraft => ({
   certifications: [...draft.certifications],
   targetCountries: [...draft.targetCountries],
 });
+const cloneDelivery = (delivery: RegistrationDeliveryOutboxEntry): RegistrationDeliveryOutboxEntry => ({ ...delivery });
 
 const splitFullName = (fullName: string) => {
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
@@ -128,6 +161,7 @@ export class MemoryAuthRepository implements AuthRepository {
   private readonly sessions = new Map<string, AuthSession>();
   private readonly securityEvents: AuthSecurityEvent[] = [];
   private readonly registrationDrafts = new Map<string, RegistrationDraft>();
+  private readonly registrationDeliveryOutbox = new Map<string, RegistrationDeliveryOutboxEntry>();
 
   constructor(
     users: AuthUser[] = [demoAuthUser, demoAdminUser],
@@ -168,7 +202,9 @@ export class MemoryAuthRepository implements AuthRepository {
     return { ...session };
   }
 
-  async startRegistrationDraft(input: AuthRegisterStart & { emailCodeSecret: string; expiresAt: Date }) {
+  async startRegistrationDraft(
+    input: AuthRegisterStart & { delivery: RegistrationDeliveryOutboxInput; emailCodeSecret: string; expiresAt: Date },
+  ) {
     const id = createSessionId();
     const draft: RegistrationDraft = {
       categories: [],
@@ -193,7 +229,11 @@ export class MemoryAuthRepository implements AuthRepository {
       volume: "",
     };
     this.registrationDrafts.set(id, draft);
-    return cloneDraft(draft);
+    const delivery = this.createRegistrationDelivery(id, input.delivery);
+    return {
+      delivery: cloneDelivery(delivery),
+      draft: cloneDraft(draft),
+    };
   }
 
   async getRegistrationDraft(sessionId: string) {
@@ -226,7 +266,7 @@ export class MemoryAuthRepository implements AuthRepository {
 
   async recordRegistrationPhoneRequest(
     sessionId: string,
-    input: AuthRegisterPhoneRequest & { phoneCodeSecret: string },
+    input: AuthRegisterPhoneRequest & { delivery: RegistrationDeliveryOutboxInput; phoneCodeSecret: string },
   ) {
     const draft = await this.requireRegistrationDraft(sessionId);
     draft.phone = input.phone;
@@ -234,7 +274,11 @@ export class MemoryAuthRepository implements AuthRepository {
     draft.phoneCodeRequests += 1;
     draft.phoneVerifiedAt = null;
     this.registrationDrafts.set(sessionId, draft);
-    return cloneDraft(draft);
+    const delivery = this.createRegistrationDelivery(sessionId, input.delivery);
+    return {
+      delivery: cloneDelivery(delivery),
+      draft: cloneDraft(draft),
+    };
   }
 
   async markRegistrationPhoneVerified(sessionId: string, phone: string) {
@@ -354,5 +398,22 @@ export class MemoryAuthRepository implements AuthRepository {
     const draft = await this.getRegistrationDraft(sessionId);
     if (!draft) throw new Error("registration_session_invalid");
     return draft;
+  }
+
+  private createRegistrationDelivery(
+    draftId: string,
+    input: RegistrationDeliveryOutboxInput,
+  ): RegistrationDeliveryOutboxEntry {
+    const delivery: RegistrationDeliveryOutboxEntry = {
+      channel: input.channel,
+      createdAt: iso(new Date()),
+      destinationPreview: input.destinationPreview,
+      draftId,
+      id: randomUUID(),
+      purpose: input.purpose,
+      status: "queued",
+    };
+    this.registrationDeliveryOutbox.set(delivery.id, delivery);
+    return delivery;
   }
 }

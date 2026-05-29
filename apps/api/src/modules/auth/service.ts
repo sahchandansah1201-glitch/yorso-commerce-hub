@@ -24,7 +24,7 @@ import {
   type AuthSignOutResponse,
 } from "../../../../../packages/contracts/dist/index.js";
 import { SecurityEventAuthRateLimiter, type AuthRateLimitDecision, type AuthRateLimiter } from "./rate-limit.js";
-import type { AuthRepository, AuthUser } from "./repository.js";
+import type { AuthRepository, AuthUser, RegistrationDeliveryOutboxEntry } from "./repository.js";
 import {
   DisabledAuthSessionCache,
   type AuthSessionCache,
@@ -173,14 +173,23 @@ export class AuthService {
 
     const draft = await this.repository.startRegistrationDraft({
       ...parsed,
+      delivery: {
+        channel: "email",
+        destinationHash: hashDeliveryDestination(parsed.email),
+        destinationPreview: maskEmail(parsed.email),
+        purpose: "email_verification",
+        requestId,
+        templateKey: "registration_email_verification",
+      },
       emailCodeSecret: createPasswordSecret(registrationEmailCode),
       expiresAt: new Date(Date.now() + registrationDraftTtlMs),
     });
 
     return authRegisterStartResponseSchema.parse({
       ok: true,
-      sessionId: draft.id,
+      sessionId: draft.draft.id,
       emailSent: true,
+      delivery: toRegistrationDeliveryResponse(draft.delivery),
       expiresInSeconds: registrationVerificationTtlSeconds,
       requestId,
     });
@@ -225,13 +234,22 @@ export class AuthService {
     if (draft.phoneCodeRequests >= 5) {
       throw new AuthServiceError("registration_rate_limited", "Too many verification code requests.", 60);
     }
-    await this.repository.recordRegistrationPhoneRequest(parsed.sessionId, {
+    const phoneDelivery = await this.repository.recordRegistrationPhoneRequest(parsed.sessionId, {
       ...parsed,
+      delivery: {
+        channel: parsed.method,
+        destinationHash: hashDeliveryDestination(parsed.phone),
+        destinationPreview: maskPhone(parsed.phone),
+        purpose: "phone_verification",
+        requestId,
+        templateKey: parsed.method === "whatsapp" ? "registration_whatsapp_verification" : "registration_sms_verification",
+      },
       phoneCodeSecret: createPasswordSecret(registrationPhoneCode),
     });
     return authRegisterPhoneRequestResponseSchema.parse({
       ok: true,
       sent: true,
+      delivery: toRegistrationDeliveryResponse(phoneDelivery.delivery),
       expiresInSeconds: registrationVerificationTtlSeconds,
       requestId,
     });
@@ -544,6 +562,34 @@ function createPasswordSecret(password: string): string {
   const salt = randomBytes(16).toString("hex");
   const hash = createHash("sha256").update(`${salt}:${password}`).digest("hex");
   return `sha256:${salt}:${hash}`;
+}
+
+function toRegistrationDeliveryResponse(delivery: RegistrationDeliveryOutboxEntry) {
+  return {
+    id: delivery.id,
+    purpose: delivery.purpose,
+    channel: delivery.channel,
+    status: delivery.status,
+    destinationPreview: delivery.destinationPreview,
+  };
+}
+
+function hashDeliveryDestination(destination: string): string {
+  const normalized = destination.trim().toLowerCase();
+  return `sha256:${createHash("sha256").update(normalized).digest("hex")}`;
+}
+
+function maskEmail(email: string): string {
+  const normalized = email.trim().toLowerCase();
+  const [local = "", domain = ""] = normalized.split("@");
+  const visible = local.length > 0 ? local.slice(0, 1) : "*";
+  return `${visible}***@${domain || "email"}`;
+}
+
+function maskPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length <= 2) return "**";
+  return `***${digits.slice(-2)}`;
 }
 
 function verifyPasswordSecret(password: string, user: Pick<AuthUser, "passwordSecret">): boolean {
