@@ -3223,5 +3223,82 @@ describe("YORSO self-hosted API skeleton", () => {
 
     expect(() => assertSupabaseIsPrototypeOnly(relativeSpoolConfig))
       .toThrow(/absolute YORSO_REGISTRATION_DELIVERY_SPOOL_DIR/);
+
+    const noPasswordRecoveryWorkerConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
+        YORSO_AUDIT_DRIVER: "postgres",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+        YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED: "true",
+        YORSO_REGISTRATION_DELIVERY_SENDER: "file_spool",
+        YORSO_REGISTRATION_DELIVERY_SPOOL_DIR: "/var/spool/yorso/registration-delivery",
+        YORSO_REGISTRATION_VERIFICATION_CODE_SECRET: "production-registration-code-secret-32-bytes",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(noPasswordRecoveryWorkerConfig))
+      .toThrow(/YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true/);
+
+    const disabledPasswordRecoverySenderConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
+        YORSO_AUDIT_DRIVER: "postgres",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+        YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED: "true",
+        YORSO_REGISTRATION_DELIVERY_SENDER: "file_spool",
+        YORSO_REGISTRATION_DELIVERY_SPOOL_DIR: "/var/spool/yorso/registration-delivery",
+        YORSO_REGISTRATION_VERIFICATION_CODE_SECRET: "production-registration-code-secret-32-bytes",
+        YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED: "true",
+        YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER: "disabled",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(disabledPasswordRecoverySenderConfig))
+      .toThrow(/YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool/);
+
+    const relativePasswordRecoverySpoolConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
+        YORSO_AUDIT_DRIVER: "postgres",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+        YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED: "true",
+        YORSO_REGISTRATION_DELIVERY_SENDER: "file_spool",
+        YORSO_REGISTRATION_DELIVERY_SPOOL_DIR: "/var/spool/yorso/registration-delivery",
+        YORSO_REGISTRATION_VERIFICATION_CODE_SECRET: "production-registration-code-secret-32-bytes",
+        YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED: "true",
+        YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER: "file_spool",
+        YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR: ".data/password-recovery-delivery",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(relativePasswordRecoverySpoolConfig))
+      .toThrow(/absolute YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR/);
   });
 });

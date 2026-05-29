@@ -4994,6 +4994,79 @@ Marker: sealed verification code handoff.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 2G Password Recovery Delivery Runtime
+
+Phase 2G adds a self-hosted password recovery delivery worker/sender runtime
+for the Phase 2F outbox. The runtime leases queued recovery deliveries, opens
+sealed reset-token material only after lease, writes `file_spool` handoff files
+and records worker metrics without adding hosted provider dependencies.
+
+Expected read/write profile:
+
+- Reset request writes remain unchanged from Phase 2F.
+- Worker lease performs one bounded PostgreSQL lease query and one lease update
+  per claimed row.
+- Successful send performs one local spool file write and one terminal outbox
+  update.
+- Failed send performs one sanitized retry/failure update.
+
+Cache, queue and backpressure strategy:
+
+- `YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_BATCH_SIZE` bounds work per run.
+- `YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_INTERVAL_MS` bounds scheduler
+  frequency.
+- `YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_LEASE_MS` bounds stuck leases.
+- `YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_RETRY_AFTER_MS` controls retry
+  pressure.
+- Scheduler skips overlapping runs and does not run inside public request
+  handlers.
+
+Database indexing and pagination strategy:
+
+- `idx_yorso_auth_password_recovery_outbox_ready` supports ready delivery scans.
+- PostgreSQL leasing uses ordered candidates and `for update skip locked`.
+- Expired or used recovery tokens are excluded before delivery.
+- Runtime repeats bounded batches rather than paginating across the outbox.
+
+Failure mode and graceful degradation:
+
+- File-spool failure requeues jobs until retry exhaustion, then marks failed.
+- Persisted sender errors redact email, phone and reset-token shaped values.
+- Scheduler-level worker errors emit metrics and do not crash the API process.
+- Production config fails closed unless password recovery delivery runtime uses
+  `file_spool` with an absolute owned spool directory.
+
+Observability and load-test plan:
+
+- Prometheus metrics track password recovery delivery worker runs and job
+  counts by worker id/result.
+- Metrics must not label email, recovery id, destination or reset token.
+- Load-test mixed known/unknown password reset bursts plus worker sends at the
+  10,000 concurrent-user baseline; inspect queue age, terminal failures, spool
+  write latency and reset completion p95.
+
+Validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/password-recovery-delivery-worker.test.ts apps/api/src/modules/auth/password-recovery-delivery-sender.test.ts apps/api/src/modules/auth/password-recovery-delivery-runtime.test.ts`.
+- `npx tsc -b --noEmit`.
+- `npm run test:db-migrations`.
+- `npm run check:self-hosted-db`.
+- `npm run check:self-hosted-infra`.
+- `npm run check:self-hosted-production-runtime`.
+- `npm run check:self-hosted-api`.
+- `npm run check:production-scale-baseline`.
+- `npm run test:api`.
+- `npm run lint`.
+- `npm run api:build`.
+- `git diff --check`.
+- `npm run build`.
+
+Marker: Backend Phase 2G.
+Marker: password recovery delivery runtime.
+Marker: file_spool sender.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

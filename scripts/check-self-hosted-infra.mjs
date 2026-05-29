@@ -53,6 +53,9 @@ const requiredComposeMarkers = [
   "YORSO_REGISTRATION_DELIVERY_SENDER: file_spool",
   "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR: /var/lib/yorso/registration-delivery",
   "YORSO_REGISTRATION_VERIFICATION_CODE_SECRET:",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED:",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER: file_spool",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR: /var/lib/yorso/password-recovery-delivery",
   "YORSO_ERROR_OBSERVABILITY_DRIVER: console",
   "YORSO_METRICS_DRIVER: prometheus",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER: console",
@@ -87,6 +90,7 @@ const requiredComposeMarkers = [
   "yorso-postgres-data:",
   "yorso-api-uploads:",
   "yorso-registration-delivery:",
+  "yorso-password-recovery-delivery:",
   "yorso-redis-data:",
   "yorso-minio-data:",
 ];
@@ -133,6 +137,14 @@ const requiredEnvKeys = [
   "YORSO_REGISTRATION_DELIVERY_WORKER_RETRY_AFTER_MS",
   "YORSO_REGISTRATION_DELIVERY_WORKER_ID",
   "YORSO_REGISTRATION_VERIFICATION_CODE_SECRET",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_INTERVAL_MS",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_BATCH_SIZE",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_LEASE_MS",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_RETRY_AFTER_MS",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ID",
   "YORSO_ERROR_OBSERVABILITY_DRIVER",
   "YORSO_METRICS_DRIVER",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
@@ -179,6 +191,9 @@ requireText(".env.example", envExample, "YORSO_REGISTRATION_DELIVERY_WORKER_ENAB
 requireText(".env.example", envExample, "YORSO_REGISTRATION_DELIVERY_SENDER=disabled");
 requireText(".env.example", envExample, "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR=.data/registration-delivery");
 requireText(".env.example", envExample, "YORSO_REGISTRATION_VERIFICATION_CODE_SECRET=change-me-registration-code-secret-32-bytes");
+requireText(".env.example", envExample, "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=false");
+requireText(".env.example", envExample, "YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=disabled");
+requireText(".env.example", envExample, "YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR=.data/password-recovery-delivery");
 requireText(".env.example", envExample, "YORSO_ERROR_OBSERVABILITY_DRIVER=disabled");
 requireText(".env.example", envExample, "YORSO_METRICS_DRIVER=disabled");
 requireText(".env.example", envExample, "YORSO_REQUEST_OBSERVABILITY_DRIVER=disabled");

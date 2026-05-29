@@ -21,6 +21,10 @@ import type {
   AuthSecurityEventCountQuery,
   AuthSecurityEventInput,
   AuthUser,
+  PasswordRecoveryDeliveryFailureInput,
+  PasswordRecoveryDeliveryJob,
+  PasswordRecoveryDeliveryLeaseInput,
+  PasswordRecoveryDeliveryOutboxEntry,
   RegistrationDeliveryFailureInput,
   RegistrationDeliveryJob,
   RegistrationDeliveryLeaseInput,
@@ -138,6 +142,26 @@ interface PasswordRecoveryRow extends Record<string, unknown> {
   user_id: string;
 }
 
+interface PasswordRecoveryDeliveryOutboxRow extends Record<string, unknown> {
+  delivery_attempt_count: number;
+  delivery_available_at: Date | string;
+  delivery_created_at: Date | string;
+  delivery_destination_preview: string;
+  delivery_id: string;
+  delivery_locked_at: Date | string | null;
+  delivery_locked_by: string | null;
+  delivery_max_attempts: number;
+  delivery_recovery_id: string;
+  delivery_status: "queued" | "leased" | "sent" | "failed" | "cancelled";
+  delivery_template_key: string;
+  delivery_updated_at: Date | string;
+}
+
+interface PasswordRecoveryDeliveryJobRow extends PasswordRecoveryDeliveryOutboxRow {
+  delivery_destination: string | null;
+  delivery_recovery_token_sealed: string | null;
+}
+
 const createSessionId = () => randomBytes(32).toString("hex");
 const ensureIso = (value: Date | string) => (value instanceof Date ? value.toISOString() : new Date(value).toISOString());
 
@@ -231,11 +255,56 @@ function mapPasswordRecovery(row: PasswordRecoveryRow): PasswordRecoveryRecord {
   };
 }
 
+function mapPasswordRecoveryDelivery(row: PasswordRecoveryDeliveryOutboxRow): PasswordRecoveryDeliveryOutboxEntry {
+  return {
+    attemptCount: row.delivery_attempt_count,
+    availableAt: ensureIso(row.delivery_available_at),
+    createdAt: ensureIso(row.delivery_created_at),
+    destinationPreview: row.delivery_destination_preview,
+    id: row.delivery_id,
+    lockedAt: row.delivery_locked_at ? ensureIso(row.delivery_locked_at) : null,
+    lockedBy: row.delivery_locked_by,
+    maxAttempts: row.delivery_max_attempts,
+    recoveryId: row.delivery_recovery_id,
+    status: row.delivery_status,
+    templateKey: row.delivery_template_key,
+    updatedAt: ensureIso(row.delivery_updated_at),
+  };
+}
+
+function mapPasswordRecoveryDeliveryJob(
+  row: PasswordRecoveryDeliveryJobRow,
+  recoveryTokenCodec: PasswordRecoveryTokenCodec,
+): PasswordRecoveryDeliveryJob | null {
+  if (!row.delivery_destination) return null;
+  if (!row.delivery_recovery_token_sealed) return null;
+  return {
+    ...mapPasswordRecoveryDelivery(row),
+    destination: row.delivery_destination,
+    recoveryToken: recoveryTokenCodec.open(row.delivery_recovery_token_sealed),
+  };
+}
+
 const deliveryReturningSql = `
   id::text as delivery_id,
   draft_id as delivery_draft_id,
   purpose as delivery_purpose,
   channel as delivery_channel,
+  status as delivery_status,
+  destination_preview as delivery_destination_preview,
+  template_key as delivery_template_key,
+  attempt_count as delivery_attempt_count,
+  max_attempts as delivery_max_attempts,
+  available_at as delivery_available_at,
+  locked_at as delivery_locked_at,
+  locked_by as delivery_locked_by,
+  created_at as delivery_created_at,
+  updated_at as delivery_updated_at
+`;
+
+const passwordRecoveryDeliveryReturningSql = `
+  id::text as delivery_id,
+  recovery_id::text as delivery_recovery_id,
   status as delivery_status,
   destination_preview as delivery_destination_preview,
   template_key as delivery_template_key,
@@ -1097,6 +1166,97 @@ export class PostgresAuthRepository implements AuthRepository {
       [recoveryId, userId, passwordSecret],
     );
     return Number(result.rows[0]?.updated ?? 0) > 0;
+  }
+
+  async leasePasswordRecoveryDeliveryJobs(input: PasswordRecoveryDeliveryLeaseInput): Promise<PasswordRecoveryDeliveryJob[]> {
+    const result = await this.client.query<PasswordRecoveryDeliveryJobRow>(
+      `
+        with candidates as (
+          select outbox.id
+          from yorso_auth_password_recovery_outbox outbox
+          join yorso_auth_password_recovery_tokens recovery on recovery.id = outbox.recovery_id
+          where outbox.status in ('queued', 'leased')
+            and outbox.available_at <= now()
+            and outbox.attempt_count < outbox.max_attempts
+            and recovery.used_at is null
+            and recovery.expires_at > now()
+            and outbox.recovery_token_sealed is not null
+          order by outbox.available_at asc, outbox.created_at asc
+          limit $1
+          for update of outbox skip locked
+        ),
+        leased as (
+          update yorso_auth_password_recovery_outbox outbox
+          set status = 'leased',
+              available_at = now() + ($3::bigint * interval '1 millisecond'),
+              locked_at = now(),
+              locked_by = $2,
+              updated_at = now()
+          from candidates
+          where outbox.id = candidates.id
+          returning ${passwordRecoveryDeliveryReturningSql}
+        )
+        select
+          leased.*,
+          recovery.email::text as delivery_destination,
+          outbox.recovery_token_sealed as delivery_recovery_token_sealed
+        from leased
+        join yorso_auth_password_recovery_outbox outbox on outbox.id::text = leased.delivery_id
+        join yorso_auth_password_recovery_tokens recovery on recovery.id::text = leased.delivery_recovery_id
+      `,
+      [input.limit, input.workerId, input.leaseMs],
+    );
+    return result.rows.flatMap((row) => {
+      const job = mapPasswordRecoveryDeliveryJob(row, this.recoveryTokenCodec);
+      return job ? [job] : [];
+    });
+  }
+
+  async markPasswordRecoveryDeliverySent(deliveryId: string): Promise<PasswordRecoveryDeliveryOutboxEntry | null> {
+    const result = await this.client.query<PasswordRecoveryDeliveryOutboxRow>(
+      `
+        update yorso_auth_password_recovery_outbox
+        set status = 'sent',
+            locked_at = null,
+            locked_by = null,
+            last_error = null,
+            updated_at = now()
+        where id = $1::uuid
+          and status = 'leased'
+        returning ${passwordRecoveryDeliveryReturningSql}
+      `,
+      [deliveryId],
+    );
+    return result.rows[0] ? mapPasswordRecoveryDelivery(result.rows[0]) : null;
+  }
+
+  async markPasswordRecoveryDeliveryFailed(
+    deliveryId: string,
+    input: PasswordRecoveryDeliveryFailureInput,
+  ): Promise<PasswordRecoveryDeliveryOutboxEntry | null> {
+    const result = await this.client.query<PasswordRecoveryDeliveryOutboxRow>(
+      `
+        update yorso_auth_password_recovery_outbox
+        set attempt_count = attempt_count + 1,
+            status = case
+              when attempt_count + 1 >= max_attempts then 'failed'
+              else 'queued'
+            end,
+            available_at = case
+              when attempt_count + 1 >= max_attempts then available_at
+              else now() + ($2::bigint * interval '1 millisecond')
+            end,
+            locked_at = null,
+            locked_by = null,
+            last_error = left($3, 500),
+            updated_at = now()
+        where id = $1::uuid
+          and status = 'leased'
+        returning ${passwordRecoveryDeliveryReturningSql}
+      `,
+      [deliveryId, input.retryAfterMs, input.error],
+    );
+    return result.rows[0] ? mapPasswordRecoveryDelivery(result.rows[0]) : null;
   }
 
   async hasRole(userId: string, role: AdminUserRole): Promise<boolean> {

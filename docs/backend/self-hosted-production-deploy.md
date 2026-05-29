@@ -176,6 +176,14 @@ This secret protects sealed backend-only OTP material in the registration
 delivery outbox; public registration responses must still expose only masked
 delivery metadata, never the OTP or full contact.
 
+Backend Phase 2G adds the password recovery delivery runtime knobs to
+production deployments. Production must run with
+`YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true`,
+`YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool` and an absolute
+`YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR` mounted on owned server storage.
+The file spool is an owned reset-link handoff boundary, not a hosted email
+provider.
+
 Batch #88 adds `smoke:self-hosted-audit-trail` to the deploy validation path.
 It verifies that the console audit sink writes sanitized `api_audit_event`
 records for auth, account, access, notification and storage actions without

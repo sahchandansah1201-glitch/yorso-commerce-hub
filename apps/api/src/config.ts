@@ -41,6 +41,14 @@ export const apiConfigSchema = z.object({
   registrationDeliveryWorkerRetryAfterMs: z.coerce.number().int().min(1_000).max(24 * 60 * 60_000).default(60_000),
   registrationDeliveryWorkerId: z.string().min(1).max(120).default("registration-delivery-worker"),
   registrationVerificationCodeSecret: z.string().min(32),
+  passwordRecoveryDeliveryWorkerEnabled: booleanEnvSchema.default(false),
+  passwordRecoveryDeliverySender: z.enum(["disabled", "file_spool"]).default("disabled"),
+  passwordRecoveryDeliverySpoolDir: z.string().min(1).default(".data/password-recovery-delivery"),
+  passwordRecoveryDeliveryWorkerIntervalMs: z.coerce.number().int().min(1_000).max(60_000).default(5_000),
+  passwordRecoveryDeliveryWorkerBatchSize: z.coerce.number().int().min(1).max(500).default(25),
+  passwordRecoveryDeliveryWorkerLeaseMs: z.coerce.number().int().min(5_000).max(15 * 60_000).default(60_000),
+  passwordRecoveryDeliveryWorkerRetryAfterMs: z.coerce.number().int().min(1_000).max(24 * 60 * 60_000).default(60_000),
+  passwordRecoveryDeliveryWorkerId: z.string().min(1).max(120).default("password-recovery-delivery-worker"),
   errorObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   metricsDriver: z.enum(["disabled", "prometheus"]).default("disabled"),
   requestObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
@@ -100,6 +108,14 @@ const localDefaults = {
   YORSO_REGISTRATION_DELIVERY_WORKER_RETRY_AFTER_MS: "60000",
   YORSO_REGISTRATION_DELIVERY_WORKER_ID: "registration-delivery-worker",
   YORSO_REGISTRATION_VERIFICATION_CODE_SECRET: "change-me-registration-code-secret-32-bytes",
+  YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED: "false",
+  YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER: "disabled",
+  YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR: ".data/password-recovery-delivery",
+  YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_INTERVAL_MS: "5000",
+  YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_BATCH_SIZE: "25",
+  YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_LEASE_MS: "60000",
+  YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_RETRY_AFTER_MS: "60000",
+  YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ID: "password-recovery-delivery-worker",
   YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
   YORSO_METRICS_DRIVER: "disabled",
   YORSO_REQUEST_OBSERVABILITY_DRIVER: "disabled",
@@ -158,6 +174,14 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     registrationDeliveryWorkerRetryAfterMs: source.YORSO_REGISTRATION_DELIVERY_WORKER_RETRY_AFTER_MS,
     registrationDeliveryWorkerId: source.YORSO_REGISTRATION_DELIVERY_WORKER_ID,
     registrationVerificationCodeSecret: source.YORSO_REGISTRATION_VERIFICATION_CODE_SECRET,
+    passwordRecoveryDeliveryWorkerEnabled: source.YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED,
+    passwordRecoveryDeliverySender: source.YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER,
+    passwordRecoveryDeliverySpoolDir: source.YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR,
+    passwordRecoveryDeliveryWorkerIntervalMs: source.YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_INTERVAL_MS,
+    passwordRecoveryDeliveryWorkerBatchSize: source.YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_BATCH_SIZE,
+    passwordRecoveryDeliveryWorkerLeaseMs: source.YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_LEASE_MS,
+    passwordRecoveryDeliveryWorkerRetryAfterMs: source.YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_RETRY_AFTER_MS,
+    passwordRecoveryDeliveryWorkerId: source.YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ID,
     errorObservabilityDriver: source.YORSO_ERROR_OBSERVABILITY_DRIVER,
     metricsDriver: source.YORSO_METRICS_DRIVER,
     requestObservabilityDriver: source.YORSO_REQUEST_OBSERVABILITY_DRIVER,
@@ -233,6 +257,15 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   }
   if (config.nodeEnv === "production" && config.registrationVerificationCodeSecret === localDefaults.YORSO_REGISTRATION_VERIFICATION_CODE_SECRET) {
     throw new Error("Production self-hosted API must set a non-default YORSO_REGISTRATION_VERIFICATION_CODE_SECRET.");
+  }
+  if (config.nodeEnv === "production" && !config.passwordRecoveryDeliveryWorkerEnabled) {
+    throw new Error("Production self-hosted API must use YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true.");
+  }
+  if (config.nodeEnv === "production" && config.passwordRecoveryDeliverySender !== "file_spool") {
+    throw new Error("Production self-hosted API must use YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool.");
+  }
+  if (config.nodeEnv === "production" && !config.passwordRecoveryDeliverySpoolDir.startsWith("/")) {
+    throw new Error("Production self-hosted API must use an absolute YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR.");
   }
 }
 

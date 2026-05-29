@@ -36,6 +36,9 @@ import { createAuthRateLimiter } from "./modules/auth/rate-limit.js";
 import { createRegistrationDeliveryRuntime } from "./modules/auth/delivery-runtime.js";
 import type { RegistrationDeliveryScheduler } from "./modules/auth/delivery-scheduler.js";
 import type { RegistrationVerificationDeliverySender } from "./modules/auth/delivery-worker.js";
+import { createPasswordRecoveryDeliveryRuntime } from "./modules/auth/password-recovery-delivery-runtime.js";
+import type { PasswordRecoveryDeliveryScheduler } from "./modules/auth/password-recovery-delivery-scheduler.js";
+import type { PasswordRecoveryDeliverySender } from "./modules/auth/password-recovery-delivery-worker.js";
 import type { AuthRepository, RegistrationAccountProvisioner } from "./modules/auth/repository.js";
 import { handleAuthRoute } from "./modules/auth/routes.js";
 import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
@@ -81,6 +84,8 @@ export interface ApiServerOptions {
   registrationDeliverySender?: RegistrationVerificationDeliverySender;
   registrationVerification?: AuthServiceVerificationOptions;
   passwordRecovery?: AuthServicePasswordRecoveryOptions;
+  passwordRecoveryDeliveryScheduler?: PasswordRecoveryDeliveryScheduler | null;
+  passwordRecoveryDeliverySender?: PasswordRecoveryDeliverySender;
   requestTelemetrySink?: RequestTelemetrySink;
   supplierAccessRepository?: SupplierAccessRepository;
   supplierRepository?: SupplierRepository;
@@ -99,6 +104,11 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       sender: options.registrationDeliverySender,
     })
     : options.registrationDeliveryScheduler;
+  const passwordRecoveryDeliveryScheduler = options.passwordRecoveryDeliveryScheduler === undefined
+    ? createPasswordRecoveryDeliveryRuntime(config, authRepository, metricsRegistry, {
+      sender: options.passwordRecoveryDeliverySender,
+    })
+    : options.passwordRecoveryDeliveryScheduler;
   const authService = new AuthService(
     authRepository,
     createAuthRateLimiter(config, authRepository),
@@ -235,9 +245,11 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
   server.keepAliveTimeout = config.keepAliveTimeoutMs;
   server.once("listening", () => {
     registrationDeliveryScheduler?.start();
+    passwordRecoveryDeliveryScheduler?.start();
   });
   server.once("close", () => {
     registrationDeliveryScheduler?.stop();
+    passwordRecoveryDeliveryScheduler?.stop();
   });
   server.on("clientError", (error: NodeJS.ErrnoException, socket) => {
     const headerOverflow = error.code === "HPE_HEADER_OVERFLOW";

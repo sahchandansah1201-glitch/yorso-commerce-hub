@@ -6,6 +6,7 @@ const requiredFiles = [
   "docs/backend/production-scale-baseline.md",
   "docs/backend/phase-2e-registration-verification-code-policy.md",
   "docs/backend/phase-2f-password-recovery-source-of-truth.md",
+  "docs/backend/phase-2g-password-recovery-delivery-runtime.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -37,6 +38,9 @@ const requiredFiles = [
   "packages/db/migrations/0028_registration_verification_code_policy.sql",
   "packages/db/migrations/0029_auth_password_recovery.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
+  "apps/api/src/modules/auth/password-recovery-delivery-worker.ts",
+  "apps/api/src/modules/auth/password-recovery-delivery-sender.ts",
+  "apps/api/src/modules/auth/password-recovery-delivery-runtime.ts",
   "docs/backend/admin-incident-trend-actions.md",
   "docs/backend/admin-incident-trend-actions-api-contract.md",
   "docs/backend/admin-incident-trend-actions-indexing.md",
@@ -231,6 +235,7 @@ const ciWorkflow = read(".github/workflows/ci.yml");
 const baseline = read("docs/backend/production-scale-baseline.md");
 const phase2eRegistrationVerificationCodePolicy = read("docs/backend/phase-2e-registration-verification-code-policy.md");
 const phase2fPasswordRecoverySourceOfTruth = read("docs/backend/phase-2f-password-recovery-source-of-truth.md");
+const phase2gPasswordRecoveryDeliveryRuntime = read("docs/backend/phase-2g-password-recovery-delivery-runtime.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -263,6 +268,9 @@ const adminIncidentTrendActionQueueMigration = read("packages/db/migrations/0025
 const registrationVerificationCodePolicyMigration = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
 const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_password_recovery.sql");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
+const authPasswordRecoveryDeliveryWorker = read("apps/api/src/modules/auth/password-recovery-delivery-worker.ts");
+const authPasswordRecoveryDeliverySender = read("apps/api/src/modules/auth/password-recovery-delivery-sender.ts");
+const authPasswordRecoveryDeliveryRuntime = read("apps/api/src/modules/auth/password-recovery-delivery-runtime.ts");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -614,6 +622,9 @@ for (const marker of [
   "YORSO_REGISTRATION_DELIVERY_SENDER=file_spool",
   "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR=/var/lib/yorso/registration-delivery",
   "YORSO_REGISTRATION_VERIFICATION_CODE_SECRET=replace-with-owned-registration-code-secret-32-bytes-minimum",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR=/var/lib/yorso/password-recovery-delivery",
   "STORAGE_DRIVER=local",
 ]) {
   requireText(".env.production.example", productionEnv, marker);
@@ -1341,6 +1352,9 @@ for (const marker of [
   "insert into yorso_auth_password_recovery_tokens",
   "insert into yorso_auth_password_recovery_outbox",
   "completePasswordRecovery",
+  "leasePasswordRecoveryDeliveryJobs",
+  "for update of outbox skip locked",
+  "recovery_token_sealed",
   "insert into yorso_auth_security_events",
   "countRecentSecurityEvents",
   "revoked_at",
@@ -1354,6 +1368,9 @@ for (const marker of [
   "countRecentSecurityEvents",
   "createPasswordRecovery",
   "findPasswordRecoveryByTokenHash",
+  "leasePasswordRecoveryDeliveryJobs",
+  "markPasswordRecoveryDeliverySent",
+  "markPasswordRecoveryDeliveryFailed",
   "deleteSessionsForUser",
   "class MemoryAuthRepository",
   "buyer@example.com",
@@ -2754,6 +2771,12 @@ for (const marker of [
   "YORSO_REGISTRATION_DELIVERY_SPOOL_DIR",
   "registrationVerificationCodeSecret",
   "YORSO_REGISTRATION_VERIFICATION_CODE_SECRET",
+  "passwordRecoveryDeliveryWorkerEnabled",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED",
+  "passwordRecoveryDeliverySender",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER",
+  "passwordRecoveryDeliverySpoolDir",
+  "YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR",
 ]) {
   requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), marker);
 }
@@ -2761,6 +2784,8 @@ requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Productio
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_AUDIT_DRIVER=postgres.");
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED=true.");
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must set a non-default YORSO_REGISTRATION_VERIFICATION_CODE_SECRET.");
+requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true.");
+requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool.");
 
 for (const marker of [
   "Backend Phase 2E",
@@ -2780,6 +2805,37 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-2f-password-recovery-source-of-truth.md", phase2fPasswordRecoverySourceOfTruth, marker);
+}
+for (const marker of [
+  "Backend Phase 2G",
+  "password recovery delivery runtime",
+  "file_spool sender",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2g-password-recovery-delivery-runtime.md", phase2gPasswordRecoveryDeliveryRuntime, marker);
+}
+for (const marker of [
+  "PasswordRecoveryDeliveryWorker",
+  "leasePasswordRecoveryDeliveryJobs",
+  "markPasswordRecoveryDeliverySent",
+  "markPasswordRecoveryDeliveryFailed",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-delivery-worker.ts", authPasswordRecoveryDeliveryWorker, marker);
+}
+for (const marker of [
+  "FileSpoolPasswordRecoverySender",
+  "password_recovery_delivery",
+  "resetUrl",
+  "mode: 0o600",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-delivery-sender.ts", authPasswordRecoveryDeliverySender, marker);
+}
+for (const marker of [
+  "createPasswordRecoveryDeliveryRuntime",
+  "observePasswordRecoveryDeliveryWorker",
+  "passwordRecoveryDeliveryWorkerEnabled",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-delivery-runtime.ts", authPasswordRecoveryDeliveryRuntime, marker);
 }
 
 for (const marker of [

@@ -98,13 +98,34 @@ export interface RegistrationDeliveryFailureInput {
 }
 
 export interface PasswordRecoveryDeliveryOutboxEntry {
+  attemptCount: number;
+  availableAt: string;
   createdAt: string;
   destinationPreview: string;
   id: string;
+  lockedAt: string | null;
+  lockedBy: string | null;
+  maxAttempts: number;
   recoveryId: string;
-  status: "queued" | "sent" | "failed" | "cancelled";
+  status: "queued" | "leased" | "sent" | "failed" | "cancelled";
   templateKey: string;
   updatedAt: string;
+}
+
+export interface PasswordRecoveryDeliveryJob extends PasswordRecoveryDeliveryOutboxEntry {
+  destination: string;
+  recoveryToken: string;
+}
+
+export interface PasswordRecoveryDeliveryLeaseInput {
+  leaseMs: number;
+  limit: number;
+  workerId: string;
+}
+
+export interface PasswordRecoveryDeliveryFailureInput {
+  error: string;
+  retryAfterMs: number;
 }
 
 export interface PasswordRecoveryRecord {
@@ -187,6 +208,12 @@ export interface AuthRepository {
   createPasswordRecovery(input: PasswordRecoveryCreateInput): Promise<PasswordRecoveryRecord>;
   findPasswordRecoveryByTokenHash(tokenLookupHash: string): Promise<PasswordRecoveryRecord | null>;
   completePasswordRecovery(recoveryId: string, userId: string, passwordSecret: string): Promise<boolean>;
+  leasePasswordRecoveryDeliveryJobs(input: PasswordRecoveryDeliveryLeaseInput): Promise<PasswordRecoveryDeliveryJob[]>;
+  markPasswordRecoveryDeliverySent(deliveryId: string): Promise<PasswordRecoveryDeliveryOutboxEntry | null>;
+  markPasswordRecoveryDeliveryFailed(
+    deliveryId: string,
+    input: PasswordRecoveryDeliveryFailureInput,
+  ): Promise<PasswordRecoveryDeliveryOutboxEntry | null>;
   hasRole(userId: string, role: AdminUserRole): Promise<boolean>;
   recordSecurityEvent(event: AuthSecurityEventInput): Promise<void>;
   countRecentSecurityEvents(query: AuthSecurityEventCountQuery): Promise<number>;
@@ -251,6 +278,7 @@ export class MemoryAuthRepository implements AuthRepository {
   private readonly passwordRecoveries = new Map<string, PasswordRecoveryRecord>();
   private readonly passwordRecoveryByTokenHash = new Map<string, string>();
   private readonly passwordRecoveryDeliveryOutbox = new Map<string, PasswordRecoveryDeliveryOutboxEntry>();
+  private readonly passwordRecoveryDeliveryTokens = new Map<string, string>();
 
   constructor(
     users: AuthUser[] = [demoAuthUser, demoAdminUser],
@@ -506,9 +534,14 @@ export class MemoryAuthRepository implements AuthRepository {
       userId: input.userId,
     };
     const delivery: PasswordRecoveryDeliveryOutboxEntry = {
+      attemptCount: 0,
+      availableAt: recovery.createdAt,
       createdAt: recovery.createdAt,
       destinationPreview: input.delivery.destinationPreview,
       id: randomUUID(),
+      lockedAt: null,
+      lockedBy: null,
+      maxAttempts: 5,
       recoveryId: recovery.id,
       status: "queued",
       templateKey: input.delivery.templateKey,
@@ -517,6 +550,7 @@ export class MemoryAuthRepository implements AuthRepository {
     this.passwordRecoveries.set(recovery.id, recovery);
     this.passwordRecoveryByTokenHash.set(input.tokenLookupHash, recovery.id);
     this.passwordRecoveryDeliveryOutbox.set(delivery.id, delivery);
+    this.passwordRecoveryDeliveryTokens.set(delivery.id, input.delivery.recoveryToken);
     return clonePasswordRecovery(recovery);
   }
 
@@ -537,6 +571,81 @@ export class MemoryAuthRepository implements AuthRepository {
     this.passwordRecoveries.set(recoveryId, recovery);
     this.usersByEmail.set(user.email, user);
     return true;
+  }
+
+  async leasePasswordRecoveryDeliveryJobs(input: PasswordRecoveryDeliveryLeaseInput): Promise<PasswordRecoveryDeliveryJob[]> {
+    const now = Date.now();
+    const jobs = [...this.passwordRecoveryDeliveryOutbox.values()]
+      .filter((delivery) =>
+        (delivery.status === "queued" || delivery.status === "leased") &&
+        delivery.attemptCount < delivery.maxAttempts &&
+        new Date(delivery.availableAt).getTime() <= now
+      )
+      .sort((left, right) =>
+        new Date(left.availableAt).getTime() - new Date(right.availableAt).getTime() ||
+        new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+      )
+      .slice(0, input.limit);
+
+    const leasedAt = iso(new Date());
+    const leaseExpiresAt = iso(new Date(now + input.leaseMs));
+    return jobs.flatMap((delivery) => {
+      const recovery = this.passwordRecoveries.get(delivery.recoveryId);
+      if (!recovery) return [];
+      if (recovery.usedAt) return [];
+      if (new Date(recovery.expiresAt).getTime() <= now) return [];
+      const recoveryToken = this.passwordRecoveryDeliveryTokens.get(delivery.id);
+      if (!recoveryToken) return [];
+      const leased: PasswordRecoveryDeliveryOutboxEntry = {
+        ...delivery,
+        availableAt: leaseExpiresAt,
+        lockedAt: leasedAt,
+        lockedBy: input.workerId,
+        status: "leased",
+        updatedAt: leasedAt,
+      };
+      this.passwordRecoveryDeliveryOutbox.set(leased.id, leased);
+      return [{
+        ...leased,
+        destination: recovery.email,
+        recoveryToken,
+      }];
+    });
+  }
+
+  async markPasswordRecoveryDeliverySent(deliveryId: string): Promise<PasswordRecoveryDeliveryOutboxEntry | null> {
+    const delivery = this.passwordRecoveryDeliveryOutbox.get(deliveryId);
+    if (!delivery || delivery.status !== "leased") return null;
+    const updated: PasswordRecoveryDeliveryOutboxEntry = {
+      ...delivery,
+      lockedAt: null,
+      lockedBy: null,
+      status: "sent",
+      updatedAt: iso(new Date()),
+    };
+    this.passwordRecoveryDeliveryOutbox.set(deliveryId, updated);
+    return { ...updated };
+  }
+
+  async markPasswordRecoveryDeliveryFailed(
+    deliveryId: string,
+    input: PasswordRecoveryDeliveryFailureInput,
+  ): Promise<PasswordRecoveryDeliveryOutboxEntry | null> {
+    const delivery = this.passwordRecoveryDeliveryOutbox.get(deliveryId);
+    if (!delivery || delivery.status !== "leased") return null;
+    const attemptCount = delivery.attemptCount + 1;
+    const exhausted = attemptCount >= delivery.maxAttempts;
+    const updated: PasswordRecoveryDeliveryOutboxEntry = {
+      ...delivery,
+      attemptCount,
+      availableAt: exhausted ? delivery.availableAt : iso(new Date(Date.now() + input.retryAfterMs)),
+      lockedAt: null,
+      lockedBy: null,
+      status: exhausted ? "failed" : "queued",
+      updatedAt: iso(new Date()),
+    };
+    this.passwordRecoveryDeliveryOutbox.set(deliveryId, updated);
+    return { ...updated };
   }
 
   async hasRole(userId: string, role: AdminUserRole): Promise<boolean> {

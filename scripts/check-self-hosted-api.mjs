@@ -251,6 +251,7 @@ const requiredFiles = [
   "docs/backend/self-hosted-workspace-postgres-smoke.md",
   "docs/backend/phase-2e-registration-verification-code-policy.md",
   "docs/backend/phase-2f-password-recovery-source-of-truth.md",
+  "docs/backend/phase-2g-password-recovery-delivery-runtime.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -264,6 +265,9 @@ const requiredFiles = [
   "packages/db/migrations/0028_registration_verification_code_policy.sql",
   "packages/db/migrations/0029_auth_password_recovery.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
+  "apps/api/src/modules/auth/password-recovery-delivery-worker.ts",
+  "apps/api/src/modules/auth/password-recovery-delivery-sender.ts",
+  "apps/api/src/modules/auth/password-recovery-delivery-runtime.ts",
   "apps/api/src/modules/auth/verification-code.ts",
   "docs/backend/admin-incident-trend-actions.md",
   "docs/backend/admin-incident-trend-actions-api-contract.md",
@@ -448,6 +452,9 @@ const registrationVerificationCodePolicyMigration = read("packages/db/migrations
 const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_password_recovery.sql");
 const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
+const authPasswordRecoveryDeliveryWorker = read("apps/api/src/modules/auth/password-recovery-delivery-worker.ts");
+const authPasswordRecoveryDeliverySender = read("apps/api/src/modules/auth/password-recovery-delivery-sender.ts");
+const authPasswordRecoveryDeliveryRuntime = read("apps/api/src/modules/auth/password-recovery-delivery-runtime.ts");
 const adminIncidentTrendActionsDocs = read("docs/backend/admin-incident-trend-actions.md");
 const adminIncidentTrendActionsApiDocs = read("docs/backend/admin-incident-trend-actions-api-contract.md");
 const adminIncidentTrendActionsIndexingDocs = read("docs/backend/admin-incident-trend-actions-indexing.md");
@@ -456,6 +463,7 @@ const adminIncidentTrendActionQueueApiDocs = read("docs/backend/admin-incident-t
 const adminIncidentTrendActionQueueIndexingDocs = read("docs/backend/admin-incident-trend-action-queue-indexing.md");
 const phase2eRegistrationVerificationCodePolicy = read("docs/backend/phase-2e-registration-verification-code-policy.md");
 const phase2fPasswordRecoverySourceOfTruth = read("docs/backend/phase-2f-password-recovery-source-of-truth.md");
+const phase2gPasswordRecoveryDeliveryRuntime = read("docs/backend/phase-2g-password-recovery-delivery-runtime.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -2816,6 +2824,37 @@ for (const marker of [
   requireText("docs/backend/phase-2f-password-recovery-source-of-truth.md", phase2fPasswordRecoverySourceOfTruth, marker);
 }
 for (const marker of [
+  "Backend Phase 2G",
+  "password recovery delivery runtime",
+  "file_spool sender",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2g-password-recovery-delivery-runtime.md", phase2gPasswordRecoveryDeliveryRuntime, marker);
+}
+for (const marker of [
+  "PasswordRecoveryDeliveryWorker",
+  "leasePasswordRecoveryDeliveryJobs",
+  "markPasswordRecoveryDeliverySent",
+  "markPasswordRecoveryDeliveryFailed",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-delivery-worker.ts", authPasswordRecoveryDeliveryWorker, marker);
+}
+for (const marker of [
+  "FileSpoolPasswordRecoverySender",
+  "password_recovery_delivery",
+  "resetUrl",
+  "mode: 0o600",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-delivery-sender.ts", authPasswordRecoveryDeliverySender, marker);
+}
+for (const marker of [
+  "createPasswordRecoveryDeliveryRuntime",
+  "observePasswordRecoveryDeliveryWorker",
+  "passwordRecoveryDeliveryWorkerEnabled",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-delivery-runtime.ts", authPasswordRecoveryDeliveryRuntime, marker);
+}
+for (const marker of [
   "Batch #108",
   "trend action loop",
   "10,000 concurrent users",
@@ -3296,6 +3335,9 @@ requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepo
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_password_recovery_tokens");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_password_recovery_outbox");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "completePasswordRecovery");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "leasePasswordRecoveryDeliveryJobs");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "for update of outbox skip locked");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "recovery_token_sealed");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_security_events");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "countRecentSecurityEvents");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "revoked_at");
@@ -3304,6 +3346,9 @@ requireText("apps/api/src/modules/auth/repository.ts", authRepository, "recordSe
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "countRecentSecurityEvents");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "createPasswordRecovery");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "findPasswordRecoveryByTokenHash");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "leasePasswordRecoveryDeliveryJobs");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "markPasswordRecoveryDeliverySent");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "markPasswordRecoveryDeliveryFailed");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "deleteSessionsForUser");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "class MemoryAuthRepository");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "buyer@example.com");
