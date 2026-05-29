@@ -114,6 +114,30 @@ const fallbackDetailState = (
     : undefined,
 });
 
+const emptyApiListState = (
+  status: SupplierDirectoryStatus = "idle",
+  error: Error | null = null,
+): SupplierDirectoryListState => ({
+  error,
+  serverFiltered: true,
+  source: "api",
+  status,
+  suppliers: [],
+  total: 0,
+});
+
+const emptyApiDetailState = (
+  status: SupplierDirectoryStatus = "idle",
+  error: Error | null = null,
+  missing = false,
+): SupplierDirectoryDetailState => ({
+  error,
+  missing,
+  source: "api",
+  status,
+  supplier: undefined,
+});
+
 const isMissingSupplierError = (error: unknown) =>
   error instanceof Error && error.message === "supplier_not_found";
 
@@ -130,7 +154,7 @@ export function useSupplierDirectoryList({
   const client = useMemo(() => createSupplierDirectoryApiClient(), []);
   const [refreshToken, setRefreshToken] = useState(0);
   const [state, setState] = useState<SupplierDirectoryListState>(() =>
-    fallbackListState(language, accessLevel),
+    client.enabled ? emptyApiListState() : fallbackListState(language, accessLevel),
   );
   const requestAccessLevel: SupplierDirectoryAccessLevel =
     client.enabled && accessLevel !== "anonymous_locked"
@@ -144,16 +168,15 @@ export function useSupplierDirectoryList({
     }
 
     let cancelled = false;
-    const previousSuppliers = state.suppliers.length > 0
-      ? state.suppliers
-      : fallbackListState(language, accessLevel).suppliers;
 
     setState((current) => ({
       ...current,
       error: null,
+      serverFiltered: true,
       source: "api",
       status: "loading",
-      suppliers: current.suppliers.length > 0 ? current.suppliers : previousSuppliers,
+      suppliers: current.source === "api" ? current.suppliers : [],
+      total: current.source === "api" ? current.total : 0,
     }));
 
     void client
@@ -180,19 +203,19 @@ export function useSupplierDirectoryList({
       .catch((error) => {
         if (cancelled) return;
         console.warn("supplier_directory_api_failed", error);
-        setState({
-          ...fallbackListState(language, accessLevel),
+        setState((current) => ({
           error: error instanceof Error ? error : new Error("supplier_directory_api_failed"),
+          serverFiltered: true,
+          source: "api",
           status: "error",
-        });
+          suppliers: current.source === "api" ? current.suppliers : [],
+          total: current.source === "api" ? current.total : 0,
+        }));
       });
 
     return () => {
       cancelled = true;
     };
-    // `state.suppliers` intentionally stays outside deps. It is used only as
-    // stale-while-refresh data while the API request is in flight.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, accessLevel, requestAccessLevel, language, query, filterQuery, sortBy, sortDirection, limit, offset, refreshToken]);
 
   useEffect(() => {
@@ -220,7 +243,9 @@ export function useSupplierDirectoryDetail({
   const client = useMemo(() => createSupplierDirectoryApiClient(), []);
   const [refreshToken, setRefreshToken] = useState(0);
   const [state, setState] = useState<SupplierDirectoryDetailState>(() =>
-    fallbackDetailState(fallbackSupplier, language, accessLevel),
+    client.enabled
+      ? emptyApiDetailState()
+      : fallbackDetailState(fallbackSupplier, language, accessLevel),
   );
   const requestAccessLevel: SupplierDirectoryAccessLevel =
     client.enabled && accessLevel !== "anonymous_locked"
@@ -232,7 +257,7 @@ export function useSupplierDirectoryDetail({
       setState({
         error: null,
         missing: true,
-        source: "local",
+        source: client.enabled ? "api" : "local",
         status: "ready",
         supplier: undefined,
       });
@@ -245,21 +270,13 @@ export function useSupplierDirectoryDetail({
     }
 
     let cancelled = false;
-    const fallback = fallbackSupplier
-      ? withSupplierAccessLevel(
-        fallbackSupplier,
-        language,
-        accessLevel,
-        new Set(getApprovedSupplierAccessIds()),
-      )
-      : undefined;
 
     setState((current) => ({
       error: null,
       missing: false,
       source: "api",
       status: "loading",
-      supplier: current.supplier ?? fallback,
+      supplier: current.source === "api" ? current.supplier : undefined,
     }));
 
     void client
@@ -277,14 +294,14 @@ export function useSupplierDirectoryDetail({
       .catch((error) => {
         if (cancelled) return;
         console.warn("supplier_directory_detail_api_failed", error);
-        const missing = isMissingSupplierError(error) && !fallback;
-        setState({
+        const missing = isMissingSupplierError(error);
+        setState((current) => ({
           error: error instanceof Error ? error : new Error("supplier_directory_detail_api_failed"),
           missing,
-          source: fallback ? "local" : "api",
+          source: "api",
           status: "error",
-          supplier: missing ? undefined : fallback,
-        });
+          supplier: missing ? undefined : current.source === "api" ? current.supplier : undefined,
+        }));
       });
 
     return () => {

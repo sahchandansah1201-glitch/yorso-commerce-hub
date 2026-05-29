@@ -224,7 +224,7 @@ describe("SupplierProfile · access gating", () => {
       expect(document.body.textContent ?? "").not.toContain("Remote Legal Supplier AS");
     });
 
-    it("при ошибке self-hosted API показывает локальный fallback без утечки real identity", async () => {
+    it("при ошибке self-hosted API не подставляет локальный fallback-профиль", async () => {
       vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
       const fetchMock = vi.fn(async () => {
         throw new Error("supplier api offline");
@@ -235,7 +235,7 @@ describe("SupplierProfile · access gating", () => {
 
       await waitFor(() => expect(fetchMock).toHaveBeenCalled());
       expect(await screen.findByText("Supplier API unavailable")).toBeInTheDocument();
-      expect(screen.getAllByText(supplier.maskedName).length).toBeGreaterThan(0);
+      expect(screen.queryByText(supplier.maskedName)).not.toBeInTheDocument();
       expect(document.body.innerHTML).not.toContain(supplier.companyName);
       expect(document.body.innerHTML).not.toContain(supplier.website!);
     });

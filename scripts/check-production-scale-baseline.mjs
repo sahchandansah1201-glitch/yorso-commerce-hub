@@ -13,6 +13,7 @@ const requiredFiles = [
   "docs/backend/phase-3a-catalog-supabase-fallback-removal.md",
   "docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md",
   "docs/backend/phase-3c-provider-reference-tooling-retirement.md",
+  "docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -248,6 +249,7 @@ const phase2jAuthSurfaceClosureAudit = read("docs/backend/phase-2j-auth-surface-
 const phase3aCatalogSupabaseFallbackRemoval = read("docs/backend/phase-3a-catalog-supabase-fallback-removal.md");
 const phase3bSupplierAccessSupabaseFallbackRemoval = read("docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md");
 const phase3cProviderReferenceToolingRetirement = read("docs/backend/phase-3c-provider-reference-tooling-retirement.md");
+const phase4aSupplierDirectorySourceOfTruthAudit = read("docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -2931,6 +2933,16 @@ for (const marker of [
   requireText("docs/backend/phase-3c-provider-reference-tooling-retirement.md", phase3cProviderReferenceToolingRetirement, marker);
 }
 for (const marker of [
+  "Backend Phase 4A",
+  "Supplier Directory/Profile Source Of Truth Audit",
+  "configured supplier API fail-closed",
+  "no configured supplier prototype fallback",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md", phase4aSupplierDirectorySourceOfTruthAudit, marker);
+}
+for (const marker of [
   "PasswordRecoveryDeliveryWorker",
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
@@ -3315,6 +3327,10 @@ for (const marker of [
   "getApprovedSupplierAccessIds",
   "client.enabled && accessLevel !== \"anonymous_locked\"",
   "SUPPLIER_ACCESS_CHANGE_EVENT",
+  "emptyApiListState",
+  "emptyApiDetailState",
+  "current.source === \"api\" ? current.suppliers : []",
+  "current.source === \"api\" ? current.supplier : undefined",
 ]) {
   requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, marker);
 }

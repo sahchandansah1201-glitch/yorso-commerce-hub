@@ -843,6 +843,33 @@ const SupplierProfile = () => {
     );
   }
 
+  if (!supplier && supplierDirectoryDetail.status === "error" && !supplierDirectoryDetail.missing) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header showSkipLink />
+        <main id="main" className="flex-1 container py-16">
+          <div className="max-w-2xl rounded-lg border border-warning/30 bg-warning/10 p-5">
+            <h1 className="font-heading text-2xl font-bold text-foreground">
+              {t.suppliersPage_errorTitle}
+            </h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {t.suppliersPage_errorBody}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Button type="button" variant="outline" onClick={supplierDirectoryDetail.refresh}>
+                {t.suppliersPage_retry}
+              </Button>
+              <Button asChild variant="ghost">
+                <Link to="/suppliers">{t.supplier_notFound_link}</Link>
+              </Button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   if (!supplier || supplierDirectoryDetail.missing) {
     return (
       <div className="min-h-screen bg-background flex flex-col">

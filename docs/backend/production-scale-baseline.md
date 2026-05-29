@@ -5325,6 +5325,68 @@ Marker: provider-free frontend smoke.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit
+
+Phase 4A closes the supplier directory/profile configured-mode prototype
+fallback. `/suppliers` and `/suppliers/:supplierId` still support local
+API-disabled preview, but when `VITE_YORSO_API_URL` is configured the frontend
+does not substitute `mockSuppliers` after `/v1/suppliers` or
+`/v1/suppliers/:supplierId` fails.
+
+Expected read/write profile:
+
+- No new write path is introduced.
+- Supplier discovery reads stay on `/v1/suppliers` with `q`, quick-filter
+  query fields, `sortBy`, `sortDirection`, `limit` and `offset`.
+- Supplier profile reads stay on `/v1/suppliers/:supplierId`.
+- Refresh failure may preserve previous successful API data, but first-load
+  failure returns a visible API error and no prototype supplier rows/profile.
+
+Cache, queue and backpressure strategy:
+
+- No queue, polling loop or worker is added.
+- Existing backend supplier-directory pagination and access-grant shaping remain
+  the scaling boundary.
+- Removing the fallback prevents hidden local fixture traffic from masking API
+  overload or outage symptoms during buyer discovery.
+
+Database indexing and pagination strategy:
+
+- No migration is introduced in Phase 4A.
+- Supplier search and pagination continue to rely on
+  `0005_supplier_directory_search_scaling` and
+  `0009_supplier_directory_pagination_sort`.
+- Page-level controls remain server-backed; no client-only sorting over a
+  partial server page is introduced.
+
+Failure mode and graceful degradation:
+
+- Configured `/suppliers` first-load failure shows a localized live directory
+  error and retry action with zero prototype rows.
+- Configured `/suppliers/:supplierId` first-load failure shows a retry state,
+  not a not-found result and not a local fallback supplier profile.
+- API-disabled preview remains explicitly local and non-production.
+
+Observability and load-test plan:
+
+- Validate with `test:supplier-directory-frontend`, `check:self-hosted-api` and
+  `check:production-scale-baseline`.
+- Load tests should include paginated supplier list reads, private search after
+  grants, detail reads and forced API failure/retry paths.
+- API failure telemetry can be added later if support needs aggregate error
+  tracking.
+
+Validation:
+
+- `npx vitest run src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx`.
+
+Marker: Backend Phase 4A.
+Marker: Supplier Directory/Profile Source Of Truth Audit.
+Marker: configured supplier API fail-closed.
+Marker: no configured supplier prototype fallback.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

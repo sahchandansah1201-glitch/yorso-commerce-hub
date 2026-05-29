@@ -253,6 +253,7 @@ const requiredFiles = [
   "docs/backend/phase-2j-auth-surface-closure-audit.md",
   "docs/backend/phase-3a-catalog-supabase-fallback-removal.md",
   "docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md",
+  "docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -478,6 +479,7 @@ const phase2iPasswordRecoveryCleanupRuntime = read("docs/backend/phase-2i-passwo
 const phase2jAuthSurfaceClosureAudit = read("docs/backend/phase-2j-auth-surface-closure-audit.md");
 const phase3aCatalogSupabaseFallbackRemoval = read("docs/backend/phase-3a-catalog-supabase-fallback-removal.md");
 const phase3bSupplierAccessSupabaseFallbackRemoval = read("docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md");
+const phase4aSupplierDirectorySourceOfTruthAudit = read("docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -2884,6 +2886,16 @@ for (const marker of [
   requireText("docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md", phase3bSupplierAccessSupabaseFallbackRemoval, marker);
 }
 for (const marker of [
+  "Backend Phase 4A",
+  "Supplier Directory/Profile Source Of Truth Audit",
+  "configured supplier API fail-closed",
+  "no configured supplier prototype fallback",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md", phase4aSupplierDirectorySourceOfTruthAudit, marker);
+}
+for (const marker of [
   "PasswordRecoveryDeliveryWorker",
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
@@ -3870,6 +3882,10 @@ requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "sortDire
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "supplier_not_found");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "SUPPLIER_ACCESS_CHANGE_EVENT");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "client.enabled && accessLevel !== \"anonymous_locked\"");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "emptyApiListState");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "emptyApiDetailState");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "current.source === \"api\" ? current.suppliers : []");
+requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "current.source === \"api\" ? current.supplier : undefined");
 for (const marker of [
   "Batch #57 browser-level guard",
   "supplier-request-price-access",

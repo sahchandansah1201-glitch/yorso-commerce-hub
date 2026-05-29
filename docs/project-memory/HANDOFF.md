@@ -16,20 +16,19 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 3C Provider Reference Tooling Retirement is committed locally at
-`6c2f5368`; release validation passed.
+Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit is
+implemented in the working tree. Focused supplier-directory tests and
+self-hosted/production-scale guards pass.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Provider files | Убрать активные Supabase project/reference files. | Реализовано: удалены `supabase/`, `src/integrations/supabase`, Supabase CLI/access/type scripts и RLS/reference tests. | Исторические docs остаются архивным контекстом. |
-| Dependency | Убрать hosted BaaS SDK из продукта. | Реализовано: `@supabase/supabase-js` удалён из `package.json` и `package-lock.json`. | Не возвращать SDK без нового architecture decision. |
-| Env | Убрать Supabase env debt. | Реализовано: `.env` и `.env.example` без `VITE_SUPABASE_*`; smoke scripts больше не инжектят Supabase stubs. | Provider secrets не хранить в repo/env examples. |
-| Guard | Заменить Supabase-specific boundary. | Реализовано: `check:provider-boundary` сканирует production source roots и запрещает hosted-provider imports/env/legacy markers. | Держать в `ci:core`. |
-| Browser smoke | Заменить старый no-Supabase smoke. | Реализовано: `smoke:e2e:frontend-provider-free-env` строит и проверяет public/auth/catalog routes без hosted BaaS env/SDK. | Держать в `ci:full`. |
-| Runtime policy | Сделать admin/runtime policy provider-neutral. | Реализовано: удалены `supabaseProductionBackend` / `prototypeSupabaseConfigured`; сохраняется `hostedBaasProductionBackend: false`. | Не возвращать provider-specific status fields. |
-| DB contract | Убрать provider role из migration manifest. | Реализовано: `supabaseRole` удалён; migrator валидирует self-hosted PostgreSQL baseline. | Продолжать live migrations через `packages/db`. |
+| Supplier directory source | Проверить `/suppliers` API-enabled data path. | Реализовано: first-load API failure не подставляет prototype rows; source остается `api`. | Держать через tests/guards. |
+| Supplier profile source | Проверить `/suppliers/:supplierId` API-enabled detail path. | Реализовано: first-load API failure показывает retry state без local fallback profile. | Phase 4B: backend-owned dossier completeness. |
+| Local preview | Сохранить Lovable/local preview без API. | Реализовано: `mockSuppliers` остается только при пустом `VITE_YORSO_API_URL`. | Отдельное demo-mode retirement decision позже. |
+| Buyer UI | Не скрывать supplier API outage. | Реализовано: `/suppliers` показывает `Live directory error`, profile показывает retry. | Возможная telemetry отдельным batch. |
+| Guards | Зафиксировать no-fallback contract. | Реализовано: focused tests, `check:self-hosted-api`, `check:production-scale-baseline` проходят. | Перед commit запустить full validation. |
 
 ## Current Status
 
@@ -41,6 +40,24 @@ Backend Phase 3C Provider Reference Tooling Retirement is committed locally at
 - Backend Phase 3A is committed locally at `b5d1e9f8`; release validation passed.
 - Backend Phase 3B is committed locally at `5b96f838`; release validation passed.
 - Backend Phase 3C is committed locally at `6c2f5368`; release validation passed.
+- Backend Phase 4A is implemented in the working tree; focused validation passed.
+
+## Phase 4A Files
+
+- `docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md`
+- `src/lib/use-supplier-directory.ts`
+- `src/pages/Suppliers.tsx`
+- `src/pages/SupplierProfile.tsx`
+- `src/i18n/translations.ts`
+- `src/lib/use-supplier-directory.test.tsx`
+- `src/pages/Suppliers.test.tsx`
+- `src/pages/__tests__/SupplierProfile.access.test.tsx`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/production-scale-baseline.md`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
 
 ## Phase 3C Files
 
@@ -71,7 +88,13 @@ Removed active provider surface:
 
 ## Validation
 
-Passed locally on 2026-05-29:
+Phase 4A focused validation passed locally on 2026-05-29:
+
+- `npx vitest run src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx`
+- `npm run check:self-hosted-api`
+- `npm run check:production-scale-baseline`
+
+Phase 3C passed locally on 2026-05-29:
 
 - `npx vitest run src/test/self-hosted-backend-policy.test.ts src/test/self-hosted-infra.test.ts src/test/self-hosted-contracts.test.ts src/test/provider-free-tooling-retirement.test.ts`
 - `npm run check:provider-boundary`
@@ -103,14 +126,13 @@ Known non-blocking warning:
 
 ## Next Recommended Workstream
 
-Backend Phase 4A: Supplier Directory/Profile Source Of Truth Audit.
+Backend Phase 4B: Supplier Profile Backend-Owned Dossier Completeness.
 
 Concrete first question:
 
-- Does configured API mode for `/suppliers` and `/suppliers/:supplierId`
-  strictly use the self-hosted supplier directory/profile API, or can
-  `mockSuppliers`/local preview state still leak into production-configured
-  reads?
+- Which `/suppliers/:supplierId` dossier sections still derive rich content
+  from frontend helpers/mock supplier shape instead of backend-owned supplier
+  fields?
 
 ## Preserve
 

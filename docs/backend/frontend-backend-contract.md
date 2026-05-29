@@ -69,8 +69,8 @@ mistaken for production data surfaces.
 | `/reset-password` | Password recovery | self-hosted token completion via `?token=` / `#token=` when `VITE_YORSO_API_URL` is configured; API-disabled preview has no recovery session and does not call Supabase | `/v1/auth/password-reset/complete`, `yorso_auth_password_recovery_tokens`, `yorso_auth_password_recovery_outbox`, password recovery delivery worker/sender runtime, session revocation | Phase 2J closed |
 | `/offers` | Procurement catalog workspace | self-hosted `catalog-api` when configured; API-disabled local fixture preview; local UI state | offer catalog API, public/qualified views, backend filters | Phase 3A catalog fallback removed |
 | `/offers/:id` | Offer decision page | self-hosted `catalog-api` when configured; API-disabled local fixture preview | offer detail API, documents, supplier trust, related offers | Phase 3A catalog fallback removed |
-| `/suppliers` | Supplier directory | `mockSuppliers`, i18n patches, session shortlist | supplier directory API, public/qualified views, shortlist API | P0 |
-| `/suppliers/:supplierId` | Supplier dossier | `mockSuppliers`, `getOffersForSupplier`, local access request | supplier profile API, supplier offers API, access workflow | P0 |
+| `/suppliers` | Supplier directory | self-hosted supplier directory API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; session shortlist | supplier directory API, public/qualified views, shortlist API | Phase 4A source-of-truth audit |
+| `/suppliers/:supplierId` | Supplier dossier | self-hosted supplier detail API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; local access request bridge | supplier profile API, supplier offers API, access workflow | Phase 4A source-of-truth audit |
 | `/about` | Public company/trust page | static info page content, route-owned SEO | CMS-ready static page or local content source with route SEO | P3 |
 | `/contact` | Public contact/trust page | static info page content, route-owned SEO | CMS-ready contact content, support/contact routing later | P3 |
 | `/terms` | Legal page | static legal copy, route-owned SEO | versioned legal document source | P3 |
@@ -373,6 +373,8 @@ Acceptance:
 - locked responses do not contain real identity in network payload;
 - mobile layout remains overflow-safe;
 - RU/ES localization does not mix raw English system values.
+- configured deployments do not substitute prototype supplier rows when
+  `/v1/suppliers` fails.
 
 ### `/suppliers/:supplierId`
 
@@ -418,6 +420,8 @@ Acceptance:
 - no locked DOM or network leak of company name, legal details, contacts,
   confidential production notes or exact hidden counts;
 - supplier offers are truly tied to supplier id;
+- configured deployments do not substitute a local fallback profile when
+  `/v1/suppliers/:supplierId` fails;
 - access request panel uses backend statuses;
 - canonical and SEO rules are defined before public indexing.
 

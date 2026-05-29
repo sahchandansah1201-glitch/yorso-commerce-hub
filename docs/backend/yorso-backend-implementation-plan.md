@@ -185,8 +185,8 @@ starts.
 | `/account/notifications` | read-only mock | notification preferences API | P1 |
 | `/offers` | self-hosted catalog API when configured; API-disabled local fixture preview; no Supabase fallback | offer catalog API, public and qualified views | Phase 3A closed |
 | `/offers/:id` | self-hosted catalog API when configured; API-disabled local fixture preview; no Supabase fallback | offer detail API, documents, related offers | Phase 3A closed |
-| `/suppliers` | mock suppliers | supplier directory public/qualified views | P0 |
-| `/suppliers/:supplierId` | mock suppliers | supplier profile public/qualified/owner views | P0 |
+| `/suppliers` | self-hosted supplier directory API when configured; API-disabled mock preview only | supplier directory public/qualified views | Phase 4A source-of-truth audit |
+| `/suppliers/:supplierId` | self-hosted supplier detail API when configured; API-disabled mock preview only | supplier profile public/qualified/owner views | Phase 4A source-of-truth audit |
 | Supplier access panel | self-hosted access API when configured; API-disabled local preview; no Supabase fallback | access request workflow, grants, notifications and audit | Phase 3B closed |
 | Catalog request form | sessionStorage mock | RFQ request API | P1 |
 | Blog | static data files | content source, SEO metadata, sitemap/RSS | P2 |
@@ -536,6 +536,8 @@ Tasks:
 - build public and qualified supplier views;
 - connect `/suppliers`;
 - connect `/suppliers/:supplierId`;
+- keep configured API failures fail-closed without substituting mock supplier
+  rows or fallback profiles;
 - keep locked DOM free of hidden real values;
 - add supplier owner view for own company.
 

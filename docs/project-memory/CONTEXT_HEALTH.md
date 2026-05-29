@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "6c2f5368_phase_3c_provider_tooling_retirement"
+head_commit: "working_tree_phase_4a_supplier_directory_source_of_truth"
 latest_merged_batch: 141
-active_workstream: "backend_phase_3c_provider_reference_tooling_retirement"
+active_workstream: "backend_phase_4a_supplier_directory_source_of_truth_audit"
 pull_request: null
-recommended_action: "start Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J and Phase 3A-3C are documented, committed and validated."
+recommended_action: "finish Phase 4A full validation and commit, then start Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J and Phase 3A-3C are documented, committed and validated; Phase 4A focused tests and guards pass in the working tree."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_3c_provider_reference_tooling_retirement.
-Current HEAD baseline: Backend Phase 3C provider tooling retirement implementation commit 6c2f5368 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4a_supplier_directory_source_of_truth_audit.
+Current HEAD baseline: Backend Phase 3C provider tooling retirement implementation commit 6c2f5368 plus later checkpoints is preserved; Phase 4A may be in the working tree until committed.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,10 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: start Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit.
+Current recommended action: finish Phase 4A validation and commit, then start Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness.
+Phase 4A working-tree contract: when VITE_YORSO_API_URL is configured, /suppliers and /suppliers/:supplierId no longer substitute mockSuppliers after self-hosted supplier API failure; first-load failure shows visible live API error/retry state.
+Phase 4A files: docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md, src/lib/use-supplier-directory.ts, src/pages/Suppliers.tsx, src/pages/SupplierProfile.tsx, src/i18n/translations.ts, src/lib/use-supplier-directory.test.tsx, src/pages/Suppliers.test.tsx, src/pages/__tests__/SupplierProfile.access.test.tsx, scripts/check-self-hosted-api.mjs, scripts/check-production-scale-baseline.mjs.
+Phase 4A focused validation passed: npx vitest run src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx; npm run check:self-hosted-api; npm run check:production-scale-baseline.
 Phase 3C implemented and committed locally at 6c2f5368: docs/backend/phase-3c-provider-reference-tooling-retirement.md records provider reference tooling retirement.
 Phase 3C removal: supabase/ and src/integrations/supabase/ are deleted; Supabase CLI/access/type scripts, Supabase/RLS reference tests, @supabase/supabase-js dependency and VITE_SUPABASE env examples are removed.
 Phase 3C guards: check:provider-boundary replaces check:supabase-boundary; smoke:e2e:frontend-provider-free-env replaces the old frontend-no-supabase-env smoke; ci:core and ci:full reference the provider-free commands.

@@ -115,6 +115,30 @@
 - `docs/project-memory/PROJECT_STATE.yaml`, `CONTEXT_HEALTH.md`, `HANDOFF.md`,
   `NEXT_ACTIONS.md`, `WORKLOG.md`, `ARTIFACTS.md`: Phase 1A checkpoint.
 
+## Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit
+
+- `docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md`: Phase
+  4A implementation note, Russian plan/fact table, runtime contract,
+  remaining debt and 10,000 concurrent-user review.
+- `src/lib/use-supplier-directory.ts`: configured supplier directory/profile
+  API mode now fails closed without substituting `mockSuppliers` after API
+  failures.
+- `src/pages/Suppliers.tsx` and `src/pages/SupplierProfile.tsx`: visible live
+  supplier API error/retry states for list and detail failures.
+- `src/i18n/translations.ts`: EN/RU/ES copy changed from prototype fallback to
+  live supplier API error language.
+- `src/lib/use-supplier-directory.test.tsx`, `src/pages/Suppliers.test.tsx`
+  and `src/pages/__tests__/SupplierProfile.access.test.tsx`: regression
+  coverage for no configured-mode supplier prototype fallback.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/self-hosted-validation.md`,
+  `docs/backend/yorso-backend-implementation-plan.md` and
+  `docs/backend/production-scale-baseline.md`: source-of-truth contract and
+  capacity baseline updated.
+- `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: guards for Phase 4A doc and
+  configured supplier fail-closed hook markers.
+
 ## Backend Phase 1B Account Section-Scoped Mutations
 
 - `docs/backend/phase-1-account-section-scoped-mutations.md`: implementation

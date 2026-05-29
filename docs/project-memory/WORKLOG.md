@@ -2915,3 +2915,39 @@ Keep this file factual and append-only.
 - Known non-blocking warning now:
   - Browserslist data stale.
 - Next scoped workstream: Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit.
+
+## 2026-05-29 Phase 4A Checkpoint
+
+- Scoped workstream: Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit.
+- Confirmed source-of-truth gap:
+  - `useSupplierDirectoryList` and `useSupplierDirectoryDetail` used the
+    self-hosted supplier API when `VITE_YORSO_API_URL` was configured;
+  - on API failure they could still substitute `mockSuppliers` / fallback
+    supplier profile data in configured mode.
+- Implemented fail-closed supplier directory/profile behavior:
+  - API-enabled list/detail state initializes as `source: "api"`;
+  - first-load API failure returns an empty live error state instead of local
+    supplier rows/profile;
+  - refresh failure can keep only previous successful API data, not
+    `mockSuppliers`;
+  - API-disabled preview remains local-only when `VITE_YORSO_API_URL` is empty.
+- UI/copy updates:
+  - `/suppliers` source chip now uses `Live directory error` instead of
+    `Prototype fallback`;
+  - `/suppliers/:supplierId` shows a retry state when the supplier API fails
+    before profile data loads.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| `/suppliers` source | Убрать configured-mode prototype fallback. | Реализовано: error state без mock rows. | Держать через tests/guards. |
+| `/suppliers/:supplierId` source | Убрать configured-mode fallback profile. | Реализовано: retry state без local profile. | Phase 4B profile data completeness. |
+| Access safety | Не ослабить redaction/locks. | Реализовано: supplier identity, contacts and exact locked fields do not appear on failure. | Проверять при следующих supplier phases. |
+| Documentation | Зафиксировать 10k review and plan/fact. | Реализовано: Phase 4A doc, contract, validation and baseline updated. | Commit after full validation. |
+
+- Focused validation passed:
+  - `npx vitest run src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`.
+- Next scoped workstream after Phase 4A commit: Backend Phase 4B Supplier
+  Profile Backend-Owned Dossier Completeness.

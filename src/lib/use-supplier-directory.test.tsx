@@ -122,6 +122,53 @@ describe("useSupplierDirectory runtime refresh", () => {
     );
   });
 
+  it("does not substitute local prototype suppliers when the configured API list fails", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+    const fetchMock = vi.fn(async () => {
+      throw new Error("supplier api offline");
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() =>
+      useSupplierDirectoryList({
+        accessLevel: "anonymous_locked",
+        language: "en",
+      }),
+    );
+
+    await waitFor(() => expect(result.current.status).toBe("error"));
+
+    expect(result.current.apiEnabled).toBe(true);
+    expect(result.current.source).toBe("api");
+    expect(result.current.serverFiltered).toBe(true);
+    expect(result.current.total).toBe(0);
+    expect(result.current.suppliers).toEqual([]);
+  });
+
+  it("does not substitute the local fallback supplier when the configured API detail fails", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+    const fetchMock = vi.fn(async () => {
+      throw new Error("supplier detail api offline");
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() =>
+      useSupplierDirectoryDetail({
+        accessLevel: "anonymous_locked",
+        fallbackSupplier: mockSuppliers[0],
+        language: "en",
+        supplierId: mockSuppliers[0].id,
+      }),
+    );
+
+    await waitFor(() => expect(result.current.status).toBe("error"));
+
+    expect(result.current.apiEnabled).toBe(true);
+    expect(result.current.source).toBe("api");
+    expect(result.current.missing).toBe(false);
+    expect(result.current.supplier).toBeUndefined();
+  });
+
   it("local fallback unlocks only suppliers with approved access after the access event", async () => {
     const { result } = renderHook(() =>
       useSupplierDirectoryList({

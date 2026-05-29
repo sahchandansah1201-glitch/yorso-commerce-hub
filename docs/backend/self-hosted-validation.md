@@ -356,9 +356,10 @@ The supplier directory bridge must preserve these rules:
 - shared supplier directory runtime state uses `src/lib/use-supplier-directory.ts`;
 - the adapter calls `/v1/suppliers` and `/v1/suppliers/:id` only when
   `VITE_YORSO_API_URL` is configured;
-- local/Lovable preview falls back to existing mock supplier data;
-- API failures render a visible localized fallback state rather than silently
-  hiding the backend problem;
+- local/Lovable preview falls back to existing mock supplier data only when
+  `VITE_YORSO_API_URL` is not configured;
+- configured API failures render a visible localized live API error state and
+  do not substitute prototype supplier rows or fallback profiles;
 - frontend search is debounced before API calls;
 - listing calls stay paginated with `limit` and `offset`;
 - listing calls include validated `sortBy` and `sortDirection` parameters when

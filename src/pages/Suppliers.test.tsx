@@ -291,7 +291,7 @@ describe("/suppliers — implementation quality fixes", () => {
     });
   });
 
-  it("falls back to localized prototype data when the self-hosted supplier API is unavailable", async () => {
+  it("shows a live directory error without substituting prototype suppliers when the self-hosted API is unavailable", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
     const fetchMock = vi.fn(async () => {
       throw new Error("network unavailable");
@@ -301,8 +301,8 @@ describe("/suppliers — implementation quality fixes", () => {
     renderPage();
 
     expect(await screen.findByTestId("supplier-directory-error")).toBeInTheDocument();
-    expect(screen.getByTestId("supplier-directory-source")).toHaveTextContent(/prototype fallback/i);
-    expect(screen.getByText(mockSuppliers[0].maskedName)).toBeInTheDocument();
+    expect(screen.getByTestId("supplier-directory-source")).toHaveTextContent(/live directory error/i);
+    expect(screen.queryByText(mockSuppliers[0].maskedName)).not.toBeInTheDocument();
     expect(document.body.textContent ?? "").not.toContain(mockSuppliers[0].companyName);
   });
 
