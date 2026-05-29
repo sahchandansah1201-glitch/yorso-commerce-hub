@@ -12,6 +12,8 @@ import type {
 import type { ApiConfig } from "../../config.js";
 import type {
   AuthRepository,
+  PasswordRecoveryCreateInput,
+  PasswordRecoveryRecord,
   RegistrationCompleteResult,
   RegistrationDeliveryOutboxEntry,
   RegistrationDraftDeliveryResult,
@@ -23,6 +25,10 @@ import type {
   RegistrationDeliveryJob,
   RegistrationDeliveryLeaseInput,
 } from "./repository.js";
+import {
+  createPasswordRecoveryTokenCodec,
+  type PasswordRecoveryTokenCodec,
+} from "./password-recovery.js";
 import {
   createRegistrationVerificationCodeCodec,
   type RegistrationVerificationCodeCodec,
@@ -39,6 +45,7 @@ export interface AuthQueryClient {
 interface PostgresAuthRepositoryOptions {
   codeCodec?: RegistrationVerificationCodeCodec;
   client?: AuthQueryClient;
+  recoveryTokenCodec?: PasswordRecoveryTokenCodec;
 }
 
 interface AuthUserRow extends Record<string, unknown> {
@@ -119,6 +126,16 @@ type RegistrationDraftDeliveryRow = RegistrationDraftRow & RegistrationDeliveryO
 interface RegistrationDeliveryJobRow extends RegistrationDeliveryOutboxRow {
   delivery_destination: string | null;
   delivery_verification_code_sealed: string | null;
+}
+
+interface PasswordRecoveryRow extends Record<string, unknown> {
+  created_at: Date | string;
+  email: string;
+  expires_at: Date | string;
+  id: string;
+  token_secret: string;
+  used_at: Date | string | null;
+  user_id: string;
 }
 
 const createSessionId = () => randomBytes(32).toString("hex");
@@ -202,6 +219,18 @@ function mapDeliveryJob(row: RegistrationDeliveryJobRow, codeCodec: Registration
   };
 }
 
+function mapPasswordRecovery(row: PasswordRecoveryRow): PasswordRecoveryRecord {
+  return {
+    createdAt: ensureIso(row.created_at),
+    email: row.email,
+    expiresAt: ensureIso(row.expires_at),
+    id: row.id,
+    tokenSecret: row.token_secret,
+    usedAt: row.used_at ? ensureIso(row.used_at) : null,
+    userId: row.user_id,
+  };
+}
+
 const deliveryReturningSql = `
   id::text as delivery_id,
   draft_id as delivery_draft_id,
@@ -261,6 +290,7 @@ function draftReturningSqlFrom(alias = "") {
 export class PostgresAuthRepository implements AuthRepository {
   private readonly client: AuthQueryClient;
   private readonly codeCodec: RegistrationVerificationCodeCodec;
+  private readonly recoveryTokenCodec: PasswordRecoveryTokenCodec;
 
   constructor(config: Pick<ApiConfig, "databaseUrl" | "registrationVerificationCodeSecret">, options: PostgresAuthRepositoryOptions = {}) {
     this.client =
@@ -271,6 +301,7 @@ export class PostgresAuthRepository implements AuthRepository {
         application_name: "yorso-api-auth",
       } satisfies PoolConfig);
     this.codeCodec = options.codeCodec ?? createRegistrationVerificationCodeCodec(config.registrationVerificationCodeSecret);
+    this.recoveryTokenCodec = options.recoveryTokenCodec ?? createPasswordRecoveryTokenCodec(config.registrationVerificationCodeSecret);
   }
 
   async findUserByEmail(email: string): Promise<AuthUser | null> {
@@ -940,6 +971,132 @@ export class PostgresAuthRepository implements AuthRepository {
       [sessionId],
     );
     return result.rows.length > 0;
+  }
+
+  async deleteSessionsForUser(userId: string): Promise<string[]> {
+    const result = await this.client.query<{ id: string }>(
+      `
+        update yorso_auth_sessions
+        set revoked_at = now()
+        where user_id = $1
+          and revoked_at is null
+        returning id
+      `,
+      [userId],
+    );
+    return result.rows.map((row) => row.id);
+  }
+
+  async createPasswordRecovery(input: PasswordRecoveryCreateInput): Promise<PasswordRecoveryRecord> {
+    const result = await this.client.query<PasswordRecoveryRow>(
+      `
+        with inserted_recovery as (
+          insert into yorso_auth_password_recovery_tokens (
+            user_id,
+            email,
+            destination_hash,
+            destination_preview,
+            token_lookup_hash,
+            token_secret,
+            expires_at,
+            request_id
+          )
+          values ($1, $2::citext, $3, $4, $5, $6, $7, $8::uuid)
+          returning *
+        ),
+        inserted_delivery as (
+          insert into yorso_auth_password_recovery_outbox (
+            recovery_id,
+            destination_hash,
+            destination_preview,
+            template_key,
+            recovery_token_sealed,
+            request_id
+          )
+          select
+            inserted_recovery.id,
+            $3,
+            $4,
+            $9,
+            $10,
+            $8::uuid
+          from inserted_recovery
+          returning id
+        )
+        select
+          inserted_recovery.id::text as id,
+          inserted_recovery.user_id::text as user_id,
+          inserted_recovery.email::text as email,
+          inserted_recovery.token_secret,
+          inserted_recovery.expires_at,
+          inserted_recovery.used_at,
+          inserted_recovery.created_at
+        from inserted_recovery
+        cross join inserted_delivery
+      `,
+      [
+        input.userId,
+        input.email.toLowerCase(),
+        input.delivery.destinationHash,
+        input.delivery.destinationPreview,
+        input.tokenLookupHash,
+        input.tokenSecret,
+        input.expiresAt.toISOString(),
+        input.delivery.requestId,
+        input.delivery.templateKey,
+        this.recoveryTokenCodec.seal(input.delivery.recoveryToken),
+      ],
+    );
+    return mapPasswordRecovery(result.rows[0]);
+  }
+
+  async findPasswordRecoveryByTokenHash(tokenLookupHash: string): Promise<PasswordRecoveryRecord | null> {
+    const result = await this.client.query<PasswordRecoveryRow>(
+      `
+        select
+          id::text as id,
+          user_id::text as user_id,
+          email::text as email,
+          token_secret,
+          expires_at,
+          used_at,
+          created_at
+        from yorso_auth_password_recovery_tokens
+        where token_lookup_hash = $1
+        limit 1
+      `,
+      [tokenLookupHash],
+    );
+    return result.rows[0] ? mapPasswordRecovery(result.rows[0]) : null;
+  }
+
+  async completePasswordRecovery(recoveryId: string, userId: string, passwordSecret: string): Promise<boolean> {
+    const result = await this.client.query<{ updated: string }>(
+      `
+        with used_recovery as (
+          update yorso_auth_password_recovery_tokens
+          set used_at = now(),
+              updated_at = now()
+          where id = $1::uuid
+            and user_id = $2
+            and used_at is null
+          returning user_id
+        ),
+        updated_credentials as (
+          update yorso_auth_credentials credentials
+          set password_secret = $3,
+              password_updated_at = now(),
+              updated_at = now()
+          from used_recovery
+          where credentials.user_id = used_recovery.user_id
+            and credentials.disabled_at is null
+          returning credentials.user_id
+        )
+        select count(*)::text as updated from updated_credentials
+      `,
+      [recoveryId, userId, passwordSecret],
+    );
+    return Number(result.rows[0]?.updated ?? 0) > 0;
   }
 
   async hasRole(userId: string, role: AdminUserRole): Promise<boolean> {

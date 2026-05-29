@@ -37,6 +37,10 @@ const files = [
   "packages/db/migrations/0023_admin_incident_trend_analytics.sql",
   "packages/db/migrations/0024_admin_incident_trend_actions.sql",
   "packages/db/migrations/0025_admin_incident_trend_action_queue.sql",
+  "packages/db/migrations/0026_registration_account_source.sql",
+  "packages/db/migrations/0027_registration_verification_delivery_outbox.sql",
+  "packages/db/migrations/0028_registration_verification_code_policy.sql",
+  "packages/db/migrations/0029_auth_password_recovery.sql",
 ];
 
 const failures = [];
@@ -72,7 +76,11 @@ const adminIncidentWorkloadCorrelationSql = read("packages/db/migrations/0022_ad
 const adminIncidentTrendAnalyticsSql = read("packages/db/migrations/0023_admin_incident_trend_analytics.sql");
 const adminIncidentTrendActionsSql = read("packages/db/migrations/0024_admin_incident_trend_actions.sql");
 const adminIncidentTrendActionQueueSql = read("packages/db/migrations/0025_admin_incident_trend_action_queue.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}\n${adminAccessGrantsConsoleSql}\n${adminIncidentAcknowledgementsSql}\n${adminIncidentWorkflowSql}\n${adminIncidentExecutionSql}\n${adminIncidentWorkloadCorrelationSql}\n${adminIncidentTrendAnalyticsSql}\n${adminIncidentTrendActionsSql}\n${adminIncidentTrendActionQueueSql}`;
+const registrationAccountSourceSql = read("packages/db/migrations/0026_registration_account_source.sql");
+const registrationVerificationDeliveryOutboxSql = read("packages/db/migrations/0027_registration_verification_delivery_outbox.sql");
+const registrationVerificationCodePolicySql = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
+const authPasswordRecoverySql = read("packages/db/migrations/0029_auth_password_recovery.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}\n${adminAccessGrantsConsoleSql}\n${adminIncidentAcknowledgementsSql}\n${adminIncidentWorkflowSql}\n${adminIncidentExecutionSql}\n${adminIncidentWorkloadCorrelationSql}\n${adminIncidentTrendAnalyticsSql}\n${adminIncidentTrendActionsSql}\n${adminIncidentTrendActionQueueSql}\n${registrationAccountSourceSql}\n${registrationVerificationDeliveryOutboxSql}\n${registrationVerificationCodePolicySql}\n${authPasswordRecoverySql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -513,6 +521,18 @@ if (!manifest.migrations?.some((migration) => migration.id === "0024_admin_incid
 if (!manifest.migrations?.some((migration) => migration.id === "0025_admin_incident_trend_action_queue")) {
   failures.push("packages/db/migration-manifest.json: missing 0025_admin_incident_trend_action_queue");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0026_registration_account_source")) {
+  failures.push("packages/db/migration-manifest.json: missing 0026_registration_account_source");
+}
+if (!manifest.migrations?.some((migration) => migration.id === "0027_registration_verification_delivery_outbox")) {
+  failures.push("packages/db/migration-manifest.json: missing 0027_registration_verification_delivery_outbox");
+}
+if (!manifest.migrations?.some((migration) => migration.id === "0028_registration_verification_code_policy")) {
+  failures.push("packages/db/migration-manifest.json: missing 0028_registration_verification_code_policy");
+}
+if (!manifest.migrations?.some((migration) => migration.id === "0029_auth_password_recovery")) {
+  failures.push("packages/db/migration-manifest.json: missing 0029_auth_password_recovery");
+}
 if (manifest.migrations?.[0]?.id !== "0000_migration_registry") {
   failures.push("packages/db/migration-manifest.json: registry migration must be first");
 }
@@ -590,6 +610,29 @@ if (!manifest.migrations?.[24]?.dependsOn?.includes("0023_admin_incident_trend_a
 }
 if (!manifest.migrations?.[25]?.dependsOn?.includes("0024_admin_incident_trend_actions")) {
   failures.push("packages/db/migration-manifest.json: admin incident trend action queue must depend on incident trend actions");
+}
+if (!manifest.migrations?.[26]?.dependsOn?.includes("0025_admin_incident_trend_action_queue")) {
+  failures.push("packages/db/migration-manifest.json: registration account source must depend on admin incident trend action queue");
+}
+if (!manifest.migrations?.[27]?.dependsOn?.includes("0026_registration_account_source")) {
+  failures.push("packages/db/migration-manifest.json: registration delivery outbox must depend on registration account source");
+}
+if (!manifest.migrations?.[28]?.dependsOn?.includes("0027_registration_verification_delivery_outbox")) {
+  failures.push("packages/db/migration-manifest.json: registration verification code policy must depend on registration delivery outbox");
+}
+if (!manifest.migrations?.[29]?.dependsOn?.includes("0028_registration_verification_code_policy")) {
+  failures.push("packages/db/migration-manifest.json: auth password recovery must depend on registration verification code policy");
+}
+
+for (const marker of [
+  "create table if not exists yorso_auth_password_recovery_tokens",
+  "create table if not exists yorso_auth_password_recovery_outbox",
+  "token_lookup_hash text not null unique",
+  "recovery_token_sealed text not null",
+  "idx_yorso_auth_password_recovery_active_expiry",
+  "idx_yorso_auth_password_recovery_outbox_ready",
+]) {
+  requireText("packages/db/migrations/0029_auth_password_recovery.sql", authPasswordRecoverySql, marker);
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");

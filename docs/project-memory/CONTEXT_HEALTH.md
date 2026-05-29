@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "backend_phase_2e_registration_verification_code_policy_in_progress"
+head_commit: "backend_phase_2f_password_recovery_source_of_truth_in_progress"
 latest_merged_batch: 141
-active_workstream: "backend_phase_2e_registration_verification_code_policy"
+active_workstream: "backend_phase_2f_password_recovery_source_of_truth"
 pull_request: null
-recommended_action: "commit Backend Phase 2E, then start Backend Phase 2F password recovery source of truth or legacy Supabase consolidation"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2D are documented and validated. Phase 2E is implemented locally with full release validation passed."
+recommended_action: "commit Backend Phase 2F, then start Backend Phase 2G password recovery delivery worker/sender runtime or legacy Supabase consolidation"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2E are documented and validated. Phase 2F is implemented locally with release validation passed."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_2e_registration_verification_code_policy.
-Current HEAD baseline: Backend Phase 2D registration delivery runtime commit 179ce298 is preserved; Phase 2E is implemented locally with full validation passed and commit pending.
+Current workstream: backend_phase_2f_password_recovery_source_of_truth.
+Current HEAD baseline: Backend Phase 2E registration verification code policy commit c1afa712 is preserved; Phase 2F is implemented locally with release validation passed and commit pending.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,13 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: commit Backend Phase 2E; after that start Backend Phase 2F self-hosted password recovery/reset source of truth or the legacy Supabase consolidation workstream.
+Current recommended action: commit Backend Phase 2F; after that start Backend Phase 2G password recovery delivery worker/sender runtime or the legacy Supabase consolidation workstream.
+Phase 2F implemented locally: docs/backend/phase-2f-password-recovery-source-of-truth.md records the self-hosted password recovery source of truth.
+Phase 2F runtime: /v1/auth/password-reset/request returns generic success for known and unknown accounts, creates durable reset token and outbox state for known accounts, and never returns reset tokens or raw emails in public responses.
+Phase 2F completion: /v1/auth/password-reset/complete validates token hash, salted token secret, expiry and used state, updates yorso_auth_credentials and revokes/deletes sessions by user plus matching session-cache entries.
+Phase 2F persistence: migration 0029_auth_password_recovery adds yorso_auth_password_recovery_tokens and yorso_auth_password_recovery_outbox with backend-only recovery_token_sealed handoff material.
+Phase 2F frontend boundary: auth-runtime uses self-hosted password reset endpoints when VITE_YORSO_API_URL is configured, reading recovery token from ?token= or #token=; Supabase remains prototype fallback only when self-hosted API is disabled.
+Phase 2F validation passed: npm run contracts:build; npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts; npx vitest run src/lib/auth-runtime.test.ts src/lib/auth-runtime.boundary.test.ts packages/db/src/migrator.test.ts packages/db/src/cli.test.ts src/test/self-hosted-db-contract.test.ts; npm run check:self-hosted-db; npm run check:self-hosted-api; npm run check:production-scale-baseline; npx tsc -b --noEmit; npm run test:db-migrations; npm run check:self-hosted-production-runtime; npm run lint; npm run api:build; git diff --check; npm run build.
 Phase 2E implemented locally: docs/backend/phase-2e-registration-verification-code-policy.md records the per-request registration verification code policy.
 Phase 2E runtime: AuthService issues fresh numeric email/phone verification codes, stores hashed secrets on registration drafts, enforces expiry and attempt limits, and never returns generated codes in public registration responses.
 Phase 2E delivery handoff: yorso_registration_delivery_outbox.verification_code_sealed stores sealed backend-only code material; the Postgres delivery worker decrypts after lease and file-spool handoff includes verificationCode for owned operator/channel delivery.

@@ -189,22 +189,66 @@ describe("auth-runtime adapter boundary", () => {
     });
   });
 
-  it("keeps password reset unavailable until self-hosted recovery endpoints exist", async () => {
+  it("uses self-hosted password reset request and token completion when configured", async () => {
+    const requests: Array<{ body: unknown; method: string | undefined; url: string }> = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        requests.push({
+          body: init?.body ? JSON.parse(String(init.body)) : undefined,
+          method: init?.method,
+          url: String(input),
+        });
+        return new Response(
+          JSON.stringify({
+            ok: true,
+            requestId: "00000000-0000-4000-8000-000000000474",
+            sent: true,
+          }),
+          { headers: { "content-type": "application/json" } },
+        );
+      }),
+    );
     const runtime = await importRuntime(
       { isConfigured: false },
       { selfHostedApiUrl: "https://api.yorso.test" },
     );
+    const onReady = vi.fn();
 
     await expect(
       runtime.requestPasswordReset({
         email: "buyer@yorso.test",
         redirectTo: "https://app.test/reset-password",
       }),
-    ).resolves.toMatchObject({
-      ok: false,
+    ).resolves.toEqual({ ok: true, source: "self_hosted" });
+
+    window.history.pushState(null, "", "/reset-password?token=self_hosted_reset_token_12345678901234567890");
+    const unsubscribe = runtime.observePasswordRecovery(onReady);
+    await expect(runtime.updateRecoveredPassword("NewPassword1")).resolves.toEqual({
+      ok: true,
       source: "self_hosted",
-      code: "password_reset_unavailable",
     });
+    unsubscribe();
+
+    expect(onReady).toHaveBeenCalledTimes(1);
+    expect(requests).toEqual([
+      {
+        body: {
+          email: "buyer@yorso.test",
+          redirectTo: "https://app.test/reset-password",
+        },
+        method: "POST",
+        url: "https://api.yorso.test/v1/auth/password-reset/request",
+      },
+      {
+        body: {
+          password: "NewPassword1",
+          token: "self_hosted_reset_token_12345678901234567890",
+        },
+        method: "POST",
+        url: "https://api.yorso.test/v1/auth/password-reset/complete",
+      },
+    ]);
   });
 
   it("reads and signs out the current self-hosted browser session", async () => {

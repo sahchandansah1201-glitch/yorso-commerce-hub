@@ -4928,6 +4928,67 @@ Validation:
 - `npm run build`.
 
 Marker: Backend Phase 2E.
+
+## Backend Phase 2F Password Recovery Source Of Truth
+
+Phase 2F implements self-hosted password recovery/reset as an owned backend
+source of truth. `/signin` reset requests now target
+`POST /v1/auth/password-reset/request` when `VITE_YORSO_API_URL` is configured,
+and `/reset-password?token=...` completes through
+`POST /v1/auth/password-reset/complete`. Supabase remains a prototype fallback
+only when the self-hosted API is not configured.
+
+Expected read/write profile:
+
+- Reset request: one indexed user lookup by normalized email. Known accounts
+  create one `yorso_auth_password_recovery_tokens` row, one
+  `yorso_auth_password_recovery_outbox` row and one auth security event.
+  Unknown accounts write only the security event and return the same public
+  response shape.
+- Reset complete: one unique lookup by `token_lookup_hash`, one token state
+  update, one credential update, bounded session revocation by user and one
+  auth security event.
+
+Cache/queue/backpressure strategy:
+
+- Browser responses never expose reset tokens or raw account existence.
+- Delivery is outbox-backed with backend-only `recovery_token_sealed` material.
+- Session-cache entries for revoked sessions are removed after a successful
+  reset.
+- Request throttling for password recovery is intentionally not included; add a
+  separate abuse-control batch if production telemetry shows pressure.
+
+Database indexing and pagination strategy:
+
+- `token_lookup_hash` is unique and backs reset completion lookup.
+- `idx_yorso_auth_password_recovery_active_expiry` supports bounded cleanup and
+  expiry scans.
+- `idx_yorso_auth_password_recovery_user_recent` supports security/admin review.
+- `idx_yorso_auth_password_recovery_outbox_ready` supports future bounded worker
+  leasing without scanning completed rows.
+
+Failure mode and graceful degradation:
+
+- Known and unknown accounts receive the same generic request response.
+- Invalid, expired and used tokens return structured errors without echoing the
+  token.
+- Missing recovery token in the browser keeps the existing invalid/expired link
+  fallback.
+- The outbox can queue owned delivery handoff even before a dedicated recovery
+  sender runtime is implemented.
+
+Observability and load-test plan:
+
+- API audit records `auth.password_reset.request` and
+  `auth.password_reset.complete`.
+- Auth security events record `password_reset_requested`,
+  `password_reset_completed` and `password_reset_invalid`.
+- Validation covers API routes, frontend runtime adapter, migration plan,
+  self-hosted DB/API policy guards and production-scale guard.
+- Load testing should simulate mixed known/unknown reset requests and token
+  completion traffic at the 10,000 concurrent-user baseline.
+
+Marker: Backend Phase 2F.
 Marker: registration verification code policy.
 Marker: sealed verification code handoff.
 Marker: self-hosted backend.

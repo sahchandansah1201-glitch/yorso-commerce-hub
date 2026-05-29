@@ -336,6 +336,18 @@
       "dependsOn": [
         "0027_registration_verification_delivery_outbox"
       ]
+    },
+    {
+      "id": "0029_auth_password_recovery",
+      "file": "migrations/0029_auth_password_recovery.sql",
+      "description": "Create self-hosted password recovery token and delivery outbox records.",
+      "ownedTables": [
+        "yorso_auth_password_recovery_tokens",
+        "yorso_auth_password_recovery_outbox"
+      ],
+      "dependsOn": [
+        "0028_registration_verification_code_policy"
+      ]
     }
   ]
 }

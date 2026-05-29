@@ -37,6 +37,8 @@ const adminIncidentTrendActionsSql = () =>
   readFileSync("packages/db/migrations/0024_admin_incident_trend_actions.sql", "utf8");
 const adminIncidentTrendActionQueueSql = () =>
   readFileSync("packages/db/migrations/0025_admin_incident_trend_action_queue.sql", "utf8");
+const authPasswordRecoverySql = () =>
+  readFileSync("packages/db/migrations/0029_auth_password_recovery.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -199,6 +201,19 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_auth_security_events_session_recent");
     expect(text).toContain("idx_yorso_auth_security_events_type_recent");
     expect(text).toContain("10,000 concurrent users");
+  });
+
+  it("declares self-hosted password recovery token and delivery outbox tables", () => {
+    const text = authPasswordRecoverySql();
+
+    expect(text).toContain("alter type yorso_auth_security_event_type add value if not exists 'password_reset_requested'");
+    expect(text).toContain("create table if not exists yorso_auth_password_recovery_tokens");
+    expect(text).toContain("create table if not exists yorso_auth_password_recovery_outbox");
+    expect(text).toContain("token_lookup_hash text not null unique");
+    expect(text).toContain("recovery_token_sealed text not null");
+    expect(text).toContain("idx_yorso_auth_password_recovery_active_expiry");
+    expect(text).toContain("idx_yorso_auth_password_recovery_outbox_ready");
+    expect(text).toContain("10,000 concurrent-user baseline");
   });
 
   it("declares durable API audit event tables and indexes", () => {
@@ -457,6 +472,10 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0023_admin_incident_trend_analytics",
       "0024_admin_incident_trend_actions",
       "0025_admin_incident_trend_action_queue",
+      "0026_registration_account_source",
+      "0027_registration_verification_delivery_outbox",
+      "0028_registration_verification_code_policy",
+      "0029_auth_password_recovery",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -600,6 +619,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0024_admin_incident_trend_actions",
           ownedTables: ["yorso_admin_incident_trend_actions"],
           dependsOn: ["0023_admin_incident_trend_analytics"],
+        }),
+        expect.objectContaining({
+          id: "0029_auth_password_recovery",
+          ownedTables: ["yorso_auth_password_recovery_tokens", "yorso_auth_password_recovery_outbox"],
+          dependsOn: ["0028_registration_verification_code_policy"],
         }),
       ]),
     );

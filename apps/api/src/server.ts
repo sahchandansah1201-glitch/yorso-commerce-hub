@@ -40,7 +40,11 @@ import type { AuthRepository, RegistrationAccountProvisioner } from "./modules/a
 import { handleAuthRoute } from "./modules/auth/routes.js";
 import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
 import { createAuthSessionCache } from "./modules/auth/session-cache.js";
-import { AuthService, type AuthServiceVerificationOptions } from "./modules/auth/service.js";
+import {
+  AuthService,
+  type AuthServicePasswordRecoveryOptions,
+  type AuthServiceVerificationOptions,
+} from "./modules/auth/service.js";
 import { createFileService } from "./modules/storage/factory.js";
 import { handleStorageRoute } from "./modules/storage/routes.js";
 import type { FileService } from "./modules/storage/service.js";
@@ -76,6 +80,7 @@ export interface ApiServerOptions {
   registrationDeliveryScheduler?: RegistrationDeliveryScheduler | null;
   registrationDeliverySender?: RegistrationVerificationDeliverySender;
   registrationVerification?: AuthServiceVerificationOptions;
+  passwordRecovery?: AuthServicePasswordRecoveryOptions;
   requestTelemetrySink?: RequestTelemetrySink;
   supplierAccessRepository?: SupplierAccessRepository;
   supplierRepository?: SupplierRepository;
@@ -105,6 +110,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       },
     },
     options.registrationVerification,
+    options.passwordRecovery,
   );
   const accountService = new AccountService(accountRepository);
   const adminAuditService = new AdminAuditService(options.adminAuditRepository ?? createAdminAuditRepository(config), config);

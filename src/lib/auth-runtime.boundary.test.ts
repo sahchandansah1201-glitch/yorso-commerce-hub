@@ -15,6 +15,8 @@ describe("auth-runtime prototype boundary", () => {
     expect(authRuntime).toContain("supabase_prototype");
     expect(authRuntime).toContain("isSelfHostedAuthConfigured");
     expect(authRuntime).toContain("/v1/auth/sign-in");
+    expect(authRuntime).toContain("/v1/auth/password-reset/request");
+    expect(authRuntime).toContain("/v1/auth/password-reset/complete");
     expect(authRuntime).toContain("/v1/auth/session");
     expect(authRuntime).toContain("/v1/auth/sign-out");
     expect(authRuntime).toContain("buyerSession");

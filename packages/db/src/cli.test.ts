@@ -63,6 +63,7 @@ describe("self-hosted DB migration CLI", () => {
     expect(output).toContain("0026_registration_account_source planned");
     expect(output).toContain("0027_registration_verification_delivery_outbox planned");
     expect(output).toContain("0028_registration_verification_code_policy planned");
+    expect(output).toContain("0029_auth_password_recovery planned");
   });
 
   it("prints static dry-run apply without requiring a database", () => {
@@ -70,7 +71,7 @@ describe("self-hosted DB migration CLI", () => {
 
     expect(output).toContain("Dry-run apply preview from local plan");
     expect(output).toContain("dryRun=true");
-    expect(output).toContain("pending=29");
+    expect(output).toContain("pending=30");
     expect(output).toContain("pending 0007_supplier_access_flow");
     expect(output).toContain("pending 0008_access_notification_ack");
     expect(output).toContain("pending 0009_supplier_directory_pagination_sort");
@@ -93,6 +94,7 @@ describe("self-hosted DB migration CLI", () => {
     expect(output).toContain("pending 0026_registration_account_source");
     expect(output).toContain("pending 0027_registration_verification_delivery_outbox");
     expect(output).toContain("pending 0028_registration_verification_code_policy");
+    expect(output).toContain("pending 0029_auth_password_recovery");
   });
 
   it("blocks live apply without explicit confirmation", () => {

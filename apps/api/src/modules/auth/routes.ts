@@ -168,6 +168,44 @@ export async function handleAuthRoute(
       return true;
     }
 
+    if (pathname === "/v1/auth/password-reset/request") {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      const result = await service.requestPasswordReset(payload, context.requestId, requestMetadata(request));
+      auditFromRequest(auditSink, context, request, {
+        action: "auth.password_reset.request",
+        outcome: "success",
+        resourceType: "auth_password_recovery",
+        route: pathname,
+        statusCode: 200,
+      });
+      sendJson(response, 200, result);
+      return true;
+    }
+
+    if (pathname === "/v1/auth/password-reset/complete") {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const payload = await readJsonBody(request, jsonBodyOptions);
+      const result = await service.completePasswordReset(payload, context.requestId, requestMetadata(request));
+      auditFromRequest(auditSink, context, request, {
+        action: "auth.password_reset.complete",
+        outcome: "success",
+        resourceType: "auth_password_recovery",
+        route: pathname,
+        statusCode: 200,
+      });
+      sendJson(response, 200, result);
+      return true;
+    }
+
     if (pathname === "/v1/auth/session") {
       if (request.method !== "GET") {
         methodNotAllowed(response, context, "GET");
@@ -248,6 +286,8 @@ function statusForAuthError(code: AuthServiceError["code"]) {
   if (code === "auth_session_cache_unavailable") return 503;
   if (code === "registration_email_exists") return 409;
   if (
+    code === "password_reset_token_invalid" ||
+    code === "password_reset_token_expired" ||
     code === "registration_session_invalid" ||
     code === "registration_invalid_code" ||
     code === "registration_code_expired" ||
@@ -268,13 +308,18 @@ function auditAuthFailure(
   reason: string,
   statusCode: number,
 ) {
-  const action = pathname === "/v1/auth/sign-out"
-    ? "auth.sign_out"
-    : pathname === "/v1/auth/session"
-      ? "auth.session.read"
-      : pathname.startsWith("/v1/auth/register/")
-        ? "auth.register"
-        : "auth.sign_in";
+  let action = "auth.sign_in";
+  if (pathname === "/v1/auth/password-reset/complete") {
+    action = "auth.password_reset.complete";
+  } else if (pathname === "/v1/auth/password-reset/request") {
+    action = "auth.password_reset.request";
+  } else if (pathname === "/v1/auth/sign-out") {
+    action = "auth.sign_out";
+  } else if (pathname === "/v1/auth/session") {
+    action = "auth.session.read";
+  } else if (pathname.startsWith("/v1/auth/register/")) {
+    action = "auth.register";
+  }
   auditFromRequest(auditSink, context, request, {
     action,
     outcome: statusCode === 429 || statusCode === 413 || statusCode === 408 ? "blocked" : "failure",

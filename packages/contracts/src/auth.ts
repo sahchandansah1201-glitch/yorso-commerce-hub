@@ -8,6 +8,18 @@ export const authSignInSchema = z.object({
   password: authPasswordSchema,
 });
 
+export const authPasswordResetRequestSchema = z.object({
+  email: authEmailSchema,
+  redirectTo: z.string().trim().url().max(500).optional(),
+});
+
+export const authPasswordResetTokenSchema = z.string().trim().min(32).max(512).regex(/^[A-Za-z0-9._~:-]+$/);
+
+export const authPasswordResetCompleteSchema = z.object({
+  token: authPasswordResetTokenSchema,
+  password: authPasswordSchema,
+});
+
 export const authRegistrationRoleSchema = z.enum(["buyer", "supplier"]);
 export const authRegistrationDeliveryPurposeSchema = z.enum(["email_verification", "phone_verification"]);
 export const authRegistrationDeliveryChannelSchema = z.enum(["email", "sms", "whatsapp"]);
@@ -85,6 +97,19 @@ export const authSignOutResponseSchema = z.object({
   requestId: z.string().uuid(),
 });
 
+export const authPasswordResetRequestResponseSchema = z.object({
+  ok: z.literal(true),
+  sent: z.literal(true),
+  expiresInSeconds: z.number().int().min(60),
+  requestId: z.string().uuid(),
+});
+
+export const authPasswordResetCompleteResponseSchema = z.object({
+  ok: z.literal(true),
+  passwordUpdated: z.literal(true),
+  requestId: z.string().uuid(),
+});
+
 export const authRegisterStartResponseSchema = z.object({
   ok: z.literal(true),
   sessionId: z.string().min(32).max(160),
@@ -150,6 +175,9 @@ export const authSecurityEventTypeSchema = z.enum([
   "sign_in_succeeded",
   "sign_in_failed",
   "sign_in_rate_limited",
+  "password_reset_requested",
+  "password_reset_completed",
+  "password_reset_invalid",
   "session_invalid",
   "sign_out_succeeded",
   "sign_out_invalid",
@@ -167,6 +195,8 @@ export const authSecurityEventSchema = z.object({
 });
 
 export type AuthSignIn = z.infer<typeof authSignInSchema>;
+export type AuthPasswordResetRequest = z.infer<typeof authPasswordResetRequestSchema>;
+export type AuthPasswordResetComplete = z.infer<typeof authPasswordResetCompleteSchema>;
 export type AuthRegisterStart = z.infer<typeof authRegisterStartSchema>;
 export type AuthRegistrationDeliveryPurpose = z.infer<typeof authRegistrationDeliveryPurposeSchema>;
 export type AuthRegistrationDeliveryChannel = z.infer<typeof authRegistrationDeliveryChannelSchema>;
@@ -181,6 +211,8 @@ export type AuthRegisterMarkets = z.infer<typeof authRegisterMarketsSchema>;
 export type AuthSession = z.infer<typeof authSessionSchema>;
 export type AuthSessionResponse = z.infer<typeof authSessionResponseSchema>;
 export type AuthSignOutResponse = z.infer<typeof authSignOutResponseSchema>;
+export type AuthPasswordResetRequestResponse = z.infer<typeof authPasswordResetRequestResponseSchema>;
+export type AuthPasswordResetCompleteResponse = z.infer<typeof authPasswordResetCompleteResponseSchema>;
 export type AuthRegisterStartResponse = z.infer<typeof authRegisterStartResponseSchema>;
 export type AuthRegisterVerifyEmailResponse = z.infer<typeof authRegisterVerifyEmailResponseSchema>;
 export type AuthRegisterDetailsResponse = z.infer<typeof authRegisterDetailsResponseSchema>;

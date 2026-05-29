@@ -40,6 +40,7 @@ describe("self-hosted DB migration planner", () => {
       "0026_registration_account_source",
       "0027_registration_verification_delivery_outbox",
       "0028_registration_verification_code_policy",
+      "0029_auth_password_recovery",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -71,6 +72,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0026_registration_account_source.sql",
       "migrations/0027_registration_verification_delivery_outbox.sql",
       "migrations/0028_registration_verification_code_policy.sql",
+      "migrations/0029_auth_password_recovery.sql",
     ]);
   });
 
@@ -114,6 +116,7 @@ describe("self-hosted DB migration planner", () => {
     const registrationAccountSource = plan.migrations[26];
     const registrationVerificationDeliveryOutbox = plan.migrations[27];
     const registrationVerificationCodePolicy = plan.migrations[28];
+    const authPasswordRecovery = plan.migrations[29];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -181,6 +184,10 @@ describe("self-hosted DB migration planner", () => {
     expect(registrationVerificationCodePolicy.dependsOn).toEqual(["0027_registration_verification_delivery_outbox"]);
     expect(registrationVerificationCodePolicy.sql).toContain("email_code_expires_at");
     expect(registrationVerificationCodePolicy.sql).toContain("verification_code_sealed");
+    expect(authPasswordRecovery.dependsOn).toEqual(["0028_registration_verification_code_policy"]);
+    expect(authPasswordRecovery.sql).toContain("create table if not exists yorso_auth_password_recovery_tokens");
+    expect(authPasswordRecovery.sql).toContain("create table if not exists yorso_auth_password_recovery_outbox");
+    expect(authPasswordRecovery.sql).toContain("idx_yorso_auth_password_recovery_outbox_ready");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

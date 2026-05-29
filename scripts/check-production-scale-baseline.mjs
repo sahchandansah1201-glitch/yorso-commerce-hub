@@ -5,6 +5,7 @@ const requiredFiles = [
   ".github/workflows/ci.yml",
   "docs/backend/production-scale-baseline.md",
   "docs/backend/phase-2e-registration-verification-code-policy.md",
+  "docs/backend/phase-2f-password-recovery-source-of-truth.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -34,6 +35,8 @@ const requiredFiles = [
   "packages/db/migrations/0024_admin_incident_trend_actions.sql",
   "packages/db/migrations/0025_admin_incident_trend_action_queue.sql",
   "packages/db/migrations/0028_registration_verification_code_policy.sql",
+  "packages/db/migrations/0029_auth_password_recovery.sql",
+  "apps/api/src/modules/auth/password-recovery.ts",
   "docs/backend/admin-incident-trend-actions.md",
   "docs/backend/admin-incident-trend-actions-api-contract.md",
   "docs/backend/admin-incident-trend-actions-indexing.md",
@@ -227,6 +230,7 @@ const read = (file) => readFileSync(file, "utf8");
 const ciWorkflow = read(".github/workflows/ci.yml");
 const baseline = read("docs/backend/production-scale-baseline.md");
 const phase2eRegistrationVerificationCodePolicy = read("docs/backend/phase-2e-registration-verification-code-policy.md");
+const phase2fPasswordRecoverySourceOfTruth = read("docs/backend/phase-2f-password-recovery-source-of-truth.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -257,6 +261,8 @@ const adminIncidentTrendAnalyticsMigration = read("packages/db/migrations/0023_a
 const adminIncidentTrendActionsMigration = read("packages/db/migrations/0024_admin_incident_trend_actions.sql");
 const adminIncidentTrendActionQueueMigration = read("packages/db/migrations/0025_admin_incident_trend_action_queue.sql");
 const registrationVerificationCodePolicyMigration = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
+const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_password_recovery.sql");
+const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
@@ -775,6 +781,9 @@ if (!manifest.migrations?.some((migration) => migration.id === "0019_admin_incid
 if (!manifest.migrations?.some((migration) => migration.id === "0028_registration_verification_code_policy")) {
   failures.push("packages/db/migration-manifest.json: missing 0028_registration_verification_code_policy");
 }
+if (!manifest.migrations?.some((migration) => migration.id === "0029_auth_password_recovery")) {
+  failures.push("packages/db/migration-manifest.json: missing 0029_auth_password_recovery");
+}
 
 if (pkg.scripts["check:production-scale-baseline"] !== "node scripts/check-production-scale-baseline.mjs") {
   failures.push("package.json: check:production-scale-baseline script missing or incorrect");
@@ -1289,6 +1298,10 @@ for (const marker of [
   "authSessionSchema",
   "authSessionResponseSchema",
   "authSignOutResponseSchema",
+  "authPasswordResetRequestSchema",
+  "authPasswordResetCompleteSchema",
+  "authPasswordResetRequestResponseSchema",
+  "authPasswordResetCompleteResponseSchema",
   "authSecurityEventTypeSchema",
   "authSecurityEventSchema",
 ]) {
@@ -1325,6 +1338,9 @@ for (const marker of [
   "from yorso_users u",
   "join yorso_auth_credentials",
   "insert into yorso_auth_sessions",
+  "insert into yorso_auth_password_recovery_tokens",
+  "insert into yorso_auth_password_recovery_outbox",
+  "completePasswordRecovery",
   "insert into yorso_auth_security_events",
   "countRecentSecurityEvents",
   "revoked_at",
@@ -1336,6 +1352,9 @@ for (const marker of [
   "interface AuthRepository",
   "recordSecurityEvent",
   "countRecentSecurityEvents",
+  "createPasswordRecovery",
+  "findPasswordRecoveryByTokenHash",
+  "deleteSessionsForUser",
   "class MemoryAuthRepository",
   "buyer@example.com",
 ]) {
@@ -1344,6 +1363,8 @@ for (const marker of [
 
 for (const marker of [
   "/v1/auth/sign-in",
+  "/v1/auth/password-reset/request",
+  "/v1/auth/password-reset/complete",
   "/v1/auth/session",
   "/v1/auth/sign-out",
   "accountSessionIdHeaderName",
@@ -1354,6 +1375,10 @@ for (const marker of [
 for (const marker of [
   "AuthService",
   "authSignInSchema.parse",
+  "authPasswordResetRequestSchema.parse",
+  "authPasswordResetCompleteSchema.parse",
+  "completePasswordReset",
+  "deleteSessionsForUser",
   "auth_invalid_credentials",
   "auth_rate_limited",
   "sign_in_rate_limited",
@@ -2343,6 +2368,26 @@ for (const marker of [
   requireText("packages/db/migrations/0028_registration_verification_code_policy.sql", registrationVerificationCodePolicyMigration, marker);
 }
 for (const marker of [
+  "Backend Phase 2F",
+  "create table if not exists yorso_auth_password_recovery_tokens",
+  "create table if not exists yorso_auth_password_recovery_outbox",
+  "token_lookup_hash text not null unique",
+  "recovery_token_sealed text not null",
+  "idx_yorso_auth_password_recovery_active_expiry",
+  "idx_yorso_auth_password_recovery_outbox_ready",
+]) {
+  requireText("packages/db/migrations/0029_auth_password_recovery.sql", authPasswordRecoveryMigration, marker);
+}
+for (const marker of [
+  "PasswordRecoveryTokenIssuer",
+  "createPasswordRecoveryTokenCodec",
+  "hashPasswordRecoveryToken",
+  "aes-256-gcm",
+  "yorso-password-recovery-token:v1",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery.ts", authPasswordRecovery, marker);
+}
+for (const marker of [
   "createAdminAuditApiClient",
   "/v1/admin/audit-events",
   "/v1/admin/audit-events/export",
@@ -2726,6 +2771,15 @@ for (const marker of [
   "registration verification code policy",
 ]) {
   requireText("docs/backend/phase-2e-registration-verification-code-policy.md", phase2eRegistrationVerificationCodePolicy, marker);
+}
+for (const marker of [
+  "Backend Phase 2F",
+  "self-hosted password recovery",
+  "Plan / Fact",
+  "No raw reset token",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2f-password-recovery-source-of-truth.md", phase2fPasswordRecoverySourceOfTruth, marker);
 }
 
 for (const marker of [
@@ -3273,6 +3327,8 @@ for (const marker of [
   "readCurrentAuthSession",
   "isSelfHostedAuthConfigured",
   "/v1/auth/sign-in",
+  "/v1/auth/password-reset/request",
+  "/v1/auth/password-reset/complete",
   "/v1/auth/session",
   "/v1/auth/sign-out",
   "requestPasswordReset",
@@ -3296,6 +3352,7 @@ for (const marker of [
   "reads and signs out the current self-hosted browser session",
   "uses local contract auth when Supabase is not configured",
   "delegates email sign-in and reset to prototype Supabase only when configured",
+  "uses self-hosted password reset request and token completion when configured",
 ]) {
   requireText("src/lib/auth-runtime.test.ts", authRuntimeTest, marker);
 }

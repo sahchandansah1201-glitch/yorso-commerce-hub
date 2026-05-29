@@ -2277,6 +2277,59 @@ Keep this file factual and append-only.
 
 ## 2026-05-29
 
+- Corrected the stale Phase 2E project-memory status: Phase 2E is committed
+  locally at `c1afa712` and preserved.
+- Implemented Backend Phase 2F: Password Recovery Source Of Truth.
+- Added owned self-hosted password reset endpoints:
+  - `POST /v1/auth/password-reset/request`;
+  - `POST /v1/auth/password-reset/complete`.
+- Added reset request privacy behavior:
+  - known and unknown accounts receive the same public success shape;
+  - public responses do not expose reset tokens or raw emails.
+- Added `PasswordRecoveryTokenIssuer` and backend-only token codec:
+  - deterministic token lookup hash;
+  - salted token secret;
+  - AES-GCM sealed handoff material for backend outbox use.
+- Added migration `0029_auth_password_recovery`:
+  - `yorso_auth_password_recovery_tokens`;
+  - `yorso_auth_password_recovery_outbox`;
+  - active-expiry and outbox-ready indexes for bounded scans/worker leasing.
+- Updated memory and PostgreSQL auth repositories:
+  - create and read password recovery records;
+  - complete recovery by updating `yorso_auth_credentials`;
+  - revoke/delete sessions for the reset user.
+- Updated `AuthService`:
+  - validates token hash/secret/expiry/used state;
+  - records password-reset security events;
+  - deletes session-cache entries for revoked sessions.
+- Updated `src/lib/auth-runtime.ts`:
+  - self-hosted reset request uses `/v1/auth/password-reset/request`;
+  - self-hosted reset completion reads token from `?token=` or `#token=`;
+  - Supabase recovery remains prototype fallback only when self-hosted API is
+    disabled.
+- Updated `docs/backend/phase-2f-password-recovery-source-of-truth.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/frontend-backend-contract.md` and self-hosted guard scripts.
+- Validation passed:
+  - `npm run contracts:build`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts`;
+  - `npx vitest run src/lib/auth-runtime.test.ts src/lib/auth-runtime.boundary.test.ts packages/db/src/migrator.test.ts packages/db/src/cli.test.ts src/test/self-hosted-db-contract.test.ts`;
+  - `npm run check:self-hosted-db`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run test:db-migrations`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `git diff --check`;
+  - `npm run build`.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.
+
+## 2026-05-29
+
 - Implemented Backend Phase 2E: Registration Verification Code Policy.
 - Added per-request OTP generation:
   - `RegistrationVerificationCodeIssuer` issues fresh numeric email/phone

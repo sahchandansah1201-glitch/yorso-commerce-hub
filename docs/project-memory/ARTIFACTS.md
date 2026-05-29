@@ -1074,6 +1074,42 @@
   `docs/backend/self-hosted-production-deploy.md`: Phase 2E contract and
   production-scale updates.
 
+## Backend Phase 2F Password Recovery Source Of Truth
+
+- `docs/backend/phase-2f-password-recovery-source-of-truth.md`: Phase 2F
+  implementation notes, plan/fact table, API contract, validation and 10,000
+  concurrent-user review.
+- `packages/contracts/src/auth.ts`: password-reset request/complete schemas,
+  response schemas and password-reset security event types.
+- `apps/api/src/modules/auth/password-recovery.ts`: reset token issuer,
+  deterministic token lookup hash and AES-256-GCM sealed-token codec.
+- `apps/api/src/modules/auth/service.ts`: password-reset request/complete
+  service methods, token validation, security events and session-cache cleanup.
+- `apps/api/src/modules/auth/repository.ts`: memory repository password
+  recovery records, outbox storage and user-session deletion.
+- `apps/api/src/modules/auth/postgres-repository.ts`: Postgres password
+  recovery token/outbox persistence, credential update and session revocation.
+- `apps/api/src/modules/auth/routes.ts`: `/v1/auth/password-reset/request` and
+  `/v1/auth/password-reset/complete` route handlers and audit actions.
+- `apps/api/src/server.ts`: injectable password-recovery test options.
+- `apps/api/src/server.test.ts`: reset request privacy, completion, old-session
+  invalidation, old-password rejection, new-password sign-in and expired-token
+  coverage.
+- `src/lib/auth-runtime.ts`: self-hosted password reset request/complete calls
+  and token parsing from `?token=` / `#token=`.
+- `src/lib/auth-runtime.test.ts` and `src/lib/auth-runtime.boundary.test.ts`:
+  frontend runtime and adapter-boundary coverage.
+- `packages/db/migrations/0029_auth_password_recovery.sql`: self-hosted reset
+  token table, recovery outbox table and indexes.
+- `packages/db/migration-manifest.json`, `packages/db/src/migrator.test.ts`,
+  `packages/db/src/cli.test.ts` and `src/test/self-hosted-db-contract.test.ts`:
+  migration manifest/planner coverage.
+- `scripts/check-self-hosted-db.mjs`, `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 2F.
+- `docs/backend/frontend-backend-contract.md` and
+  `docs/backend/production-scale-baseline.md`: route data-source and
+  production-scale updates.
+
 ## Lovable Sync Prompts
 
 ## Batch #133 Public Breadcrumb Locale A11y

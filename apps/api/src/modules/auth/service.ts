@@ -1,6 +1,10 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import {
   type AdminUserRole,
+  authPasswordResetCompleteResponseSchema,
+  authPasswordResetCompleteSchema,
+  authPasswordResetRequestResponseSchema,
+  authPasswordResetRequestSchema,
   authRegisterCompleteResponseSchema,
   authRegisterDetailsResponseSchema,
   authRegisterDetailsSchema,
@@ -36,16 +40,24 @@ import {
   type AuthTelemetryEvent,
   type AuthTelemetrySink,
 } from "./observability.js";
+import { hashPasswordRecoveryToken, PasswordRecoveryTokenIssuer } from "./password-recovery.js";
 import { RegistrationVerificationCodeIssuer } from "./verification-code.js";
 
 const authSessionTtlMs = 7 * 24 * 60 * 60 * 1000;
 const registrationDraftTtlMs = 24 * 60 * 60 * 1000;
 const registrationVerificationTtlSeconds = 5 * 60;
 const registrationVerificationMaxAttempts = 5;
+const passwordRecoveryTtlSeconds = 30 * 60;
 
 export interface AuthServiceVerificationOptions {
   generateCode?: () => string;
   maxAttempts?: number;
+  now?: () => Date;
+  ttlSeconds?: number;
+}
+
+export interface AuthServicePasswordRecoveryOptions {
+  generateToken?: () => string;
   now?: () => Date;
   ttlSeconds?: number;
 }
@@ -63,6 +75,8 @@ export class AuthServiceError extends Error {
       | "auth_session_required"
       | "auth_session_invalid"
       | "auth_session_cache_unavailable"
+      | "password_reset_token_invalid"
+      | "password_reset_token_expired"
       | "registration_email_exists"
       | "registration_session_invalid"
       | "registration_invalid_code"
@@ -84,6 +98,9 @@ export class AuthService {
   private readonly verificationMaxAttempts: number;
   private readonly verificationNow: () => Date;
   private readonly verificationTtlSeconds: number;
+  private readonly passwordRecoveryIssuer: PasswordRecoveryTokenIssuer;
+  private readonly passwordRecoveryNow: () => Date;
+  private readonly passwordRecoveryTtlSeconds: number;
 
   constructor(
     private readonly repository: AuthRepository,
@@ -98,6 +115,7 @@ export class AuthService {
     private readonly sessionCache: AuthSessionCache = new DisabledAuthSessionCache(),
     private readonly telemetry: AuthTelemetrySink = new NoopAuthTelemetrySink(),
     verification: AuthServiceVerificationOptions = {},
+    passwordRecovery: AuthServicePasswordRecoveryOptions = {},
   ) {
     this.verificationTtlSeconds = verification.ttlSeconds ?? registrationVerificationTtlSeconds;
     this.verificationNow = verification.now ?? (() => new Date());
@@ -106,6 +124,13 @@ export class AuthService {
       generateCode: verification.generateCode,
       now: this.verificationNow,
       ttlSeconds: this.verificationTtlSeconds,
+    });
+    this.passwordRecoveryTtlSeconds = passwordRecovery.ttlSeconds ?? passwordRecoveryTtlSeconds;
+    this.passwordRecoveryNow = passwordRecovery.now ?? (() => new Date());
+    this.passwordRecoveryIssuer = new PasswordRecoveryTokenIssuer({
+      generateToken: passwordRecovery.generateToken,
+      now: this.passwordRecoveryNow,
+      ttlSeconds: this.passwordRecoveryTtlSeconds,
     });
   }
 
@@ -217,6 +242,123 @@ export class AuthService {
       emailSent: true,
       delivery: toRegistrationDeliveryResponse(draft.delivery),
       expiresInSeconds: this.verificationTtlSeconds,
+      requestId,
+    });
+  }
+
+  async requestPasswordReset(
+    payload: unknown,
+    requestId: string,
+    metadata: AuthRequestMetadata = {},
+  ) {
+    const parsed = authPasswordResetRequestSchema.parse(payload);
+    const user = await this.repository.findUserByEmail(parsed.email);
+    if (user) {
+      const token = this.passwordRecoveryIssuer.issue();
+      await this.repository.createPasswordRecovery({
+        delivery: {
+          destinationHash: hashDeliveryDestination(parsed.email),
+          destinationPreview: maskEmail(parsed.email),
+          recoveryToken: token.token,
+          requestId,
+          templateKey: "password_recovery_email",
+        },
+        email: parsed.email,
+        expiresAt: token.expiresAt,
+        tokenLookupHash: token.tokenLookupHash,
+        tokenSecret: token.secret,
+        userId: user.id,
+      });
+      await this.repository.recordSecurityEvent({
+        eventType: "password_reset_requested",
+        userId: user.id,
+        email: parsed.email,
+        requestId,
+        metadata: securityMetadata(metadata, {
+          destinationPreview: maskEmail(parsed.email),
+          redirectToPresent: Boolean(parsed.redirectTo),
+        }),
+      });
+    } else {
+      await this.repository.recordSecurityEvent({
+        eventType: "password_reset_requested",
+        userId: null,
+        email: parsed.email,
+        requestId,
+        metadata: securityMetadata(metadata, {
+          userKnown: false,
+          redirectToPresent: Boolean(parsed.redirectTo),
+        }),
+      });
+    }
+    return authPasswordResetRequestResponseSchema.parse({
+      ok: true,
+      sent: true,
+      expiresInSeconds: this.passwordRecoveryTtlSeconds,
+      requestId,
+    });
+  }
+
+  async completePasswordReset(
+    payload: unknown,
+    requestId: string,
+    metadata: AuthRequestMetadata = {},
+  ) {
+    const parsed = authPasswordResetCompleteSchema.parse(payload);
+    const recovery = await this.repository.findPasswordRecoveryByTokenHash(hashPasswordRecoveryToken(parsed.token));
+    if (!recovery || recovery.usedAt || !verifyPasswordSecret(parsed.token, { passwordSecret: recovery.tokenSecret })) {
+      await this.repository.recordSecurityEvent({
+        eventType: "password_reset_invalid",
+        requestId,
+        metadata: securityMetadata(metadata, { reason: "invalid_or_used_token" }),
+      });
+      throw new AuthServiceError("password_reset_token_invalid", "Password reset token is invalid or already used.");
+    }
+    if (new Date(recovery.expiresAt).getTime() <= this.passwordRecoveryNow().getTime()) {
+      await this.repository.recordSecurityEvent({
+        eventType: "password_reset_invalid",
+        userId: recovery.userId,
+        email: recovery.email,
+        requestId,
+        metadata: securityMetadata(metadata, { reason: "expired_token" }),
+      });
+      throw new AuthServiceError("password_reset_token_expired", "Password reset token has expired.");
+    }
+    const updated = await this.repository.completePasswordRecovery(
+      recovery.id,
+      recovery.userId,
+      createPasswordSecret(parsed.password),
+    );
+    if (!updated) {
+      await this.repository.recordSecurityEvent({
+        eventType: "password_reset_invalid",
+        userId: recovery.userId,
+        email: recovery.email,
+        requestId,
+        metadata: securityMetadata(metadata, { reason: "credential_update_failed" }),
+      });
+      throw new AuthServiceError("password_reset_token_invalid", "Password reset token is invalid or already used.");
+    }
+    const revokedSessionIds = await this.repository.deleteSessionsForUser(recovery.userId);
+    for (const sessionId of revokedSessionIds) {
+      await this.throwIfCacheUnavailable(
+        await this.sessionCache.deleteSession(sessionId),
+        sessionId,
+        requestId,
+        metadata,
+        "session_cache_delete_after_password_reset",
+      );
+    }
+    await this.repository.recordSecurityEvent({
+      eventType: "password_reset_completed",
+      userId: recovery.userId,
+      email: recovery.email,
+      requestId,
+      metadata: securityMetadata(metadata),
+    });
+    return authPasswordResetCompleteResponseSchema.parse({
+      ok: true,
+      passwordUpdated: true,
       requestId,
     });
   }

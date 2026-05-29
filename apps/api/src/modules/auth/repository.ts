@@ -97,6 +97,41 @@ export interface RegistrationDeliveryFailureInput {
   retryAfterMs: number;
 }
 
+export interface PasswordRecoveryDeliveryOutboxEntry {
+  createdAt: string;
+  destinationPreview: string;
+  id: string;
+  recoveryId: string;
+  status: "queued" | "sent" | "failed" | "cancelled";
+  templateKey: string;
+  updatedAt: string;
+}
+
+export interface PasswordRecoveryRecord {
+  createdAt: string;
+  email: string;
+  expiresAt: string;
+  id: string;
+  tokenSecret: string;
+  usedAt: string | null;
+  userId: string;
+}
+
+export interface PasswordRecoveryCreateInput {
+  delivery: {
+    destinationHash: string;
+    destinationPreview: string;
+    recoveryToken: string;
+    requestId: string;
+    templateKey: string;
+  };
+  email: string;
+  expiresAt: Date;
+  tokenLookupHash: string;
+  tokenSecret: string;
+  userId: string;
+}
+
 export interface RegistrationAccountProvisioner {
   provisionRegisteredAccount(input: RegisteredAccountProvision): Promise<void>;
 }
@@ -148,6 +183,10 @@ export interface AuthRepository {
   ): Promise<RegistrationDeliveryOutboxEntry | null>;
   getSession(sessionId: string): Promise<AuthSession | null>;
   deleteSession(sessionId: string): Promise<boolean>;
+  deleteSessionsForUser(userId: string): Promise<string[]>;
+  createPasswordRecovery(input: PasswordRecoveryCreateInput): Promise<PasswordRecoveryRecord>;
+  findPasswordRecoveryByTokenHash(tokenLookupHash: string): Promise<PasswordRecoveryRecord | null>;
+  completePasswordRecovery(recoveryId: string, userId: string, passwordSecret: string): Promise<boolean>;
   hasRole(userId: string, role: AdminUserRole): Promise<boolean>;
   recordSecurityEvent(event: AuthSecurityEventInput): Promise<void>;
   countRecentSecurityEvents(query: AuthSecurityEventCountQuery): Promise<number>;
@@ -191,6 +230,7 @@ const cloneDraft = (draft: RegistrationDraft): RegistrationDraft => ({
   targetCountries: [...draft.targetCountries],
 });
 const cloneDelivery = (delivery: RegistrationDeliveryOutboxEntry): RegistrationDeliveryOutboxEntry => ({ ...delivery });
+const clonePasswordRecovery = (recovery: PasswordRecoveryRecord): PasswordRecoveryRecord => ({ ...recovery });
 
 const splitFullName = (fullName: string) => {
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
@@ -208,6 +248,9 @@ export class MemoryAuthRepository implements AuthRepository {
   private readonly registrationDrafts = new Map<string, RegistrationDraft>();
   private readonly registrationDeliveryOutbox = new Map<string, RegistrationDeliveryOutboxEntry>();
   private readonly registrationDeliveryCodes = new Map<string, string>();
+  private readonly passwordRecoveries = new Map<string, PasswordRecoveryRecord>();
+  private readonly passwordRecoveryByTokenHash = new Map<string, string>();
+  private readonly passwordRecoveryDeliveryOutbox = new Map<string, PasswordRecoveryDeliveryOutboxEntry>();
 
   constructor(
     users: AuthUser[] = [demoAuthUser, demoAdminUser],
@@ -440,6 +483,60 @@ export class MemoryAuthRepository implements AuthRepository {
 
   async deleteSession(sessionId: string): Promise<boolean> {
     return this.sessions.delete(sessionId);
+  }
+
+  async deleteSessionsForUser(userId: string): Promise<string[]> {
+    const deleted: string[] = [];
+    for (const [sessionId, session] of this.sessions.entries()) {
+      if (session.userId !== userId) continue;
+      this.sessions.delete(sessionId);
+      deleted.push(sessionId);
+    }
+    return deleted;
+  }
+
+  async createPasswordRecovery(input: PasswordRecoveryCreateInput): Promise<PasswordRecoveryRecord> {
+    const recovery: PasswordRecoveryRecord = {
+      createdAt: iso(new Date()),
+      email: input.email.toLowerCase(),
+      expiresAt: iso(input.expiresAt),
+      id: randomUUID(),
+      tokenSecret: input.tokenSecret,
+      usedAt: null,
+      userId: input.userId,
+    };
+    const delivery: PasswordRecoveryDeliveryOutboxEntry = {
+      createdAt: recovery.createdAt,
+      destinationPreview: input.delivery.destinationPreview,
+      id: randomUUID(),
+      recoveryId: recovery.id,
+      status: "queued",
+      templateKey: input.delivery.templateKey,
+      updatedAt: recovery.createdAt,
+    };
+    this.passwordRecoveries.set(recovery.id, recovery);
+    this.passwordRecoveryByTokenHash.set(input.tokenLookupHash, recovery.id);
+    this.passwordRecoveryDeliveryOutbox.set(delivery.id, delivery);
+    return clonePasswordRecovery(recovery);
+  }
+
+  async findPasswordRecoveryByTokenHash(tokenLookupHash: string): Promise<PasswordRecoveryRecord | null> {
+    const recoveryId = this.passwordRecoveryByTokenHash.get(tokenLookupHash);
+    if (!recoveryId) return null;
+    const recovery = this.passwordRecoveries.get(recoveryId);
+    return recovery ? clonePasswordRecovery(recovery) : null;
+  }
+
+  async completePasswordRecovery(recoveryId: string, userId: string, passwordSecret: string): Promise<boolean> {
+    const recovery = this.passwordRecoveries.get(recoveryId);
+    if (!recovery || recovery.userId !== userId || recovery.usedAt) return false;
+    const user = [...this.usersByEmail.values()].find((candidate) => candidate.id === userId);
+    if (!user) return false;
+    user.passwordSecret = passwordSecret;
+    recovery.usedAt = iso(new Date());
+    this.passwordRecoveries.set(recoveryId, recovery);
+    this.usersByEmail.set(user.email, user);
+    return true;
   }
 
   async hasRole(userId: string, role: AdminUserRole): Promise<boolean> {

@@ -361,6 +361,131 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("runs self-hosted password reset without exposing reset tokens or account existence", async () => {
+    const resetToken = "phase2f_reset_token_000000000000000000000001";
+    const fetchApi = await startRawTestServer({
+      passwordRecovery: {
+        generateToken: () => resetToken,
+      },
+    });
+    const signInBefore = await fetchApi("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "buyer@example.com",
+        password: "Password1",
+      }),
+    });
+    const signInBeforeBody = (await signInBefore.json()) as JsonBody;
+    const existingSessionId = String((signInBeforeBody.session as JsonBody).id);
+
+    const unknown = await fetchApi("/v1/auth/password-reset/request", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "missing@example.com",
+        redirectTo: "https://app.yorso.test/reset-password",
+      }),
+    });
+    const unknownBody = (await unknown.json()) as JsonBody;
+    expect(unknown.status).toBe(200);
+    expect(unknownBody).toMatchObject({
+      ok: true,
+      sent: true,
+      expiresInSeconds: 30 * 60,
+    });
+    expect(JSON.stringify(unknownBody)).not.toContain("missing@example.com");
+
+    const requestReset = await fetchApi("/v1/auth/password-reset/request", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "buyer@example.com",
+        redirectTo: "https://app.yorso.test/reset-password",
+      }),
+    });
+    const requestBody = (await requestReset.json()) as JsonBody;
+    const serializedRequestBody = JSON.stringify(requestBody);
+    expect(requestReset.status).toBe(200);
+    expect(requestBody).toMatchObject({
+      ok: true,
+      sent: true,
+      expiresInSeconds: 30 * 60,
+    });
+    expect(serializedRequestBody).not.toContain(resetToken);
+    expect(serializedRequestBody).not.toContain("buyer@example.com");
+
+    const complete = await fetchApi("/v1/auth/password-reset/complete", {
+      method: "POST",
+      body: JSON.stringify({
+        token: resetToken,
+        password: "NewPassword1",
+      }),
+    });
+    expect(complete.status).toBe(200);
+    await expect(complete.json()).resolves.toMatchObject({
+      ok: true,
+      passwordUpdated: true,
+    });
+
+    const oldSession = await fetchApi("/v1/auth/session", {
+      headers: {
+        "x-yorso-session-id": existingSessionId,
+      },
+    });
+    expect(oldSession.status).toBe(401);
+
+    const oldPassword = await fetchApi("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "buyer@example.com",
+        password: "Password1",
+      }),
+    });
+    expect(oldPassword.status).toBe(401);
+
+    const newPassword = await fetchApi("/v1/auth/sign-in", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "buyer@example.com",
+        password: "NewPassword1",
+      }),
+    });
+    expect(newPassword.status).toBe(200);
+  });
+
+  it("expires self-hosted password reset tokens independently from account sessions", async () => {
+    let now = new Date("2026-05-20T12:00:00.000Z");
+    const fetchApi = await startRawTestServer({
+      passwordRecovery: {
+        generateToken: () => "phase2f_expired_token_00000000000000000001",
+        now: () => now,
+        ttlSeconds: 60,
+      },
+    });
+
+    const requestReset = await fetchApi("/v1/auth/password-reset/request", {
+      method: "POST",
+      body: JSON.stringify({
+        email: "buyer@example.com",
+        redirectTo: "https://app.yorso.test/reset-password",
+      }),
+    });
+    expect(requestReset.status).toBe(200);
+
+    now = new Date("2026-05-20T12:02:00.000Z");
+    const complete = await fetchApi("/v1/auth/password-reset/complete", {
+      method: "POST",
+      body: JSON.stringify({
+        token: "phase2f_expired_token_00000000000000000001",
+        password: "NewPassword1",
+      }),
+    });
+    const body = (await complete.json()) as JsonBody;
+
+    expect(complete.status).toBe(400);
+    expect(body.error).toMatchObject({
+      code: "password_reset_token_expired",
+    });
+  });
+
   it("returns 408 when JSON body upload stalls", async () => {
     const timeoutConfig = loadApiConfig(
       {

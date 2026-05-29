@@ -77,6 +77,13 @@ interface SelfHostedAuthSessionResponse {
   session: AuthRuntimeSession;
 }
 
+interface SelfHostedPasswordResetResponse {
+  ok: true;
+  requestId: string;
+  sent?: true;
+  passwordUpdated?: true;
+}
+
 interface SelfHostedAuthErrorResponse {
   error?: {
     code?: string;
@@ -168,10 +175,24 @@ export const requestPasswordReset = async (input: {
   redirectTo: string;
 }): Promise<AuthRuntimeResult> => {
   if (isSelfHostedAuthConfigured()) {
-    return selfHostedError(
-      "password_reset_unavailable",
-      "Password reset is not available in the self-hosted auth foundation yet.",
-    );
+    try {
+      await requestSelfHostedAuth<SelfHostedPasswordResetResponse>(
+        "/v1/auth/password-reset/request",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: input.email,
+            redirectTo: input.redirectTo,
+          }),
+        },
+      );
+      return { ok: true, source: "self_hosted" };
+    } catch (error) {
+      if (isAuthRuntimeErrorLike(error)) {
+        return error;
+      }
+      return selfHostedError("NETWORK_ERROR", getErrorMessage("NETWORK_ERROR"));
+    }
   }
 
   if (hasLegacyAuthSupabaseEnv()) {
@@ -191,7 +212,12 @@ export const requestPasswordReset = async (input: {
 export const observePasswordRecovery = (
   onReady: () => void,
 ): (() => void) => {
-  if (isSelfHostedAuthConfigured() || !hasLegacyAuthSupabaseEnv()) return () => undefined;
+  if (isSelfHostedAuthConfigured()) {
+    if (readSelfHostedRecoveryToken()) onReady();
+    return () => undefined;
+  }
+
+  if (!hasLegacyAuthSupabaseEnv()) return () => undefined;
 
   let active = true;
   let cleanup = () => undefined;
@@ -215,10 +241,31 @@ export const updateRecoveredPassword = async (
   password: string,
 ): Promise<AuthRuntimeResult> => {
   if (isSelfHostedAuthConfigured()) {
-    return selfHostedError(
-      "recovery_unavailable",
-      "Password recovery requires a valid recovery session.",
-    );
+    const token = readSelfHostedRecoveryToken();
+    if (!token) {
+      return selfHostedError(
+        "recovery_unavailable",
+        "Password recovery requires a valid recovery session.",
+      );
+    }
+    try {
+      await requestSelfHostedAuth<SelfHostedPasswordResetResponse>(
+        "/v1/auth/password-reset/complete",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            token,
+            password,
+          }),
+        },
+      );
+      return { ok: true, source: "self_hosted" };
+    } catch (error) {
+      if (isAuthRuntimeErrorLike(error)) {
+        return error;
+      }
+      return selfHostedError("NETWORK_ERROR", getErrorMessage("NETWORK_ERROR"));
+    }
   }
 
   if (!hasLegacyAuthSupabaseEnv()) {
@@ -238,6 +285,17 @@ export const updateRecoveredPassword = async (
 
   return legacyAuth.updatePrototypeRecoveredPassword(password);
 };
+
+function readSelfHostedRecoveryToken(): string | null {
+  if (typeof window === "undefined") return null;
+  const fromSearch = new URLSearchParams(window.location.search).get("token");
+  if (fromSearch?.trim()) return fromSearch.trim();
+  const hash = window.location.hash.startsWith("#")
+    ? window.location.hash.slice(1)
+    : window.location.hash;
+  const fromHash = new URLSearchParams(hash).get("token");
+  return fromHash?.trim() || null;
+}
 
 export const readCurrentAuthSession = async (): Promise<AuthRuntimeResult> => {
   if (!isSelfHostedAuthConfigured()) {

@@ -22,6 +22,10 @@
   Impact: Operator/channel handling mistakes could leak verification codes outside owned delivery paths.
   Mitigation: Keep spool files on mounted server storage with `0600` permissions, do not copy handoff files into public logs, and move to an owned channel adapter/runbook before broad production rollout.
 
+- Risk: Password recovery outbox now contains backend-only sealed reset-token material.
+  Impact: Future recovery sender/runtime work could accidentally expose reset tokens in logs, browser responses or support tooling.
+  Mitigation: Keep tokens sealed at rest, decrypt only after bounded worker lease, sanitize sender errors, and never add reset token/full email to browser-visible responses or public logs.
+
 - Risk: API-backed browser specs can fail in generic smoke.
   Impact: Generic local prototype smoke can fail or hide regressions when it includes specs that require `VITE_YORSO_API_URL` and self-hosted API-backed fixtures.
   Mitigation: Keep API-backed browser specs in dedicated package scripts and preserve the `check:engineering-lessons` guard.

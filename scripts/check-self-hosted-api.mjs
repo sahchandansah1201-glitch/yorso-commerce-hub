@@ -250,6 +250,7 @@ const requiredFiles = [
   "docs/backend/self-hosted-account-postgres-smoke.md",
   "docs/backend/self-hosted-workspace-postgres-smoke.md",
   "docs/backend/phase-2e-registration-verification-code-policy.md",
+  "docs/backend/phase-2f-password-recovery-source-of-truth.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -261,6 +262,8 @@ const requiredFiles = [
   "packages/db/migrations/0024_admin_incident_trend_actions.sql",
   "packages/db/migrations/0025_admin_incident_trend_action_queue.sql",
   "packages/db/migrations/0028_registration_verification_code_policy.sql",
+  "packages/db/migrations/0029_auth_password_recovery.sql",
+  "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/verification-code.ts",
   "docs/backend/admin-incident-trend-actions.md",
   "docs/backend/admin-incident-trend-actions-api-contract.md",
@@ -442,7 +445,9 @@ const adminIncidentExecutionMigration = read("packages/db/migrations/0021_admin_
 const adminIncidentTrendActionsMigration = read("packages/db/migrations/0024_admin_incident_trend_actions.sql");
 const adminIncidentTrendActionQueueMigration = read("packages/db/migrations/0025_admin_incident_trend_action_queue.sql");
 const registrationVerificationCodePolicyMigration = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
+const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_password_recovery.sql");
 const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
+const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const adminIncidentTrendActionsDocs = read("docs/backend/admin-incident-trend-actions.md");
 const adminIncidentTrendActionsApiDocs = read("docs/backend/admin-incident-trend-actions-api-contract.md");
 const adminIncidentTrendActionsIndexingDocs = read("docs/backend/admin-incident-trend-actions-indexing.md");
@@ -450,6 +455,7 @@ const adminIncidentTrendActionQueueDocs = read("docs/backend/admin-incident-tren
 const adminIncidentTrendActionQueueApiDocs = read("docs/backend/admin-incident-trend-action-queue-api-contract.md");
 const adminIncidentTrendActionQueueIndexingDocs = read("docs/backend/admin-incident-trend-action-queue-indexing.md");
 const phase2eRegistrationVerificationCodePolicy = read("docs/backend/phase-2e-registration-verification-code-policy.md");
+const phase2fPasswordRecoverySourceOfTruth = read("docs/backend/phase-2f-password-recovery-source-of-truth.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -1030,6 +1036,8 @@ for (const marker of [
   "readCurrentAuthSession",
   "isSelfHostedAuthConfigured",
   "/v1/auth/sign-in",
+  "/v1/auth/password-reset/request",
+  "/v1/auth/password-reset/complete",
   "/v1/auth/session",
   "/v1/auth/sign-out",
   "requestPasswordReset",
@@ -1051,6 +1059,7 @@ for (const marker of [
   "reads and signs out the current self-hosted browser session",
   "uses local contract auth when Supabase is not configured",
   "delegates email sign-in and reset to prototype Supabase only when configured",
+  "uses self-hosted password reset request and token completion when configured",
   "observes prototype Supabase recovery events behind the adapter",
 ]) {
   requireText("src/lib/auth-runtime.test.ts", authRuntimeTest, marker);
@@ -2762,6 +2771,25 @@ for (const marker of [
   requireText("packages/db/migrations/0028_registration_verification_code_policy.sql", registrationVerificationCodePolicyMigration, marker);
 }
 for (const marker of [
+  "Backend Phase 2F",
+  "create table if not exists yorso_auth_password_recovery_tokens",
+  "create table if not exists yorso_auth_password_recovery_outbox",
+  "token_lookup_hash text not null unique",
+  "recovery_token_sealed text not null",
+  "idx_yorso_auth_password_recovery_outbox_ready",
+]) {
+  requireText("packages/db/migrations/0029_auth_password_recovery.sql", authPasswordRecoveryMigration, marker);
+}
+for (const marker of [
+  "PasswordRecoveryTokenIssuer",
+  "createPasswordRecoveryTokenCodec",
+  "hashPasswordRecoveryToken",
+  "aes-256-gcm",
+  "yorso-password-recovery-token:v1",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery.ts", authPasswordRecovery, marker);
+}
+for (const marker of [
   "RegistrationVerificationCodeIssuer",
   "createRegistrationVerificationCodeCodec",
   "aes-256-gcm",
@@ -2777,6 +2805,15 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-2e-registration-verification-code-policy.md", phase2eRegistrationVerificationCodePolicy, marker);
+}
+for (const marker of [
+  "Backend Phase 2F",
+  "self-hosted password recovery",
+  "Plan / Fact",
+  "No raw reset token",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2f-password-recovery-source-of-truth.md", phase2fPasswordRecoverySourceOfTruth, marker);
 }
 for (const marker of [
   "Batch #108",
@@ -3256,20 +3293,31 @@ requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepo
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "from yorso_users u");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "join yorso_auth_credentials");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_sessions");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_password_recovery_tokens");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_password_recovery_outbox");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "completePasswordRecovery");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_security_events");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "countRecentSecurityEvents");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "revoked_at");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "interface AuthRepository");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "recordSecurityEvent");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "countRecentSecurityEvents");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "createPasswordRecovery");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "findPasswordRecoveryByTokenHash");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "deleteSessionsForUser");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "class MemoryAuthRepository");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "buyer@example.com");
 requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "/v1/auth/sign-in");
+requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "/v1/auth/password-reset/request");
+requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "/v1/auth/password-reset/complete");
 requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "/v1/auth/session");
 requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "/v1/auth/sign-out");
 requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "accountSessionIdHeaderName");
 requireText("apps/api/src/modules/auth/routes.ts", authRoutes, "AuthServiceError");
 requireText("apps/api/src/modules/auth/service.ts", authService, "authSignInSchema.parse");
+requireText("apps/api/src/modules/auth/service.ts", authService, "authPasswordResetRequestSchema.parse");
+requireText("apps/api/src/modules/auth/service.ts", authService, "completePasswordReset");
+requireText("apps/api/src/modules/auth/service.ts", authService, "deleteSessionsForUser");
 requireText("apps/api/src/modules/auth/service.ts", authService, "auth_invalid_credentials");
 requireText("apps/api/src/modules/auth/service.ts", authService, "auth_rate_limited");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sign_in_rate_limited");
@@ -3468,6 +3516,10 @@ requireText("packages/contracts/src/index.ts", contractsIndex, "export * from \"
 requireText("packages/contracts/src/account-session.ts", accountSessionContract, "accountUserIdHeaderName");
 requireText("packages/contracts/src/account-session.ts", accountSessionContract, "accountSessionHeadersSchema");
 requireText("packages/contracts/src/auth.ts", authContract, "authSignInSchema");
+requireText("packages/contracts/src/auth.ts", authContract, "authPasswordResetRequestSchema");
+requireText("packages/contracts/src/auth.ts", authContract, "authPasswordResetCompleteSchema");
+requireText("packages/contracts/src/auth.ts", authContract, "authPasswordResetRequestResponseSchema");
+requireText("packages/contracts/src/auth.ts", authContract, "authPasswordResetCompleteResponseSchema");
 requireText("packages/contracts/src/auth.ts", authContract, "authSessionSchema");
 requireText("packages/contracts/src/auth.ts", authContract, "authSessionResponseSchema");
 requireText("packages/contracts/src/auth.ts", authContract, "authSignOutResponseSchema");
