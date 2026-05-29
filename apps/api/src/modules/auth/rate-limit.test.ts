@@ -11,6 +11,8 @@ const config = {
   driver: "memory",
   failMode: "open",
   maxFailedAttempts: 2,
+  passwordResetMaxRequests: 2,
+  passwordResetWindowMs: 60_000,
   windowMs: 60_000,
   keyPrefix: "test:auth",
   redisUrl: "redis://localhost:6379",
@@ -56,6 +58,56 @@ describe("auth rate limiters", () => {
     });
 
     expect(await limiter.checkSignIn({ email: "buyer@example.com" })).toMatchObject({
+      limited: true,
+      source: "audit_log",
+      count: 2,
+      limit: 2,
+    });
+  });
+
+  it("blocks password recovery request bursts with the same decision shape for known and unknown emails", async () => {
+    const limiter = new MemoryAuthRateLimiter(config);
+    const known = { email: "buyer@example.com", ip: "203.0.113.10" };
+    const unknown = { email: "missing@example.com", ip: "203.0.113.10" };
+
+    expect(await limiter.checkPasswordReset(known)).toMatchObject({ limited: false, count: 0 });
+    expect(await limiter.recordPasswordReset(known)).toMatchObject({ limited: false, count: 1 });
+    expect(await limiter.recordPasswordReset(unknown)).toMatchObject({ limited: false, count: 2 });
+    expect(await limiter.checkPasswordReset(known)).toMatchObject({
+      limited: true,
+      source: "memory",
+      limit: 2,
+      retryAfterSeconds: 60,
+    });
+    expect(await limiter.checkPasswordReset(unknown)).toMatchObject({
+      limited: true,
+      source: "memory",
+      limit: 2,
+      retryAfterSeconds: 60,
+    });
+  });
+
+  it("uses password recovery request audit data for the audit-log fallback limiter", async () => {
+    const repository = new MemoryAuthRepository();
+    const limiter = new SecurityEventAuthRateLimiter(repository, {
+      ...config,
+      driver: "audit_log",
+    });
+
+    await repository.recordSecurityEvent({
+      eventType: "password_reset_requested",
+      email: "buyer@example.com",
+      requestId: "00000000-0000-4000-8000-000000000011",
+      metadata: {},
+    });
+    await repository.recordSecurityEvent({
+      eventType: "password_reset_requested",
+      email: "buyer@example.com",
+      requestId: "00000000-0000-4000-8000-000000000012",
+      metadata: {},
+    });
+
+    expect(await limiter.checkPasswordReset({ email: "buyer@example.com" })).toMatchObject({
       limited: true,
       source: "audit_log",
       count: 2,

@@ -41,6 +41,7 @@ describe("self-hosted DB migration planner", () => {
       "0027_registration_verification_delivery_outbox",
       "0028_registration_verification_code_policy",
       "0029_auth_password_recovery",
+      "0030_auth_password_recovery_abuse_cleanup",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -73,6 +74,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0027_registration_verification_delivery_outbox.sql",
       "migrations/0028_registration_verification_code_policy.sql",
       "migrations/0029_auth_password_recovery.sql",
+      "migrations/0030_auth_password_recovery_abuse_cleanup.sql",
     ]);
   });
 
@@ -117,6 +119,7 @@ describe("self-hosted DB migration planner", () => {
     const registrationVerificationDeliveryOutbox = plan.migrations[27];
     const registrationVerificationCodePolicy = plan.migrations[28];
     const authPasswordRecovery = plan.migrations[29];
+    const authPasswordRecoveryAbuseCleanup = plan.migrations[30];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -188,6 +191,9 @@ describe("self-hosted DB migration planner", () => {
     expect(authPasswordRecovery.sql).toContain("create table if not exists yorso_auth_password_recovery_tokens");
     expect(authPasswordRecovery.sql).toContain("create table if not exists yorso_auth_password_recovery_outbox");
     expect(authPasswordRecovery.sql).toContain("idx_yorso_auth_password_recovery_outbox_ready");
+    expect(authPasswordRecoveryAbuseCleanup.dependsOn).toEqual(["0029_auth_password_recovery"]);
+    expect(authPasswordRecoveryAbuseCleanup.sql).toContain("password_reset_rate_limited");
+    expect(authPasswordRecoveryAbuseCleanup.sql).toContain("idx_yorso_auth_password_recovery_outbox_terminal_cleanup");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

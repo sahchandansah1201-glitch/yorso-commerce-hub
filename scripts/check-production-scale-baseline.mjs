@@ -7,6 +7,7 @@ const requiredFiles = [
   "docs/backend/phase-2e-registration-verification-code-policy.md",
   "docs/backend/phase-2f-password-recovery-source-of-truth.md",
   "docs/backend/phase-2g-password-recovery-delivery-runtime.md",
+  "docs/backend/phase-2h-password-recovery-abuse-cleanup.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -37,7 +38,9 @@ const requiredFiles = [
   "packages/db/migrations/0025_admin_incident_trend_action_queue.sql",
   "packages/db/migrations/0028_registration_verification_code_policy.sql",
   "packages/db/migrations/0029_auth_password_recovery.sql",
+  "packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
+  "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-worker.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-sender.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-runtime.ts",
@@ -236,6 +239,7 @@ const baseline = read("docs/backend/production-scale-baseline.md");
 const phase2eRegistrationVerificationCodePolicy = read("docs/backend/phase-2e-registration-verification-code-policy.md");
 const phase2fPasswordRecoverySourceOfTruth = read("docs/backend/phase-2f-password-recovery-source-of-truth.md");
 const phase2gPasswordRecoveryDeliveryRuntime = read("docs/backend/phase-2g-password-recovery-delivery-runtime.md");
+const phase2hPasswordRecoveryAbuseCleanup = read("docs/backend/phase-2h-password-recovery-abuse-cleanup.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -267,7 +271,9 @@ const adminIncidentTrendActionsMigration = read("packages/db/migrations/0024_adm
 const adminIncidentTrendActionQueueMigration = read("packages/db/migrations/0025_admin_incident_trend_action_queue.sql");
 const registrationVerificationCodePolicyMigration = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
 const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_password_recovery.sql");
+const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
+const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
 const authPasswordRecoveryDeliveryWorker = read("apps/api/src/modules/auth/password-recovery-delivery-worker.ts");
 const authPasswordRecoveryDeliverySender = read("apps/api/src/modules/auth/password-recovery-delivery-sender.ts");
 const authPasswordRecoveryDeliveryRuntime = read("apps/api/src/modules/auth/password-recovery-delivery-runtime.ts");
@@ -1353,6 +1359,7 @@ for (const marker of [
   "insert into yorso_auth_password_recovery_outbox",
   "completePasswordRecovery",
   "leasePasswordRecoveryDeliveryJobs",
+  "cleanupPasswordRecovery",
   "for update of outbox skip locked",
   "recovery_token_sealed",
   "insert into yorso_auth_security_events",
@@ -1371,6 +1378,7 @@ for (const marker of [
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
   "markPasswordRecoveryDeliveryFailed",
+  "cleanupPasswordRecovery",
   "deleteSessionsForUser",
   "class MemoryAuthRepository",
   "buyer@example.com",
@@ -1400,6 +1408,9 @@ for (const marker of [
   "auth_rate_limited",
   "sign_in_rate_limited",
   "rateLimiter.checkSignIn",
+  "rateLimiter.checkPasswordReset",
+  "rateLimiter.recordPasswordReset",
+  "password_reset_rate_limited",
   "retryAfterSeconds",
   "sha256:",
 ]) {
@@ -1410,6 +1421,9 @@ for (const marker of [
   "RedisAuthRateLimiter",
   "SecurityEventAuthRateLimiter",
   "createClient",
+  "checkPasswordReset",
+  "recordPasswordReset",
+  "passwordResetMaxRequests",
   "pExpire",
   "hashIdentity",
   "failMode",
@@ -1439,6 +1453,7 @@ for (const marker of [
   "auth_sign_out_preserves_public_catalog=ok",
   "auth_rate_limit_guard=ok",
   "auth_rate_limit_retry_after=ok",
+  "password_reset_rate_limit_guard=ok",
   "auth_session_cache_invalidation=ok",
   "retry-after",
   "auth_invalid_credentials_guard=ok",
@@ -2396,6 +2411,14 @@ for (const marker of [
   requireText("packages/db/migrations/0029_auth_password_recovery.sql", authPasswordRecoveryMigration, marker);
 }
 for (const marker of [
+  "password_reset_rate_limited",
+  "idx_yorso_auth_password_recovery_cleanup_expired",
+  "idx_yorso_auth_password_recovery_cleanup_used",
+  "idx_yorso_auth_password_recovery_outbox_terminal_cleanup",
+]) {
+  requireText("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql", authPasswordRecoveryAbuseCleanupMigration, marker);
+}
+for (const marker of [
   "PasswordRecoveryTokenIssuer",
   "createPasswordRecoveryTokenCodec",
   "hashPasswordRecoveryToken",
@@ -2403,6 +2426,14 @@ for (const marker of [
   "yorso-password-recovery-token:v1",
 ]) {
   requireText("apps/api/src/modules/auth/password-recovery.ts", authPasswordRecovery, marker);
+}
+for (const marker of [
+  "PasswordRecoveryCleanupWorker",
+  "cleanupPasswordRecovery",
+  "expiredTokenRetentionMs",
+  "deliveryRetentionMs",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-cleanup.ts", authPasswordRecoveryCleanup, marker);
 }
 for (const marker of [
   "createAdminAuditApiClient",
@@ -2813,6 +2844,15 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-2g-password-recovery-delivery-runtime.md", phase2gPasswordRecoveryDeliveryRuntime, marker);
+}
+for (const marker of [
+  "Backend Phase 2H",
+  "password recovery abuse-control",
+  "cleanupPasswordRecovery",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2h-password-recovery-abuse-cleanup.md", phase2hPasswordRecoveryAbuseCleanup, marker);
 }
 for (const marker of [
   "PasswordRecoveryDeliveryWorker",

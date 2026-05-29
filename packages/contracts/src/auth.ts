@@ -176,6 +176,7 @@ export const authSecurityEventTypeSchema = z.enum([
   "sign_in_failed",
   "sign_in_rate_limited",
   "password_reset_requested",
+  "password_reset_rate_limited",
   "password_reset_completed",
   "password_reset_invalid",
   "session_invalid",

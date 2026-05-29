@@ -750,8 +750,12 @@ Batch #78 adds production rate-limit runtime validation:
 
 - `AUTH_RATE_LIMIT_DRIVER=redis` and `AUTH_RATE_LIMIT_FAIL_MODE=closed` are
   required by the production runtime guard;
+- `AUTH_PASSWORD_RESET_WINDOW_MS` and `AUTH_PASSWORD_RESET_MAX_REQUESTS`
+  configure password reset request bursts separately from sign-in failures;
 - `AuthService` consumes the shared rate-limiter interface before password
   verification and records `sign_in_rate_limited` events with limiter metadata;
+- password reset requests are checked before account lookup and record
+  `password_reset_rate_limited` when blocked;
 - the Redis limiter stores only hashed email/IP keys with TTL, not raw
   identifiers;
 - local tests keep the audit-log fallback so the API smoke remains deterministic

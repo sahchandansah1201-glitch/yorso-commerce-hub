@@ -184,6 +184,14 @@ production deployments. Production must run with
 The file spool is an owned reset-link handoff boundary, not a hosted email
 provider.
 
+Backend Phase 2H adds password recovery abuse-control knobs. Production keeps
+`AUTH_RATE_LIMIT_DRIVER=redis` and `AUTH_RATE_LIMIT_FAIL_MODE=closed`, and must
+also set `AUTH_PASSWORD_RESET_WINDOW_MS` plus
+`AUTH_PASSWORD_RESET_MAX_REQUESTS` so reset bursts are controlled separately
+from sign-in failures. Cleanup of expired/used reset tokens and terminal
+delivery rows is handled by the bounded self-hosted cleanup policy, not by a
+hosted BaaS job.
+
 Batch #88 adds `smoke:self-hosted-audit-trail` to the deploy validation path.
 It verifies that the console audit sink writes sanitized `api_audit_event`
 records for auth, account, access, notification and storage actions without

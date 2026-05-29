@@ -16,6 +16,8 @@ const rateLimiter = () =>
     driver: "memory",
     failMode: "open",
     maxFailedAttempts: 2,
+    passwordResetMaxRequests: 2,
+    passwordResetWindowMs: 60_000,
     windowMs: 60_000,
     keyPrefix: "yorso:test",
     redisUrl: "redis://localhost:6379",

@@ -80,7 +80,8 @@ const registrationAccountSourceSql = read("packages/db/migrations/0026_registrat
 const registrationVerificationDeliveryOutboxSql = read("packages/db/migrations/0027_registration_verification_delivery_outbox.sql");
 const registrationVerificationCodePolicySql = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
 const authPasswordRecoverySql = read("packages/db/migrations/0029_auth_password_recovery.sql");
-const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}\n${adminAccessGrantsConsoleSql}\n${adminIncidentAcknowledgementsSql}\n${adminIncidentWorkflowSql}\n${adminIncidentExecutionSql}\n${adminIncidentWorkloadCorrelationSql}\n${adminIncidentTrendAnalyticsSql}\n${adminIncidentTrendActionsSql}\n${adminIncidentTrendActionQueueSql}\n${registrationAccountSourceSql}\n${registrationVerificationDeliveryOutboxSql}\n${registrationVerificationCodePolicySql}\n${authPasswordRecoverySql}`;
+const authPasswordRecoveryAbuseCleanupSql = read("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql");
+const allSql = `${registrySql}\n${baselineSql}\n${workspaceSql}\n${filesSql}\n${supplierSql}\n${supplierScalingSql}\n${offerCatalogSql}\n${supplierAccessSql}\n${accessNotificationAckSql}\n${supplierPaginationSortSql}\n${offerPaginationSortSql}\n${authSessionsSql}\n${authSecurityEventsSql}\n${apiAuditEventsSql}\n${adminAuditAccessSql}\n${adminAuditRetentionQueryHardeningSql}\n${adminAuditRetentionRuntimeSql}\n${supplierAccessReviewQueueSql}\n${adminAccessGrantsConsoleSql}\n${adminIncidentAcknowledgementsSql}\n${adminIncidentWorkflowSql}\n${adminIncidentExecutionSql}\n${adminIncidentWorkloadCorrelationSql}\n${adminIncidentTrendAnalyticsSql}\n${adminIncidentTrendActionsSql}\n${adminIncidentTrendActionQueueSql}\n${registrationAccountSourceSql}\n${registrationVerificationDeliveryOutboxSql}\n${registrationVerificationCodePolicySql}\n${authPasswordRecoverySql}\n${authPasswordRecoveryAbuseCleanupSql}`;
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const readme = read("packages/db/README.md");
 const pkg = JSON.parse(read("package.json"));
@@ -623,6 +624,9 @@ if (!manifest.migrations?.[28]?.dependsOn?.includes("0027_registration_verificat
 if (!manifest.migrations?.[29]?.dependsOn?.includes("0028_registration_verification_code_policy")) {
   failures.push("packages/db/migration-manifest.json: auth password recovery must depend on registration verification code policy");
 }
+if (!manifest.migrations?.[30]?.dependsOn?.includes("0029_auth_password_recovery")) {
+  failures.push("packages/db/migration-manifest.json: auth password recovery abuse cleanup must depend on auth password recovery");
+}
 
 for (const marker of [
   "create table if not exists yorso_auth_password_recovery_tokens",
@@ -633,6 +637,15 @@ for (const marker of [
   "idx_yorso_auth_password_recovery_outbox_ready",
 ]) {
   requireText("packages/db/migrations/0029_auth_password_recovery.sql", authPasswordRecoverySql, marker);
+}
+
+for (const marker of [
+  "password_reset_rate_limited",
+  "idx_yorso_auth_password_recovery_cleanup_expired",
+  "idx_yorso_auth_password_recovery_cleanup_used",
+  "idx_yorso_auth_password_recovery_outbox_terminal_cleanup",
+]) {
+  requireText("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql", authPasswordRecoveryAbuseCleanupSql, marker);
 }
 
 requireText("packages/db/README.md", readme, "self-hosted PostgreSQL baseline");

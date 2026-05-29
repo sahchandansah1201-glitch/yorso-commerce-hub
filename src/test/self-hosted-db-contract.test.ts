@@ -39,6 +39,8 @@ const adminIncidentTrendActionQueueSql = () =>
   readFileSync("packages/db/migrations/0025_admin_incident_trend_action_queue.sql", "utf8");
 const authPasswordRecoverySql = () =>
   readFileSync("packages/db/migrations/0029_auth_password_recovery.sql", "utf8");
+const authPasswordRecoveryAbuseCleanupSql = () =>
+  readFileSync("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -213,6 +215,16 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("recovery_token_sealed text not null");
     expect(text).toContain("idx_yorso_auth_password_recovery_active_expiry");
     expect(text).toContain("idx_yorso_auth_password_recovery_outbox_ready");
+    expect(text).toContain("10,000 concurrent-user baseline");
+  });
+
+  it("declares password recovery abuse-control and cleanup indexes", () => {
+    const text = authPasswordRecoveryAbuseCleanupSql();
+
+    expect(text).toContain("password_reset_rate_limited");
+    expect(text).toContain("idx_yorso_auth_password_recovery_cleanup_expired");
+    expect(text).toContain("idx_yorso_auth_password_recovery_cleanup_used");
+    expect(text).toContain("idx_yorso_auth_password_recovery_outbox_terminal_cleanup");
     expect(text).toContain("10,000 concurrent-user baseline");
   });
 
@@ -431,7 +443,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on Supabase auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}\n${adminIncidentTrendActionQueueSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}\n${adminIncidentTrendActionQueueSql()}\n${authPasswordRecoverySql()}\n${authPasswordRecoveryAbuseCleanupSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -476,6 +488,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0027_registration_verification_delivery_outbox",
       "0028_registration_verification_code_policy",
       "0029_auth_password_recovery",
+      "0030_auth_password_recovery_abuse_cleanup",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -624,6 +637,15 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0029_auth_password_recovery",
           ownedTables: ["yorso_auth_password_recovery_tokens", "yorso_auth_password_recovery_outbox"],
           dependsOn: ["0028_registration_verification_code_policy"],
+        }),
+        expect.objectContaining({
+          id: "0030_auth_password_recovery_abuse_cleanup",
+          ownedTables: [
+            "yorso_auth_security_events",
+            "yorso_auth_password_recovery_tokens",
+            "yorso_auth_password_recovery_outbox",
+          ],
+          dependsOn: ["0029_auth_password_recovery"],
         }),
       ]),
     );

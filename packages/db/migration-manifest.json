@@ -348,6 +348,19 @@
       "dependsOn": [
         "0028_registration_verification_code_policy"
       ]
+    },
+    {
+      "id": "0030_auth_password_recovery_abuse_cleanup",
+      "file": "migrations/0030_auth_password_recovery_abuse_cleanup.sql",
+      "description": "Add password recovery rate-limit event type and cleanup indexes for self-hosted abuse-control and retention.",
+      "ownedTables": [
+        "yorso_auth_security_events",
+        "yorso_auth_password_recovery_tokens",
+        "yorso_auth_password_recovery_outbox"
+      ],
+      "dependsOn": [
+        "0029_auth_password_recovery"
+      ]
     }
   ]
 }

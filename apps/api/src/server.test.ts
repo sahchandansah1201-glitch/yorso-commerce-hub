@@ -451,6 +451,54 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(newPassword.status).toBe(200);
   });
 
+  it("rate-limits password reset requests without revealing whether the account exists", async () => {
+    const rateLimitedConfig = loadApiConfig(
+      {
+        NODE_ENV: "test",
+        AUTH_RATE_LIMIT_DRIVER: "memory",
+        AUTH_PASSWORD_RESET_MAX_REQUESTS: "2",
+        AUTH_PASSWORD_RESET_WINDOW_MS: "60000",
+        AUTH_SESSION_CACHE_DRIVER: "memory",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+      },
+      { allowLocalDefaults: true },
+    );
+    const fetchApi = await startRawTestServer({ config: rateLimitedConfig });
+    const passwordResetRequest = (email: string, ip: string) =>
+      fetchApi("/v1/auth/password-reset/request", {
+        method: "POST",
+        headers: {
+          "x-forwarded-for": ip,
+        },
+        body: JSON.stringify({
+          email,
+          redirectTo: "https://app.yorso.test/reset-password",
+        }),
+      });
+
+    const known = await passwordResetRequest("buyer@example.com", "203.0.113.10");
+    const unknown = await passwordResetRequest("missing@example.com", "203.0.113.99");
+    const knownBody = (await known.json()) as JsonBody;
+    const unknownBody = (await unknown.json()) as JsonBody;
+
+    expect(known.status).toBe(200);
+    expect(unknown.status).toBe(200);
+    expect({ ...knownBody, requestId: "request-id" }).toEqual({ ...unknownBody, requestId: "request-id" });
+    expect(JSON.stringify(knownBody)).not.toContain("buyer@example.com");
+    expect(JSON.stringify(unknownBody)).not.toContain("missing@example.com");
+
+    await expect(passwordResetRequest("buyer@example.com", "203.0.113.10")).resolves.toMatchObject({ status: 200 });
+    const blocked = await passwordResetRequest("buyer@example.com", "203.0.113.10");
+    const blockedBody = (await blocked.json()) as JsonBody;
+
+    expect(blocked.status).toBe(429);
+    expect(blocked.headers.get("retry-after")).toBe("60");
+    expect(blockedBody.error).toMatchObject({
+      code: "auth_rate_limited",
+    });
+    expect(JSON.stringify(blockedBody)).not.toContain("buyer@example.com");
+  });
+
   it("expires self-hosted password reset tokens independently from account sessions", async () => {
     let now = new Date("2026-05-20T12:00:00.000Z");
     const fetchApi = await startRawTestServer({

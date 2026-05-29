@@ -28,7 +28,7 @@ import {
   type AuthSignOutResponse,
 } from "../../../../../packages/contracts/dist/index.js";
 import { SecurityEventAuthRateLimiter, type AuthRateLimitDecision, type AuthRateLimiter } from "./rate-limit.js";
-import type { AuthRepository, AuthUser, RegistrationDeliveryOutboxEntry } from "./repository.js";
+import type { AuthRepository, AuthSecurityEventInput, AuthUser, RegistrationDeliveryOutboxEntry } from "./repository.js";
 import {
   DisabledAuthSessionCache,
   type AuthSessionCache,
@@ -108,6 +108,8 @@ export class AuthService {
       driver: "audit_log",
       failMode: "open",
       maxFailedAttempts: 5,
+      passwordResetMaxRequests: 5,
+      passwordResetWindowMs: 15 * 60 * 1000,
       windowMs: 15 * 60 * 1000,
       keyPrefix: "yorso:auth",
       redisUrl: "redis://localhost:6379",
@@ -252,6 +254,20 @@ export class AuthService {
     metadata: AuthRequestMetadata = {},
   ) {
     const parsed = authPasswordResetRequestSchema.parse(payload);
+    const identity = { email: parsed.email, ip: metadata.ip };
+    await this.throwIfRateLimited(
+      await this.rateLimiter.checkPasswordReset(identity),
+      parsed.email,
+      requestId,
+      metadata,
+      {
+        event: "auth.password_reset.rate_limited",
+        eventType: "password_reset_rate_limited",
+        message: "Too many password reset requests. Try again later.",
+        reason: "too_many_password_reset_requests",
+      },
+    );
+    await this.rateLimiter.recordPasswordReset(identity);
     const user = await this.repository.findUserByEmail(parsed.email);
     if (user) {
       const token = this.passwordRecoveryIssuer.issue();
@@ -646,11 +662,20 @@ export class AuthService {
     email: string,
     requestId: string,
     metadata: AuthRequestMetadata,
+    options: {
+      event?: string;
+      eventType?: AuthSecurityEventInput["eventType"];
+      message?: string;
+      reason?: string;
+    } = {},
   ) {
     if (!decision.limited) return;
+    const eventType = options.eventType ?? "sign_in_rate_limited";
+    const telemetryEvent = options.event ?? "auth.sign_in.rate_limited";
+    const reason = decision.reason ?? options.reason ?? "too_many_failed_attempts";
 
     await this.repository.recordSecurityEvent({
-      eventType: "sign_in_rate_limited",
+      eventType,
       email,
       requestId,
       metadata: securityMetadata(metadata, {
@@ -665,11 +690,11 @@ export class AuthService {
       }),
     });
     await this.emitTelemetry({
-      event: "auth.sign_in.rate_limited",
+      event: telemetryEvent,
       requestId,
       severity: "warn",
       outcome: "blocked",
-      reason: decision.reason ?? "too_many_failed_attempts",
+      reason,
       rateLimitSource: decision.source,
       rateLimitCount: decision.count,
       rateLimitLimit: decision.limit,
@@ -680,7 +705,7 @@ export class AuthService {
     });
     throw new AuthServiceError(
       "auth_rate_limited",
-      "Too many sign-in attempts. Try again later.",
+      options.message ?? "Too many sign-in attempts. Try again later.",
       decision.retryAfterSeconds,
     );
   }

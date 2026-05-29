@@ -12,6 +12,8 @@ import type {
 import type { ApiConfig } from "../../config.js";
 import type {
   AuthRepository,
+  PasswordRecoveryCleanupInput,
+  PasswordRecoveryCleanupResult,
   PasswordRecoveryCreateInput,
   PasswordRecoveryRecord,
   RegistrationCompleteResult,
@@ -1257,6 +1259,65 @@ export class PostgresAuthRepository implements AuthRepository {
       [deliveryId, input.retryAfterMs, input.error],
     );
     return result.rows[0] ? mapPasswordRecoveryDelivery(result.rows[0]) : null;
+  }
+
+  async cleanupPasswordRecovery(input: PasswordRecoveryCleanupInput): Promise<PasswordRecoveryCleanupResult> {
+    const terminalDeliveryResult = await this.client.query<{ deleted: string }>(
+      `
+        with candidates as (
+          select id
+          from yorso_auth_password_recovery_outbox
+          where status in ('sent', 'failed', 'cancelled')
+            and updated_at < $1
+          order by updated_at asc, created_at asc
+          limit $2
+          for update skip locked
+        ),
+        deleted as (
+          delete from yorso_auth_password_recovery_outbox outbox
+          using candidates
+          where outbox.id = candidates.id
+          returning outbox.id
+        )
+        select count(*)::text as deleted from deleted
+      `,
+      [input.deliveryUpdatedBefore.toISOString(), input.limit],
+    );
+    const recoveryResult = await this.client.query<{ recoveries_deleted: string; deliveries_deleted: string }>(
+      `
+        with recovery_candidates as (
+          select id
+          from yorso_auth_password_recovery_tokens
+          where expires_at < $1
+             or (used_at is not null and used_at < $1)
+          order by expires_at asc, created_at asc
+          limit $2
+          for update skip locked
+        ),
+        delivery_candidates as (
+          select outbox.id
+          from yorso_auth_password_recovery_outbox outbox
+          join recovery_candidates candidates on candidates.id = outbox.recovery_id
+        ),
+        deleted_recoveries as (
+          delete from yorso_auth_password_recovery_tokens recovery
+          using recovery_candidates candidates
+          where recovery.id = candidates.id
+          returning recovery.id
+        )
+        select
+          (select count(*)::text from deleted_recoveries) as recoveries_deleted,
+          (select count(*)::text from delivery_candidates) as deliveries_deleted
+      `,
+      [input.expiredBefore.toISOString(), input.limit],
+    );
+
+    return {
+      deliveriesDeleted:
+        Number(terminalDeliveryResult.rows[0]?.deleted ?? 0) +
+        Number(recoveryResult.rows[0]?.deliveries_deleted ?? 0),
+      recoveriesDeleted: Number(recoveryResult.rows[0]?.recoveries_deleted ?? 0),
+    };
   }
 
   async hasRole(userId: string, role: AdminUserRole): Promise<boolean> {

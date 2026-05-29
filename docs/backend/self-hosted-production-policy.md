@@ -37,6 +37,8 @@ YORSO operators:
 - MinIO or an owned S3-compatible object storage service;
 - queue workers for email, notifications, imports, reports and future agent
   jobs;
+- bounded maintenance workers for auth cleanup, including expired/used password
+  recovery tokens and terminal delivery rows;
 - reverse proxy, TLS termination, monitoring and backups under operator
   control.
 

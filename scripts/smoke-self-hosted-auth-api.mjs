@@ -133,6 +133,38 @@ async function runSmoke(baseUrl) {
   assertEqual(limitedBody.error?.code, "auth_rate_limited", "auth rate limit code");
   console.log("auth_rate_limit_guard=ok");
 
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const reset = await jsonRequest(baseUrl, "/v1/auth/password-reset/request", {
+      method: "POST",
+      headers: {
+        "x-forwarded-for": "203.0.113.44",
+      },
+      body: {
+        email: "password-reset-rate-limit@example.com",
+        redirectTo: "https://app.yorso.test/reset-password",
+      },
+    });
+    assertEqual(reset.ok, true, `password reset warm-up ${attempt + 1}`);
+    assertEqual(reset.sent, true, `password reset sent ${attempt + 1}`);
+  }
+  const resetLimited = await fetch(`${baseUrl}/v1/auth/password-reset/request`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-forwarded-for": "203.0.113.44",
+    },
+    body: JSON.stringify({
+      email: "password-reset-rate-limit@example.com",
+      redirectTo: "https://app.yorso.test/reset-password",
+    }),
+  });
+  assertStatus(resetLimited, 429, "password reset rate limit guard");
+  assertEqual(resetLimited.headers.get("retry-after"), "900", "password reset rate limit retry-after");
+  const resetLimitedBody = await resetLimited.json();
+  assertEqual(resetLimitedBody.error?.code, "auth_rate_limited", "password reset rate limit code");
+  assertNotIncludes(JSON.stringify(resetLimitedBody), "password-reset-rate-limit@example.com", "password reset rate limit email leak");
+  console.log("password_reset_rate_limit_guard=ok");
+
   const signOut = await jsonRequest(baseUrl, "/v1/auth/sign-out", {
     method: "POST",
     headers: {

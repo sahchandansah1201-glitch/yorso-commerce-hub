@@ -5067,6 +5067,78 @@ Marker: file_spool sender.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 2H Password Recovery Abuse-Control And Cleanup Policy
+
+Phase 2H adds a dedicated self-hosted password reset request limiter and a
+bounded cleanup policy for password recovery tokens and delivery outbox rows.
+The request limiter runs before account lookup so known and unknown account
+requests keep the same public response shape.
+
+Expected read/write profile:
+
+- Every reset request performs a password-reset-specific limiter check before
+  account lookup.
+- Redis/memory modes use hashed email and optional IP buckets; audit-log mode
+  can count recent `password_reset_requested` events as a local fallback.
+- Allowed known-account requests keep Phase 2F writes: one token row, one
+  outbox row and one security event.
+- Allowed unknown-account requests write only the security event.
+- Cleanup deletes bounded batches of expired/used token rows and terminal
+  delivery rows.
+
+Cache, queue and backpressure strategy:
+
+- Production keeps `AUTH_RATE_LIMIT_DRIVER=redis` and
+  `AUTH_RATE_LIMIT_FAIL_MODE=closed`.
+- `AUTH_PASSWORD_RESET_WINDOW_MS` and
+  `AUTH_PASSWORD_RESET_MAX_REQUESTS` tune reset pressure separately from
+  sign-in failures.
+- IP and email buckets prevent one client from cycling unknown email addresses.
+- Cleanup is decoupled from public request handlers and can be run as a
+  maintenance worker batch.
+
+Database indexing and pagination strategy:
+
+- `idx_yorso_auth_password_recovery_cleanup_expired` backs expired unused token
+  cleanup.
+- `idx_yorso_auth_password_recovery_cleanup_used` backs used token cleanup.
+- `idx_yorso_auth_password_recovery_outbox_terminal_cleanup` backs terminal
+  delivery cleanup for `sent`, `failed` and `cancelled` rows.
+- PostgreSQL cleanup uses ordered bounded candidates with `skip locked`.
+
+Failure mode and graceful degradation:
+
+- Redis limiter failure blocks reset request bursts in production fail-closed
+  mode and returns `auth_rate_limited` plus `Retry-After`.
+- Rate-limited reset requests do not run account lookup and do not create
+  token/outbox rows.
+- Successful known and unknown requests remain generic and do not reveal the
+  email or reset token.
+- Cleanup failures affect maintenance only; reset request and delivery runtime
+  continue through existing tables.
+
+Observability and load-test plan:
+
+- Auth telemetry emits `auth.password_reset.rate_limited` with source, count,
+  limit and degraded/fail-mode fields.
+- Security audit records `password_reset_rate_limited`.
+- Load-test known/unknown reset request bursts, repeated IPs, Redis
+  unavailable fail-closed behavior, delivery worker throughput, token
+  completion and cleanup batch latency at the 10,000 concurrent-user baseline.
+
+Validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/rate-limit.test.ts apps/api/src/modules/auth/password-recovery-cleanup.test.ts apps/api/src/server.test.ts -t "password reset|rate limiters|cleanup policy"`.
+- Release validation passed: contracts build, DB migration tests,
+  self-hosted guards, production-scale guard, full API tests, full `npm test`,
+  lint, API build, self-hosted auth smoke, diff check and production build.
+
+Marker: Backend Phase 2H.
+Marker: password recovery abuse-control.
+Marker: cleanupPasswordRecovery.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

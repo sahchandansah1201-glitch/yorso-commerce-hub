@@ -153,6 +153,17 @@ export interface PasswordRecoveryCreateInput {
   userId: string;
 }
 
+export interface PasswordRecoveryCleanupInput {
+  deliveryUpdatedBefore: Date;
+  expiredBefore: Date;
+  limit: number;
+}
+
+export interface PasswordRecoveryCleanupResult {
+  deliveriesDeleted: number;
+  recoveriesDeleted: number;
+}
+
 export interface RegistrationAccountProvisioner {
   provisionRegisteredAccount(input: RegisteredAccountProvision): Promise<void>;
 }
@@ -214,6 +225,7 @@ export interface AuthRepository {
     deliveryId: string,
     input: PasswordRecoveryDeliveryFailureInput,
   ): Promise<PasswordRecoveryDeliveryOutboxEntry | null>;
+  cleanupPasswordRecovery(input: PasswordRecoveryCleanupInput): Promise<PasswordRecoveryCleanupResult>;
   hasRole(userId: string, role: AdminUserRole): Promise<boolean>;
   recordSecurityEvent(event: AuthSecurityEventInput): Promise<void>;
   countRecentSecurityEvents(query: AuthSecurityEventCountQuery): Promise<number>;
@@ -646,6 +658,63 @@ export class MemoryAuthRepository implements AuthRepository {
     };
     this.passwordRecoveryDeliveryOutbox.set(deliveryId, updated);
     return { ...updated };
+  }
+
+  async cleanupPasswordRecovery(input: PasswordRecoveryCleanupInput): Promise<PasswordRecoveryCleanupResult> {
+    const limit = Math.max(1, Math.floor(input.limit));
+    const deliveryCutoff = input.deliveryUpdatedBefore.getTime();
+    const expiryCutoff = input.expiredBefore.getTime();
+    const terminalStatuses = new Set<PasswordRecoveryDeliveryOutboxEntry["status"]>(["sent", "failed", "cancelled"]);
+    let deliveriesDeleted = 0;
+    let recoveriesDeleted = 0;
+
+    const terminalDeliveryIds = [...this.passwordRecoveryDeliveryOutbox.values()]
+      .filter((delivery) =>
+        terminalStatuses.has(delivery.status) &&
+        new Date(delivery.updatedAt).getTime() < deliveryCutoff
+      )
+      .sort((left, right) =>
+        new Date(left.updatedAt).getTime() - new Date(right.updatedAt).getTime() ||
+        new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+      )
+      .slice(0, limit)
+      .map((delivery) => delivery.id);
+
+    for (const deliveryId of terminalDeliveryIds) {
+      if (this.passwordRecoveryDeliveryOutbox.delete(deliveryId)) deliveriesDeleted += 1;
+      this.passwordRecoveryDeliveryTokens.delete(deliveryId);
+    }
+
+    const recoveryIds = [...this.passwordRecoveries.values()]
+      .filter((recovery) =>
+        new Date(recovery.expiresAt).getTime() < expiryCutoff ||
+        (recovery.usedAt ? new Date(recovery.usedAt).getTime() < expiryCutoff : false)
+      )
+      .sort((left, right) =>
+        new Date(left.expiresAt).getTime() - new Date(right.expiresAt).getTime() ||
+        new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+      )
+      .slice(0, limit)
+      .map((recovery) => recovery.id);
+
+    for (const recoveryId of recoveryIds) {
+      if (!this.passwordRecoveries.delete(recoveryId)) continue;
+      recoveriesDeleted += 1;
+      for (const [tokenHash, mappedRecoveryId] of [...this.passwordRecoveryByTokenHash.entries()]) {
+        if (mappedRecoveryId === recoveryId) this.passwordRecoveryByTokenHash.delete(tokenHash);
+      }
+      for (const [deliveryId, delivery] of [...this.passwordRecoveryDeliveryOutbox.entries()]) {
+        if (delivery.recoveryId !== recoveryId) continue;
+        this.passwordRecoveryDeliveryOutbox.delete(deliveryId);
+        this.passwordRecoveryDeliveryTokens.delete(deliveryId);
+        deliveriesDeleted += 1;
+      }
+    }
+
+    return {
+      deliveriesDeleted,
+      recoveriesDeleted,
+    };
   }
 
   async hasRole(userId: string, role: AdminUserRole): Promise<boolean> {

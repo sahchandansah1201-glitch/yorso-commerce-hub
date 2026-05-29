@@ -252,6 +252,7 @@ const requiredFiles = [
   "docs/backend/phase-2e-registration-verification-code-policy.md",
   "docs/backend/phase-2f-password-recovery-source-of-truth.md",
   "docs/backend/phase-2g-password-recovery-delivery-runtime.md",
+  "docs/backend/phase-2h-password-recovery-abuse-cleanup.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -264,7 +265,9 @@ const requiredFiles = [
   "packages/db/migrations/0025_admin_incident_trend_action_queue.sql",
   "packages/db/migrations/0028_registration_verification_code_policy.sql",
   "packages/db/migrations/0029_auth_password_recovery.sql",
+  "packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
+  "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-worker.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-sender.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-runtime.ts",
@@ -450,8 +453,10 @@ const adminIncidentTrendActionsMigration = read("packages/db/migrations/0024_adm
 const adminIncidentTrendActionQueueMigration = read("packages/db/migrations/0025_admin_incident_trend_action_queue.sql");
 const registrationVerificationCodePolicyMigration = read("packages/db/migrations/0028_registration_verification_code_policy.sql");
 const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_password_recovery.sql");
+const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql");
 const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
+const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
 const authPasswordRecoveryDeliveryWorker = read("apps/api/src/modules/auth/password-recovery-delivery-worker.ts");
 const authPasswordRecoveryDeliverySender = read("apps/api/src/modules/auth/password-recovery-delivery-sender.ts");
 const authPasswordRecoveryDeliveryRuntime = read("apps/api/src/modules/auth/password-recovery-delivery-runtime.ts");
@@ -464,6 +469,7 @@ const adminIncidentTrendActionQueueIndexingDocs = read("docs/backend/admin-incid
 const phase2eRegistrationVerificationCodePolicy = read("docs/backend/phase-2e-registration-verification-code-policy.md");
 const phase2fPasswordRecoverySourceOfTruth = read("docs/backend/phase-2f-password-recovery-source-of-truth.md");
 const phase2gPasswordRecoveryDeliveryRuntime = read("docs/backend/phase-2g-password-recovery-delivery-runtime.md");
+const phase2hPasswordRecoveryAbuseCleanup = read("docs/backend/phase-2h-password-recovery-abuse-cleanup.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -2789,6 +2795,14 @@ for (const marker of [
   requireText("packages/db/migrations/0029_auth_password_recovery.sql", authPasswordRecoveryMigration, marker);
 }
 for (const marker of [
+  "password_reset_rate_limited",
+  "idx_yorso_auth_password_recovery_cleanup_expired",
+  "idx_yorso_auth_password_recovery_cleanup_used",
+  "idx_yorso_auth_password_recovery_outbox_terminal_cleanup",
+]) {
+  requireText("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql", authPasswordRecoveryAbuseCleanupMigration, marker);
+}
+for (const marker of [
   "PasswordRecoveryTokenIssuer",
   "createPasswordRecoveryTokenCodec",
   "hashPasswordRecoveryToken",
@@ -2796,6 +2810,14 @@ for (const marker of [
   "yorso-password-recovery-token:v1",
 ]) {
   requireText("apps/api/src/modules/auth/password-recovery.ts", authPasswordRecovery, marker);
+}
+for (const marker of [
+  "PasswordRecoveryCleanupWorker",
+  "cleanupPasswordRecovery",
+  "expiredTokenRetentionMs",
+  "deliveryRetentionMs",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-cleanup.ts", authPasswordRecoveryCleanup, marker);
 }
 for (const marker of [
   "RegistrationVerificationCodeIssuer",
@@ -2830,6 +2852,15 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-2g-password-recovery-delivery-runtime.md", phase2gPasswordRecoveryDeliveryRuntime, marker);
+}
+for (const marker of [
+  "Backend Phase 2H",
+  "password recovery abuse-control",
+  "cleanupPasswordRecovery",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2h-password-recovery-abuse-cleanup.md", phase2hPasswordRecoveryAbuseCleanup, marker);
 }
 for (const marker of [
   "PasswordRecoveryDeliveryWorker",
@@ -3336,6 +3367,7 @@ requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepo
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_password_recovery_outbox");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "completePasswordRecovery");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "leasePasswordRecoveryDeliveryJobs");
+requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "cleanupPasswordRecovery");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "for update of outbox skip locked");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "recovery_token_sealed");
 requireText("apps/api/src/modules/auth/postgres-repository.ts", authPostgresRepository, "insert into yorso_auth_security_events");
@@ -3349,6 +3381,7 @@ requireText("apps/api/src/modules/auth/repository.ts", authRepository, "findPass
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "leasePasswordRecoveryDeliveryJobs");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "markPasswordRecoveryDeliverySent");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "markPasswordRecoveryDeliveryFailed");
+requireText("apps/api/src/modules/auth/repository.ts", authRepository, "cleanupPasswordRecovery");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "deleteSessionsForUser");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "class MemoryAuthRepository");
 requireText("apps/api/src/modules/auth/repository.ts", authRepository, "buyer@example.com");
@@ -3368,6 +3401,9 @@ requireText("apps/api/src/modules/auth/service.ts", authService, "auth_rate_limi
 requireText("apps/api/src/modules/auth/service.ts", authService, "sign_in_rate_limited");
 requireText("apps/api/src/modules/auth/service.ts", authService, "rateLimiter.checkSignIn");
 requireText("apps/api/src/modules/auth/service.ts", authService, "rateLimiter.recordFailedSignIn");
+requireText("apps/api/src/modules/auth/service.ts", authService, "rateLimiter.checkPasswordReset");
+requireText("apps/api/src/modules/auth/service.ts", authService, "rateLimiter.recordPasswordReset");
+requireText("apps/api/src/modules/auth/service.ts", authService, "password_reset_rate_limited");
 requireText("apps/api/src/modules/auth/service.ts", authService, "retryAfterSeconds");
 requireText("apps/api/src/modules/auth/service.ts", authService, "sha256:");
 for (const marker of [
@@ -3375,6 +3411,9 @@ for (const marker of [
   "RedisAuthRateLimiter",
   "MemoryAuthRateLimiter",
   "SecurityEventAuthRateLimiter",
+  "checkPasswordReset",
+  "recordPasswordReset",
+  "passwordResetMaxRequests",
   "hashIdentity",
   "failMode",
   "pExpire",
@@ -3606,6 +3645,7 @@ for (const marker of [
   "auth_sign_out_preserves_public_catalog=ok",
   "auth_rate_limit_retry_after=ok",
   "auth_rate_limit_guard=ok",
+  "password_reset_rate_limit_guard=ok",
   "auth_session_cache_invalidation=ok",
   "auth_invalid_credentials_guard=ok",
   "auth_validation_guard=ok",
@@ -4026,6 +4066,7 @@ requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Bat
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "Batch #81");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_sign_out_blocks_offer_unlock=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_guard=ok");
+requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "password_reset_rate_limit_guard=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_rate_limit_retry_after=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "auth_session_cache_invalidation=ok");
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "self_hosted_session_cache_fail_closed_smoke=ok");
