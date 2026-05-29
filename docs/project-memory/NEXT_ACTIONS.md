@@ -2,42 +2,43 @@
 
 ## Current Next Action
 
-Backend Phase 3B is implemented and committed locally at `5b96f838`.
+Backend Phase 3C is implemented and committed locally at `6c2f5368`.
 
-Phase 3B removes the supplier-access Supabase prototype fallback. Supplier
-access runtime is now self-hosted API first with API-disabled local preview only.
+Phase 3C retires the active Supabase/provider reference tooling. The tracked
+product surface is now provider-free: runtime source, env examples, package
+scripts, dependency graph, CI guards and frontend smoke tests no longer require
+Supabase or another hosted BaaS.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Catalog facade | Убрать runtime-путь `catalog-api` → legacy Supabase catalog adapter. | Реализовано: `catalog-api.ts` вызывает только `createOfferCatalogApiClient().listOffers()` и `.getOfferById()`. | Не возвращать `fetchLegacyCatalog*`. |
-| Adapter file | Удалить catalog Supabase fallback файл. | Реализовано: `src/lib/legacy-catalog-supabase-adapter.ts` удалён. | Boundary test проверяет отсутствие файла. |
-| Landing source | Убрать `supabase` из landing offers source/analytics. | Реализовано: `catalog-api` / `mock-fallback`. | Дашборды читать `catalog-api` как self-hosted facade result. |
-| Guards | Запретить возврат catalog Supabase fallback. | Реализовано: `catalog-api.boundary.test.ts`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать guards в `ci:core`. |
-| Supplier access facade | Убрать runtime-путь `supplier-access-api` → legacy Supabase adapter. | Реализовано: dynamic import/legacy branches удалены, `src/lib/legacy-supplier-access-supabase-adapter.ts` удалён. | Не возвращать `readLegacySupplierAccessRequest` / `requestLegacySupplierAccess`. |
-| Supplier access fail-closed | Не использовать local mock при ошибке configured API. | Реализовано: read failure очищает stale approval и возвращает `null`; request failure rejects без local request. | UI error copy можно сделать отдельным UX batch. |
-| Supplier access guards | Запретить возврат supplier-access Supabase fallback. | Реализовано: `supplier-access-api.boundary.test.ts`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать guards в `ci:core`. |
-| Debt list | Точно выделить оставшийся debt после Phase 3B. | Реализовано: reference tooling/tests, empty env keys и dependency. | Phase 3C: Supabase reference tooling retirement. |
+| Provider files | Убрать активные Supabase project/reference files. | Реализовано: удалены `supabase/`, `src/integrations/supabase`, Supabase scripts и RLS/reference tests. | Исторические docs не считать runtime. |
+| Dependency | Убрать hosted BaaS SDK из продукта. | Реализовано: `@supabase/supabase-js` удалён из `package.json` и lockfile. | Не возвращать SDK без нового ADR. |
+| Env | Убрать Supabase env debt. | Реализовано: `.env` и `.env.example` без `VITE_SUPABASE_*`; smoke scripts больше не инжектят Supabase stubs. | Provider secrets не хранить в repo. |
+| Guard | Заменить `check:supabase-boundary`. | Реализовано: `check:provider-boundary` сканирует production source roots и запрещает hosted-provider imports/env/legacy markers. | Держать в `ci:core`. |
+| Browser smoke | Переименовать no-Supabase smoke в provider-free smoke. | Реализовано: `smoke:e2e:frontend-provider-free-env` и `e2e/frontend-provider-free-env.spec.ts`. | Держать в `ci:full`. |
+| Runtime policy | Убрать provider-specific admin/runtime fields. | Реализовано: старые `supabaseProductionBackend` / `prototypeSupabaseConfigured` удалены; policy provider-neutral. | Не возвращать provider-specific status fields. |
+| DB contract | Убрать provider role из migration manifest. | Реализовано: `supabaseRole` удалён; migrator валидирует self-hosted PostgreSQL baseline. | Live migrations идут через `packages/db`. |
+| Validation | Закрыть Phase 3C гейтами. | Реализовано: full tests/build/lint/API/smoke/guards прошли. | Сохранять Browserslist stale как отдельный maintenance item. |
 
-## Next Implementation After Phase 3B
+## Next Implementation After Phase 3C
 
 Recommended next scoped workstream:
 
-Backend Phase 3C: Supabase reference tooling retirement.
+Backend Phase 4A: Supplier Directory/Profile Source Of Truth Audit.
 
 Concrete scope:
 
-- classify remaining Supabase references as historical docs, reference tests,
-  CLI smoke tools, env examples or active package imports;
-- remove or quarantine Supabase reference smoke tooling that no longer protects
-  production behavior;
-- remove empty prototype env keys from production/default examples if no guard
-  needs them;
-- decide whether `@supabase/supabase-js` and `src/integrations/supabase/client.ts`
-  can be removed now or must remain as explicit historical reference artifacts;
-- keep `check:supabase-boundary` or replace it with a provider-free production
-  boundary guard.
+- map `/suppliers` and `/suppliers/:supplierId` frontend reads in configured
+  API mode;
+- verify whether `mockSuppliers` is still used only for API-disabled preview or
+  can leak into configured production mode;
+- document exact source-of-truth gaps for supplier directory rows, selected
+  supplier panel, supplier profile tabs, shortlist/local preview and access
+  shaping;
+- decide the first implementation slice: either remove configured-mode mock
+  leakage, or add missing backend contract coverage for supplier profile data.
 
 ## Guardrails To Preserve
 
@@ -48,5 +49,5 @@ Concrete scope:
 - Access gating: `anonymous_locked`, `registered_locked`, `qualified_unlocked`.
 - Supplier identity redaction.
 - Exact-price locks.
-- Self-contained product direction: do not add or expand hosted BaaS/Supabase
+- Self-contained production direction: do not add or expand hosted BaaS/Supabase
   dependency in production paths.

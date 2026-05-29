@@ -14,10 +14,6 @@
   Impact: A new chat may continue from an obsolete batch, branch or next action.
   Mitigation: The 2026-05-23 checkpoint updates state from Batch #107 to `main` at Batch #109; update project-memory after every significant audit, feature or handoff.
 
-- Risk: Supabase generated types are out of sync with backend access migrations in non-strict build mode.
-  Impact: A future strict type guard may fail until migrations are applied and `src/integrations/supabase/types.ts` is regenerated.
-  Mitigation: Keep the non-strict preview/build guard visible, apply pending migrations in the linked project, regenerate types and run `npm run check:supabase-types:strict`.
-
 - Risk: File-spool registration delivery handoff now contains backend-only OTP material.
   Impact: Operator/channel handling mistakes could leak verification codes outside owned delivery paths.
   Mitigation: Keep spool files on mounted server storage with `0600` permissions, do not copy handoff files into public logs, and move to an owned channel adapter/runbook before broad production rollout.
@@ -89,6 +85,12 @@
     endpoints; branch, product, meta-region and notification saves use existing
     row-level endpoints; collection forms wait for backend success before
     closing.
+
+- Risk: Supabase generated types were out of sync with backend access
+  migrations in non-strict build mode.
+  Resolution: Backend Phase 3C removed the active `src/integrations/supabase`
+    client/types, Supabase scripts, reference tests and dependency. The
+    generated-types drift is no longer an active product warning.
 
 - Risk: Account API-mode saves had no explicit conflict/version handling.
   Resolution: Backend Phase 1C adds account snapshot versioning through

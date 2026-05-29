@@ -23,7 +23,6 @@
 - `apps/`: application/runtime area if present.
 - `packages/`: shared packages.
 - `infra/`: infrastructure area.
-- `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
 ## Backend Phase 0 Closure Audit
@@ -62,10 +61,9 @@
   live-region coverage now initializes the active locale.
 - `src/lib/registration-funnel.e2e.test.tsx`: registration funnel coverage
   mounts the required buyer-session provider.
-- `src/test/offer-detail-access.test.ts`: Supabase-backed list/detail access
-  smoke is bounded and still hard-fails on `42501` privilege regressions.
-- `src/test/rls-public-access.test.ts`: RLS public access smoke is bounded and
-  still hard-fails on `42501` insufficient privilege.
+- `src/test/offer-detail-access.test.ts` and
+  `src/test/rls-public-access.test.ts`: retired in Backend Phase 3C when the
+  active Supabase/RLS reference-test surface was removed.
 
 ## Backend Phase 1 Account Source Of Truth Discovery Audit
 
@@ -1325,3 +1323,14 @@
 - `e2e/offer-catalog-detail-api-flow.spec.ts`, `e2e/offer-catalog-detail-flow.spec.ts`, `e2e/offer-detail-runtime.spec.ts`: exact-price smoke expectations updated to current `$8.85 per kg` locale-aware formatting contract.
 - `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: Phase 3B release guards.
 - `docs/backend/frontend-backend-contract.md`, `docs/backend/production-scale-baseline.md`, `docs/backend/self-hosted-backend-architecture.md`, `docs/backend/self-hosted-validation.md`, `docs/backend/yorso-backend-implementation-plan.md`, `docs/backend/yorso-backend-implementation-plan.ru.md`: contract/readiness updates.
+
+## Backend Phase 3C Provider Reference Tooling Retirement
+
+- `docs/backend/phase-3c-provider-reference-tooling-retirement.md`: implementation, Russian plan/fact, provider-free contract, validation and 10,000 concurrent-user review.
+- `scripts/check-provider-production-boundary.mjs`: production source guard replacing the old Supabase-specific boundary check.
+- `scripts/smoke-frontend-provider-free-env.mjs` and `e2e/frontend-provider-free-env.spec.ts`: browser smoke proving public/auth/catalog routes boot without hosted BaaS env or SDK dependency.
+- `package.json` and `package-lock.json`: removed `@supabase/supabase-js`, Supabase scripts and old no-Supabase smoke wiring; added provider-free scripts.
+- `.env` and `.env.example`: removed `VITE_SUPABASE_*` values/comments.
+- `apps/api/src/config.ts`, `packages/contracts/src/admin-runtime.ts`, `src/lib/admin-runtime-api.ts`, `src/pages/admin/AdminRuntimeStatus.tsx`: provider-neutral runtime policy/status surface.
+- `packages/db/migration-manifest.json` and `packages/db/src/migrator.ts`: removed provider-specific manifest role from the self-hosted DB contract.
+- Deleted `supabase/`, `src/integrations/supabase/`, Supabase CLI/access/type scripts and Supabase/RLS reference tests: active provider reference tooling retired.

@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "5b96f838"
-  head_summary: "Backend Phase 3B supplier-access Supabase fallback removal; validation passed."
+  head_commit: "6c2f5368"
+  head_summary: "Backend Phase 3C provider tooling retirement; validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 3B implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 3C implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -32,17 +32,28 @@ project_identity:
     - "apps/api/"
     - "packages/contracts/"
     - "packages/db/"
-    - "supabase/"
     - "e2e/"
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_3b_supplier_access_supabase_fallback_removal"
-  summary: "Supplier-access Supabase prototype fallback is removed; supplier-access facade is self-hosted API first with local preview only."
+  id: "backend_phase_3c_provider_reference_tooling_retirement"
+  summary: "Active Supabase/provider reference tooling is retired; production source, scripts, env examples and CI guards are provider-free."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 3C implementation is recorded in docs/backend/phase-3c-provider-reference-tooling-retirement.md."
+    - "The tracked supabase/ project directory and src/integrations/supabase client/types were deleted."
+    - "Supabase CLI/access/type scripts and Supabase/RLS reference tests were deleted."
+    - "@supabase/supabase-js was removed from package.json and package-lock.json."
+    - ".env and .env.example no longer contain VITE_SUPABASE_* values or Supabase comments."
+    - "smoke:e2e:frontend-no-supabase-env was replaced with smoke:e2e:frontend-provider-free-env and e2e/frontend-provider-free-env.spec.ts."
+    - "check:supabase-boundary was replaced with check:provider-boundary, backed by scripts/check-provider-production-boundary.mjs."
+    - "Admin runtime policy fields were made provider-neutral: hostedBaasProductionBackend remains false and old supabaseProductionBackend/prototypeSupabaseConfigured fields are removed."
+    - "DB manifest/migrator no longer carries supabaseRole; packages/db remains the self-hosted PostgreSQL migration source of truth."
+    - "Phase 3C validation passed: provider boundary, self-hosted production runtime, self-hosted API/DB/infra, backend policy, production-scale baseline, DB migrations, full npm test, lint, TypeScript build graph, API tests, API build, production build, provider-free browser smoke and diff checks."
+    - "Phase 3C is committed locally at 6c2f5368."
+    - "Active Supabase generated-types warning is resolved by deleting the active Supabase integration/types/tooling surface; Browserslist data stale remains as the known non-blocking build warning."
     - "Phase 3B implementation is recorded in docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md."
     - "src/lib/legacy-supplier-access-supabase-adapter.ts was deleted."
     - "src/lib/supplier-access-api.ts no longer dynamically imports legacy-supplier-access-supabase-adapter and contains no readLegacySupplierAccessRequest, requestLegacySupplierAccess or isLegacySupplierAccessSupabaseConfigured branch."
@@ -1800,7 +1811,6 @@ last_confirmed_checks:
   - "2026-05-23: Draft PR #161 opened for Batch #110 public UX mobile scan."
 
 known_warnings:
-  - "Build uses non-strict Supabase generated type guard because access migrations have not been applied and regenerated in the linked Supabase project."
   - "Browserslist caniuse-lite data is 11 months old."
 
 quality_rules:
@@ -1824,4 +1834,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 3B implementation question. Next scoped decision: Backend Phase 3C Supabase reference tooling retirement."
+  - "No open Phase 3C implementation question. Next scoped decision: Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit."

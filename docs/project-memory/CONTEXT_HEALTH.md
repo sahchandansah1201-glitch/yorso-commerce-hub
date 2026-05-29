@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "5b96f838_phase_3b_supplier_access_fallback_removal"
+head_commit: "6c2f5368_phase_3c_provider_tooling_retirement"
 latest_merged_batch: 141
-active_workstream: "backend_phase_3b_supplier_access_supabase_fallback_removal"
+active_workstream: "backend_phase_3c_provider_reference_tooling_retirement"
 pull_request: null
-recommended_action: "start Backend Phase 3C Supabase reference tooling retirement"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A and Phase 3B are documented, committed and validated."
+recommended_action: "start Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J and Phase 3A-3C are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_3b_supplier_access_supabase_fallback_removal.
-Current HEAD baseline: Backend Phase 3B supplier-access fallback removal implementation commit 5b96f838 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_3c_provider_reference_tooling_retirement.
+Current HEAD baseline: Backend Phase 3C provider tooling retirement implementation commit 6c2f5368 is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,11 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: start Backend Phase 3C Supabase reference tooling retirement.
+Current recommended action: start Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit.
+Phase 3C implemented and committed locally at 6c2f5368: docs/backend/phase-3c-provider-reference-tooling-retirement.md records provider reference tooling retirement.
+Phase 3C removal: supabase/ and src/integrations/supabase/ are deleted; Supabase CLI/access/type scripts, Supabase/RLS reference tests, @supabase/supabase-js dependency and VITE_SUPABASE env examples are removed.
+Phase 3C guards: check:provider-boundary replaces check:supabase-boundary; smoke:e2e:frontend-provider-free-env replaces the old frontend-no-supabase-env smoke; ci:core and ci:full reference the provider-free commands.
+Phase 3C validation passed: provider boundary, self-hosted production runtime, self-hosted API/DB/infra, backend policy, production-scale baseline, DB migrations, full npm test, lint, TypeScript build graph, API tests, API build, production build, provider-free browser smoke and diff checks.
 Phase 3B implemented and committed locally at 5b96f838: docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md records supplier-access Supabase fallback removal.
 Phase 3B runtime: src/lib/supplier-access-api.ts uses /v1/access/suppliers/:supplierId/request and /v1/access/notifications when VITE_YORSO_API_URL is configured; API-disabled preview uses local supplier-access-requests only.
 Phase 3B removal: src/lib/legacy-supplier-access-supabase-adapter.ts is deleted; legacy dynamic import, readLegacySupplierAccessRequest, requestLegacySupplierAccess and isLegacySupplierAccessSupabaseConfigured are gone from supplier-access-api.
@@ -356,6 +360,6 @@ Lovable sync prompt is ready: docs/project-memory/PROMPTS/prompt-128-lovable-syn
 Lovable sync for Batch #128 is confirmed clean at f1f482b with no conflicts and no file modifications.
 Lovable confirmed RegistrationLayout, CountryPhoneInput, SignIn, ResetPassword, RegisterChoose/Email/Verify/Details/Onboarding/Countries/Ready, e2e/public-auth-registration-a11y.spec.ts, package smoke wiring, Batch #128 production-scale notes, registration field autocomplete, skip/main landmarks, no nested controls, /register/ready Button asChild CTA, 44px mobile registration targets, preserved Batch #112 code splitting, Batch #113 error boundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets.
 Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
-Known warnings remain: Supabase generated types are out of sync in non-strict mode and Browserslist data is stale.
-Next step: start the next scoped public UX/UI audit batch from current main.
+Known warning remains: Browserslist data is stale.
+Next step: start Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit from current main.
 ```

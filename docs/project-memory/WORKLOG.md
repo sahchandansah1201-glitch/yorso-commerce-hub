@@ -2870,3 +2870,48 @@ Keep this file factual and append-only.
   - Browserslist data stale.
 - Remaining Supabase/prototype debt: reference tooling/tests, empty prototype env keys and `@supabase/supabase-js`.
 - Next scoped workstream: Backend Phase 3C Supabase reference tooling retirement.
+
+## 2026-05-29 Phase 3C Checkpoint
+
+- Latest implementation commit: `6c2f5368` (`[codex] Backend Phase 3C provider tooling retirement`).
+- Phase 3C status: active Supabase/provider reference tooling retired from the tracked product surface.
+- Removed active surface:
+  - `supabase/`;
+  - `src/integrations/supabase/`;
+  - Supabase CLI/access/type scripts;
+  - Supabase/RLS reference tests under `src/test/`;
+  - `@supabase/supabase-js`;
+  - `VITE_SUPABASE_*` values/comments from `.env` and `.env.example`.
+- Replaced guards:
+  - `check:supabase-boundary` -> `check:provider-boundary`;
+  - `smoke:e2e:frontend-no-supabase-env` -> `smoke:e2e:frontend-provider-free-env`.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Provider files | Убрать активные Supabase project/reference files. | Реализовано: удалены `supabase/`, `src/integrations/supabase`, Supabase scripts и RLS/reference tests. | Исторические docs не считать runtime. |
+| Dependency | Убрать hosted BaaS SDK из продукта. | Реализовано: `@supabase/supabase-js` удалён из package manifests. | Не возвращать SDK без нового ADR. |
+| Env | Убрать Supabase env debt. | Реализовано: `.env` и `.env.example` без `VITE_SUPABASE_*`. | Provider secrets не хранить в repo. |
+| Guard | Заменить Supabase-specific boundary. | Реализовано: `check:provider-boundary` сканирует production source roots. | Держать в `ci:core`. |
+| Browser smoke | Проверить frontend без hosted BaaS env/SDK. | Реализовано: `frontend-provider-free-env` smoke прошёл. | Держать в `ci:full`. |
+
+- Validation passed:
+  - `npm run check:provider-boundary`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run check:self-hosted-db`;
+  - `npm run check:backend-policy`;
+  - `npm run check:self-hosted-infra`;
+  - `npm run db:migrations:check`;
+  - `npm test`;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `npm run test:api`;
+  - `npm run api:build`;
+  - `npm run build`;
+  - `npm run smoke:e2e:frontend-provider-free-env`;
+  - `git diff --check`.
+- Known non-blocking warning now:
+  - Browserslist data stale.
+- Next scoped workstream: Backend Phase 4A Supplier Directory/Profile Source Of Truth Audit.
