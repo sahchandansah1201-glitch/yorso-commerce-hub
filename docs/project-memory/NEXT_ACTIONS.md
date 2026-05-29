@@ -2,43 +2,40 @@
 
 ## Current Next Action
 
-Backend Phase 2J is implemented and committed locally at `f753224f`.
+Backend Phase 3A is implemented and committed locally at `b5d1e9f8`.
 
-Phase 2J closes Phases 2A-2I as one self-hosted auth, registration and password
-recovery surface. The remaining auth Supabase prototype fallback was removed
-from code.
+Phase 3A removes the catalog Supabase prototype fallback. Catalog runtime is now
+self-hosted API first with API-disabled local fixture preview only.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Auth runtime | Убрать Supabase auth fallback из `/signin` и `/reset-password`. | Реализовано: `auth-runtime.ts` не содержит `legacy-auth-supabase-adapter`, `supabase_prototype`, `VITE_SUPABASE` branching или direct Supabase import. | Не возвращать hosted auth provider в runtime. |
-| Adapter file | Удалить код, который вызывал Supabase Auth. | Реализовано: `src/lib/legacy-auth-supabase-adapter.ts` удалён. | Boundary test проверяет отсутствие файла. |
-| Session/analytics source | Убрать Supabase как источник browser session. | Реализовано: `AuthRuntimeSource`, `BuyerSessionSource`, analytics auth/workspace source = `self_hosted` / `local_contract`. | Старые optional source значения больше не эмитятся runtime'ом. |
-| Guards | Запретить возврат auth Supabase fallback. | Реализовано: `test:auth-runtime`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать guards в `ci:core`. |
-| Debt list | Точно выделить оставшийся Supabase/prototype debt вне auth. | Реализовано: Phase 2J doc фиксирует catalog fallback, supplier-access fallback, Supabase reference tooling/tests, empty env keys и dependency. | Убирать отдельными Phase 3 batches. |
+| Catalog facade | Убрать runtime-путь `catalog-api` → legacy Supabase catalog adapter. | Реализовано: `catalog-api.ts` вызывает только `createOfferCatalogApiClient().listOffers()` и `.getOfferById()`. | Не возвращать `fetchLegacyCatalog*`. |
+| Adapter file | Удалить catalog Supabase fallback файл. | Реализовано: `src/lib/legacy-catalog-supabase-adapter.ts` удалён. | Boundary test проверяет отсутствие файла. |
+| Landing source | Убрать `supabase` из landing offers source/analytics. | Реализовано: `catalog-api` / `mock-fallback`. | Дашборды читать `catalog-api` как self-hosted facade result. |
+| Guards | Запретить возврат catalog Supabase fallback. | Реализовано: `catalog-api.boundary.test.ts`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать guards в `ci:core`. |
+| Debt list | Точно выделить оставшийся debt после Phase 3A. | Реализовано: supplier-access fallback, reference tooling/tests, empty env keys и dependency. | Phase 3B: supplier-access fallback removal. |
 
-## Next Implementation After Phase 2J
+## Next Implementation After Phase 3A
 
 Recommended next scoped workstream:
 
-Backend Phase 3A: catalog Supabase fallback removal.
+Backend Phase 3B: supplier-access Supabase fallback removal.
 
 Concrete scope:
 
-- удалить `src/lib/legacy-catalog-supabase-adapter.ts`;
-- перевести `src/lib/catalog-api.ts` в self-hosted API first + local fixture
-  preview only, без Supabase fallback;
-- обновить `src/lib/catalog-api.boundary.test.ts`, `useLandingOffers` source
-  naming and related docs/guards;
-- подтвердить `/`, `/offers`, `/offers/:id` behavior through existing
-  self-hosted API/local fixture paths;
-- не трогать supplier-access fallback в этом же batch, кроме фиксации как
-  следующего отдельного debt.
+- убрать runtime dependency на `src/lib/legacy-supplier-access-supabase-adapter.ts`
+  из `src/lib/supplier-access-api.ts`;
+- configured deployments оставить на owned `/v1/access/*` API;
+- API-disabled preview сделать local-only без Supabase auth/RLS;
+- обновить `supplier-access-api.boundary.test.ts`, self-hosted guards и docs;
+- удалить legacy supplier-access adapter только если request status, request
+  creation и notification behavior остаются зелёными.
 
-Alternative after Phase 3A:
+Alternative after Phase 3B:
 
-Backend Phase 3B: supplier-access Supabase fallback removal.
+Backend Phase 3C: Supabase reference tooling retirement.
 
 ## Guardrails To Preserve
 

@@ -2277,6 +2277,61 @@ Keep this file factual and append-only.
 
 ## 2026-05-29
 
+- Implemented Backend Phase 3A: Catalog Supabase Fallback Removal.
+- Removed catalog Supabase prototype fallback from code:
+  - deleted `src/lib/legacy-catalog-supabase-adapter.ts`;
+  - removed `fetchLegacyCatalogOffers`, `fetchLegacyCatalogOfferById` and
+    `SupplierPublicRow` from `src/lib/catalog-api.ts`;
+  - `src/lib/catalog-api.ts` now delegates only to
+    `createOfferCatalogApiClient().listOffers()` and `.getOfferById()`.
+- Preserved catalog runtime behavior:
+  - configured deployments use owned `/v1/offers` and `/v1/offers/:id`;
+  - API-disabled preview uses local fixtures inside `offer-catalog-api`;
+  - supplier identity redaction, exact-price lock and access shaping remain
+    owned by existing catalog fallback helpers.
+- Updated landing/source naming:
+  - `useLandingOffers` source is now `catalog-api` / `mock-fallback`;
+  - `live_offers_source_resolved` no longer emits `source: "supabase"`.
+- Updated guards:
+  - `src/lib/catalog-api.boundary.test.ts` asserts the removed adapter file
+    stays absent and catalog-api is free of legacy fallback markers;
+  - `scripts/check-self-hosted-api.mjs` and
+    `scripts/check-production-scale-baseline.mjs` guard Phase 3A.
+- Updated docs:
+  - `docs/backend/phase-3a-catalog-supabase-fallback-removal.md`;
+  - frontend/backend contract, production-scale baseline, self-hosted
+    architecture/validation and backend implementation plan.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Catalog facade | Убрать runtime-путь `catalog-api` → legacy Supabase adapter. | Реализовано: facade вызывает только owned catalog API adapter. | Не возвращать `fetchLegacyCatalog*`. |
+| Adapter file | Удалить catalog Supabase fallback. | Реализовано: `legacy-catalog-supabase-adapter.ts` удалён. | Guard blocks return. |
+| Landing source | Убрать `supabase` source из landing offers. | Реализовано: `catalog-api` / `mock-fallback`. | Дашборды читать новый source. |
+| Remaining debt | Сузить Supabase debt после Phase 3A. | Реализовано: остались supplier-access fallback, reference tooling/tests, empty env keys, dependency. | Phase 3B: supplier-access removal. |
+
+- Validation passed:
+  - `npx vitest run src/lib/catalog-api.boundary.test.ts src/lib/useLandingOffers.test.ts src/components/landing/LiveOffers.highlight.test.tsx src/components/landing/offers-anchor.test.tsx src/components/landing/offers-highlight-focus.test.tsx src/components/landing/LiveOffers.empty-fallback.test.tsx`;
+  - `npm run test:offer-catalog-frontend`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run check:supabase-boundary`;
+  - `npx tsc -b --noEmit`;
+  - `npm run test:api`;
+  - `npm test`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `npm run smoke:self-hosted-offer-detail:run`;
+  - `git diff --check`;
+  - `npm run build`;
+  - `npm run smoke:e2e:frontend-no-supabase-env`.
+- Commit: `b5d1e9f8` (`[codex] Backend Phase 3A catalog fallback removal`).
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.
+
+## 2026-05-29
+
 - Implemented Backend Phase 2G: Password Recovery Delivery Runtime.
 - Added password recovery delivery processing:
   - `PasswordRecoveryDeliveryWorker`;
@@ -2771,3 +2826,11 @@ Keep this file factual and append-only.
 - Known non-blocking warnings preserved:
   - Supabase generated types out of sync in non-strict preview/build mode;
   - Browserslist data stale.
+
+## 2026-05-29 Latest Checkpoint
+
+- Latest implementation commit: `b5d1e9f8` (`[codex] Backend Phase 3A catalog fallback removal`).
+- Phase 3A status: catalog Supabase fallback removed; `catalog-api.ts` is self-hosted API first with local fixture preview only.
+- Removed file: `src/lib/legacy-catalog-supabase-adapter.ts`.
+- Remaining Supabase/prototype debt: supplier-access fallback, reference tooling/tests, empty prototype env keys and `@supabase/supabase-js`.
+- Next scoped workstream: Backend Phase 3B supplier-access Supabase fallback removal.

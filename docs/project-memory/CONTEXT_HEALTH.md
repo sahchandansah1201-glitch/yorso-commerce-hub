@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "project_memory_checkpoint_after_f753224f"
+head_commit: "b5d1e9f8_phase_3a_catalog_fallback_removal"
 latest_merged_batch: 141
-active_workstream: "backend_phase_2j_auth_surface_closure"
+active_workstream: "backend_phase_3a_catalog_supabase_fallback_removal"
 pull_request: null
-recommended_action: "start Backend Phase 3A catalog Supabase fallback removal"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J and Phase 2A-2J are documented, committed and validated."
+recommended_action: "start Backend Phase 3B supplier-access Supabase fallback removal"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J and Phase 3A are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_2j_auth_surface_closure.
-Current HEAD baseline: Backend Phase 2J auth surface closure implementation commit f753224f is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_3a_catalog_supabase_fallback_removal.
+Current HEAD baseline: Backend Phase 3A catalog fallback removal implementation commit b5d1e9f8 is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,12 +60,18 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: start Backend Phase 3A catalog Supabase fallback removal.
+Current recommended action: start Backend Phase 3B supplier-access Supabase fallback removal.
+Phase 3A implemented and committed locally at b5d1e9f8: docs/backend/phase-3a-catalog-supabase-fallback-removal.md records catalog Supabase fallback removal.
+Phase 3A runtime: src/lib/catalog-api.ts delegates only to createOfferCatalogApiClient().listOffers() and .getOfferById(); configured deployments use /v1/offers and /v1/offers/:id, while API-disabled preview uses local fixtures inside offer-catalog-api.
+Phase 3A removal: src/lib/legacy-catalog-supabase-adapter.ts is deleted; fetchLegacyCatalogOffers, fetchLegacyCatalogOfferById and SupplierPublicRow are gone from catalog-api.
+Phase 3A telemetry: useLandingOffers and analytics now emit live_offers_source_resolved source catalog-api or mock-fallback, not supabase.
+Phase 3A guards: catalog-api.boundary.test.ts, check:self-hosted-api and check:production-scale-baseline require the removed adapter file to stay absent and forbid legacy catalog fallback markers in catalog-api.
+Phase 3A validation passed: focused catalog/landing tests; test:offer-catalog-frontend; check:self-hosted-api; check:production-scale-baseline; check:supabase-boundary; npx tsc -b --noEmit; npm run test:api; npm test; npm run lint; npm run api:build; smoke:self-hosted-offer-detail:run; npm run build; smoke:e2e:frontend-no-supabase-env; git diff --check.
 Phase 2J implemented and committed locally at f753224f: docs/backend/phase-2j-auth-surface-closure-audit.md records Phase 2A-2I as a closed self-hosted auth/registration/password-recovery surface.
 Phase 2J removal: src/lib/legacy-auth-supabase-adapter.ts is deleted; src/lib/auth-runtime.ts no longer contains legacy-auth-supabase-adapter, supabase_prototype, VITE_SUPABASE auth branching or direct Supabase imports.
 Phase 2J source types: AuthRuntimeSource, BuyerSessionSource and analytics auth/workspace session source types now allow self_hosted or local_contract only.
 Phase 2J guards: auth-runtime.boundary.test.ts, check:self-hosted-api and check:production-scale-baseline prevent the removed auth Supabase fallback from returning.
-Phase 2J debt list: remaining Supabase/prototype debt outside the auth surface is catalog fallback, supplier-access fallback, Supabase reference tooling/tests, empty prototype env keys and @supabase/supabase-js.
+Phase 2J debt list originally identified catalog fallback, supplier-access fallback, Supabase reference tooling/tests, empty prototype env keys and @supabase/supabase-js. Phase 3A removed the catalog fallback; remaining debt is supplier-access fallback, Supabase reference tooling/tests, empty prototype env keys and @supabase/supabase-js.
 Phase 2J validation passed: test:auth-runtime; check:supabase-boundary; check:self-hosted-api; check:self-hosted-production-runtime; check:production-scale-baseline; npx tsc -b --noEmit; npm run test:api; npm test; npm run lint; npm run api:build; npm run smoke:self-hosted-auth-api:run; git diff --check; npm run build.
 Phase 2I implemented and committed locally at 70d65de6: docs/backend/phase-2i-password-recovery-cleanup-runtime.md records the owned self-hosted password recovery cleanup runtime.
 Phase 2I runtime: PasswordRecoveryCleanupScheduler runs PasswordRecoveryCleanupWorker outside public request handlers, skips overlapping runs and catches worker failures as metrics events.

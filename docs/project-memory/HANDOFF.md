@@ -16,18 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 2J Auth Surface Closure is committed locally at `f753224f`;
-release validation passed.
+Backend Phase 3A Catalog Supabase Fallback Removal is committed locally at
+`b5d1e9f8`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Auth runtime | Убрать Supabase auth fallback из `/signin` и `/reset-password`. | Реализовано: `auth-runtime.ts` не содержит `legacy-auth-supabase-adapter`, `supabase_prototype`, `VITE_SUPABASE` branching или direct Supabase import. | Не возвращать hosted auth provider. |
-| Adapter file | Удалить код вызова Supabase Auth. | Реализовано: `src/lib/legacy-auth-supabase-adapter.ts` удалён. | Boundary test проверяет отсутствие файла. |
-| Session source | Убрать Supabase как источник browser session. | Реализовано: `AuthRuntimeSource`, `BuyerSessionSource` и analytics source = `self_hosted` / `local_contract`. | Старые optional source значения больше не эмитятся runtime'ом. |
-| Guards | Запретить возврат auth Supabase fallback. | Реализовано: `test:auth-runtime`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать в CI. |
-| Debt list | Точно выделить оставшийся Supabase/prototype debt вне auth. | Реализовано: catalog fallback, supplier-access fallback, reference tooling/tests, empty env keys и dependency listed. | Phase 3A начнёт removal. |
+| Catalog facade | Убрать runtime-путь `catalog-api` → legacy Supabase catalog adapter. | Реализовано: `catalog-api.ts` вызывает только `createOfferCatalogApiClient().listOffers()` и `.getOfferById()`. | Не возвращать `fetchLegacyCatalog*`. |
+| Adapter file | Удалить catalog Supabase fallback файл. | Реализовано: `src/lib/legacy-catalog-supabase-adapter.ts` удалён. | Guard tests требуют отсутствие файла. |
+| Landing source | Убрать `supabase` из landing offers telemetry/source naming. | Реализовано: `useLandingOffers` и analytics source = `catalog-api` / `mock-fallback`. | Дашборды читать `catalog-api` как self-hosted facade result. |
+| Guards | Запретить возврат catalog Supabase fallback. | Реализовано: `catalog-api.boundary.test.ts`, `check:self-hosted-api`, `check:production-scale-baseline`. | Держать в CI. |
+| Debt list | Точно выделить оставшийся Supabase/prototype debt после Phase 3A. | Реализовано: supplier-access fallback, reference tooling/tests, empty env keys и dependency listed. | Phase 3B начнёт supplier-access removal. |
 
 ## Current Status
 
@@ -37,42 +37,44 @@ release validation passed.
 - Backend Phase 1 discovery/audit and Phases 1A-1J are complete.
 - Backend Phase 2A-2I are committed locally and validation green.
 - Backend Phase 2J is committed locally at `f753224f`; release validation passed.
+- Backend Phase 3A is committed locally at `b5d1e9f8`; release validation passed.
 
-## Phase 2J Files
+## Phase 3A Files
 
-- `docs/backend/phase-2j-auth-surface-closure-audit.md`
-- `src/lib/auth-runtime.ts`
-- `src/lib/auth-runtime.test.ts`
-- `src/lib/auth-runtime.boundary.test.ts`
-- `src/lib/buyer-session.ts`
+- `docs/backend/phase-3a-catalog-supabase-fallback-removal.md`
+- `src/lib/catalog-api.ts`
+- `src/lib/catalog-api.boundary.test.ts`
+- `src/lib/useLandingOffers.ts`
+- `src/lib/useLandingOffers.test.ts`
 - `src/lib/analytics.ts`
-- `src/pages/ResetPassword.tsx`
-- deleted: `src/lib/legacy-auth-supabase-adapter.ts`
+- deleted: `src/lib/legacy-catalog-supabase-adapter.ts`
 - `scripts/check-self-hosted-api.mjs`
 - `scripts/check-production-scale-baseline.mjs`
 - `docs/backend/frontend-backend-contract.md`
 - `docs/backend/production-scale-baseline.md`
 - `docs/backend/self-hosted-backend-architecture.md`
 - `docs/backend/self-hosted-validation.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
 
 ## Validation
 
 Passed locally on 2026-05-29:
 
-- `npx vitest run src/lib/auth-runtime.test.ts src/lib/auth-runtime.boundary.test.ts src/lib/buyer-session.test.ts`
-- `npm run test:auth-runtime`
 - `npm run check:supabase-boundary`
 - `npm run check:self-hosted-api`
-- `npm run check:self-hosted-production-runtime`
 - `npm run check:production-scale-baseline`
+- `npx vitest run src/lib/catalog-api.boundary.test.ts src/lib/useLandingOffers.test.ts src/components/landing/LiveOffers.highlight.test.tsx src/components/landing/offers-anchor.test.tsx src/components/landing/offers-highlight-focus.test.tsx src/components/landing/LiveOffers.empty-fallback.test.tsx`
+- `npm run test:offer-catalog-frontend`
 - `npx tsc -b --noEmit`
 - `npm run test:api`
 - `npm test`
 - `npm run lint`
 - `npm run api:build`
-- `npm run smoke:self-hosted-auth-api:run`
+- `npm run smoke:self-hosted-offer-detail:run`
 - `git diff --check`
 - `npm run build`
+- `npm run smoke:e2e:frontend-no-supabase-env`
 
 Known non-blocking warnings:
 
@@ -81,15 +83,16 @@ Known non-blocking warnings:
 
 ## Next Recommended Workstream
 
-Backend Phase 3A: catalog Supabase fallback removal.
+Backend Phase 3B: supplier-access Supabase fallback removal.
 
 Concrete next function:
 
-- remove `src/lib/legacy-catalog-supabase-adapter.ts`;
-- make `src/lib/catalog-api.ts` self-hosted API first plus local fixture
-  preview only, without Supabase fallback;
-- update catalog boundary tests, guards and docs;
-- keep supplier-access Supabase fallback as a separate Phase 3B debt;
+- remove runtime dependency on `src/lib/legacy-supplier-access-supabase-adapter.ts`
+  from `src/lib/supplier-access-api.ts`;
+- keep configured deployments on owned `/v1/access/*` API;
+- keep API-disabled preview local-only without Supabase auth/RLS;
+- delete the legacy supplier-access adapter only after boundary tests prove
+  request status, request creation and notification behavior still pass;
 - preserve no hosted BaaS/Supabase production dependency.
 
 ## Preserve

@@ -1303,3 +1303,13 @@
 - `src/i18n/translations.ts`: EN/RU/ES account conflict copy.
 - `src/lib/account-api.test.ts`, `src/pages/account/Account.editable.test.tsx`, `apps/api/src/modules/account/__tests__/repository.test.ts`, `apps/api/src/server.test.ts`: regression coverage for version header propagation, stale-save rejection and visible conflict recovery.
 - `docs/backend/production-scale-baseline.md`: Backend Phase 1C 10,000 concurrent-user review.
+
+## Backend Phase 3A Catalog Supabase Fallback Removal
+
+- `docs/backend/phase-3a-catalog-supabase-fallback-removal.md`: implementation, plan/fact, remaining debt, validation and 10,000 concurrent-user review.
+- `src/lib/catalog-api.ts`: self-hosted-first catalog facade delegates only to `createOfferCatalogApiClient().listOffers()` and `.getOfferById()`.
+- Deleted `src/lib/legacy-catalog-supabase-adapter.ts`: removed catalog Supabase public-view fallback.
+- `src/lib/catalog-api.boundary.test.ts`: guards deleted adapter absence and forbids legacy catalog fallback markers in the facade.
+- `src/lib/useLandingOffers.ts` and `src/lib/analytics.ts`: landing offer source naming changed to `catalog-api` / `mock-fallback`.
+- `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: Phase 3A release guards.
+- `docs/backend/frontend-backend-contract.md`, `docs/backend/production-scale-baseline.md`, `docs/backend/self-hosted-backend-architecture.md`, `docs/backend/self-hosted-validation.md`, `docs/backend/yorso-backend-implementation-plan.md`, `docs/backend/yorso-backend-implementation-plan.ru.md`: contract/readiness updates.
