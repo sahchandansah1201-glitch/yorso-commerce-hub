@@ -31,6 +31,13 @@ const api = spawn(process.execPath, [apiEntry], {
     AUTH_SESSION_CACHE_FAIL_MODE: "closed",
     AUTH_SESSION_CACHE_TTL_MS: "300000",
     AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth",
+    YORSO_METRICS_DRIVER: "prometheus",
+    YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED: "true",
+    YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_INTERVAL_MS: "1000",
+    YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_BATCH_SIZE: "10",
+    YORSO_PASSWORD_RECOVERY_CLEANUP_DELIVERY_RETENTION_MS: "604800000",
+    YORSO_PASSWORD_RECOVERY_CLEANUP_TOKEN_RETENTION_MS: "86400000",
+    YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ID: "auth-api-smoke-cleanup-worker",
     VITE_SUPABASE_URL: "",
     VITE_SUPABASE_PUBLISHABLE_KEY: "",
   },
@@ -165,6 +172,12 @@ async function runSmoke(baseUrl) {
   assertNotIncludes(JSON.stringify(resetLimitedBody), "password-reset-rate-limit@example.com", "password reset rate limit email leak");
   console.log("password_reset_rate_limit_guard=ok");
 
+  await waitForMetric(
+    baseUrl,
+    'yorso_api_password_recovery_cleanup_worker_runs_total{outcome="success",reason="none",worker_id="auth-api-smoke-cleanup-worker"}',
+  );
+  console.log("password_recovery_cleanup_runtime_guard=ok");
+
   const signOut = await jsonRequest(baseUrl, "/v1/auth/sign-out", {
     method: "POST",
     headers: {
@@ -260,6 +273,16 @@ async function waitForApi(baseUrl, child) {
     await delay(250);
   }
   throw new Error(`Timed out waiting for ${baseUrl}/health/live`);
+}
+
+async function waitForMetric(baseUrl, marker) {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const response = await fetch(`${baseUrl}/metrics`);
+    const text = await response.text();
+    if (response.ok && text.includes(marker)) return;
+    await delay(250);
+  }
+  throw new Error(`Metric marker not found: ${marker}`);
 }
 
 function getFreePort() {

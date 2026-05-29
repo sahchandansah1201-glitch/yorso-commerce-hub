@@ -10,6 +10,7 @@ export interface MetricsRegistry {
   enabled: boolean;
   observeAdminAudit(event: AdminAuditMetricsEvent): void;
   observeAdminRuntime(event: AdminRuntimeMetricsEvent): void;
+  observePasswordRecoveryCleanupWorker(event: PasswordRecoveryCleanupWorkerMetricsEvent): void;
   observePasswordRecoveryDeliveryWorker(event: PasswordRecoveryDeliveryWorkerMetricsEvent): void;
   observeRegistrationDeliveryWorker(event: RegistrationDeliveryWorkerMetricsEvent): void;
   observeRequest(event: RequestTelemetryEvent): void;
@@ -54,6 +55,16 @@ export interface PasswordRecoveryDeliveryWorkerMetricsEvent {
   workerId: string;
 }
 
+export interface PasswordRecoveryCleanupWorkerMetricsEvent {
+  deliveriesDeleted: number;
+  durationMs: number;
+  limit: number;
+  outcome: "failure" | "skipped" | "success";
+  reason?: string | null;
+  recoveriesDeleted: number;
+  workerId: string;
+}
+
 const durationBuckets = [0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10];
 const maxLabelLength = 96;
 
@@ -74,6 +85,10 @@ export class NoopMetricsRegistry implements MetricsRegistry {
   }
 
   observeRegistrationDeliveryWorker(): void {
+    // Metrics stay disabled in local prototype mode unless explicitly enabled.
+  }
+
+  observePasswordRecoveryCleanupWorker(): void {
     // Metrics stay disabled in local prototype mode unless explicitly enabled.
   }
 
@@ -184,6 +199,32 @@ export class InMemoryPrometheusMetricsRegistry implements MetricsRegistry {
       method: "WORKER",
       outcome: label(event.outcome),
       route: "/worker/password-recovery-delivery",
+    }, event.durationMs / 1000);
+  }
+
+  observePasswordRecoveryCleanupWorker(event: PasswordRecoveryCleanupWorkerMetricsEvent): void {
+    this.increment("yorso_api_password_recovery_cleanup_worker_runs_total", {
+      outcome: label(event.outcome),
+      reason: label(event.reason ?? "none"),
+      worker_id: label(event.workerId),
+    });
+
+    for (const [result, count] of [
+      ["deliveries_deleted", event.deliveriesDeleted],
+      ["recoveries_deleted", event.recoveriesDeleted],
+    ] as const) {
+      if (count > 0) {
+        this.increment("yorso_api_password_recovery_cleanup_worker_rows_total", {
+          result,
+          worker_id: label(event.workerId),
+        }, count);
+      }
+    }
+
+    this.observeDuration({
+      method: "WORKER",
+      outcome: label(event.outcome),
+      route: "/worker/password-recovery-cleanup",
     }, event.durationMs / 1000);
   }
 

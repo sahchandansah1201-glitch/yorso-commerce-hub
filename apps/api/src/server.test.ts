@@ -296,6 +296,25 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  it("starts and stops the password recovery cleanup scheduler with the API lifecycle", async () => {
+    const events: string[] = [];
+
+    await startRawTestServer({
+      passwordRecoveryCleanupScheduler: {
+        start() {
+          events.push("start");
+        },
+        stop() {
+          events.push("stop");
+        },
+      } as never,
+    });
+
+    expect(events).toEqual(["start"]);
+    await closeServer();
+    expect(events).toEqual(["start", "stop"]);
+  });
+
   it("returns 408 when route work exceeds the configured request timeout", async () => {
     const timeoutConfig = loadApiConfig(
       {
@@ -3348,5 +3367,32 @@ describe("YORSO self-hosted API skeleton", () => {
 
     expect(() => assertSupabaseIsPrototypeOnly(relativePasswordRecoverySpoolConfig))
       .toThrow(/absolute YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR/);
+
+    const noPasswordRecoveryCleanupConfig = loadApiConfig(
+      {
+        NODE_ENV: "production",
+        AUTH_RATE_LIMIT_DRIVER: "redis",
+        AUTH_RATE_LIMIT_FAIL_MODE: "closed",
+        AUTH_SESSION_CACHE_DRIVER: "redis",
+        AUTH_SESSION_CACHE_FAIL_MODE: "closed",
+        ACCOUNT_VERSION_PRECONDITION_MODE: "required",
+        YORSO_AUDIT_DRIVER: "postgres",
+        AUTH_OBSERVABILITY_DRIVER: "console",
+        YORSO_ERROR_OBSERVABILITY_DRIVER: "console",
+        YORSO_METRICS_DRIVER: "prometheus",
+        YORSO_REQUEST_OBSERVABILITY_DRIVER: "console",
+        YORSO_REGISTRATION_DELIVERY_WORKER_ENABLED: "true",
+        YORSO_REGISTRATION_DELIVERY_SENDER: "file_spool",
+        YORSO_REGISTRATION_DELIVERY_SPOOL_DIR: "/var/spool/yorso/registration-delivery",
+        YORSO_REGISTRATION_VERIFICATION_CODE_SECRET: "production-registration-code-secret-32-bytes",
+        YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED: "true",
+        YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER: "file_spool",
+        YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR: "/var/spool/yorso/password-recovery-delivery",
+      },
+      { allowLocalDefaults: true },
+    );
+
+    expect(() => assertSupabaseIsPrototypeOnly(noPasswordRecoveryCleanupConfig))
+      .toThrow(/YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true/);
   });
 });

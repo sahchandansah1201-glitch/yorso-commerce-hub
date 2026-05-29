@@ -192,6 +192,14 @@ from sign-in failures. Cleanup of expired/used reset tokens and terminal
 delivery rows is handled by the bounded self-hosted cleanup policy, not by a
 hosted BaaS job.
 
+Backend Phase 2I wires that cleanup policy into the API process runtime.
+Production must run with
+`YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true`, a bounded
+`YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_BATCH_SIZE`, retention windows for
+delivery rows and reset tokens, and a stable
+`YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ID`. The scheduler starts with the API
+process, skips overlapping runs and emits Prometheus worker metrics.
+
 Batch #88 adds `smoke:self-hosted-audit-trail` to the deploy validation path.
 It verifies that the console audit sink writes sanitized `api_audit_event`
 records for auth, account, access, notification and storage actions without

@@ -253,6 +253,7 @@ const requiredFiles = [
   "docs/backend/phase-2f-password-recovery-source-of-truth.md",
   "docs/backend/phase-2g-password-recovery-delivery-runtime.md",
   "docs/backend/phase-2h-password-recovery-abuse-cleanup.md",
+  "docs/backend/phase-2i-password-recovery-cleanup-runtime.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -268,6 +269,8 @@ const requiredFiles = [
   "packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
+  "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
+  "apps/api/src/modules/auth/password-recovery-cleanup-runtime.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-worker.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-sender.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-runtime.ts",
@@ -457,6 +460,8 @@ const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0
 const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
+const authPasswordRecoveryCleanupScheduler = read("apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts");
+const authPasswordRecoveryCleanupRuntime = read("apps/api/src/modules/auth/password-recovery-cleanup-runtime.ts");
 const authPasswordRecoveryDeliveryWorker = read("apps/api/src/modules/auth/password-recovery-delivery-worker.ts");
 const authPasswordRecoveryDeliverySender = read("apps/api/src/modules/auth/password-recovery-delivery-sender.ts");
 const authPasswordRecoveryDeliveryRuntime = read("apps/api/src/modules/auth/password-recovery-delivery-runtime.ts");
@@ -470,6 +475,7 @@ const phase2eRegistrationVerificationCodePolicy = read("docs/backend/phase-2e-re
 const phase2fPasswordRecoverySourceOfTruth = read("docs/backend/phase-2f-password-recovery-source-of-truth.md");
 const phase2gPasswordRecoveryDeliveryRuntime = read("docs/backend/phase-2g-password-recovery-delivery-runtime.md");
 const phase2hPasswordRecoveryAbuseCleanup = read("docs/backend/phase-2h-password-recovery-abuse-cleanup.md");
+const phase2iPasswordRecoveryCleanupRuntime = read("docs/backend/phase-2i-password-recovery-cleanup-runtime.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -2863,6 +2869,15 @@ for (const marker of [
   requireText("docs/backend/phase-2h-password-recovery-abuse-cleanup.md", phase2hPasswordRecoveryAbuseCleanup, marker);
 }
 for (const marker of [
+  "Backend Phase 2I",
+  "password recovery cleanup runtime",
+  "createPasswordRecoveryCleanupRuntime",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2i-password-recovery-cleanup-runtime.md", phase2iPasswordRecoveryCleanupRuntime, marker);
+}
+for (const marker of [
   "PasswordRecoveryDeliveryWorker",
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
@@ -2884,6 +2899,20 @@ for (const marker of [
   "passwordRecoveryDeliveryWorkerEnabled",
 ]) {
   requireText("apps/api/src/modules/auth/password-recovery-delivery-runtime.ts", authPasswordRecoveryDeliveryRuntime, marker);
+}
+for (const marker of [
+  "PasswordRecoveryCleanupScheduler",
+  "already_running",
+  "worker_error",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts", authPasswordRecoveryCleanupScheduler, marker);
+}
+for (const marker of [
+  "createPasswordRecoveryCleanupRuntime",
+  "observePasswordRecoveryCleanupWorker",
+  "passwordRecoveryCleanupWorkerEnabled",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-cleanup-runtime.ts", authPasswordRecoveryCleanupRuntime, marker);
 }
 for (const marker of [
   "Batch #108",
@@ -3144,6 +3173,9 @@ for (const marker of [
   "yorso_api_admin_audit_requests_total",
   "yorso_api_admin_audit_rows_total",
   "observeAdminAudit",
+  "observePasswordRecoveryCleanupWorker",
+  "yorso_api_password_recovery_cleanup_worker_runs_total",
+  "yorso_api_password_recovery_cleanup_worker_rows_total",
   "yorso_api_readiness_checks_total",
   "yorso_api_production_baseline_concurrent_users",
 ]) {
@@ -3167,6 +3199,12 @@ for (const marker of [
   "Production self-hosted API must use YORSO_AUDIT_DRIVER=postgres.",
   "requestObservabilityDriver",
   "YORSO_REQUEST_OBSERVABILITY_DRIVER",
+  "passwordRecoveryCleanupWorkerEnabled",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED",
+  "passwordRecoveryCleanupWorkerIntervalMs",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_INTERVAL_MS",
+  "passwordRecoveryCleanupWorkerBatchSize",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_BATCH_SIZE",
   "YORSO_REQUEST_TIMEOUT_MS",
   "YORSO_REQUEST_BODY_IDLE_TIMEOUT_MS",
   "YORSO_HEADERS_TIMEOUT_MS",

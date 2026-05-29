@@ -39,6 +39,8 @@ import type { RegistrationVerificationDeliverySender } from "./modules/auth/deli
 import { createPasswordRecoveryDeliveryRuntime } from "./modules/auth/password-recovery-delivery-runtime.js";
 import type { PasswordRecoveryDeliveryScheduler } from "./modules/auth/password-recovery-delivery-scheduler.js";
 import type { PasswordRecoveryDeliverySender } from "./modules/auth/password-recovery-delivery-worker.js";
+import { createPasswordRecoveryCleanupRuntime } from "./modules/auth/password-recovery-cleanup-runtime.js";
+import type { PasswordRecoveryCleanupScheduler } from "./modules/auth/password-recovery-cleanup-scheduler.js";
 import type { AuthRepository, RegistrationAccountProvisioner } from "./modules/auth/repository.js";
 import { handleAuthRoute } from "./modules/auth/routes.js";
 import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
@@ -84,6 +86,7 @@ export interface ApiServerOptions {
   registrationDeliverySender?: RegistrationVerificationDeliverySender;
   registrationVerification?: AuthServiceVerificationOptions;
   passwordRecovery?: AuthServicePasswordRecoveryOptions;
+  passwordRecoveryCleanupScheduler?: PasswordRecoveryCleanupScheduler | null;
   passwordRecoveryDeliveryScheduler?: PasswordRecoveryDeliveryScheduler | null;
   passwordRecoveryDeliverySender?: PasswordRecoveryDeliverySender;
   requestTelemetrySink?: RequestTelemetrySink;
@@ -109,6 +112,9 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       sender: options.passwordRecoveryDeliverySender,
     })
     : options.passwordRecoveryDeliveryScheduler;
+  const passwordRecoveryCleanupScheduler = options.passwordRecoveryCleanupScheduler === undefined
+    ? createPasswordRecoveryCleanupRuntime(config, authRepository, metricsRegistry)
+    : options.passwordRecoveryCleanupScheduler;
   const authService = new AuthService(
     authRepository,
     createAuthRateLimiter(config, authRepository),
@@ -246,10 +252,12 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
   server.once("listening", () => {
     registrationDeliveryScheduler?.start();
     passwordRecoveryDeliveryScheduler?.start();
+    passwordRecoveryCleanupScheduler?.start();
   });
   server.once("close", () => {
     registrationDeliveryScheduler?.stop();
     passwordRecoveryDeliveryScheduler?.stop();
+    passwordRecoveryCleanupScheduler?.stop();
   });
   server.on("clientError", (error: NodeJS.ErrnoException, socket) => {
     const headerOverflow = error.code === "HPE_HEADER_OVERFLOW";

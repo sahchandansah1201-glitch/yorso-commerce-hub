@@ -5139,6 +5139,64 @@ Marker: cleanupPasswordRecovery.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 2I Password Recovery Cleanup Runtime
+
+Phase 2I connects the Phase 2H cleanup policy to a self-hosted scheduler. The
+cleanup worker is disabled by default in local mode, enabled explicitly in
+production examples and started/stopped with the API process lifecycle.
+
+Expected read/write profile:
+
+- No public request path performs cleanup work.
+- Each scheduler tick runs at most one `cleanupPasswordRecovery` batch.
+- Default batch size is 500 rows.
+- Default retention removes terminal delivery rows after seven days and
+  expired/used token rows after 24 hours.
+
+Cache, queue and backpressure strategy:
+
+- `PasswordRecoveryCleanupScheduler` skips overlapping runs with
+  `already_running`.
+- Worker failures become `worker_error` events and retry on the next interval.
+- Production config requires
+  `YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true`.
+
+Database indexing and pagination strategy:
+
+- Phase 2H cleanup indexes remain the active database support.
+- PostgreSQL cleanup uses ordered bounded candidates and `for update skip
+  locked`, so concurrent API replicas avoid claiming the same cleanup rows.
+
+Failure mode and graceful degradation:
+
+- Local/dev may leave the worker disabled.
+- Production fails closed without the cleanup scheduler enabled.
+- A cleanup failure affects retention only; password reset request, completion
+  and delivery continue through the existing self-hosted tables.
+
+Observability and load-test plan:
+
+- `yorso_api_password_recovery_cleanup_worker_runs_total` tracks
+  success/failure/skipped by worker id and reason.
+- `yorso_api_password_recovery_cleanup_worker_rows_total` tracks deleted
+  recovery/outbox rows by type.
+- Load-test with seeded expired tokens and terminal outbox rows under multiple
+  API replicas, and verify public auth latency does not regress.
+
+Validation:
+
+- Focused scheduler/runtime/metrics/server tests.
+- Self-hosted infra/runtime/API guards.
+- `smoke:self-hosted-auth-api:run` marker
+  `password_recovery_cleanup_runtime_guard=ok`.
+
+Marker: Backend Phase 2I.
+Marker: password recovery cleanup runtime.
+Marker: createPasswordRecoveryCleanupRuntime.
+Marker: observePasswordRecoveryCleanupWorker.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

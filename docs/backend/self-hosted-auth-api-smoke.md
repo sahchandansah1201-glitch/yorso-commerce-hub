@@ -46,6 +46,7 @@ The smoke must print:
 - `auth_rate_limit_retry_after=ok`
 - `auth_rate_limit_guard=ok`
 - `password_reset_rate_limit_guard=ok`
+- `password_recovery_cleanup_runtime_guard=ok`
 - `auth_sign_out=ok`
 - `auth_sign_out_revokes_session=ok`
 - `auth_session_cache_invalidation=ok`
@@ -143,6 +144,14 @@ inside the default 15-minute window, then returns `429 auth_rate_limited` with
 `Retry-After: 900` and without echoing the requested email. The marker
 `password_reset_rate_limit_guard=ok` proves reset bursts use the same
 self-hosted backpressure layer without account enumeration.
+
+Backend Phase 2I extends this smoke to password recovery cleanup runtime
+wiring. The compiled API starts with
+`YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true` and Prometheus metrics
+enabled; the smoke waits until the scheduler emits a successful
+`yorso_api_password_recovery_cleanup_worker_runs_total` sample. The marker
+`password_recovery_cleanup_runtime_guard=ok` proves cleanup runs outside public
+request handlers through the owned scheduler path.
 
 Batch #79 adds session-cache validation. The smoke starts the compiled API with
 `AUTH_SESSION_CACHE_DRIVER=memory` and

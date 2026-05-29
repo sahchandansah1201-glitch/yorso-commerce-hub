@@ -8,6 +8,7 @@ const requiredFiles = [
   "docs/backend/phase-2f-password-recovery-source-of-truth.md",
   "docs/backend/phase-2g-password-recovery-delivery-runtime.md",
   "docs/backend/phase-2h-password-recovery-abuse-cleanup.md",
+  "docs/backend/phase-2i-password-recovery-cleanup-runtime.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -41,6 +42,8 @@ const requiredFiles = [
   "packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
+  "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
+  "apps/api/src/modules/auth/password-recovery-cleanup-runtime.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-worker.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-sender.ts",
   "apps/api/src/modules/auth/password-recovery-delivery-runtime.ts",
@@ -240,6 +243,7 @@ const phase2eRegistrationVerificationCodePolicy = read("docs/backend/phase-2e-re
 const phase2fPasswordRecoverySourceOfTruth = read("docs/backend/phase-2f-password-recovery-source-of-truth.md");
 const phase2gPasswordRecoveryDeliveryRuntime = read("docs/backend/phase-2g-password-recovery-delivery-runtime.md");
 const phase2hPasswordRecoveryAbuseCleanup = read("docs/backend/phase-2h-password-recovery-abuse-cleanup.md");
+const phase2iPasswordRecoveryCleanupRuntime = read("docs/backend/phase-2i-password-recovery-cleanup-runtime.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -274,6 +278,8 @@ const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_pas
 const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
+const authPasswordRecoveryCleanupScheduler = read("apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts");
+const authPasswordRecoveryCleanupRuntime = read("apps/api/src/modules/auth/password-recovery-cleanup-runtime.ts");
 const authPasswordRecoveryDeliveryWorker = read("apps/api/src/modules/auth/password-recovery-delivery-worker.ts");
 const authPasswordRecoveryDeliverySender = read("apps/api/src/modules/auth/password-recovery-delivery-sender.ts");
 const authPasswordRecoveryDeliveryRuntime = read("apps/api/src/modules/auth/password-recovery-delivery-runtime.ts");
@@ -631,6 +637,12 @@ for (const marker of [
   "YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true",
   "YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool",
   "YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR=/var/lib/yorso/password-recovery-delivery",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_INTERVAL_MS=3600000",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_BATCH_SIZE=500",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_DELIVERY_RETENTION_MS=604800000",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_TOKEN_RETENTION_MS=86400000",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ID=password-recovery-cleanup-worker",
   "STORAGE_DRIVER=local",
 ]) {
   requireText(".env.production.example", productionEnv, marker);
@@ -2767,6 +2779,8 @@ for (const marker of [
   "yorso_api_admin_audit_rows_total",
   "yorso_api_registration_delivery_worker_runs_total",
   "yorso_api_registration_delivery_worker_jobs_total",
+  "yorso_api_password_recovery_cleanup_worker_runs_total",
+  "yorso_api_password_recovery_cleanup_worker_rows_total",
   "yorso_api_readiness_checks_total",
   "yorso_api_production_baseline_concurrent_users",
 ]) {
@@ -2808,6 +2822,18 @@ for (const marker of [
   "YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER",
   "passwordRecoveryDeliverySpoolDir",
   "YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR",
+  "passwordRecoveryCleanupWorkerEnabled",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED",
+  "passwordRecoveryCleanupWorkerIntervalMs",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_INTERVAL_MS",
+  "passwordRecoveryCleanupWorkerBatchSize",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_BATCH_SIZE",
+  "passwordRecoveryCleanupDeliveryRetentionMs",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_DELIVERY_RETENTION_MS",
+  "passwordRecoveryCleanupTokenRetentionMs",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_TOKEN_RETENTION_MS",
+  "passwordRecoveryCleanupWorkerId",
+  "YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ID",
 ]) {
   requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), marker);
 }
@@ -2817,6 +2843,7 @@ requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Productio
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must set a non-default YORSO_REGISTRATION_VERIFICATION_CODE_SECRET.");
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ENABLED=true.");
 requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_PASSWORD_RECOVERY_DELIVERY_SENDER=file_spool.");
+requireText("apps/api/src/config.ts", read("apps/api/src/config.ts"), "Production self-hosted API must use YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true.");
 
 for (const marker of [
   "Backend Phase 2E",
@@ -2855,6 +2882,15 @@ for (const marker of [
   requireText("docs/backend/phase-2h-password-recovery-abuse-cleanup.md", phase2hPasswordRecoveryAbuseCleanup, marker);
 }
 for (const marker of [
+  "Backend Phase 2I",
+  "password recovery cleanup runtime",
+  "createPasswordRecoveryCleanupRuntime",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-2i-password-recovery-cleanup-runtime.md", phase2iPasswordRecoveryCleanupRuntime, marker);
+}
+for (const marker of [
   "PasswordRecoveryDeliveryWorker",
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
@@ -2876,6 +2912,20 @@ for (const marker of [
   "passwordRecoveryDeliveryWorkerEnabled",
 ]) {
   requireText("apps/api/src/modules/auth/password-recovery-delivery-runtime.ts", authPasswordRecoveryDeliveryRuntime, marker);
+}
+for (const marker of [
+  "PasswordRecoveryCleanupScheduler",
+  "already_running",
+  "worker_error",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts", authPasswordRecoveryCleanupScheduler, marker);
+}
+for (const marker of [
+  "createPasswordRecoveryCleanupRuntime",
+  "observePasswordRecoveryCleanupWorker",
+  "passwordRecoveryCleanupWorkerEnabled",
+]) {
+  requireText("apps/api/src/modules/auth/password-recovery-cleanup-runtime.ts", authPasswordRecoveryCleanupRuntime, marker);
 }
 
 for (const marker of [

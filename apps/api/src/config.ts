@@ -51,6 +51,12 @@ export const apiConfigSchema = z.object({
   passwordRecoveryDeliveryWorkerLeaseMs: z.coerce.number().int().min(5_000).max(15 * 60_000).default(60_000),
   passwordRecoveryDeliveryWorkerRetryAfterMs: z.coerce.number().int().min(1_000).max(24 * 60 * 60_000).default(60_000),
   passwordRecoveryDeliveryWorkerId: z.string().min(1).max(120).default("password-recovery-delivery-worker"),
+  passwordRecoveryCleanupWorkerEnabled: booleanEnvSchema.default(false),
+  passwordRecoveryCleanupWorkerIntervalMs: z.coerce.number().int().min(1_000).max(24 * 60 * 60_000).default(60 * 60_000),
+  passwordRecoveryCleanupWorkerBatchSize: z.coerce.number().int().min(1).max(5_000).default(500),
+  passwordRecoveryCleanupDeliveryRetentionMs: z.coerce.number().int().min(60_000).max(365 * 24 * 60 * 60_000).default(7 * 24 * 60 * 60_000),
+  passwordRecoveryCleanupTokenRetentionMs: z.coerce.number().int().min(60_000).max(365 * 24 * 60 * 60_000).default(24 * 60 * 60_000),
+  passwordRecoveryCleanupWorkerId: z.string().min(1).max(120).default("password-recovery-cleanup-worker"),
   errorObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
   metricsDriver: z.enum(["disabled", "prometheus"]).default("disabled"),
   requestObservabilityDriver: z.enum(["disabled", "console"]).default("disabled"),
@@ -120,6 +126,12 @@ const localDefaults = {
   YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_LEASE_MS: "60000",
   YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_RETRY_AFTER_MS: "60000",
   YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ID: "password-recovery-delivery-worker",
+  YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED: "false",
+  YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_INTERVAL_MS: "3600000",
+  YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_BATCH_SIZE: "500",
+  YORSO_PASSWORD_RECOVERY_CLEANUP_DELIVERY_RETENTION_MS: "604800000",
+  YORSO_PASSWORD_RECOVERY_CLEANUP_TOKEN_RETENTION_MS: "86400000",
+  YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ID: "password-recovery-cleanup-worker",
   YORSO_ERROR_OBSERVABILITY_DRIVER: "disabled",
   YORSO_METRICS_DRIVER: "disabled",
   YORSO_REQUEST_OBSERVABILITY_DRIVER: "disabled",
@@ -188,6 +200,12 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     passwordRecoveryDeliveryWorkerLeaseMs: source.YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_LEASE_MS,
     passwordRecoveryDeliveryWorkerRetryAfterMs: source.YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_RETRY_AFTER_MS,
     passwordRecoveryDeliveryWorkerId: source.YORSO_PASSWORD_RECOVERY_DELIVERY_WORKER_ID,
+    passwordRecoveryCleanupWorkerEnabled: source.YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED,
+    passwordRecoveryCleanupWorkerIntervalMs: source.YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_INTERVAL_MS,
+    passwordRecoveryCleanupWorkerBatchSize: source.YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_BATCH_SIZE,
+    passwordRecoveryCleanupDeliveryRetentionMs: source.YORSO_PASSWORD_RECOVERY_CLEANUP_DELIVERY_RETENTION_MS,
+    passwordRecoveryCleanupTokenRetentionMs: source.YORSO_PASSWORD_RECOVERY_CLEANUP_TOKEN_RETENTION_MS,
+    passwordRecoveryCleanupWorkerId: source.YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ID,
     errorObservabilityDriver: source.YORSO_ERROR_OBSERVABILITY_DRIVER,
     metricsDriver: source.YORSO_METRICS_DRIVER,
     requestObservabilityDriver: source.YORSO_REQUEST_OBSERVABILITY_DRIVER,
@@ -272,6 +290,9 @@ export function assertSelfHostedProductionRuntime(config: ApiConfig) {
   }
   if (config.nodeEnv === "production" && !config.passwordRecoveryDeliverySpoolDir.startsWith("/")) {
     throw new Error("Production self-hosted API must use an absolute YORSO_PASSWORD_RECOVERY_DELIVERY_SPOOL_DIR.");
+  }
+  if (config.nodeEnv === "production" && !config.passwordRecoveryCleanupWorkerEnabled) {
+    throw new Error("Production self-hosted API must use YORSO_PASSWORD_RECOVERY_CLEANUP_WORKER_ENABLED=true.");
   }
 }
 

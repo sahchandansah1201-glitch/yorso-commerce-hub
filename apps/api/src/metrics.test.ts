@@ -190,4 +190,32 @@ describe("self-hosted API metrics registry", () => {
     expect(text).not.toContain("buyer@yorso.test");
     expect(text).not.toContain("+34600000000");
   });
+
+  it("collects password recovery cleanup worker metrics without account values or tokens", () => {
+    const registry = new InMemoryPrometheusMetricsRegistry();
+
+    registry.observePasswordRecoveryCleanupWorker({
+      deliveriesDeleted: 8,
+      durationMs: 250,
+      limit: 500,
+      outcome: "success",
+      reason: null,
+      recoveriesDeleted: 4,
+      workerId: "cleanup-phase-2i",
+    });
+
+    const text = registry.renderPrometheusText();
+
+    expect(text).toContain(
+      'yorso_api_password_recovery_cleanup_worker_runs_total{outcome="success",reason="none",worker_id="cleanup-phase-2i"} 1',
+    );
+    expect(text).toContain(
+      'yorso_api_password_recovery_cleanup_worker_rows_total{result="deliveries_deleted",worker_id="cleanup-phase-2i"} 8',
+    );
+    expect(text).toContain(
+      'yorso_api_password_recovery_cleanup_worker_rows_total{result="recoveries_deleted",worker_id="cleanup-phase-2i"} 4',
+    );
+    expect(text).not.toContain("buyer@yorso.test");
+    expect(text).not.toContain("phase2i-reset-token");
+  });
 });
