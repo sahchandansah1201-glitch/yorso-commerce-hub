@@ -16,20 +16,20 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 2F Password Recovery Source Of Truth is implemented locally;
-release validation has passed and commit is pending.
+Backend Phase 2F Password Recovery Source Of Truth is committed locally at
+`4c2da272`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Reset request API | Owned reset-request endpoint without account enumeration. | Реализовано: `POST /v1/auth/password-reset/request` returns generic success for known and unknown emails. | Commit. |
+| Reset request API | Owned reset-request endpoint without account enumeration. | Реализовано: `POST /v1/auth/password-reset/request` returns generic success for known and unknown emails. | Закрыто в commit `4c2da272`. |
 | Token persistence | Durable reset source of truth without plain token lookup. | Реализовано: migration `0029_auth_password_recovery` creates token/outbox tables; repository stores `token_lookup_hash`, `token_secret`, expiry and used state. | Cleanup job later. |
 | Token hygiene | No raw reset token/email in public response. | Реализовано: server tests assert no token and no raw email in request response JSON. | Preserve for delivery adapters. |
 | Reset complete | Complete reset through owned backend. | Реализовано: `POST /v1/auth/password-reset/complete` verifies token hash/secret/expiry/used state, updates credentials and records security events. | KDF/password policy separately. |
 | Session safety | Invalidate old sessions after reset. | Реализовано: repository revokes/deletes sessions by user; service deletes matching cache entries. | Redis outage smoke later if needed. |
 | Frontend runtime | `/reset-password` uses self-hosted API when configured. | Реализовано: `auth-runtime` reads `?token=` / `#token=`, calls owned request/complete endpoints, keeps Supabase only as prototype fallback when self-hosted API is disabled. | UX copy for expired token can be separate. |
-| Production readiness | 10k review and guard docs updated. | Реализовано: Phase 2F doc, production baseline, frontend/backend contract and self-hosted DB/API guards updated. | Commit. |
+| Production readiness | 10k review and guard docs updated. | Реализовано: Phase 2F doc, production baseline, frontend/backend contract and self-hosted DB/API guards updated. | Закрыто в commit `4c2da272`. |
 
 ## Current Status
 
@@ -38,7 +38,7 @@ release validation has passed and commit is pending.
 - Backend Phase 0 closure audit and remediation are complete.
 - Backend Phase 1 discovery/audit and Phases 1A-1J are complete.
 - Backend Phase 2A-2E are committed locally and validation green.
-- Backend Phase 2F is implemented locally; release validation passed; commit pending.
+- Backend Phase 2F is committed locally at `4c2da272`; release validation passed.
 
 ## Phase 2F Files
 

@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "backend_phase_2f_password_recovery_source_of_truth_in_progress"
-  head_summary: "Backend Phase 2F password recovery source of truth implemented locally with release validation passed; commit pending."
-  dirty_worktree_before_project_memory: true
+  head_commit: "project_memory_checkpoint_after_4c2da272"
+  head_summary: "Project-memory checkpoint after Backend Phase 2F implementation commit 4c2da272; Phase 2F validation passed."
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Backend Phase 2F implementation, docs, tests and project-memory are staged for validation and commit."
+    - "No dirty worktree expected after the Phase 2F project-memory checkpoint."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -39,7 +39,7 @@ project_identity:
 active_workstream:
   id: "backend_phase_2f_password_recovery_source_of_truth"
   summary: "Password recovery now uses owned self-hosted reset request/complete endpoints, durable token source of truth, sealed backend-only delivery handoff material and session revocation."
-  status: "implemented_locally_validation_passed_commit_pending"
+  status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
@@ -52,7 +52,7 @@ active_workstream:
     - "src/lib/auth-runtime.ts now uses self-hosted /v1/auth/password-reset/request and /complete when VITE_YORSO_API_URL is configured, reading reset tokens from ?token= or #token=."
     - "Supabase password recovery remains prototype fallback only when self-hosted API is not configured."
     - "Phase 2F release validation passed: contracts build; API server tests; auth-runtime tests; DB contract/migration tests; self-hosted DB/API guards; production-scale guard; TypeScript build; self-hosted production-runtime guard; lint; API build; diff check; production build."
-    - "Commit is still pending."
+    - "Phase 2F is committed locally at 4c2da272."
     - "Phase 2E is committed locally at c1afa712 and remains preserved."
     - "Phase 2E implementation is recorded in docs/backend/phase-2e-registration-verification-code-policy.md."
     - "RegistrationVerificationCodeIssuer issues fresh numeric codes for email and phone verification requests."
@@ -63,7 +63,7 @@ active_workstream:
     - "Production config requires a non-default YORSO_REGISTRATION_VERIFICATION_CODE_SECRET."
     - "RegisterVerify prototype dev-skip remains available only in API-disabled local mock mode."
     - "Phase 2E release validation passed: verification-code, delivery-worker, delivery-sender and server tests; frontend registration tests; TypeScript build; contracts build; DB migration tests; self-hosted infra/runtime/API guards; production-scale guard; lint; API build; diff check; production build."
-    - "Commit is still pending."
+    - "Phase 2F implementation is committed locally at 4c2da272; project-memory checkpoint is documentation-only."
     - "Phase 2D implementation is recorded in docs/backend/phase-2d-registration-delivery-runtime.md."
     - "FileSpoolRegistrationVerificationSender writes one 0600 JSON handoff file per sent registration delivery job to an owned local spool directory."
     - "RegistrationDeliveryScheduler runs bounded RegistrationDeliveryWorker batches outside public request handlers, skips overlapping runs and catches worker-level failures for metrics."

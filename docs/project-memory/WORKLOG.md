@@ -2327,6 +2327,11 @@ Keep this file factual and append-only.
 - Known non-blocking warnings preserved:
   - Supabase generated types out of sync in non-strict preview/build mode;
   - Browserslist data stale.
+- Committed Backend Phase 2F implementation locally as `4c2da272`
+  (`[codex] Backend Phase 2F password recovery source`).
+- Added a documentation-only project-memory checkpoint after the Phase 2F
+  implementation commit so the next handoff starts from Backend Phase 2G
+  instead of a stale "commit pending" state.
 
 ## 2026-05-29
 
