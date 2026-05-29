@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "799af493"
-  head_summary: "Backend Phase 4B supplier profile dossier facts; release validation passed."
+  head_commit: "d8988d50"
+  head_summary: "Backend Phase 4C supplier profile evidence blocks; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4B implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4C implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4b_supplier_profile_dossier_facts"
-  summary: "Supplier profile production/logistics dossier facts are backend-owned through the supplier directory contract/API/DB."
+  id: "backend_phase_4c_supplier_profile_evidence_blocks"
+  summary: "Supplier profile shipment evidence and FAQ blocks are backend-owned through the supplier directory contract/API/DB."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4C implementation is recorded in docs/backend/phase-4c-supplier-profile-evidence-blocks.md."
+    - "packages/contracts/src/supplier-directory.ts now includes supplierShipmentCaseSchema, supplierFaqItemSchema, shipmentCases and faqItems."
+    - "apps/api supplier repositories return shipmentCases/faqItems from memory records and yorso_suppliers_directory shipment_cases/profile_faq_items."
+    - "packages/db/migrations/0032_supplier_profile_evidence_blocks.sql adds shipment_cases and profile_faq_items JSONB columns with array constraints and locked-buyer-safe comments."
+    - "src/pages/SupplierProfile.tsx now reads supplier?.shipmentCases and supplier?.faqItems; page-level buildShipmentCasesI18n/buildFaqItemsI18n/hashSeed synthesis is removed."
+    - "src/lib/supplier-evidence-blocks.ts keeps explicit API-disabled local preview helpers separate from configured production API truth."
+    - "check:self-hosted-api and check:production-scale-baseline guard the Phase 4C contract, migration, docs and no page-level evidence synthesis."
+    - "Phase 4C release validation passed: TDD red supplier profile evidence test, contracts build, focused supplier contract/view/profile tests, API supplier repository tests, DB migration/contract tests, self-hosted guards, TypeScript build graph, full npm test, lint, API build, production build and diff check."
+    - "Phase 4C is committed locally at d8988d50."
+    - "Recommended next scoped workstream: Backend Phase 4D Supplier Profile Legal/Compliance Details Source Boundary."
     - "Phase 4B implementation is recorded in docs/backend/phase-4b-supplier-profile-dossier-completeness.md."
     - "packages/contracts/src/supplier-directory.ts now includes supplierProductionFactsSchema, supplierLogisticsFactsSchema, productionFacts and logisticsFacts."
     - "apps/api supplier repositories return productionFacts/logisticsFacts from memory records and yorso_suppliers_directory production_facts/logistics_facts."
@@ -1850,4 +1860,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 4B implementation question. Next scoped decision: Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks."
+  - "No open Phase 4C implementation question. Next scoped decision: Backend Phase 4D Supplier Profile Legal/Compliance Details Source Boundary."

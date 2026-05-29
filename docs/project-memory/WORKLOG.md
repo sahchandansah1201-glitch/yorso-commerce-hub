@@ -3012,3 +3012,55 @@ Keep this file factual and append-only.
   - Browserslist data stale.
 - Next scoped workstream: Backend Phase 4C Supplier Profile Backend-Owned
   Evidence Blocks.
+
+## 2026-05-29 Phase 4C Checkpoint
+
+- Latest implementation commit: `d8988d50` (`[codex] Backend Phase 4C supplier evidence blocks`).
+- Scoped workstream: Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks.
+- Implemented backend-owned supplier profile evidence:
+  - `packages/contracts/src/supplier-directory.ts` now defines
+    `supplierShipmentCaseSchema`, `supplierFaqItemSchema`, `shipmentCases` and
+    `faqItems`;
+  - memory and PostgreSQL supplier repositories return those blocks from the
+    supplier directory record;
+  - migration `0032_supplier_profile_evidence_blocks.sql` adds
+    `shipment_cases` and `profile_faq_items` JSONB columns to
+    `yorso_suppliers_directory`;
+  - `SupplierProfile.tsx` renders shipment evidence and FAQ from
+    `supplier?.shipmentCases` and `supplier?.faqItems`.
+- Removed frontend evidence/FAQ synthesis:
+  - page-level `buildShipmentCasesI18n`, `buildFaqItemsI18n` and `hashSeed`
+    are gone from supplier profile evidence rendering;
+  - API-disabled preview uses explicit helpers in
+    `src/lib/supplier-evidence-blocks.ts` instead of hidden production logic.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Contract | Добавить backend-owned shipment/FAQ evidence. | Реализовано: contract schemas and fields added. | Owner/admin write API later. |
+| Persistence | Хранить evidence/FAQ в self-hosted supplier table. | Реализовано: migration `0032_supplier_profile_evidence_blocks`. | Backfill real supplier evidence later. |
+| Profile UI | Убрать hash-based evidence/FAQ synthesis из page. | Реализовано: profile reads evidence/FAQ from supplier record. | Phase 4D legal/compliance source boundary. |
+| Local preview | Сохранить Lovable/local preview separately. | Реализовано: explicit local preview helpers. | Demo-mode retirement later. |
+| Guards | Зафиксировать no-synthesis/no-provider regression. | Реализовано: tests plus self-hosted/scale checks. | Keep in `ci:core`. |
+
+- Validation passed:
+  - TDD red: `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx`
+    failed before implementation because backend evidence was ignored;
+  - `npm run contracts:build`;
+  - `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx`;
+  - `npm test -- src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-view.test.ts src/lib/supplier-directory-api.test.ts src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`;
+  - `npm run test:db-migrations`;
+  - `npm run test:db-contract`;
+  - `npx tsc -b --noEmit`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm test`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `npm run build`;
+  - `git diff --check`.
+- Known non-blocking warning preserved:
+  - Browserslist data stale.
+- Next scoped workstream: Backend Phase 4D Supplier Profile Legal/Compliance
+  Details Source Boundary.

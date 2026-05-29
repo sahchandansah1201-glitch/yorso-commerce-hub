@@ -16,17 +16,17 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness is
-committed locally at `799af493`; release validation passed.
+Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks is committed
+locally at `d8988d50`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Dossier contract | Перенести production/logistics facts в supplier API contract. | Реализовано: `productionFacts` / `logisticsFacts` добавлены в contract, API repositories and frontend adapter. | Owner/admin write path later. |
-| Persistence | Добавить self-hosted storage для facts. | Реализовано: migration `0031_supplier_profile_dossier_facts` добавляет JSONB `production_facts` / `logistics_facts`. | Backfill real supplier data later. |
-| Supplier profile | Убрать frontend synthesis. | Реализовано: `SupplierProfile.tsx` читает facts из supplier record; `buildProductionFacts` / `buildLogisticsFacts` удалены. | Phase 4C: evidence/FAQ/shipment blocks. |
-| Local preview | Сохранить Lovable/local preview без API. | Реализовано: explicit local preview helpers вынесены в `supplier-dossier-facts.ts`. | Demo-mode retirement отдельным решением. |
+| Evidence contract | Перенести shipment cases и FAQ в supplier API contract. | Реализовано: `shipmentCases` / `faqItems` добавлены в contract, API repositories and frontend adapter. | Owner/admin write path later. |
+| Persistence | Добавить self-hosted storage для evidence/FAQ. | Реализовано: migration `0032_supplier_profile_evidence_blocks` добавляет JSONB `shipment_cases` / `profile_faq_items`. | Backfill verified supplier evidence later. |
+| Supplier profile | Убрать frontend hash-based evidence/FAQ synthesis. | Реализовано: `SupplierProfile.tsx` читает evidence/FAQ из supplier record; старые builders удалены. | Phase 4D: legal/compliance source boundary. |
+| Local preview | Сохранить Lovable/local preview без API. | Реализовано: explicit local preview helpers вынесены в `supplier-evidence-blocks.ts`. | Demo-mode retirement отдельным решением. |
 | Guards | Зафиксировать no-synthesis contract. | Реализовано: tests, DB guards, `check:self-hosted-api`, `check:production-scale-baseline` проходят. | Держать guards в `ci:core`. |
 
 ## Current Status
@@ -41,6 +41,34 @@ committed locally at `799af493`; release validation passed.
 - Backend Phase 3C is committed locally at `6c2f5368`; release validation passed.
 - Backend Phase 4A is committed locally at `9362f458`; release validation passed.
 - Backend Phase 4B is committed locally at `799af493`; release validation passed.
+- Backend Phase 4C is committed locally at `d8988d50`; release validation passed.
+
+## Phase 4C Files
+
+- `docs/backend/phase-4c-supplier-profile-evidence-blocks.md`
+- `packages/contracts/src/supplier-directory.ts`
+- `apps/api/src/modules/suppliers/repository.ts`
+- `apps/api/src/modules/suppliers/postgres-repository.ts`
+- `packages/db/migrations/0032_supplier_profile_evidence_blocks.sql`
+- `packages/db/migration-manifest.json`
+- `src/lib/supplier-evidence-blocks.ts`
+- `src/lib/supplier-content.ts`
+- `src/lib/supplier-directory-api.ts`
+- `src/lib/supplier-directory-view.ts`
+- `src/lib/use-supplier-directory.ts`
+- `src/pages/SupplierProfile.tsx`
+- `src/data/mockSuppliers.ts`
+- `src/data/mockSuppliersI18n.ts`
+- `src/test/self-hosted-contracts.test.ts`
+- `src/test/self-hosted-db-contract.test.ts`
+- `apps/api/src/modules/suppliers/__tests__/repository.test.ts`
+- `src/lib/supplier-directory-api.test.ts`
+- `src/lib/supplier-directory-view.test.ts`
+- `src/lib/use-supplier-directory.test.tsx`
+- `src/pages/Suppliers.test.tsx`
+- `src/pages/__tests__/SupplierProfile.access.test.tsx`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
 
 ## Phase 4B Files
 
@@ -112,6 +140,25 @@ Removed active provider surface:
 
 ## Validation
 
+Phase 4C release validation passed locally on 2026-05-29:
+
+- `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx` initially
+  failed in TDD red because the profile ignored API-owned backend evidence.
+- `npm run contracts:build`
+- `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx`
+- `npm test -- src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-view.test.ts src/lib/supplier-directory-api.test.ts src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx`
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`
+- `npm run test:db-migrations`
+- `npm run test:db-contract`
+- `npx tsc -b --noEmit`
+- `npm run check:self-hosted-api`
+- `npm run check:production-scale-baseline`
+- `npm test`
+- `npm run lint`
+- `npm run api:build`
+- `npm run build`
+- `git diff --check`
+
 Phase 4B release validation passed locally on 2026-05-29:
 
 - `npx vitest run src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-view.test.ts src/pages/__tests__/SupplierProfile.access.test.tsx`
@@ -162,13 +209,13 @@ Known non-blocking warning:
 
 ## Next Recommended Workstream
 
-Backend Phase 4C: Supplier Profile Backend-Owned Evidence Blocks.
+Backend Phase 4D: Supplier Profile Legal/Compliance Details Source Boundary.
 
 Concrete first question:
 
-- Which `/suppliers/:supplierId` evidence sections still derive legal,
-  shipment, FAQ or trust copy from frontend/mock content instead of
-  backend-owned fields?
+- Which legal/compliance details still come from `getSupplierLegalDetails` or
+  frontend/local mappings, and which of them are safe for locked buyers versus
+  `qualified_unlocked` buyers only?
 
 ## Preserve
 

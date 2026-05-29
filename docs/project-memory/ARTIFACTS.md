@@ -174,6 +174,43 @@
   `scripts/check-production-scale-baseline.mjs`: guards for Phase 4B docs,
   migration, contract fields and absence of page-level hash synthesis.
 
+## Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks
+
+- `docs/backend/phase-4c-supplier-profile-evidence-blocks.md`: Phase 4C
+  implementation note, Russian plan/fact table, access decision, runtime
+  contract, remaining debt and 10,000 concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: supplier directory contract
+  now owns `supplierShipmentCaseSchema`, `supplierFaqItemSchema`,
+  `shipmentCases` and `faqItems`.
+- `apps/api/src/modules/suppliers/repository.ts` and
+  `apps/api/src/modules/suppliers/postgres-repository.ts`: memory and
+  PostgreSQL supplier repositories return shipment evidence and FAQ items.
+- `packages/db/migrations/0032_supplier_profile_evidence_blocks.sql` and
+  `packages/db/migration-manifest.json`: self-hosted DB migration and manifest
+  entry for `shipment_cases` / `profile_faq_items`.
+- `src/lib/supplier-evidence-blocks.ts`: explicit API-disabled local preview
+  helpers for supplier shipment evidence and FAQ items.
+- `src/lib/supplier-content.ts`: old frontend hash-based evidence/FAQ builders
+  were removed; only shared label-key helpers remain.
+- `src/lib/supplier-directory-api.ts`,
+  `src/lib/supplier-directory-view.ts`,
+  `src/lib/use-supplier-directory.ts` and
+  `src/pages/SupplierProfile.tsx`: frontend adapters/profile render evidence
+  and FAQ from supplier records and keep local preview separate.
+- `src/test/self-hosted-contracts.test.ts`,
+  `src/test/self-hosted-db-contract.test.ts`,
+  `apps/api/src/modules/suppliers/__tests__/repository.test.ts`,
+  `src/lib/supplier-directory-api.test.ts`,
+  `src/lib/supplier-directory-view.test.ts`,
+  `src/lib/use-supplier-directory.test.tsx`,
+  `src/pages/Suppliers.test.tsx` and
+  `src/pages/__tests__/SupplierProfile.access.test.tsx`: regression coverage
+  for contract, DB, API mapping, local preview preservation and supplier profile
+  rendering.
+- `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: guards for Phase 4C docs,
+  migration, contract fields and absence of page-level evidence synthesis.
+
 ## Backend Phase 1B Account Section-Scoped Mutations
 
 - `docs/backend/phase-1-account-section-scoped-mutations.md`: implementation

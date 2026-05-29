@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-29"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "799af493_phase_4b_supplier_profile_dossier_facts"
+head_commit: "d8988d50_phase_4c_supplier_profile_evidence_blocks"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4b_supplier_profile_dossier_facts"
+active_workstream: "backend_phase_4c_supplier_profile_evidence_blocks"
 pull_request: null
-recommended_action: "start Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4B are documented, committed and validated."
+recommended_action: "start Backend Phase 4D Supplier Profile Legal/Compliance Details Source Boundary"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4C are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4b_supplier_profile_dossier_facts.
-Current HEAD baseline: Backend Phase 4B supplier profile dossier facts implementation commit 799af493 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4c_supplier_profile_evidence_blocks.
+Current HEAD baseline: Backend Phase 4C supplier profile evidence blocks implementation commit d8988d50 is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,9 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: start Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks.
+Current recommended action: start Backend Phase 4D Supplier Profile Legal/Compliance Details Source Boundary.
+Phase 4C implemented and committed locally at d8988d50: /suppliers/:supplierId shipment evidence and FAQ blocks are backend-owned through supplierDirectory contract/API/DB fields shipmentCases/faqItems, migration 0032_supplier_profile_evidence_blocks, and SupplierProfile.tsx no longer has buildShipmentCasesI18n/buildFaqItemsI18n/hashSeed page-level synthesis.
+Phase 4C validation passed: TDD red supplier profile evidence test; contracts build; focused supplier contract/view/profile tests; API supplier repository tests; DB migration/contract tests; self-hosted guards; TypeScript build graph; full npm test; lint; API build; production build; git diff --check.
 Phase 4B implemented and committed locally at 799af493: /suppliers/:supplierId production/logistics dossier facts are backend-owned through supplierDirectory contract/API/DB fields productionFacts/logisticsFacts, migration 0031_supplier_profile_dossier_facts, and SupplierProfile.tsx no longer has buildProductionFacts/buildLogisticsFacts/hashSeed page-level synthesis.
 Phase 4B validation passed: focused supplier contract/view/profile tests; API supplier repository tests; DB migration/contract tests; test:supplier-directory-frontend; check:self-hosted-api; check:production-scale-baseline; test:backend-contract; test:api; npx tsc -b --noEmit; npm test; lint; api:build; build; git diff --check.
 Phase 4A implemented and committed locally at 9362f458: when VITE_YORSO_API_URL is configured, /suppliers and /suppliers/:supplierId no longer substitute mockSuppliers after self-hosted supplier API failure; first-load failure shows visible live API error/retry state.
@@ -366,5 +368,5 @@ Lovable sync for Batch #128 is confirmed clean at f1f482b with no conflicts and 
 Lovable confirmed RegistrationLayout, CountryPhoneInput, SignIn, ResetPassword, RegisterChoose/Email/Verify/Details/Onboarding/Countries/Ready, e2e/public-auth-registration-a11y.spec.ts, package smoke wiring, Batch #128 production-scale notes, registration field autocomplete, skip/main landmarks, no nested controls, /register/ready Button asChild CTA, 44px mobile registration targets, preserved Batch #112 code splitting, Batch #113 error boundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets.
 Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
 Known warning remains: Browserslist data is stale.
-Next step: start Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks from current main.
+Next step: start Backend Phase 4D Supplier Profile Legal/Compliance Details Source Boundary from current main.
 ```
