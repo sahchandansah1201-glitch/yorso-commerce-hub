@@ -46,13 +46,20 @@ export interface RegistrationDraft {
 }
 
 export interface RegistrationDeliveryOutboxEntry {
+  attemptCount: number;
+  availableAt: string;
   channel: AuthRegistrationDeliveryChannel;
   createdAt: string;
   destinationPreview: string;
   draftId: string;
   id: string;
+  lockedAt: string | null;
+  lockedBy: string | null;
+  maxAttempts: number;
   purpose: AuthRegistrationDeliveryPurpose;
   status: AuthRegistrationDeliveryStatus;
+  templateKey: string;
+  updatedAt: string;
 }
 
 export interface RegistrationDeliveryOutboxInput {
@@ -67,6 +74,21 @@ export interface RegistrationDeliveryOutboxInput {
 export interface RegistrationDraftDeliveryResult {
   delivery: RegistrationDeliveryOutboxEntry;
   draft: RegistrationDraft;
+}
+
+export interface RegistrationDeliveryJob extends RegistrationDeliveryOutboxEntry {
+  destination: string;
+}
+
+export interface RegistrationDeliveryLeaseInput {
+  leaseMs: number;
+  limit: number;
+  workerId: string;
+}
+
+export interface RegistrationDeliveryFailureInput {
+  error: string;
+  retryAfterMs: number;
 }
 
 export interface RegistrationAccountProvisioner {
@@ -101,6 +123,12 @@ export interface AuthRepository {
   updateRegistrationOnboarding(sessionId: string, input: AuthRegisterOnboarding): Promise<RegistrationDraft>;
   updateRegistrationMarkets(sessionId: string, input: AuthRegisterMarkets): Promise<RegistrationDraft>;
   completeRegistration(sessionId: string, ttlMs: number): Promise<RegistrationCompleteResult>;
+  leaseRegistrationDeliveryJobs(input: RegistrationDeliveryLeaseInput): Promise<RegistrationDeliveryJob[]>;
+  markRegistrationDeliverySent(deliveryId: string): Promise<RegistrationDeliveryOutboxEntry | null>;
+  markRegistrationDeliveryFailed(
+    deliveryId: string,
+    input: RegistrationDeliveryFailureInput,
+  ): Promise<RegistrationDeliveryOutboxEntry | null>;
   getSession(sessionId: string): Promise<AuthSession | null>;
   deleteSession(sessionId: string): Promise<boolean>;
   hasRole(userId: string, role: AdminUserRole): Promise<boolean>;
@@ -394,6 +422,79 @@ export class MemoryAuthRepository implements AuthRepository {
     }).length;
   }
 
+  async leaseRegistrationDeliveryJobs(input: RegistrationDeliveryLeaseInput): Promise<RegistrationDeliveryJob[]> {
+    const now = Date.now();
+    const jobs = [...this.registrationDeliveryOutbox.values()]
+      .filter((delivery) =>
+        (delivery.status === "queued" || delivery.status === "leased") &&
+        delivery.attemptCount < delivery.maxAttempts &&
+        new Date(delivery.availableAt).getTime() <= now
+      )
+      .sort((left, right) =>
+        new Date(left.availableAt).getTime() - new Date(right.availableAt).getTime() ||
+        new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+      )
+      .slice(0, input.limit);
+
+    const leasedAt = iso(new Date());
+    const leaseExpiresAt = iso(new Date(now + input.leaseMs));
+    return jobs.flatMap((delivery) => {
+      const draft = this.registrationDrafts.get(delivery.draftId);
+      if (!draft) return [];
+      if (new Date(draft.expiresAt).getTime() <= now) return [];
+      const destination = delivery.purpose === "email_verification" ? draft.email : draft.phone;
+      if (!destination) return [];
+      const leased: RegistrationDeliveryOutboxEntry = {
+        ...delivery,
+        availableAt: leaseExpiresAt,
+        lockedAt: leasedAt,
+        lockedBy: input.workerId,
+        status: "leased",
+        updatedAt: leasedAt,
+      };
+      this.registrationDeliveryOutbox.set(leased.id, leased);
+      return [{
+        ...cloneDelivery(leased),
+        destination,
+      }];
+    });
+  }
+
+  async markRegistrationDeliverySent(deliveryId: string): Promise<RegistrationDeliveryOutboxEntry | null> {
+    const delivery = this.registrationDeliveryOutbox.get(deliveryId);
+    if (!delivery || delivery.status !== "leased") return null;
+    const updated: RegistrationDeliveryOutboxEntry = {
+      ...delivery,
+      lockedAt: null,
+      lockedBy: null,
+      status: "sent",
+      updatedAt: iso(new Date()),
+    };
+    this.registrationDeliveryOutbox.set(deliveryId, updated);
+    return cloneDelivery(updated);
+  }
+
+  async markRegistrationDeliveryFailed(
+    deliveryId: string,
+    input: RegistrationDeliveryFailureInput,
+  ): Promise<RegistrationDeliveryOutboxEntry | null> {
+    const delivery = this.registrationDeliveryOutbox.get(deliveryId);
+    if (!delivery || delivery.status !== "leased") return null;
+    const attemptCount = delivery.attemptCount + 1;
+    const exhausted = attemptCount >= delivery.maxAttempts;
+    const updated: RegistrationDeliveryOutboxEntry = {
+      ...delivery,
+      attemptCount,
+      availableAt: exhausted ? delivery.availableAt : iso(new Date(Date.now() + input.retryAfterMs)),
+      lockedAt: null,
+      lockedBy: null,
+      status: exhausted ? "failed" : "queued",
+      updatedAt: iso(new Date()),
+    };
+    this.registrationDeliveryOutbox.set(deliveryId, updated);
+    return cloneDelivery(updated);
+  }
+
   private async requireRegistrationDraft(sessionId: string) {
     const draft = await this.getRegistrationDraft(sessionId);
     if (!draft) throw new Error("registration_session_invalid");
@@ -405,13 +506,20 @@ export class MemoryAuthRepository implements AuthRepository {
     input: RegistrationDeliveryOutboxInput,
   ): RegistrationDeliveryOutboxEntry {
     const delivery: RegistrationDeliveryOutboxEntry = {
+      attemptCount: 0,
+      availableAt: iso(new Date()),
       channel: input.channel,
       createdAt: iso(new Date()),
       destinationPreview: input.destinationPreview,
       draftId,
       id: randomUUID(),
+      lockedAt: null,
+      lockedBy: null,
+      maxAttempts: 5,
       purpose: input.purpose,
       status: "queued",
+      templateKey: input.templateKey,
+      updatedAt: iso(new Date()),
     };
     this.registrationDeliveryOutbox.set(delivery.id, delivery);
     return delivery;

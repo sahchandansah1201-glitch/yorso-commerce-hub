@@ -4705,6 +4705,79 @@ Marker: registration verification delivery outbox.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 2C Registration Verification Worker Lease Processing
+
+Phase 2C adds the internal worker boundary for processing
+`yorso_registration_delivery_outbox` rows. It leases bounded ready jobs,
+delegates delivery to an injectable self-hosted sender, then marks each job
+sent, requeued or failed.
+
+Expected read/write profile:
+
+- Worker batch reads up to `limit` ready rows.
+- Each leased row gets one sender call.
+- Each processed row gets one status update: sent, queued for retry or failed.
+- Public registration routes are unchanged.
+
+Cache, queue and backpressure strategy:
+
+- `limit` bounds each batch.
+- `leaseMs` prevents duplicate active processing and enables stale-lease
+  recovery.
+- `retryAfterMs`, `attempt_count` and `max_attempts` prevent hot retry loops.
+- No hosted provider queue, Supabase function or browser polling is introduced.
+
+Database indexing and pagination strategy:
+
+- PostgreSQL lease uses the ready outbox index and `for update skip locked`.
+- Worker runners must use bounded repeated batches rather than full queue scans.
+- Status transitions reuse the Phase 2B outbox columns; no new migration is
+  required.
+
+Failure mode and graceful degradation:
+
+- Sender failure requeues the job until retry budget is exhausted.
+- Exhausted jobs become `failed` and stop retrying.
+- Expired or completed registration drafts are excluded before a row is leased.
+- Error text is sanitized before persistence.
+- If no worker is running, registration still records durable queued delivery
+  intent; the system does not claim provider delivery outside the outbox state.
+
+Observability and load-test plan:
+
+- Track leased, sent, requeued and failed counts per batch.
+- Track queued job age, terminal failures and lease contention when a runtime
+  scheduler is added.
+- Load-test multiple worker processes using the same ready queue under 10,000
+  concurrent-user registration pressure.
+- Validate that logs and persisted errors do not contain verification codes,
+  raw email or raw phone values.
+
+Validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/delivery-worker.test.ts`;
+- `npx tsc -b --noEmit`;
+- `npm run contracts:build`;
+- `npm run test:db-migrations`;
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/delivery-worker.test.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+- `npm run lint`;
+- `npm run check:production-scale-baseline`;
+- `npm run check:self-hosted-production-runtime`;
+- `npm run api:build`;
+- `git diff --check`;
+- `npm run build`.
+
+Production build metrics:
+
+- CSS `index-DbM2SN9t.css` 126.84 kB / 21.02 kB gzip.
+- Entry `index-BqYFae4R.js` 358.21 kB / 114.93 kB gzip.
+- `i18n-translations-Co3DNZMT.js` 343.80 kB / 107.82 kB gzip.
+
+Marker: Backend Phase 2C.
+Marker: registration verification worker lease.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

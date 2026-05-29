@@ -2,37 +2,44 @@
 
 ## Current Next Action
 
-Start the next scoped backend workstream after Backend Phase 2B.
+Start the next scoped backend workstream after Backend Phase 2C.
 
-Phase 2B adds a self-hosted registration verification delivery outbox. API
-registration can now record durable delivery intent for email, SMS and WhatsApp
-verification without adding a hosted BaaS or external provider dependency.
+Phase 2C adds a self-hosted registration verification delivery worker boundary.
+It leases queued `yorso_registration_delivery_outbox` jobs, sends them through
+an injectable sender interface, and marks each job `sent`, requeued or `failed`
+without adding Supabase, hosted BaaS, external provider coupling or public UI
+changes.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Durable delivery intent | Хранить delivery job на backend, а не считать `sent` только mock/UI-состоянием. | Реализовано: `yorso_registration_delivery_outbox` с purpose/channel/status, masked destination, destination hash, retry and lease fields. | Добавить worker только отдельным Phase 2C решением. |
-| Email verification delivery | При старте регистрации создавать delivery intent для email-кода. | Реализовано: draft insert + email outbox insert в одном PostgreSQL CTE; memory runtime mirror. | Worker сможет резолвить raw destination через draft внутри backend runtime. |
-| Phone verification delivery | При SMS/WhatsApp verification request создавать channel-specific delivery intent. | Реализовано: phone state update + outbox insert в одном PostgreSQL CTE. | Добавить lease/retry processing позже. |
-| Safe response | Браузер может видеть delivery status, но не код и не полный контакт. | Реализовано: response содержит только id, purpose, channel, status, destinationPreview; тесты проверяют отсутствие полного email/phone и `123456`. | Сохранять этот hygiene-contract в worker/admin surfaces. |
-| Self-contained boundary | Не добавлять Supabase/hosted provider coupling. | Сохранено: только owned API/PostgreSQL metadata; no hosted BaaS. | Выбрать Phase 2C worker или legacy Supabase consolidation. |
-| Validation | Проверить контракты, DB migration, API, frontend boundary, lint/build/runtime guards. | Passed: contracts, registration API client, DB migrations, API tests, TypeScript, lint, production-scale, self-hosted runtime, api build, diff check, production build. | Выбрать Phase 2C или legacy Supabase consolidation. |
+| Worker lease boundary | Обрабатывать delivery outbox через bounded backend worker, а не через browser/mock state. | Реализовано: `RegistrationDeliveryWorker.processBatch` вызывает `leaseRegistrationDeliveryJobs` с `limit`, `workerId`, `leaseMs`. | Подключать runtime scheduler только отдельным Phase 2D решением. |
+| PostgreSQL lease safety | Не допускать double-processing и не забирать невалидные registration drafts. | Реализовано: ordered `for update skip locked`, `attempt_count < max_attempts`, фильтр active draft до lease. | Нагрузочно проверить lease contention несколькими worker-процессами. |
+| Sender boundary | Не хардкодить сторонний провайдер в backend core. | Реализовано: injectable `RegistrationVerificationDeliverySender`; sender получает backend-only destination и template key. | Реализовать self-hosted SMTP/SMS/WhatsApp adapter или явный no-provider dev sender. |
+| Retry/failure | Не терять job при ошибке и не ретраить бесконечно. | Реализовано: `markRegistrationDeliveryFailed` requeue до `max_attempts`, затем `failed`; error text sanitization. | Добавить operator visibility/alerting для terminal failures. |
+| Hygiene | Не отдавать verification code/full contact в browser или публичные surfaces. | Реализовано: worker message не содержит `code`/`verificationCode`; browser responses по Phase 2B остаются masked metadata only. | Сохранить контракт при sender adapter/admin console. |
+| Validation | Проверить worker, repository boundary, contracts, migrations, runtime guards и build. | Passed: delivery-worker tests, TypeScript, contracts, DB migrations, focused API tests, lint, production-scale, self-hosted runtime, api build, diff check, production build. | Можно стартовать Phase 2D. |
 
-## Next Implementation After Commit
+## Next Implementation
 
 Recommended next scoped workstream:
 
-Backend Phase 2C: self-hosted verification worker/lease processing.
+Backend Phase 2D: self-hosted verification sender and runtime scheduler
+decision.
 
 Concrete scope:
 
-- implement an internal worker boundary that leases queued
-  `yorso_registration_delivery_outbox` rows;
-- mark jobs sent/failed without logging verification codes or raw destinations;
-- keep provider integration self-hosted and configurable;
-- add retry/backoff and worker observability;
-- preserve Phase 2A account creation and Phase 2B safe delivery metadata.
+- choose the first production delivery adapter boundary for registration
+  verification: self-hosted SMTP, owned SMS/WhatsApp gateway, or explicit
+  operator/manual delivery mode;
+- add a runtime scheduler/runner that calls `RegistrationDeliveryWorker`
+  without blocking public registration routes;
+- add provider/config fail-closed checks for production;
+- add metrics for leased/sent/requeued/failed, queued job age and terminal
+  failures;
+- preserve Phase 2A account creation, Phase 2B safe delivery metadata and
+  Phase 2C lease/retry semantics.
 
 Alternative:
 

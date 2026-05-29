@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-29"
   active_branch: "main"
-  head_commit: "backend_phase_2b_registration_verification_delivery_outbox_committed_local"
-  head_summary: "Backend Phase 2B registration verification delivery outbox committed locally with release validation passed."
+  head_commit: "backend_phase_2c_registration_verification_worker_lease_committed_local"
+  head_summary: "Backend Phase 2C registration verification worker lease processing committed locally with release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "No expected dirty worktree after the Phase 2B checkpoint commit."
+    - "No expected dirty worktree after the Phase 2C checkpoint commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,12 +37,21 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_2b_registration_verification_delivery_outbox"
-  summary: "API-enabled registration now records durable self-hosted delivery intent for email, SMS and WhatsApp verification without adding hosted BaaS/provider coupling."
+  id: "backend_phase_2c_registration_verification_worker_lease"
+  summary: "Registration verification delivery outbox jobs now have a self-hosted worker lease boundary that marks jobs sent, requeued or failed without adding hosted provider coupling."
   status: "committed_locally_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 2C implementation is recorded in docs/backend/phase-2c-registration-verification-worker-lease.md."
+    - "RegistrationDeliveryWorker leases queued/stale delivery jobs through AuthRepository and processes them with an injectable self-hosted sender."
+    - "Memory and PostgreSQL auth repositories support leaseRegistrationDeliveryJobs, markRegistrationDeliverySent and markRegistrationDeliveryFailed."
+    - "PostgreSQL leasing uses bounded ordered for update skip locked candidates and excludes expired/completed registration drafts before rows are leased."
+    - "Worker payload includes backend-only destination, masked destination preview and template key; it does not include verification code/code fields."
+    - "Sender errors are sanitized before persistence and jobs requeue until max_attempts, then become failed."
+    - "No hosted BaaS, Supabase function, external provider, auto-start daemon or public UI change was added."
+    - "Phase 2C release validation passed: delivery worker tests; TypeScript build; contracts build; DB migrations; focused API repository/server/storage tests; lint; production-scale guard; self-hosted runtime guard; api build; diff check; production build."
+    - "Recommended next implementation after Phase 2C: Backend Phase 2D self-hosted verification sender/runtime scheduler decision, or a scoped legacy Supabase consolidation pass."
     - "Phase 2B implementation is recorded in docs/backend/phase-2b-registration-verification-delivery-outbox.md."
     - "Migration 0027_registration_verification_delivery_outbox creates yorso_registration_delivery_outbox with purpose, channel, status, destination hash, masked destination preview, retry and leasing fields."
     - "Registration start creates an email verification outbox row in the same PostgreSQL CTE as the registration draft insert."
@@ -164,6 +173,13 @@ active_workstream:
     - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
     - "Next planned workstream after Phase 1J checkpoint: Backend Phase 2A registration-to-account creation and verification source of truth, or a scoped self-hosted consolidation pass for remaining legacy Supabase surfaces."
   confirmed_files:
+    - "docs/backend/phase-2c-registration-verification-worker-lease.md"
+    - "apps/api/src/modules/auth/delivery-worker.ts"
+    - "apps/api/src/modules/auth/delivery-worker.test.ts"
+    - "apps/api/src/modules/auth/repository.ts"
+    - "apps/api/src/modules/auth/postgres-repository.ts"
+    - "docs/backend/frontend-backend-contract.md"
+    - "docs/backend/production-scale-baseline.md"
     - "docs/backend/phase-2b-registration-verification-delivery-outbox.md"
     - "packages/db/migrations/0027_registration_verification_delivery_outbox.sql"
     - "packages/db/migration-manifest.json"

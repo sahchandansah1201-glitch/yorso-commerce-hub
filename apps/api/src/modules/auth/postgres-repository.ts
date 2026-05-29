@@ -19,6 +19,9 @@ import type {
   AuthSecurityEventCountQuery,
   AuthSecurityEventInput,
   AuthUser,
+  RegistrationDeliveryFailureInput,
+  RegistrationDeliveryJob,
+  RegistrationDeliveryLeaseInput,
 } from "./repository.js";
 
 export interface AuthQueryClient {
@@ -86,16 +89,27 @@ interface RegistrationCompleteRow extends Record<string, unknown> {
 }
 
 interface RegistrationDeliveryOutboxRow extends Record<string, unknown> {
+  delivery_attempt_count: number;
+  delivery_available_at: Date | string;
   delivery_channel: "email" | "sms" | "whatsapp";
   delivery_created_at: Date | string;
   delivery_destination_preview: string;
   delivery_draft_id: string;
   delivery_id: string;
+  delivery_locked_at: Date | string | null;
+  delivery_locked_by: string | null;
+  delivery_max_attempts: number;
   delivery_purpose: "email_verification" | "phone_verification";
   delivery_status: "queued" | "leased" | "sent" | "failed" | "cancelled";
+  delivery_template_key: string;
+  delivery_updated_at: Date | string;
 }
 
 type RegistrationDraftDeliveryRow = RegistrationDraftRow & RegistrationDeliveryOutboxRow;
+
+interface RegistrationDeliveryJobRow extends RegistrationDeliveryOutboxRow {
+  delivery_destination: string | null;
+}
 
 const createSessionId = () => randomBytes(32).toString("hex");
 const ensureIso = (value: Date | string) => (value instanceof Date ? value.toISOString() : new Date(value).toISOString());
@@ -147,15 +161,47 @@ function mapDraft(row: RegistrationDraftRow): RegistrationDraft {
 
 function mapDelivery(row: RegistrationDeliveryOutboxRow): RegistrationDeliveryOutboxEntry {
   return {
+    attemptCount: row.delivery_attempt_count,
+    availableAt: ensureIso(row.delivery_available_at),
     channel: row.delivery_channel,
     createdAt: ensureIso(row.delivery_created_at),
     destinationPreview: row.delivery_destination_preview,
     draftId: row.delivery_draft_id,
     id: row.delivery_id,
+    lockedAt: row.delivery_locked_at ? ensureIso(row.delivery_locked_at) : null,
+    lockedBy: row.delivery_locked_by,
+    maxAttempts: row.delivery_max_attempts,
     purpose: row.delivery_purpose,
     status: row.delivery_status,
+    templateKey: row.delivery_template_key,
+    updatedAt: ensureIso(row.delivery_updated_at),
   };
 }
+
+function mapDeliveryJob(row: RegistrationDeliveryJobRow): RegistrationDeliveryJob | null {
+  if (!row.delivery_destination) return null;
+  return {
+    ...mapDelivery(row),
+    destination: row.delivery_destination,
+  };
+}
+
+const deliveryReturningSql = `
+  id::text as delivery_id,
+  draft_id as delivery_draft_id,
+  purpose as delivery_purpose,
+  channel as delivery_channel,
+  status as delivery_status,
+  destination_preview as delivery_destination_preview,
+  template_key as delivery_template_key,
+  attempt_count as delivery_attempt_count,
+  max_attempts as delivery_max_attempts,
+  available_at as delivery_available_at,
+  locked_at as delivery_locked_at,
+  locked_by as delivery_locked_by,
+  created_at as delivery_created_at,
+  updated_at as delivery_updated_at
+`;
 
 function mapDraftDelivery(row: RegistrationDraftDeliveryRow): RegistrationDraftDeliveryResult {
   return {
@@ -286,24 +332,11 @@ export class PostgresAuthRepository implements AuthRepository {
             $10,
             $11::uuid
           from inserted_draft
-          returning
-            id::text as delivery_id,
-            draft_id as delivery_draft_id,
-            purpose as delivery_purpose,
-            channel as delivery_channel,
-            status as delivery_status,
-            destination_preview as delivery_destination_preview,
-            created_at as delivery_created_at
+          returning ${deliveryReturningSql}
         )
         select
           ${draftReturningSqlFrom("inserted_draft")},
-          inserted_delivery.delivery_id,
-          inserted_delivery.delivery_draft_id,
-          inserted_delivery.delivery_purpose,
-          inserted_delivery.delivery_channel,
-          inserted_delivery.delivery_status,
-          inserted_delivery.delivery_destination_preview,
-          inserted_delivery.delivery_created_at
+          inserted_delivery.*
         from inserted_draft
         cross join inserted_delivery
       `,
@@ -422,24 +455,11 @@ export class PostgresAuthRepository implements AuthRepository {
             $8,
             $9::uuid
           from updated_draft
-          returning
-            id::text as delivery_id,
-            draft_id as delivery_draft_id,
-            purpose as delivery_purpose,
-            channel as delivery_channel,
-            status as delivery_status,
-            destination_preview as delivery_destination_preview,
-            created_at as delivery_created_at
+          returning ${deliveryReturningSql}
         )
         select
           ${draftReturningSqlFrom("updated_draft")},
-          inserted_delivery.delivery_id,
-          inserted_delivery.delivery_draft_id,
-          inserted_delivery.delivery_purpose,
-          inserted_delivery.delivery_channel,
-          inserted_delivery.delivery_status,
-          inserted_delivery.delivery_destination_preview,
-          inserted_delivery.delivery_created_at
+          inserted_delivery.*
         from updated_draft
         cross join inserted_delivery
       `,
@@ -714,6 +734,103 @@ export class PostgresAuthRepository implements AuthRepository {
       },
       userId: row.user_id,
     };
+  }
+
+  async leaseRegistrationDeliveryJobs(input: RegistrationDeliveryLeaseInput): Promise<RegistrationDeliveryJob[]> {
+    const result = await this.client.query<RegistrationDeliveryJobRow>(
+      `
+        with candidates as (
+          select outbox.id
+          from yorso_registration_delivery_outbox outbox
+          join yorso_registration_drafts draft on draft.id = outbox.draft_id
+          where outbox.status in ('queued', 'leased')
+            and outbox.available_at <= now()
+            and outbox.attempt_count < outbox.max_attempts
+            and draft.completed_at is null
+            and draft.expires_at > now()
+            and outbox.channel in ('email', 'sms', 'whatsapp')
+            and (
+              (outbox.purpose = 'email_verification' and draft.email is not null)
+              or
+              (outbox.purpose = 'phone_verification' and draft.phone is not null)
+            )
+          order by outbox.available_at asc, outbox.created_at asc
+          limit $1
+          for update of outbox skip locked
+        ),
+        leased as (
+          update yorso_registration_delivery_outbox outbox
+          set status = 'leased',
+              available_at = now() + ($3::bigint * interval '1 millisecond'),
+              locked_at = now(),
+              locked_by = $2,
+              updated_at = now()
+          from candidates
+          where outbox.id = candidates.id
+          returning ${deliveryReturningSql}
+        )
+        select
+          leased.*,
+          case
+            when leased.delivery_purpose = 'email_verification' then draft.email::text
+            else draft.phone
+          end as delivery_destination
+        from leased
+        join yorso_registration_drafts draft on draft.id = leased.delivery_draft_id
+      `,
+      [input.limit, input.workerId, input.leaseMs],
+    );
+    return result.rows.flatMap((row) => {
+      const job = mapDeliveryJob(row);
+      return job ? [job] : [];
+    });
+  }
+
+  async markRegistrationDeliverySent(deliveryId: string): Promise<RegistrationDeliveryOutboxEntry | null> {
+    const result = await this.client.query<RegistrationDeliveryOutboxRow>(
+      `
+        update yorso_registration_delivery_outbox
+        set status = 'sent',
+            locked_at = null,
+            locked_by = null,
+            last_error = null,
+            updated_at = now()
+        where id = $1::uuid
+          and status = 'leased'
+        returning ${deliveryReturningSql}
+      `,
+      [deliveryId],
+    );
+    return result.rows[0] ? mapDelivery(result.rows[0]) : null;
+  }
+
+  async markRegistrationDeliveryFailed(
+    deliveryId: string,
+    input: RegistrationDeliveryFailureInput,
+  ): Promise<RegistrationDeliveryOutboxEntry | null> {
+    const result = await this.client.query<RegistrationDeliveryOutboxRow>(
+      `
+        update yorso_registration_delivery_outbox
+        set attempt_count = attempt_count + 1,
+            status = case
+              when attempt_count + 1 >= max_attempts then 'failed'
+              else 'queued'
+            end,
+            available_at = case
+              when attempt_count + 1 >= max_attempts then available_at
+              else now() + ($2::bigint * interval '1 millisecond')
+            end,
+            locked_at = null,
+            locked_by = null,
+            last_error = left($3, 500),
+            updated_at = now()
+        where id = $1::uuid
+          and status = 'leased'
+        returning ${deliveryReturningSql}
+      `,
+      [deliveryId, input.retryAfterMs, input.error],
+    );
+    return result.rows[0] ? mapDelivery(result.rows[0]) : null;
   }
 
   async getSession(sessionId: string): Promise<AuthSession | null> {

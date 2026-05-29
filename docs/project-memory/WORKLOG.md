@@ -2277,6 +2277,56 @@ Keep this file factual and append-only.
 
 ## 2026-05-29
 
+- Implemented Backend Phase 2C: Registration Verification Worker Lease
+  Processing.
+- Added `RegistrationDeliveryWorker`:
+  - leases bounded delivery outbox batches through the auth repository;
+  - calls an injectable self-hosted delivery sender;
+  - marks successful jobs `sent`;
+  - requeues failed jobs until retry budget is exhausted;
+  - marks exhausted jobs `failed`;
+  - sanitizes sender error text before persistence.
+- Extended memory and PostgreSQL auth repositories:
+  - `leaseRegistrationDeliveryJobs`;
+  - `markRegistrationDeliverySent`;
+  - `markRegistrationDeliveryFailed`.
+- Hardened PostgreSQL lease selection:
+  - ordered `for update skip locked`;
+  - `attempt_count < max_attempts`;
+  - active registration draft required before lease;
+  - expired/completed drafts are not claimed.
+- Kept provider/runtime scope explicit:
+  - no hosted email/SMS provider;
+  - no Supabase function;
+  - no always-on daemon/scheduler;
+  - no public registration UI changes.
+- Added worker tests for:
+  - successful send;
+  - retry and terminal failure;
+  - expired draft skip;
+  - phone/WhatsApp delivery channel.
+- Added `docs/backend/phase-2c-registration-verification-worker-lease.md`.
+- Updated `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/phase-2b-registration-verification-delivery-outbox.md` and
+  `docs/backend/production-scale-baseline.md`.
+- Validation passed:
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/delivery-worker.test.ts`;
+  - `npx tsc -b --noEmit`;
+  - `npm run contracts:build`;
+  - `npm run test:db-migrations`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/delivery-worker.test.ts apps/api/src/server.test.ts apps/api/src/modules/account/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+  - `npm run lint`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run check:self-hosted-production-runtime`;
+  - `npm run api:build`;
+  - `git diff --check`;
+  - `npm run build`.
+- Known non-blocking warnings preserved:
+  - Supabase generated types out of sync in non-strict preview/build mode;
+  - Browserslist data stale.
+
+## 2026-05-29
+
 - Implemented Backend Phase 2B: Registration Verification Delivery Outbox.
 - Added migration `0027_registration_verification_delivery_outbox.sql`:
   - `yorso_registration_delivery_outbox`;

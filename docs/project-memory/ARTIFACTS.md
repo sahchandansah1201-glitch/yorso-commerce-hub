@@ -974,6 +974,29 @@
 - `docs/backend/production-scale-baseline.md`: Phase 2B capacity review and
   validation/build metrics.
 
+## Backend Phase 2C Registration Verification Worker Lease Processing
+
+- `docs/backend/phase-2c-registration-verification-worker-lease.md`:
+  plan/fact, worker contract, data ownership, 10,000 concurrent-user review
+  and validation record for Phase 2C.
+- `apps/api/src/modules/auth/delivery-worker.ts`: self-hosted registration
+  delivery worker boundary with bounded lease processing, injectable sender,
+  sent/retry/failed status updates and sanitized error handling.
+- `apps/api/src/modules/auth/delivery-worker.test.ts`: behavior coverage for
+  successful sends, retry exhaustion, expired draft skip and phone/WhatsApp
+  delivery jobs.
+- `apps/api/src/modules/auth/repository.ts`: memory repository implementation
+  for delivery job leasing and sent/failed status transitions.
+- `apps/api/src/modules/auth/postgres-repository.ts`: PostgreSQL lease,
+  sent and failed/requeue statements using ordered `for update skip locked`
+  candidates and active-draft filtering before lease.
+- `docs/backend/frontend-backend-contract.md`: `/register/*` route/data-source
+  contract updated for the Phase 2C worker boundary.
+- `docs/backend/phase-2b-registration-verification-delivery-outbox.md`: Phase
+  2B follow-up row updated to point at Phase 2C for lease processing.
+- `docs/backend/production-scale-baseline.md`: Phase 2C capacity review and
+  validation/build metrics.
+
 ## Lovable Sync Prompts
 
 ## Batch #133 Public Breadcrumb Locale A11y
