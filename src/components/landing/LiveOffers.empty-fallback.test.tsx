@@ -1,5 +1,5 @@
 /**
- * Контракт: когда Supabase вернул пустой массив, useLandingOffers даёт
+ * Контракт: когда catalog API вернул пустой массив, useLandingOffers даёт
  * source="mock-fallback" + offers=mockOffers. LiveOffers НЕ должен показывать
  * пустое состояние — landing никогда не выглядит «нет предложений».
  */
@@ -10,7 +10,7 @@ import LiveOffers from "./LiveOffers";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { mockOffers } from "@/data/mockOffers";
 
-// Эмулируем поведение хука после fetchOffers → [] (пустой ответ Supabase):
+// Эмулируем поведение хука после fetchOffers → [] (пустой ответ catalog API):
 // хук уже выполнил fallback и отдаёт mockOffers с source="mock-fallback".
 vi.mock("@/lib/useLandingOffers", () => ({
   useLandingOffers: () => ({
@@ -20,7 +20,7 @@ vi.mock("@/lib/useLandingOffers", () => ({
   }),
 }));
 
-describe("LiveOffers — пустой ответ Supabase (fallback на mockOffers)", () => {
+describe("LiveOffers — пустой ответ catalog API (fallback на mockOffers)", () => {
   it("рендерит все mockOffers, секция #offers не пустая", () => {
     const { container } = render(
       <MemoryRouter>

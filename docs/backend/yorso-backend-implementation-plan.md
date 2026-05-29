@@ -175,16 +175,16 @@ starts.
 
 | Frontend surface | Current source | Backend module needed | Priority |
 |---|---|---|---|
-| `/register` | sessionStorage, mock contracts | auth onboarding, user profile, company draft | P0 |
-| `/signin`, `/reset-password` | Supabase auth partially | self-hosted auth/session API, buyer session bridge | P0 |
+| `/register` | self-hosted registration/account creation when configured; transient sessionStorage for form continuity and API-disabled preview | auth onboarding, user profile, company draft | Phase 2A-2I implemented |
+| `/signin`, `/reset-password` | self-hosted auth/password recovery when configured; local contract preview when API is disabled | self-hosted auth/session API, buyer session bridge | Phase 2J closed |
 | `/account/personal` | localStorage `mockAccount` | user profiles API | P0 |
 | `/account/company` | localStorage `mockAccount` | company profiles, logo, cover, public profile draft | P0 |
 | `/account/branches` | read-only mock | company branches CRUD | P1 |
 | `/account/products` | read-only mock | company product matrix CRUD | P1 |
 | `/account/meta-regions` | read-only mock | meta-region CRUD | P1 |
 | `/account/notifications` | read-only mock | notification preferences API | P1 |
-| `/offers` | mock plus partial Supabase | offer catalog API, public and qualified views | P0 |
-| `/offers/:id` | mock plus partial Supabase | offer detail API, documents, related offers | P1 |
+| `/offers` | self-hosted catalog API when configured; API-disabled local fixture preview; no Supabase fallback | offer catalog API, public and qualified views | Phase 3A closed |
+| `/offers/:id` | self-hosted catalog API when configured; API-disabled local fixture preview; no Supabase fallback | offer detail API, documents, related offers | Phase 3A closed |
 | `/suppliers` | mock suppliers | supplier directory public/qualified views | P0 |
 | `/suppliers/:supplierId` | mock suppliers | supplier profile public/qualified/owner views | P0 |
 | Supplier access panel | localStorage mock | access request workflow and audit | P0 |

@@ -5,13 +5,13 @@ import LiveOffers from "./LiveOffers";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { mockOffers } from "@/data/mockOffers";
 
-// Имитируем уже-загруженный ответ Supabase: компонент не должен зависеть от
+// Имитируем уже-загруженный ответ catalog API: компонент не должен зависеть от
 // реального сетевого вызова в тестах. mockOffers здесь — fixture, не источник
 // данных продакшена.
 vi.mock("@/lib/useLandingOffers", () => ({
   useLandingOffers: () => ({
     offers: mockOffers,
-    source: "supabase" as const,
+    source: "catalog-api" as const,
     isLoading: false,
   }),
 }));

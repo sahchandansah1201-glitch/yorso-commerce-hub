@@ -192,7 +192,6 @@ const requiredFiles = [
   "src/lib/account-documents-store.ts",
   "src/lib/catalog-api.ts",
   "src/lib/catalog-api.boundary.test.ts",
-  "src/lib/legacy-catalog-supabase-adapter.ts",
   "src/lib/offer-catalog-api.ts",
   "src/lib/offer-catalog-api.test.ts",
   "src/lib/catalog-fallback.ts",
@@ -254,6 +253,7 @@ const requiredFiles = [
   "docs/backend/phase-2h-password-recovery-abuse-cleanup.md",
   "docs/backend/phase-2i-password-recovery-cleanup-runtime.md",
   "docs/backend/phase-2j-auth-surface-closure-audit.md",
+  "docs/backend/phase-3a-catalog-supabase-fallback-removal.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -477,6 +477,7 @@ const phase2gPasswordRecoveryDeliveryRuntime = read("docs/backend/phase-2g-passw
 const phase2hPasswordRecoveryAbuseCleanup = read("docs/backend/phase-2h-password-recovery-abuse-cleanup.md");
 const phase2iPasswordRecoveryCleanupRuntime = read("docs/backend/phase-2i-password-recovery-cleanup-runtime.md");
 const phase2jAuthSurfaceClosureAudit = read("docs/backend/phase-2j-auth-surface-closure-audit.md");
+const phase3aCatalogSupabaseFallbackRemoval = read("docs/backend/phase-3a-catalog-supabase-fallback-removal.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -504,7 +505,6 @@ const accountApi = read("src/lib/account-api.ts");
 const accountDocumentsStore = read("src/lib/account-documents-store.ts");
 const catalogApi = read("src/lib/catalog-api.ts");
 const catalogApiBoundaryTest = read("src/lib/catalog-api.boundary.test.ts");
-const legacyCatalogSupabaseAdapter = read("src/lib/legacy-catalog-supabase-adapter.ts");
 const offerCatalogApi = read("src/lib/offer-catalog-api.ts");
 const catalogFallback = read("src/lib/catalog-fallback.ts");
 const useOfferCatalog = read("src/lib/use-offer-catalog.ts");
@@ -2879,6 +2879,16 @@ for (const marker of [
   requireText("docs/backend/phase-2j-auth-surface-closure-audit.md", phase2jAuthSurfaceClosureAudit, marker);
 }
 for (const marker of [
+  "Backend Phase 3A",
+  "Catalog Supabase Fallback Removal",
+  "Plan / Fact",
+  "No catalog path falls back to Supabase",
+  "Remaining Supabase / Prototype Debt After Phase 3A",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-3a-catalog-supabase-fallback-removal.md", phase3aCatalogSupabaseFallbackRemoval, marker);
+}
+for (const marker of [
   "PasswordRecoveryDeliveryWorker",
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
@@ -3997,14 +4007,19 @@ requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "getApprovedSupplie
 requireText("src/lib/offer-catalog-api.ts", offerCatalogApi, "fallbackOfferForSupplierAccess");
 requireText("src/lib/catalog-api.ts", catalogApi, "self-hosted-first catalog facade");
 requireText("src/lib/catalog-api.ts", catalogApi, "createOfferCatalogApiClient");
-requireText("src/lib/catalog-api.ts", catalogApi, "fetchLegacyCatalogOffers");
-requireText("src/lib/catalog-api.ts", catalogApi, "fetchLegacyCatalogOfferById");
-requireText("src/lib/legacy-catalog-supabase-adapter.ts", legacyCatalogSupabaseAdapter, "@/integrations/supabase/client");
-requireText("src/lib/legacy-catalog-supabase-adapter.ts", legacyCatalogSupabaseAdapter, "SUPABASE_NOT_CONFIGURED_ERROR");
-requireText("src/lib/legacy-catalog-supabase-adapter.ts", legacyCatalogSupabaseAdapter, "fetchLegacyCatalogOffers");
-requireText("src/lib/legacy-catalog-supabase-adapter.ts", legacyCatalogSupabaseAdapter, "fetchLegacyCatalogOfferById");
-requireText("src/lib/catalog-api.boundary.test.ts", catalogApiBoundaryTest, "uses self-hosted offer catalog before legacy Supabase fallback");
-requireText("src/lib/catalog-api.boundary.test.ts", catalogApiBoundaryTest, "keeps direct Supabase imports out of catalog-api.ts");
+requireText("src/lib/catalog-api.ts", catalogApi, "No catalog path falls back to Supabase");
+requireText("src/lib/catalog-api.ts", catalogApi, "offerCatalog.listOffers");
+requireText("src/lib/catalog-api.ts", catalogApi, "offerCatalog.getOfferById");
+forbidText("src/lib/catalog-api.ts", catalogApi, "legacy-catalog-supabase-adapter");
+forbidText("src/lib/catalog-api.ts", catalogApi, "fetchLegacyCatalogOffers");
+forbidText("src/lib/catalog-api.ts", catalogApi, "fetchLegacyCatalogOfferById");
+forbidText("src/lib/catalog-api.ts", catalogApi, "SupplierPublicRow");
+if (existsSync("src/lib/legacy-catalog-supabase-adapter.ts")) {
+  failures.push("src/lib/legacy-catalog-supabase-adapter.ts: removed catalog Supabase fallback file must stay absent");
+}
+requireText("src/lib/catalog-api.boundary.test.ts", catalogApiBoundaryTest, "uses self-hosted offer catalog as the catalog source of truth");
+requireText("src/lib/catalog-api.boundary.test.ts", catalogApiBoundaryTest, "delegates API-disabled preview to offer-catalog local fixtures, not legacy Supabase");
+requireText("src/lib/catalog-api.boundary.test.ts", catalogApiBoundaryTest, "removes the catalog Supabase fallback adapter from the facade path");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "useOfferCatalogList");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerCatalogApiQueryFromFilters");
 requireText("src/lib/use-offer-catalog.ts", useOfferCatalog, "offerMatchesClientFilters");

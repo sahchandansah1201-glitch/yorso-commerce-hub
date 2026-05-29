@@ -10,11 +10,11 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { mockOffers } from "@/data/mockOffers";
 
 // Стабилизируем источник данных LiveOffers: тест проверяет только anchor/scroll,
-// сетевые вызовы тут только мешают. Имитируем успешный ответ Supabase.
+// сетевые вызовы тут только мешают. Имитируем успешный ответ catalog API.
 vi.mock("@/lib/useLandingOffers", () => ({
   useLandingOffers: () => ({
     offers: mockOffers,
-    source: "supabase" as const,
+    source: "catalog-api" as const,
     isLoading: false,
   }),
 }));

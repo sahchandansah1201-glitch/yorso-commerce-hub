@@ -8,11 +8,11 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { mockOffers } from "@/data/mockOffers";
 
 // Тест проверяет focus-контракт; источник данных должен быть детерминирован.
-// Имитируем готовый ответ Supabase, чтобы хук не дёргал сеть.
+// Имитируем готовый ответ catalog API, чтобы хук не дёргал сеть.
 vi.mock("@/lib/useLandingOffers", () => ({
   useLandingOffers: () => ({
     offers: mockOffers,
-    source: "supabase" as const,
+    source: "catalog-api" as const,
     isLoading: false,
   }),
 }));

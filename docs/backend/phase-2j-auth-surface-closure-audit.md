@@ -51,7 +51,7 @@ Supabase Edge Functions or a hosted BaaS auth provider.
 
 | Area | Confirmed files | Why not removed in Phase 2J | Recommended next removal |
 |---|---|---|---|
-| Catalog prototype fallback | `src/lib/legacy-catalog-supabase-adapter.ts`, `src/integrations/supabase/client.ts`, `src/lib/catalog-api.ts` | Catalog is not part of the auth/registration/password-recovery closure. Removing it needs offer catalog API seed/parity validation. | Phase 3A: catalog Supabase fallback removal. |
+| Catalog prototype fallback | `src/lib/legacy-catalog-supabase-adapter.ts`, `src/integrations/supabase/client.ts`, `src/lib/catalog-api.ts` | Catalog was not part of the auth/registration/password-recovery closure. | Completed in Phase 3A: catalog Supabase fallback removal. |
 | Supplier access prototype fallback | `src/lib/legacy-supplier-access-supabase-adapter.ts`, `src/lib/supplier-access-api.ts` | Access workflow touches buyer/supplier trust and grants outside Phase 2 auth closure. | Phase 3B: supplier access Supabase fallback removal. |
 | Supabase reference tooling | `supabase/`, `scripts/check-supabase-access-types.mjs`, `scripts/supabase-access-*.mjs`, Supabase RLS tests | These are schema/reference and legacy smoke tools, not auth runtime. Removing them affects CI policy and historical migration references. | Phase 3C: Supabase reference tooling retirement. |
 | `.env.example` prototype keys | Empty `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` | Current guards use empty keys to prove production can boot without Supabase. | Remove after catalog/access fallback retirement. |

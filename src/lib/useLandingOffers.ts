@@ -1,5 +1,5 @@
 /**
- * useLandingOffers — гибридный загрузчик офферов для landing.
+ * useLandingOffers — self-hosted-first загрузчик офферов для landing.
  *
  * Стратегия (согласовано):
  * 1. На mount тянем `fetchOffers("anonymous_locked")` (landing всегда публичный).
@@ -16,7 +16,7 @@ import type { SeafoodOffer } from "@/data/mockOffers";
 import { mockOffers } from "@/data/mockOffers";
 import { fetchOffers } from "@/lib/catalog-api";
 
-export type LandingOffersSource = "supabase" | "mock-fallback" | "loading";
+export type LandingOffersSource = "catalog-api" | "mock-fallback" | "loading";
 
 export interface LandingOffersResult {
   offers: SeafoodOffer[];
@@ -26,7 +26,7 @@ export interface LandingOffersResult {
 
 export function useLandingOffers(): LandingOffersResult {
   // Сразу возвращаем mock как initial state — landing должен быть моментально
-  // отрисован без skeleton-flash. Когда придёт ответ Supabase, переключим.
+  // отрисован без skeleton-flash. Когда придёт ответ catalog API, переключим.
   const [offers, setOffers] = useState<SeafoodOffer[]>(mockOffers);
   const [source, setSource] = useState<LandingOffersSource>("loading");
 
@@ -37,15 +37,15 @@ export function useLandingOffers(): LandingOffersResult {
         if (cancelled) return;
         if (rows.length > 0) {
           setOffers(rows);
-          setSource("supabase");
+          setSource("catalog-api");
         } else {
-          // БД пустая (например, сидинг ещё не выполнен) — оставляем mock.
+          // Preview/API source is empty — keep local fixture so landing is never blank.
           setSource("mock-fallback");
         }
       })
       .catch((err) => {
         if (cancelled) return;
-        console.warn("[useLandingOffers] Supabase fetch failed, using mock fallback", err);
+        console.warn("[useLandingOffers] Catalog API fetch failed, using local fixture fallback", err);
         setSource("mock-fallback");
       });
     return () => {

@@ -207,16 +207,16 @@ backend policy logic.
 
 | Frontend-раздел | Текущий источник | Нужный backend-модуль | Приоритет |
 |---|---|---|---|
-| `/register` | sessionStorage, mock contracts | auth onboarding, user profile, company draft | P0 |
-| `/signin`, `/reset-password` | частичный Supabase auth | self-hosted auth/session API, buyer session bridge | P0 |
+| `/register` | self-hosted registration/account creation при настроенном API; transient sessionStorage для form continuity и API-disabled preview | auth onboarding, user profile, company draft | Phase 2A-2I реализовано |
+| `/signin`, `/reset-password` | self-hosted auth/password recovery при настроенном API; local contract preview без API | self-hosted auth/session API, buyer session bridge | Phase 2J закрыта |
 | `/account/personal` | localStorage `mockAccount` | user profiles API | P0 |
 | `/account/company` | localStorage `mockAccount` | company profiles, logo, cover, public profile draft | P0 |
 | `/account/branches` | read-only mock | company branches CRUD | P1 |
 | `/account/products` | read-only mock | company product matrix CRUD | P1 |
 | `/account/meta-regions` | read-only mock | meta-region CRUD | P1 |
 | `/account/notifications` | read-only mock | notification preferences API | P1 |
-| `/offers` | mock plus partial Supabase | offer catalog API, public/qualified views | P0 |
-| `/offers/:id` | mock plus partial Supabase | offer detail API, documents, related offers | P1 |
+| `/offers` | self-hosted catalog API при настроенном API; API-disabled local fixture preview; без Supabase fallback | offer catalog API, public/qualified views | Phase 3A закрыта |
+| `/offers/:id` | self-hosted catalog API при настроенном API; API-disabled local fixture preview; без Supabase fallback | offer detail API, documents, related offers | Phase 3A закрыта |
 | `/suppliers` | mock suppliers | supplier directory public/qualified views | P0 |
 | `/suppliers/:supplierId` | mock suppliers | supplier profile public/qualified/owner views | P0 |
 | Supplier access panel | localStorage mock | access request workflow and audit | P0 |

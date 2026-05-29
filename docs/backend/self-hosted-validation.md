@@ -655,19 +655,20 @@ Supabase fallback from that boundary:
   must print `No page/component direct Supabase imports remain.`;
 - `ci:core` runs `test:auth-runtime`, so the boundary is checked before merge.
 
-Batch #68 adds legacy catalog Supabase adapter boundary validation:
+Backend Phase 3A replaces the old legacy catalog Supabase adapter boundary with
+removal validation:
 
-- `src/lib/catalog-api.ts` is the self-hosted-first facade and must use
-  `createOfferCatalogApiClient` before any prototype fallback;
-- `src/lib/legacy-catalog-supabase-adapter.ts` owns the temporary Supabase
-  catalog bridge and is the only file in this catalog facade path allowed to
-  import `@/integrations/supabase/client`;
-- `src/lib/catalog-api.boundary.test.ts` verifies the self-hosted-first path,
-  disabled-API fallback and absence of direct Supabase imports in
-  `catalog-api.ts`;
+- `src/lib/catalog-api.ts` is the self-hosted-first facade and delegates only to
+  `createOfferCatalogApiClient`;
+- API-disabled preview uses the local fixture path inside
+  `src/lib/offer-catalog-api.ts`, not Supabase;
+- `src/lib/legacy-catalog-supabase-adapter.ts` must stay absent;
+- `src/lib/catalog-api.boundary.test.ts` verifies the self-hosted catalog source
+  of truth, local preview delegation and removed fallback file;
 - `test:offer-catalog-frontend` includes that boundary test;
-- `check:self-hosted-api` and `check:production-scale-baseline` fail if the
-  catalog facade regains a direct Supabase client dependency.
+- `check:self-hosted-api` and `check:production-scale-baseline` fail if
+  `fetchLegacyCatalogOffers`, `fetchLegacyCatalogOfferById`, `SupplierPublicRow`
+  or a direct Supabase client dependency returns to the catalog facade.
 
 Batch #69 adds legacy supplier access Supabase adapter boundary validation:
 

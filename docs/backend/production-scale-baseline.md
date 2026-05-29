@@ -362,17 +362,17 @@ implicit production auth gateways to Supabase: configured deployments use the
 owned `/v1/auth/*` API, while API-disabled preview remains a local contract and
 does not call hosted auth.
 
-Batch #68 closes the legacy catalog Supabase adapter boundary. `src/lib/catalog-api.ts`
-is now a self-hosted-first catalog facade: when `VITE_YORSO_API_URL` is configured
-it reads through `src/lib/offer-catalog-api.ts` and the self-hosted `/v1/offers`
-contract; only when the self-hosted API is disabled does it call
-`src/lib/legacy-catalog-supabase-adapter.ts`. The adapter is the only catalog
-module in this path allowed to import `@/integrations/supabase/client`, and it is
-documented as prototype/reference fallback, not production infrastructure.
-At 10,000 concurrent users this keeps the hot catalog path replaceable and
-observable through the owned API while preserving a safe prototype fallback for
-unfinished environments. Guards and `src/lib/catalog-api.boundary.test.ts`
-prevent direct Supabase imports from returning to the catalog facade.
+Batch #68 originally isolated the legacy catalog Supabase adapter boundary.
+Backend Phase 3A supersedes that boundary by removing the catalog Supabase
+fallback completely. `src/lib/catalog-api.ts` is now a self-hosted-first catalog
+facade over `src/lib/offer-catalog-api.ts`: configured deployments use the owned
+`/v1/offers` and `/v1/offers/:id` contracts, while API-disabled preview uses only
+local fixtures from the offer catalog adapter. At 10,000 concurrent users this
+removes an unowned external catalog read path under load and keeps production
+catalog traffic on the owned API, database indexes, pagination and observability
+surface. Guards and `src/lib/catalog-api.boundary.test.ts` prevent
+`fetchLegacyCatalogOffers`, `fetchLegacyCatalogOfferById` or the removed
+`src/lib/legacy-catalog-supabase-adapter.ts` file from returning.
 
 Batch #69 closes the legacy supplier access Supabase adapter boundary.
 `src/lib/supplier-access-api.ts` remains the self-hosted-first access facade:
@@ -5235,11 +5235,10 @@ Observability and load-test plan:
 - Load-test auth through the self-hosted API only; validate no browser auth
   bundle imports the Supabase client or removed auth adapter.
 
-Remaining Supabase/prototype debt outside this closure is explicitly scoped to:
-catalog fallback (`legacy-catalog-supabase-adapter`), supplier-access fallback
-(`legacy-supplier-access-supabase-adapter`), Supabase reference tooling/tests,
-empty prototype env keys and the `@supabase/supabase-js` dependency. Those are
-separate Phase 3 removal targets.
+After Backend Phase 3A, remaining Supabase/prototype debt is explicitly scoped
+to supplier-access fallback (`legacy-supplier-access-supabase-adapter`),
+Supabase reference tooling/tests, empty prototype env keys and the
+`@supabase/supabase-js` dependency. Those are separate Phase 3 removal targets.
 
 Validation:
 
