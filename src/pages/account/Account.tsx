@@ -2545,12 +2545,12 @@ const NotificationsSection = ({
 
   return (
     <div className="space-y-4" data-testid="account-section-notifications">
-      <AccountSectionCard
+      <ListSectionHeader
         title={t.account_notifications_title}
         description={t.account_notifications_desc}
-      >
-        <p className="text-sm text-muted-foreground">{t.account_notifications_disclaimer}</p>
-      </AccountSectionCard>
+        explainer={t.account_notifications_disclaimer}
+      />
+
       <div className="grid gap-3 sm:grid-cols-2">
         {profile.notifications.map((n) => (
           <AccountSectionCard
