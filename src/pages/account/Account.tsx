@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle2, Copy, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Copy, Lock, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
 import {
   createAccountApiClient,
@@ -320,7 +320,9 @@ const PersonalSection = ({
             >
               <Field label={t.account_personal_firstName} value={v.firstName} />
               <Field label={t.account_personal_lastName} value={v.lastName} />
-              <Field label={t.account_personal_role} value={v.roleInCompany} />
+              <div className="sm:col-span-2">
+                <Field label={t.account_personal_role} value={v.roleInCompany} />
+              </div>
               <Field label={t.account_personal_email} value={v.email} />
               <Field
                 label={t.account_personal_phone}
@@ -361,13 +363,15 @@ const PersonalSection = ({
                 onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
-              <Input
-                maxLength={100}
-                value={draft.roleInCompany}
-                onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
-              />
-            </FormRow>
+            <div className="sm:col-span-2">
+              <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
+                <Input
+                  maxLength={100}
+                  value={draft.roleInCompany}
+                  onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
+                />
+              </FormRow>
+            </div>
             <FormRow
               label={t.account_personal_email}
               required
@@ -425,14 +429,19 @@ const PersonalSection = ({
         tabIndex={-1}
         aria-label={t.account_personal_security_title}
         className="scroll-mt-24 rounded-lg outline-none transition-shadow"
+        data-testid="account-card-personal-security"
       >
-      <AccountSectionCard
-        title={t.account_personal_security_title}
-        description={t.account_personal_security_desc}
-        testId="account-card-personal-security"
-      >
-        <p className="text-sm text-muted-foreground">{t.account_personal_security_placeholder}</p>
-      </AccountSectionCard>
+        <div className="flex items-start gap-3 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3">
+          <Lock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground">
+              {t.account_personal_security_title}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t.account_personal_security_placeholder}
+            </p>
+          </div>
+        </div>
       </section>
       <section
         id="personal-membership"
