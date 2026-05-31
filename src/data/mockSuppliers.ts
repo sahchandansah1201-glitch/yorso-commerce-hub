@@ -24,6 +24,7 @@ import type {
   SupplierShipmentCase,
 } from "@/lib/supplier-evidence-blocks";
 import type { SupplierLegalDetails } from "@/lib/supplier-legal";
+import type { SupplierDocumentPayload } from "@/lib/supplier-documents";
 
 export type SupplierType =
   | "producer"
@@ -112,6 +113,8 @@ export interface MockSupplier {
   faqItems?: SupplierFaqItem[];
   /** Restricted legal/compliance details owned by supplier-directory API when configured. */
   legalDetails?: SupplierLegalDetails | null;
+  /** Restricted supplier document metadata owned by supplier-directory API when configured. */
+  supplierDocuments?: SupplierDocumentPayload[] | null;
 
   // ----- contact channels (gated by UI) -----
   website?: string;

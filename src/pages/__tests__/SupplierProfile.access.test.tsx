@@ -177,6 +177,18 @@ const remoteSupplierDetail = {
     legalForm: "Backend Cooperative",
     foundedDate: "2016-04-17",
   },
+  supplierDocuments: [
+    {
+      id: "backend-doc-health-777",
+      title: "Backend health certificate",
+      documentType: "health_certificate",
+      status: "approved",
+      issuedAt: "2026-02-10",
+      expiresAt: "2027-02-10",
+      fileName: "backend-health-certificate-777.pdf",
+      fileAssetId: "file_backend_health_777",
+    },
+  ],
   updatedAt: "2026-05-14T00:00:00.000Z",
   accessLevel: "anonymous_locked",
 };
@@ -353,6 +365,36 @@ describe("SupplierProfile · access gating", () => {
       expect(screen.getByText("BACKEND-VAT-777")).toBeInTheDocument();
       expect(screen.getByText("BACKEND-EORI-777")).toBeInTheDocument();
       expect(screen.getByText("Backend Cooperative")).toBeInTheDocument();
+    });
+
+    it("рендерит restricted supplier document payload из self-hosted API только для qualified buyer", async () => {
+      setSignedIn();
+      setQualified();
+      vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+      vi.stubGlobal("fetch", vi.fn(async () =>
+        new Response(JSON.stringify({
+          ok: true,
+          supplier: {
+            ...remoteSupplierDetail,
+            companyName: "Remote Legal Supplier AS",
+            website: "https://remote-legal.example",
+            whatsapp: "+47 555 0777",
+            accessLevel: "qualified_unlocked",
+          },
+          accessLevel: "qualified_unlocked",
+          requestId: "remote-profile-documents-test",
+        }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      ));
+
+      renderProfile(remoteSupplierDetail.id);
+
+      expect(await screen.findByText("Backend health certificate")).toBeInTheDocument();
+      expect(screen.getByText("backend-health-certificate-777.pdf")).toBeInTheDocument();
+      expect(screen.getByText("Approved")).toBeInTheDocument();
+      expect(document.body.textContent ?? "").not.toContain("Health Certificate");
     });
 
     it("при ошибке self-hosted API не подставляет локальный fallback-профиль", async () => {

@@ -260,6 +260,7 @@ const requiredFiles = [
   "docs/backend/phase-4b-supplier-profile-dossier-completeness.md",
   "docs/backend/phase-4c-supplier-profile-evidence-blocks.md",
   "docs/backend/phase-4d-supplier-profile-legal-details.md",
+  "docs/backend/phase-4e-supplier-profile-restricted-documents.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -276,6 +277,7 @@ const requiredFiles = [
   "packages/db/migrations/0031_supplier_profile_dossier_facts.sql",
   "packages/db/migrations/0032_supplier_profile_evidence_blocks.sql",
   "packages/db/migrations/0033_supplier_profile_legal_details.sql",
+  "packages/db/migrations/0034_supplier_profile_restricted_documents.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
@@ -469,6 +471,7 @@ const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0
 const supplierProfileDossierFactsMigration = read("packages/db/migrations/0031_supplier_profile_dossier_facts.sql");
 const supplierProfileEvidenceBlocksMigration = read("packages/db/migrations/0032_supplier_profile_evidence_blocks.sql");
 const supplierProfileLegalDetailsMigration = read("packages/db/migrations/0033_supplier_profile_legal_details.sql");
+const supplierProfileRestrictedDocumentsMigration = read("packages/db/migrations/0034_supplier_profile_restricted_documents.sql");
 const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
@@ -495,6 +498,7 @@ const phase4aSupplierDirectorySourceOfTruthAudit = read("docs/backend/phase-4a-s
 const phase4bSupplierProfileDossierCompleteness = read("docs/backend/phase-4b-supplier-profile-dossier-completeness.md");
 const phase4cSupplierProfileEvidenceBlocks = read("docs/backend/phase-4c-supplier-profile-evidence-blocks.md");
 const phase4dSupplierProfileLegalDetails = read("docs/backend/phase-4d-supplier-profile-legal-details.md");
+const phase4eSupplierProfileRestrictedDocuments = read("docs/backend/phase-4e-supplier-profile-restricted-documents.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -2832,6 +2836,15 @@ for (const marker of [
   requireText("packages/db/migrations/0033_supplier_profile_legal_details.sql", supplierProfileLegalDetailsMigration, marker);
 }
 for (const marker of [
+  "Backend Phase 4E",
+  "supplier_documents jsonb not null",
+  "yorso_suppliers_supplier_documents_array",
+  "qualified_unlocked",
+  "locked buyer responses must contain null",
+]) {
+  requireText("packages/db/migrations/0034_supplier_profile_restricted_documents.sql", supplierProfileRestrictedDocumentsMigration, marker);
+}
+for (const marker of [
   "PasswordRecoveryTokenIssuer",
   "createPasswordRecoveryTokenCodec",
   "hashPasswordRecoveryToken",
@@ -2972,6 +2985,18 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-4d-supplier-profile-legal-details.md", phase4dSupplierProfileLegalDetails, marker);
+}
+for (const marker of [
+  "Backend Phase 4E",
+  "Supplier Profile Restricted Document Payload Boundary",
+  "supplierDocuments",
+  "supplier_documents",
+  "Plan / Fact",
+  "qualified_unlocked",
+  "locked buyer responses must contain null",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4e-supplier-profile-restricted-documents.md", phase4eSupplierProfileRestrictedDocuments, marker);
 }
 for (const marker of [
   "PasswordRecoveryDeliveryWorker",
@@ -3694,6 +3719,7 @@ requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/sup
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "supplier_not_found");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDirectoryQuerySchema.parse");
+requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocuments: unlocked ? supplier.supplierDocuments : null");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "hasSupplierAccess");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "listAccessibleSupplierIds");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "resolveListAccessLevel");
@@ -3773,8 +3799,10 @@ requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryCon
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "qualified_unlocked");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierProductionFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierLogisticsFactsSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentPayloadSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "productionFacts: supplierProductionFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "logisticsFacts: supplierLogisticsFactsSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocuments: z.array(supplierDocumentPayloadSchema)");
 requireText("apps/api/src/modules/auth/session.ts", authSession, "resolveOptionalAccountSession");
 for (const marker of [
   "auth_sign_in=ok",
@@ -3852,6 +3880,7 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "meta_
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "notification_row_validation_guard=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "branch_row_delete=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_locked=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplierDocuments");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_verified_filter=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_sort_pagination=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_requires_grant=ok");
@@ -3960,6 +3989,8 @@ requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "getAppro
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "productionFacts");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "logisticsFacts");
 requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "localPreviewSupplierProductionFacts");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "supplierDocuments");
+requireText("src/lib/supplier-directory-api.ts", supplierDirectoryApi, "localPreviewSupplierDocuments");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSupplierDirectoryList");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "useSupplierDirectoryDetail");
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localizeSupplierDirectoryItem");
@@ -3978,10 +4009,13 @@ requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "current.
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localPreviewSupplierProductionFacts");
 requireText("src/lib/supplier-directory-view.ts", supplierDirectoryView, "productionFacts: item.productionFacts");
 requireText("src/lib/supplier-directory-view.ts", supplierDirectoryView, "logisticsFacts: item.logisticsFacts");
+requireText("src/lib/supplier-directory-view.ts", supplierDirectoryView, "supplierDocuments: unlocked ? item.supplierDocuments : null");
 requireText("src/lib/supplier-dossier-facts.ts", supplierDossierFacts, "localPreviewSupplierProductionFacts");
 requireText("src/lib/supplier-dossier-facts.ts", supplierDossierFacts, "localPreviewSupplierLogisticsFacts");
 requireText("src/pages/SupplierProfile.tsx", supplierProfilePage, "supplier?.productionFacts");
 requireText("src/pages/SupplierProfile.tsx", supplierProfilePage, "supplier?.logisticsFacts");
+requireText("src/pages/SupplierProfile.tsx", supplierProfilePage, "supplier.supplierDocuments");
+requireText("src/pages/SupplierProfile.tsx", supplierProfilePage, "supplier-documents-locked");
 for (const marker of [
   "Batch #57 browser-level guard",
   "supplier-request-price-access",

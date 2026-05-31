@@ -17,6 +17,7 @@ const requiredFiles = [
   "docs/backend/phase-4b-supplier-profile-dossier-completeness.md",
   "docs/backend/phase-4c-supplier-profile-evidence-blocks.md",
   "docs/backend/phase-4d-supplier-profile-legal-details.md",
+  "docs/backend/phase-4e-supplier-profile-restricted-documents.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -51,6 +52,7 @@ const requiredFiles = [
   "packages/db/migrations/0031_supplier_profile_dossier_facts.sql",
   "packages/db/migrations/0032_supplier_profile_evidence_blocks.sql",
   "packages/db/migrations/0033_supplier_profile_legal_details.sql",
+  "packages/db/migrations/0034_supplier_profile_restricted_documents.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
@@ -262,6 +264,7 @@ const phase4aSupplierDirectorySourceOfTruthAudit = read("docs/backend/phase-4a-s
 const phase4bSupplierProfileDossierCompleteness = read("docs/backend/phase-4b-supplier-profile-dossier-completeness.md");
 const phase4cSupplierProfileEvidenceBlocks = read("docs/backend/phase-4c-supplier-profile-evidence-blocks.md");
 const phase4dSupplierProfileLegalDetails = read("docs/backend/phase-4d-supplier-profile-legal-details.md");
+const phase4eSupplierProfileRestrictedDocuments = read("docs/backend/phase-4e-supplier-profile-restricted-documents.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -297,6 +300,7 @@ const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0
 const supplierProfileDossierFactsMigration = read("packages/db/migrations/0031_supplier_profile_dossier_facts.sql");
 const supplierProfileEvidenceBlocksMigration = read("packages/db/migrations/0032_supplier_profile_evidence_blocks.sql");
 const supplierProfileLegalDetailsMigration = read("packages/db/migrations/0033_supplier_profile_legal_details.sql");
+const supplierProfileRestrictedDocumentsMigration = read("packages/db/migrations/0034_supplier_profile_restricted_documents.sql");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
 const authPasswordRecoveryCleanupScheduler = read("apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts");
@@ -614,14 +618,17 @@ for (const marker of [
   "Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness",
   "Backend Phase 4C Supplier Profile Backend-Owned Evidence Blocks",
   "Backend Phase 4D Supplier Profile Legal/Compliance Details Source Boundary",
+  "Backend Phase 4E Supplier Profile Restricted Document Payload Boundary",
   "productionFacts",
   "logisticsFacts",
   "shipmentCases",
   "faqItems",
   "legalDetails",
+  "supplierDocuments",
   "0031_supplier_profile_dossier_facts",
   "0032_supplier_profile_evidence_blocks",
   "0033_supplier_profile_legal_details",
+  "0034_supplier_profile_restricted_documents",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -3006,6 +3013,18 @@ for (const marker of [
   requireText("docs/backend/phase-4d-supplier-profile-legal-details.md", phase4dSupplierProfileLegalDetails, marker);
 }
 for (const marker of [
+  "Backend Phase 4E",
+  "Supplier Profile Restricted Document Payload Boundary",
+  "supplierDocuments",
+  "supplier_documents",
+  "Plan / Fact",
+  "qualified_unlocked",
+  "locked buyer responses must contain null",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4e-supplier-profile-restricted-documents.md", phase4eSupplierProfileRestrictedDocuments, marker);
+}
+for (const marker of [
   "Backend Phase 4B",
   "production_facts jsonb not null",
   "logistics_facts jsonb not null",
@@ -3029,6 +3048,15 @@ for (const marker of [
   "not safe for locked buyer views",
 ]) {
   requireText("packages/db/migrations/0033_supplier_profile_legal_details.sql", supplierProfileLegalDetailsMigration, marker);
+}
+for (const marker of [
+  "Backend Phase 4E",
+  "supplier_documents jsonb not null",
+  "yorso_suppliers_supplier_documents_array",
+  "qualified_unlocked",
+  "locked buyer responses must contain null",
+]) {
+  requireText("packages/db/migrations/0034_supplier_profile_restricted_documents.sql", supplierProfileRestrictedDocumentsMigration, marker);
 }
 for (const marker of [
   "PasswordRecoveryDeliveryWorker",

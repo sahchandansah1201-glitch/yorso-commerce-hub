@@ -1586,3 +1586,38 @@ Required markers:
 - `legal_details`;
 - `qualified_unlocked`;
 - `not safe for locked buyer views`.
+
+## Backend Phase 4E Supplier Restricted Documents Validation
+
+Run:
+
+```bash
+npm run test:supplier-directory-frontend
+npm run test:backend-contract
+npm run test:db-migrations
+npm run test:db-contract
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `supplierDocuments` is part of the typed supplier-directory contract.
+- `MemorySupplierRepository` and `PostgresSupplierRepository` return
+  `supplierDocuments` from the self-hosted supplier record.
+- `shapeSupplierForAccess` returns `supplierDocuments: null` for
+  `anonymous_locked` and `registered_locked`.
+- `SupplierProfile.tsx` renders restricted document metadata from
+  `supplier.supplierDocuments` only for qualified buyers.
+- API-disabled preview document metadata is generated only by explicit local
+  preview helper `localPreviewSupplierDocuments`.
+- Migration `0034_supplier_profile_restricted_documents` exists and is guarded.
+
+Required markers:
+
+- `Backend Phase 4E`;
+- `Supplier Profile Restricted Document Payload Boundary`;
+- `supplierDocuments`;
+- `supplier_documents`;
+- `qualified_unlocked`;
+- `locked buyer responses must contain null`.

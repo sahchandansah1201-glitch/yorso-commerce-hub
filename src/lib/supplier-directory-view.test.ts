@@ -74,6 +74,7 @@ const lockedApiItem = (supplier = mockSuppliers[0]): SupplierDirectoryItem => ({
     },
   ],
   legalDetails: null,
+  supplierDocuments: null,
   updatedAt: "2026-05-14T00:00:00.000Z",
   accessLevel: "anonymous_locked",
 });
@@ -119,11 +120,27 @@ describe("supplier directory API view shaping", () => {
         legalForm: "Backend AS",
         foundedDate: "2002-04-17",
       },
+      supplierDocuments: [
+        {
+          id: "backend-doc-1",
+          title: "Backend health certificate",
+          documentType: "health_certificate",
+          status: "approved",
+          issuedAt: "2026-02-10",
+          expiresAt: "2027-02-10",
+          fileName: "backend-health-certificate.pdf",
+          fileAssetId: "file_backend_doc_1",
+        },
+      ],
     });
 
     expect(supplier.legalDetails).toMatchObject({
       registrationNumber: "BACKEND-REG-123",
       legalForm: "Backend AS",
+    });
+    expect(supplier.supplierDocuments?.[0]).toMatchObject({
+      title: "Backend health certificate",
+      fileName: "backend-health-certificate.pdf",
     });
   });
 

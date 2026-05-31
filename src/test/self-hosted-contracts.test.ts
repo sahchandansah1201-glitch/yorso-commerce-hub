@@ -350,6 +350,18 @@ describe("self-hosted account/company contracts", () => {
         legalForm: "AS",
         foundedDate: "2010-04-17",
       },
+      supplierDocuments: [
+        {
+          id: "contract-doc-health-1",
+          title: "Contract health certificate",
+          documentType: "health_certificate",
+          status: "approved",
+          issuedAt: "2026-02-10",
+          expiresAt: "2027-02-10",
+          fileName: "contract-health-certificate.pdf",
+          fileAssetId: "file_contract_doc_health_1",
+        },
+      ],
       updatedAt: "2026-05-14T00:00:00.000Z",
     });
 
@@ -365,6 +377,10 @@ describe("self-hosted account/company contracts", () => {
       registrationNumber: "999888777",
       legalForm: "AS",
     });
+    expect(record.supplierDocuments[0]).toMatchObject({
+      title: "Contract health certificate",
+      fileName: "contract-health-certificate.pdf",
+    });
     expect(
       supplierDirectoryItemSchema.parse({
         ...record,
@@ -374,6 +390,7 @@ describe("self-hosted account/company contracts", () => {
         deliveryCountriesTotal: null,
         totalProductsCount: null,
         legalDetails: null,
+        supplierDocuments: null,
         website: null,
         whatsapp: null,
         accessLevel: "anonymous_locked",
@@ -402,6 +419,7 @@ describe("self-hosted account/company contracts", () => {
         },
       ],
       legalDetails: null,
+      supplierDocuments: null,
       accessLevel: "anonymous_locked",
     });
   });

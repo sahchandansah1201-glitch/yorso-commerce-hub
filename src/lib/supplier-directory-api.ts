@@ -21,6 +21,10 @@ import {
   localPreviewSupplierLegalDetails,
   type SupplierLegalDetails,
 } from "@/lib/supplier-legal";
+import {
+  localPreviewSupplierDocuments,
+  type SupplierDocumentPayload,
+} from "@/lib/supplier-documents";
 import { getApprovedSupplierAccessIds } from "@/lib/supplier-access-requests";
 
 export type SupplierDirectoryAccessLevel = "anonymous_locked" | "registered_locked" | "qualified_unlocked";
@@ -54,6 +58,7 @@ export interface SupplierDirectoryItem {
   shipmentCases: SupplierShipmentCase[];
   faqItems: SupplierFaqItem[];
   legalDetails: SupplierLegalDetails | null;
+  supplierDocuments: SupplierDocumentPayload[] | null;
   website: string | null;
   whatsapp: string | null;
   updatedAt: string;
@@ -169,6 +174,7 @@ const shapeMockSupplier = (
     ),
     faqItems: supplier.faqItems ?? localPreviewSupplierFaqItems(supplier.id),
     legalDetails: unlocked ? supplier.legalDetails ?? localPreviewSupplierLegalDetails(supplier) : null,
+    supplierDocuments: unlocked ? supplier.supplierDocuments ?? localPreviewSupplierDocuments(supplier) : null,
     website: unlocked ? supplier.website ?? null : null,
     whatsapp: unlocked ? supplier.whatsapp ?? null : null,
     updatedAt: "2026-05-14T00:00:00.000Z",

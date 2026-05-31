@@ -54,6 +54,7 @@ const apiSupplier = (patch: Partial<SupplierDirectoryItem> = {}): SupplierDirect
     ),
     faqItems: localPreviewSupplierFaqItems(supplier.id),
     legalDetails: null,
+    supplierDocuments: null,
     website: null,
     whatsapp: null,
     updatedAt: "2026-05-14T00:00:00.000Z",

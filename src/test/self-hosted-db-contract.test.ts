@@ -47,6 +47,8 @@ const supplierProfileEvidenceBlocksSql = () =>
   readFileSync("packages/db/migrations/0032_supplier_profile_evidence_blocks.sql", "utf8");
 const supplierProfileLegalDetailsSql = () =>
   readFileSync("packages/db/migrations/0033_supplier_profile_legal_details.sql", "utf8");
+const supplierProfileRestrictedDocumentsSql = () =>
+  readFileSync("packages/db/migrations/0034_supplier_profile_restricted_documents.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -151,6 +153,17 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("yorso_suppliers_legal_details_object_or_null");
     expect(text).toContain("qualified_unlocked");
     expect(text).toContain("not safe for locked buyer views");
+  });
+
+  it("adds restricted backend-owned supplier document payload metadata to the supplier directory record", () => {
+    const text = supplierProfileRestrictedDocumentsSql();
+
+    expect(text).toContain("Backend Phase 4E");
+    expect(text).toContain("alter table yorso_suppliers_directory");
+    expect(text).toContain("supplier_documents jsonb not null default '[]'::jsonb");
+    expect(text).toContain("yorso_suppliers_supplier_documents_array");
+    expect(text).toContain("qualified_unlocked");
+    expect(text).toContain("locked buyer responses must contain null");
   });
 
   it("declares offer catalog tables and search indexes owned by YORSO", () => {
@@ -481,7 +494,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on hosted auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}\n${adminIncidentTrendActionQueueSql()}\n${authPasswordRecoverySql()}\n${authPasswordRecoveryAbuseCleanupSql()}\n${supplierProfileDossierFactsSql()}\n${supplierProfileEvidenceBlocksSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}\n${adminIncidentTrendActionQueueSql()}\n${authPasswordRecoverySql()}\n${authPasswordRecoveryAbuseCleanupSql()}\n${supplierProfileDossierFactsSql()}\n${supplierProfileEvidenceBlocksSql()}\n${supplierProfileLegalDetailsSql()}\n${supplierProfileRestrictedDocumentsSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -529,6 +542,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0031_supplier_profile_dossier_facts",
       "0032_supplier_profile_evidence_blocks",
       "0033_supplier_profile_legal_details",
+      "0034_supplier_profile_restricted_documents",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -701,6 +715,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0033_supplier_profile_legal_details",
           ownedTables: ["yorso_suppliers_directory"],
           dependsOn: ["0032_supplier_profile_evidence_blocks"],
+        }),
+        expect.objectContaining({
+          id: "0034_supplier_profile_restricted_documents",
+          ownedTables: ["yorso_suppliers_directory"],
+          dependsOn: ["0033_supplier_profile_legal_details"],
         }),
       ]),
     );

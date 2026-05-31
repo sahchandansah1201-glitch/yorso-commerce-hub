@@ -112,6 +112,7 @@ export function shapeSupplierForAccess(
     deliveryCountriesTotal: unlocked ? supplier.deliveryCountriesTotal : null,
     totalProductsCount: unlocked ? supplier.totalProductsCount : null,
     legalDetails: unlocked ? supplier.legalDetails : null,
+    supplierDocuments: unlocked ? supplier.supplierDocuments : null,
     website: unlocked ? supplier.website : null,
     whatsapp: unlocked ? supplier.whatsapp : null,
     productCatalogPreview: unlocked

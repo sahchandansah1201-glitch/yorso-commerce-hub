@@ -393,6 +393,17 @@
       "dependsOn": [
         "0032_supplier_profile_evidence_blocks"
       ]
+    },
+    {
+      "id": "0034_supplier_profile_restricted_documents",
+      "file": "migrations/0034_supplier_profile_restricted_documents.sql",
+      "description": "Move restricted supplier profile document payload metadata into the self-hosted supplier directory record.",
+      "ownedTables": [
+        "yorso_suppliers_directory"
+      ],
+      "dependsOn": [
+        "0033_supplier_profile_legal_details"
+      ]
     }
   ]
 }

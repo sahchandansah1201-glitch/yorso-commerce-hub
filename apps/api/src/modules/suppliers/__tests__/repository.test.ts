@@ -143,6 +143,18 @@ describe("supplier directory repositories", () => {
                 legalForm: "Backend AS",
                 foundedDate: "2010-04-17",
               },
+              supplier_documents: [
+                {
+                  id: "row-doc-health-1",
+                  title: "Row health certificate",
+                  documentType: "health_certificate",
+                  status: "approved",
+                  issuedAt: "2026-02-10",
+                  expiresAt: "2027-02-10",
+                  fileName: "row-health-certificate.pdf",
+                  fileAssetId: "file_row_doc_health_1",
+                },
+              ],
               updated_at: new Date("2026-05-14T00:00:00.000Z"),
               total_count: 1,
             },
@@ -194,6 +206,12 @@ describe("supplier directory repositories", () => {
         registrationNumber: "BACKEND-REG-999",
         legalForm: "Backend AS",
       },
+      supplierDocuments: [
+        {
+          title: "Row health certificate",
+          fileName: "row-health-certificate.pdf",
+        },
+      ],
     });
     expect(calls[0].sql).toContain("from yorso_suppliers_directory");
     expect(calls[0].sql).toContain("publication_status = 'published'");

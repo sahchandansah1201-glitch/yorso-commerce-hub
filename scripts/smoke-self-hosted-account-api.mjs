@@ -77,6 +77,7 @@ async function runSmoke(baseUrl) {
   assertEqual(suppliersLocked.ok, true, "supplier list ok");
   assertEqual(suppliersLocked.suppliers?.[0]?.companyName, null, "locked supplier company hidden");
   assertEqual(suppliersLocked.suppliers?.[0]?.website, null, "locked supplier website hidden");
+  assertEqual(suppliersLocked.suppliers?.[0]?.supplierDocuments, null, "locked supplier documents hidden");
   console.log("supplier_directory_locked=ok");
 
   const certifiedSuppliers = await jsonRequest(
@@ -105,6 +106,7 @@ async function runSmoke(baseUrl) {
   assertEqual(supplierBeforeGrant.accessLevel, "registered_locked", "supplier detail requires grant");
   assertEqual(supplierBeforeGrant.supplier?.companyName, null, "supplier identity hidden before grant");
   assertEqual(supplierBeforeGrant.supplier?.website, null, "supplier website hidden before grant");
+  assertEqual(supplierBeforeGrant.supplier?.supplierDocuments, null, "supplier documents hidden before grant");
   console.log("supplier_directory_requires_grant=ok");
 
   const supplierPrivateSearchBeforeGrant = await jsonRequest(
@@ -213,6 +215,7 @@ async function runSmoke(baseUrl) {
   assertEqual(supplierUnlocked.accessLevel, "qualified_unlocked", "unlocked supplier access level");
   assertEqual(supplierUnlocked.supplier?.companyName, "Nordfjord Sjømat AS", "unlocked supplier identity");
   assertEqual(supplierUnlocked.supplier?.website, "https://example-nordfjord.no", "unlocked supplier website");
+  assertEqual(supplierUnlocked.supplier?.supplierDocuments?.[0]?.fileName, "sup-no-001-health-certificate.pdf", "unlocked supplier document metadata");
   console.log("supplier_directory_unlocked=ok");
 
   const supplierPrivateSearchAfterGrant = await jsonRequest(

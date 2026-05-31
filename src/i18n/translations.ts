@@ -1355,6 +1355,14 @@ type TranslationKeys = {
   supplier_passport_docs_b4: string;
   supplier_passport_docs_b5: string;
   supplier_passport_docs_b6: string;
+  supplier_passport_docs_locked: string;
+  supplier_passport_docs_empty: string;
+  supplier_passport_docs_issued: string;
+  supplier_passport_docs_expires: string;
+  supplier_document_status_approved: string;
+  supplier_document_status_review: string;
+  supplier_document_status_expired: string;
+  supplier_document_status_onRequest: string;
   supplier_passport_lead_title: string;
   supplier_passport_lead_b1: string;
   supplier_passport_lead_b2: string;
@@ -3297,6 +3305,14 @@ const en: TranslationKeys = {
   supplier_passport_docs_b4: "Packing list",
   supplier_passport_docs_b5: "Bill of Lading / CMR",
   supplier_passport_docs_b6: "Halal / Kosher — on request",
+  supplier_passport_docs_locked: "Document metadata is shared after supplier access is approved. File names and asset references are hidden before qualification.",
+  supplier_passport_docs_empty: "Documents are available on request after buyer qualification.",
+  supplier_passport_docs_issued: "Issued",
+  supplier_passport_docs_expires: "Expires",
+  supplier_document_status_approved: "Approved",
+  supplier_document_status_review: "In review",
+  supplier_document_status_expired: "Expired",
+  supplier_document_status_onRequest: "On request",
   supplier_passport_lead_title: "Lead times",
   supplier_passport_lead_b1: "From stock: 3–7 days after payment",
   supplier_passport_lead_b2: "Made to order: 2–4 weeks",
@@ -5215,6 +5231,14 @@ const ru: TranslationKeys = {
   supplier_passport_docs_b4: "Упаковочный лист",
   supplier_passport_docs_b5: "Bill of Lading / CMR",
   supplier_passport_docs_b6: "Halal / Kosher — по запросу",
+  supplier_passport_docs_locked: "Метаданные документов передаются после подтверждения доступа к поставщику. Имена файлов и asset-ссылки скрыты до квалификации.",
+  supplier_passport_docs_empty: "Документы доступны по запросу после квалификации покупателя.",
+  supplier_passport_docs_issued: "Выдан",
+  supplier_passport_docs_expires: "Действует до",
+  supplier_document_status_approved: "Подтверждён",
+  supplier_document_status_review: "На проверке",
+  supplier_document_status_expired: "Истёк",
+  supplier_document_status_onRequest: "По запросу",
   supplier_passport_lead_title: "Сроки готовности",
   supplier_passport_lead_b1: "Со склада: 3–7 дней после оплаты",
   supplier_passport_lead_b2: "Под заказ: 2–4 недели",
@@ -7133,6 +7157,14 @@ const es: TranslationKeys = {
   supplier_passport_docs_b4: "Lista de embalaje",
   supplier_passport_docs_b5: "Bill of Lading / CMR",
   supplier_passport_docs_b6: "Halal / Kosher — a petición",
+  supplier_passport_docs_locked: "Los metadatos de documentos se comparten tras aprobar el acceso al proveedor. Los nombres de archivo y referencias de asset quedan ocultos antes de la cualificación.",
+  supplier_passport_docs_empty: "Los documentos están disponibles bajo solicitud tras cualificar al comprador.",
+  supplier_passport_docs_issued: "Emitido",
+  supplier_passport_docs_expires: "Vence",
+  supplier_document_status_approved: "Aprobado",
+  supplier_document_status_review: "En revisión",
+  supplier_document_status_expired: "Vencido",
+  supplier_document_status_onRequest: "A petición",
   supplier_passport_lead_title: "Plazos de disponibilidad",
   supplier_passport_lead_b1: "De stock: 3–7 días tras el pago",
   supplier_passport_lead_b2: "Bajo pedido: 2–4 semanas",

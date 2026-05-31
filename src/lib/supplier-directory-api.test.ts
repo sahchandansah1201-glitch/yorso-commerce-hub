@@ -28,6 +28,7 @@ describe("supplier directory API adapter", () => {
       website: null,
       whatsapp: null,
       legalDetails: null,
+      supplierDocuments: null,
     });
 
     const verified = await client.listSuppliers({
@@ -72,6 +73,13 @@ describe("supplier directory API adapter", () => {
       legalDetails: {
         registrationNumber: expect.any(String),
       },
+      supplierDocuments: [
+        {
+          fileName: "sup-no-001-health-certificate.pdf",
+        },
+        expect.any(Object),
+        expect.any(Object),
+      ],
     });
   });
 
@@ -186,6 +194,7 @@ describe("supplier directory API adapter", () => {
           shipmentCases: [],
           faqItems: [],
           legalDetails: null,
+          supplierDocuments: null,
           website: null,
           whatsapp: null,
           updatedAt: "2026-05-14T00:00:00.000Z",

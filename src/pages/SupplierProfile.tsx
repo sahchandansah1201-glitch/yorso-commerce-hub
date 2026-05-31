@@ -39,6 +39,7 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import MobileOfferCard from "@/components/catalog/MobileOfferCard";
 import type { SupplierLegalDetails } from "@/lib/supplier-legal";
+import type { SupplierDocumentPayload } from "@/lib/supplier-documents";
 import {
   getLogoStatus,
   prefetchLogos,
@@ -412,6 +413,92 @@ const LegalDetailsBlock = ({
         <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
         <span>{t.supplier_legal_disclaimer}</span>
       </div>
+    </div>
+  );
+};
+
+const supplierDocumentStatusLabel = (
+  status: SupplierDocumentPayload["status"],
+  t: ReturnType<typeof useLanguage>["t"],
+) => {
+  if (status === "approved") return t.supplier_document_status_approved;
+  if (status === "review") return t.supplier_document_status_review;
+  if (status === "expired") return t.supplier_document_status_expired;
+  return t.supplier_document_status_onRequest;
+};
+
+const SupplierDocumentsBlock = ({
+  documents,
+  unlocked,
+}: {
+  documents: SupplierDocumentPayload[] | null | undefined;
+  unlocked: boolean;
+}) => {
+  const { t, lang } = useLanguage();
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-6">
+      <div className="flex items-center gap-2">
+        <FileCheck2 className="h-5 w-5 text-primary" aria-hidden />
+        <h2 className="font-heading text-lg font-semibold text-foreground">
+          {t.supplier_passport_docs_title}
+        </h2>
+      </div>
+
+      {!unlocked ? (
+        <div
+          className="mt-4 flex items-start gap-3 rounded-lg border border-dashed border-border bg-muted/30 p-4 text-sm text-muted-foreground"
+          data-testid="supplier-documents-locked"
+        >
+          <Lock className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          <p>{t.supplier_passport_docs_locked}</p>
+        </div>
+      ) : documents && documents.length > 0 ? (
+        <ul className="mt-4 grid gap-3">
+          {documents.map((document) => (
+            <li
+              key={document.id}
+              className="rounded-lg border border-border bg-background p-4"
+            >
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="font-medium text-foreground">{document.title}</p>
+                  {document.fileName && (
+                    <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
+                      {document.fileName}
+                    </p>
+                  )}
+                </div>
+                <span className="inline-flex w-fit rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
+                  {supplierDocumentStatusLabel(document.status, t)}
+                </span>
+              </div>
+              <dl className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                {document.issuedAt && (
+                  <div>
+                    <dt>{t.supplier_passport_docs_issued}</dt>
+                    <dd className="font-medium text-foreground">
+                      {formatLocalizedDate(document.issuedAt, lang)}
+                    </dd>
+                  </div>
+                )}
+                {document.expiresAt && (
+                  <div>
+                    <dt>{t.supplier_passport_docs_expires}</dt>
+                    <dd className="font-medium text-foreground">
+                      {formatLocalizedDate(document.expiresAt, lang)}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-4 rounded-lg border border-dashed border-border bg-muted/30 p-4 text-sm text-muted-foreground">
+          {t.supplier_passport_docs_empty}
+        </p>
+      )}
     </div>
   );
 };
@@ -1709,22 +1796,10 @@ const SupplierProfile = () => {
                             </dl>
                           </div>
 
-                          <div className="rounded-xl border border-border bg-card p-6">
-                            <div className="flex items-center gap-2">
-                              <FileCheck2 className="h-5 w-5 text-primary" aria-hidden />
-                              <h2 className="font-heading text-lg font-semibold text-foreground">
-                                {t.supplier_passport_docs_title}
-                              </h2>
-                            </div>
-                            <ul className="mt-3 grid gap-1.5 text-sm text-foreground/80 sm:grid-cols-2">
-                              <li>• {t.supplier_passport_docs_b1}</li>
-                              <li>• {t.supplier_passport_docs_b2}</li>
-                              <li>• {t.supplier_passport_docs_b3}</li>
-                              <li>• {t.supplier_passport_docs_b4}</li>
-                              <li>• {t.supplier_passport_docs_b5}</li>
-                              <li>• {t.supplier_passport_docs_b6}</li>
-                            </ul>
-                          </div>
+                          <SupplierDocumentsBlock
+                            documents={supplier.supplierDocuments}
+                            unlocked={isUnlocked}
+                          />
                         </div>
 
                         <aside className="space-y-6">
