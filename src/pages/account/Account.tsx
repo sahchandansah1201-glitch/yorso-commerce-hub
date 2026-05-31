@@ -2383,9 +2383,12 @@ const MetaRegionsSection = ({
       ) : null}
       <div className="grid gap-3 sm:grid-cols-2">
         {profile.metaRegions.length === 0 ? (
-          <AccountSectionCard title={t.account_metaRegion_empty} testId="account-meta-empty">
-            <p className="text-sm text-muted-foreground">{t.account_metaRegion_empty_desc}</p>
-          </AccountSectionCard>
+          <ListEmpty
+            title={t.account_metaRegion_empty}
+            description={t.account_metaRegion_empty_desc}
+            testId="account-meta-empty"
+          />
+
         ) : (
           profile.metaRegions.map((m) => (
             <AccountSectionCard key={m.id} title={m.name} testId={`account-meta-${m.id}`}>
