@@ -1502,3 +1502,16 @@
 - `apps/api/src/modules/suppliers/__tests__/repository.test.ts`: PostgreSQL repository regression for bounded indexed listing filters.
 - `docs/backend/frontend-backend-contract.md`, `docs/backend/self-hosted-validation.md`, `docs/backend/production-scale-baseline.md`, `docs/backend/yorso-backend-implementation-plan.md` and `docs/backend/yorso-backend-implementation-plan.ru.md`: route contract, validation/readiness and implementation-plan updates.
 - `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4I docs, route, contract, repository/service markers and production-scale baseline.
+
+## Backend Phase 4J Supplier Document Grant Audit Listing
+
+- `docs/backend/phase-4j-supplier-document-grant-audit-listing.md`: implementation note, Russian plan/fact table, runtime contract, access decision, remaining debt, validation and 10,000 concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: admin grant-audit query/list response contracts with bounded `limit <= 100`, `offset <= 10000` and storage-id-free item shape.
+- `apps/api/src/modules/suppliers/admin-routes.ts`: admin-only `GET /v1/admin/supplier-documents/download-grants` route with session/role guard, error handling and audit read event.
+- `apps/api/src/modules/suppliers/service.ts`: `listAdminDocumentDownloadGrants` parses query params and shapes audit responses without `fileAssetId`, object keys, storage keys, direct storage URLs or `downloadPath`.
+- `apps/api/src/modules/suppliers/repository.ts` and `apps/api/src/modules/suppliers/postgres-repository.ts`: memory/PostgreSQL listing over supplier document grant records with optional `status`, `supplierId` and `buyerUserId` filters.
+- `apps/api/src/server.test.ts`: route regression covering 401 missing session, 403 buyer session, real grant creation, admin listing and file-asset leakage guard.
+- `apps/api/src/modules/suppliers/__tests__/repository.test.ts`: PostgreSQL repository regression for bounded indexed grant listing filters.
+- `src/test/self-hosted-contracts.test.ts`: contract regression for admin grant-audit response shape without file asset or download path leakage.
+- `docs/backend/frontend-backend-contract.md`, `docs/backend/self-hosted-validation.md`, `docs/backend/production-scale-baseline.md`, `docs/backend/yorso-backend-implementation-plan.md` and `docs/backend/yorso-backend-implementation-plan.ru.md`: route contract, validation/readiness and implementation-plan updates.
+- `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4J docs, route, contract, repository/service markers and production-scale baseline.

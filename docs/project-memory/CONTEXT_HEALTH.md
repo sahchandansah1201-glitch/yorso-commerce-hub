@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-31"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "bd05bc60_phase_4i_supplier_document_download_audit_listing"
+head_commit: "b5469880_phase_4j_supplier_document_grant_audit_listing"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4i_supplier_document_download_audit_listing"
+active_workstream: "backend_phase_4j_supplier_document_grant_audit_listing"
 pull_request: null
-recommended_action: "start Backend Phase 4J Supplier Document Grant Audit Listing"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4I are documented, committed and validated."
+recommended_action: "decide between admin UI for document audit listings and supplier owner/admin document management"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4J are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4i_supplier_document_download_audit_listing.
-Current HEAD baseline: Backend Phase 4I supplier document download audit listing implementation commit bd05bc60 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4j_supplier_document_grant_audit_listing.
+Current HEAD baseline: Backend Phase 4J supplier document grant audit listing implementation commit b5469880 is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,13 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: start Backend Phase 4J Supplier Document Grant Audit Listing.
+Current recommended action: decide between admin UI for document audit listings and supplier owner/admin document management.
+Phase 4J implemented and committed locally at b5469880: GET /v1/admin/supplier-documents/download-grants provides bounded admin reads over supplier document grant audit records.
+Phase 4J access boundary: the route requires an authenticated self-hosted admin session; missing sessions return 401 and buyer/non-admin sessions return 403 admin_role_required.
+Phase 4J payload boundary: admin JSON responses include grant audit metadata, grantedAt, expiresAt and createdAt but exclude fileAssetId, object keys, storage keys, direct storage URLs and downloadPath.
+Phase 4J query contract: optional status, supplierId and buyerUserId filters with limit <= 100 and offset <= 10000; PostgreSQL reads yorso_supplier_document_download_grants ordered by created_at desc, id asc using existing recent indexes.
+Phase 4J observability: admin listing attempts emit audit action admin.supplier_document_download_grants.read; no new scheduler, queue, export, migration or hosted provider was added.
+Phase 4J validation passed: TDD red/green admin route test; supplier repository listing test; self-hosted contract test; npm run contracts:build; npm run test:api; npm run check:self-hosted-api; npm run check:production-scale-baseline; npx tsc -b --noEmit; npm run lint; npm run build; npm test; git diff --check.
 Phase 4I implemented and committed locally at bd05bc60: GET /v1/admin/supplier-documents/download-events provides bounded admin reads over supplier document download audit events.
 Phase 4I access boundary: the route requires an authenticated self-hosted admin session; missing sessions return 401 and buyer/non-admin sessions return 403 admin_role_required.
 Phase 4I payload boundary: admin JSON responses include audit metadata but exclude fileAssetId, object keys, storage keys, direct storage URLs and downloadPath.
@@ -394,5 +400,5 @@ Lovable sync for Batch #128 is confirmed clean at f1f482b with no conflicts and 
 Lovable confirmed RegistrationLayout, CountryPhoneInput, SignIn, ResetPassword, RegisterChoose/Email/Verify/Details/Onboarding/Countries/Ready, e2e/public-auth-registration-a11y.spec.ts, package smoke wiring, Batch #128 production-scale notes, registration field autocomplete, skip/main landmarks, no nested controls, /register/ready Button asChild CTA, 44px mobile registration targets, preserved Batch #112 code splitting, Batch #113 error boundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets.
 Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
 Known warning remains: Browserslist data is stale.
-Next step: start Backend Phase 4J Supplier Document Grant Audit Listing from current main.
+Next step: decide between admin UI for document audit listings and supplier owner/admin document management from current main.
 ```

@@ -16,19 +16,19 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4I Supplier Document Download Audit Listing is committed locally
-at `bd05bc60`; release validation passed.
+Backend Phase 4J Supplier Document Grant Audit Listing is committed locally
+at `b5469880`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Решение по scope | Выбрать owner/admin upload или admin audit listing. | Выбрано audit listing по `yorso_supplier_document_download_events`. | Owner/admin upload остается отдельной supplier operations phase. |
-| Admin endpoint | Дать bounded admin read по download events. | Реализовано: `GET /v1/admin/supplier-documents/download-events`. | Phase 4J: grant audit listing. |
+| Scope | Закрыть adjacent grant-audit gap после Phase 4I. | Реализован admin listing по `yorso_supplier_document_download_grants`. | Owner/admin upload остается отдельной supplier operations phase. |
+| Admin endpoint | Дать bounded admin read по grant attempts. | Реализовано: `GET /v1/admin/supplier-documents/download-grants`. | Решить, нужен ли admin UI над grant/download audit listings. |
 | Role guard | Не отдавать audit buyer-сессиям. | Реализовано: 401 без сессии, 403 `admin_role_required` для buyer. | Возможные admin-subroles позже. |
-| Payload boundary | Не раскрывать backend storage identifiers. | Реализовано: в admin JSON нет `fileAssetId`, object keys, storage keys, direct file URLs и `downloadPath`. | Держать admin responses без storage identifiers. |
+| Payload boundary | Не раскрывать backend storage identifiers. | Реализовано: в admin JSON нет `fileAssetId`, `downloadPath`, object keys, storage keys и direct file URLs. | Держать admin responses без storage identifiers. |
 | Пагинация и индексы | Сделать bounded pagination и indexed filters. | Реализовано: `status`, `supplierId`, `buyerUserId`, `limit<=100`, `offset<=10000`; Postgres использует существующие recent indexes. | Cursor pagination только если объем audit этого потребует. |
-| Guards | Зафиксировать docs, self-hosted guard и 10k-user review. | Реализовано: Phase 4I docs, guards и validation. | Держать в release path. |
+| Guards | Зафиксировать docs, self-hosted guard и 10k-user review. | Реализовано: Phase 4J docs, guards и validation. | Держать в release path. |
 
 ## Current Status
 
@@ -49,6 +49,26 @@ at `bd05bc60`; release validation passed.
 - Backend Phase 4G is committed locally at `37cae608`; release validation passed.
 - Backend Phase 4H is committed locally at `06ef6922`; release validation passed.
 - Backend Phase 4I is committed locally at `bd05bc60`; release validation passed.
+- Backend Phase 4J is committed locally at `b5469880`; release validation passed.
+
+## Phase 4J Files
+
+- `docs/backend/phase-4j-supplier-document-grant-audit-listing.md`
+- `packages/contracts/src/supplier-directory.ts`
+- `apps/api/src/modules/suppliers/admin-routes.ts`
+- `apps/api/src/modules/suppliers/service.ts`
+- `apps/api/src/modules/suppliers/repository.ts`
+- `apps/api/src/modules/suppliers/postgres-repository.ts`
+- `apps/api/src/server.test.ts`
+- `apps/api/src/modules/suppliers/__tests__/repository.test.ts`
+- `src/test/self-hosted-contracts.test.ts`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
 
 ## Phase 4I Files
 
@@ -451,16 +471,17 @@ Known non-blocking warning:
 
 ## Next Recommended Workstream
 
-Backend Phase 4J: Supplier Document Grant Audit Listing.
+Decision: admin UI for supplier document audit listings or supplier
+owner/admin document management.
 
 Concrete first scope:
 
-- expose bounded admin reads over `yorso_supplier_document_download_grants`;
-- keep response storage-id-free for browser/admin JSON while preserving
-  backend-only `fileAssetId` in repository/database forensics;
-- support indexed filters that already exist or add no unindexed scans;
-- require admin session and audit reads;
-- do not implement owner upload/editing yet.
+- if admin UI is selected, build a bounded admin console view over
+  `/v1/admin/supplier-documents/download-events` and
+  `/v1/admin/supplier-documents/download-grants`;
+- if owner/admin document management is selected, define ownership, upload,
+  edit/delete validation, audit events and file lifecycle first;
+- do not start both in one batch.
 
 ## Preserve
 

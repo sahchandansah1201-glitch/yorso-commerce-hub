@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "bd05bc60"
-  head_summary: "Backend Phase 4I supplier document download audit listing; release validation passed."
+  head_commit: "b5469880"
+  head_summary: "Backend Phase 4J supplier document grant audit listing; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4I implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4J implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,24 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4i_supplier_document_download_audit_listing"
-  summary: "Admin users can read bounded supplier document download audit events without browser-facing file asset leakage."
+  id: "backend_phase_4j_supplier_document_grant_audit_listing"
+  summary: "Admin users can read bounded supplier document grant audit records without browser-facing file asset leakage."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4J implementation is recorded in docs/backend/phase-4j-supplier-document-grant-audit-listing.md."
+    - "GET /v1/admin/supplier-documents/download-grants requires an authenticated admin session; missing sessions return 401 and buyer sessions return admin_role_required."
+    - "packages/contracts/src/supplier-directory.ts defines supplierDocumentDownloadGrantAdminQuerySchema and supplierDocumentDownloadGrantAdminListResponseSchema with bounded limit<=100 and offset<=10000."
+    - "apps/api/src/modules/suppliers/admin-routes.ts emits audit action admin.supplier_document_download_grants.read for admin listing attempts."
+    - "apps/api/src/modules/suppliers/service.ts shapes admin grant responses without fileAssetId, object keys, storage keys, direct storage URLs or downloadPath."
+    - "apps/api/src/modules/suppliers/postgres-repository.ts reads yorso_supplier_document_download_grants with optional status/supplierId/buyerUserId filters and order created_at desc, id asc."
+    - "apps/api/src/server.test.ts covers missing session, non-admin block, real grant creation, admin listing and storage-id redaction."
+    - "apps/api/src/modules/suppliers/__tests__/repository.test.ts covers bounded indexed PostgreSQL grant listing filters."
+    - "check:self-hosted-api and check:production-scale-baseline guard the Phase 4J docs, route, contract, repository/service markers and 10,000 concurrent-user review."
+    - "Phase 4J release validation passed: TDD red/green API route test, supplier repository test, self-hosted contract test, test:api, self-hosted guard, production-scale guard, TypeScript build graph, lint, production build, full npm test and git diff --check."
+    - "Phase 4J is committed locally at b5469880."
+    - "Recommended next scoped workstream: decide between admin UI for document audit listings and supplier owner/admin document management."
     - "Phase 4I implementation is recorded in docs/backend/phase-4i-supplier-document-download-audit-listing.md."
     - "GET /v1/admin/supplier-documents/download-events requires an authenticated admin session; missing sessions return 401 and buyer sessions return admin_role_required."
     - "packages/contracts/src/supplier-directory.ts defines supplierDocumentDownloadEventAdminQuerySchema and supplierDocumentDownloadEventAdminListResponseSchema with bounded limit<=100 and offset<=10000."
@@ -1928,4 +1940,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 4H implementation question. Next scoped decision: Backend Phase 4I Supplier Document Owner/Admin Management Decision."
+  - "No open Phase 4J implementation question. Next scoped decision: admin UI for document audit listings or supplier owner/admin document management."
