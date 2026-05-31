@@ -24,6 +24,7 @@ const requiredFiles = [
   "docs/backend/phase-4i-supplier-document-download-audit-listing.md",
   "docs/backend/phase-4j-supplier-document-grant-audit-listing.md",
   "docs/backend/phase-4k-supplier-document-audit-admin-ui.md",
+  "docs/backend/phase-4l-supplier-document-management-rules.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -78,6 +79,7 @@ const requiredFiles = [
   "packages/db/migration-manifest.json",
   "package.json",
   "packages/contracts/src/auth.ts",
+  "packages/contracts/src/supplier-directory.ts",
   "apps/api/src/modules/auth/factory.ts",
   "apps/api/src/modules/auth/postgres-repository.ts",
   "apps/api/src/modules/auth/repository.ts",
@@ -188,6 +190,9 @@ const requiredFiles = [
   "apps/api/src/modules/storage/routes.ts",
   "apps/api/src/modules/offers/routes.ts",
   "apps/api/src/modules/suppliers/routes.ts",
+  "apps/api/src/modules/suppliers/document-management-policy.ts",
+  "apps/api/src/modules/suppliers/document-management-policy.test.ts",
+  "src/test/supplier-document-management-contract.test.ts",
   "scripts/smoke-self-hosted-auth-api.mjs",
   "scripts/smoke-self-hosted-health-readiness.mjs",
   "scripts/smoke-self-hosted-graceful-shutdown.mjs",
@@ -286,6 +291,7 @@ const phase4hSupplierDocumentDownloadUi = read("docs/backend/phase-4h-supplier-d
 const phase4iSupplierDocumentDownloadAuditListing = read("docs/backend/phase-4i-supplier-document-download-audit-listing.md");
 const phase4jSupplierDocumentGrantAuditListing = read("docs/backend/phase-4j-supplier-document-grant-audit-listing.md");
 const phase4kSupplierDocumentAuditAdminUi = read("docs/backend/phase-4k-supplier-document-audit-admin-ui.md");
+const phase4lSupplierDocumentManagementRules = read("docs/backend/phase-4l-supplier-document-management-rules.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -334,6 +340,7 @@ const authPasswordRecoveryDeliveryRuntime = read("apps/api/src/modules/auth/pass
 const manifest = JSON.parse(read("packages/db/migration-manifest.json"));
 const pkg = JSON.parse(read("package.json"));
 const authContract = read("packages/contracts/src/auth.ts");
+const supplierDirectoryContract = read("packages/contracts/src/supplier-directory.ts");
 const authFactory = read("apps/api/src/modules/auth/factory.ts");
 const authPostgresRepository = read("apps/api/src/modules/auth/postgres-repository.ts");
 const authRepository = read("apps/api/src/modules/auth/repository.ts");
@@ -437,6 +444,9 @@ const storageRoutes = read("apps/api/src/modules/storage/routes.ts");
 const offerRoutes = read("apps/api/src/modules/offers/routes.ts");
 const supplierAdminRoutes = read("apps/api/src/modules/suppliers/admin-routes.ts");
 const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
+const supplierDocumentManagementPolicy = read("apps/api/src/modules/suppliers/document-management-policy.ts");
+const supplierDocumentManagementPolicyTest = read("apps/api/src/modules/suppliers/document-management-policy.test.ts");
+const supplierDocumentManagementContractTest = read("src/test/supplier-document-management-contract.test.ts");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const healthReadinessSmoke = read("scripts/smoke-self-hosted-health-readiness.mjs");
 const gracefulShutdownSmoke = read("scripts/smoke-self-hosted-graceful-shutdown.mjs");
@@ -510,6 +520,13 @@ if (!pkg.dependencies?.redis) {
 const requireText = (name, text, marker) => {
   if (!text.includes(marker)) failures.push(`${name}: missing ${JSON.stringify(marker)}`);
 };
+
+if (pkg.scripts["test:supplier-document-management-policy"] !== "npm run contracts:build && vitest run src/test/supplier-document-management-contract.test.ts && vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/document-management-policy.test.ts") {
+  failures.push("package.json: test:supplier-document-management-policy must cover supplier document management contract and API policy tests");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-document-management-policy")) {
+  failures.push("package.json: ci:core must include supplier document management policy tests");
+}
 
 for (const marker of [
   "10,000 concurrent web users",
@@ -3209,6 +3226,50 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-4k-supplier-document-audit-admin-ui.md", phase4kSupplierDocumentAuditAdminUi, marker);
+}
+for (const marker of [
+  "Backend Phase 4L",
+  "Supplier Document Management Rules Gate",
+  "supplierDocumentManagementCreateRequestSchema",
+  "supplierDocumentManagementAuditEventSchema",
+  "evaluateSupplierDocumentManagementPolicy",
+  "supplierDocumentManagementAuditActionByAction",
+  "approved_document_immutable",
+  "admin_role_required",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4l-supplier-document-management-rules.md", phase4lSupplierDocumentManagementRules, marker);
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
+  "supplierDocumentManagementCreateRequestSchema",
+  "supplierDocumentManagementUpdateRequestSchema",
+  "supplierDocumentManagementAuditEventSchema",
+  "supplierDocumentStatusSchema",
+]) {
+  requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, marker);
+}
+for (const marker of [
+  "evaluateSupplierDocumentManagementPolicy",
+  "supplierDocumentManagementAuditActionByAction",
+  "approved_document_immutable",
+  "admin_role_required",
+]) {
+  requireText("apps/api/src/modules/suppliers/document-management-policy.ts", supplierDocumentManagementPolicy, marker);
+}
+for (const marker of [
+  "fileAssetId",
+  "downloadPath",
+  "supplierDocumentManagementAuditEventSchema",
+]) {
+  requireText("src/test/supplier-document-management-contract.test.ts", supplierDocumentManagementContractTest, marker);
+}
+for (const marker of [
+  "supplier_owner",
+  "approved_document_immutable",
+  "admin_role_required",
+]) {
+  requireText("apps/api/src/modules/suppliers/document-management-policy.test.ts", supplierDocumentManagementPolicyTest, marker);
 }
 for (const marker of [
   "Backend Phase 4B",

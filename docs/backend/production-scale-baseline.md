@@ -6063,6 +6063,85 @@ Marker: downloadPath.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4L - Supplier Document Management Rules Gate
+
+Status: implemented.
+
+Phase 4L adds the owner/admin document management policy gate before any
+supplier document upload/edit/delete runtime endpoint exists. It is a
+contract-and-policy increment only: no browser route, API write route,
+database migration, file write, queue or worker is introduced.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Define who can manage supplier documents. | Shared contract defines `supplier_owner` and `admin`; API policy evaluates those roles. | Bind roles to real session/account claims in a future write endpoint. |
+| Lock approved documents against direct owner edits. | `approved_document_immutable` blocks metadata update/delete on approved docs. | Replacement/re-review flow remains separate. |
+| Keep approval workflow admin-only. | `approve`, `reject` and `expire` require `admin`; supplier owner receives `admin_role_required`. | Admin mutation routes and UI remain future scoped work. |
+| Protect storage internals. | Browser schemas reject `fileAssetId`, object/storage keys, `downloadPath` and direct URLs. | Upload runtime must bind files server-side from backend-owned upload ids. |
+| Make audit names stable. | `supplierDocumentManagementAuditActionByAction` maps each action to `supplier_document.*`. | Runtime routes must emit these audit actions. |
+
+Expected read/write profile:
+
+- Current runtime profile is zero reads and zero writes.
+- Future owner/admin writes should be low-volume operational actions.
+- Each future mutation must perform one authenticated session read, one
+  ownership/admin authorization read, one document read with row lock or version
+  precondition, one bounded write and one audit write.
+
+Cache, queue and backpressure strategy:
+
+- No cache, queue, scheduler, polling or worker is added in this phase.
+- Future write endpoints must remain uncached and rely on API request
+  guardrails, body-size limits, session fail-closed behavior and transaction
+  boundaries.
+- Virus scanning, async file processing or external object-storage retries
+  require a separate outbox/worker phase.
+
+Database indexing and pagination strategy:
+
+- No migration is introduced in Phase 4L.
+- Existing supplier document read payload remains bounded.
+- Future normalized document-management persistence must index by supplier,
+  status and updated time, and keep admin listings bounded by `limit <= 100` or
+  cursor pagination.
+
+Failure mode and graceful degradation:
+
+- Missing current status for non-create actions returns
+  `current_status_required`.
+- Invalid transitions return `invalid_status_transition`.
+- Approved document metadata update/delete returns
+  `approved_document_immutable`.
+- Owner approval/rejection/expiry returns `admin_role_required`.
+- Browser payloads with storage internals fail strict schema validation.
+
+Observability and load-test plan:
+
+- Future routes must emit the stable `supplier_document.*` audit actions.
+- Unit coverage verifies contract schemas, strict storage-field rejection,
+  audit-event shape and the owner/admin status decision matrix.
+- Future load tests must cover owner create/update/submit, admin
+  approve/reject/expire, immutable approved document failures, malformed
+  payloads and concurrent version conflicts at the 10,000 concurrent-user
+  baseline.
+
+Validation:
+
+- `npm run test:supplier-document-management-policy`;
+- `npm run check:self-hosted-api`;
+- `npm run check:production-scale-baseline`.
+
+Marker: Backend Phase 4L Supplier Document Management Rules Gate.
+Marker: supplierDocumentManagementCreateRequestSchema.
+Marker: supplierDocumentManagementAuditEventSchema.
+Marker: evaluateSupplierDocumentManagementPolicy.
+Marker: supplierDocumentManagementAuditActionByAction.
+Marker: approved_document_immutable.
+Marker: admin_role_required.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -1066,3 +1066,36 @@ document management вне scope этого инкремента.
 Следующий scoped backend direction после Phase 4K: сначала определить
 ownership, validation и audit rules для supplier owner/admin document
 management, затем реализовывать upload/edit/delete.
+
+## Backend Phase 4L Checkpoint - Правила управления документами поставщика
+
+Статус: реализовано.
+
+Phase 4L закрывает rules gate перед runtime-реализацией upload/edit/delete
+документов поставщика. В этом scope нет новых browser routes, API write routes,
+миграций, file writes, очередей или workers.
+
+Реализовано:
+
+- shared contract schemas для ролей, actions, create/update payload и audit
+  event;
+- strict browser payload validation, который не принимает `fileAssetId`,
+  object/storage keys, `downloadPath` и direct download URLs;
+- `evaluateSupplierDocumentManagementPolicy` для owner/admin решений;
+- стабильная audit map `supplierDocumentManagementAuditActionByAction`;
+- тесты contract shape, storage-boundary rejection, audit shape и
+  role/status decision matrix;
+- self-hosted и production-scale guard coverage.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Зафиксировать роли owner/admin. | `supplier_owner` и `admin` закреплены в contract. | Привязать роли к real session claims в write routes. |
+| Запретить прямое редактирование approved documents. | `approved_document_immutable` блокирует metadata update/delete approved-документов. | Replacement flow отдельным scope. |
+| Оставить approve/reject/expire администратору. | Owner получает `admin_role_required`. | Admin mutation API/UI отдельным scope. |
+| Не принимать storage internals из browser payload. | Strict schemas не принимают `fileAssetId`, storage/object keys, `downloadPath`, URLs. | Runtime upload должен выдавать backend-owned upload id. |
+
+Следующий scoped backend direction после Phase 4L: выбрать один первый write
+path, а не смешивать всё сразу: либо supplier owner upload/create review
+document, либо admin approve/reject route.

@@ -136,6 +136,8 @@ const requiredFiles = [
   "apps/api/src/modules/suppliers/postgres-repository.ts",
   "apps/api/src/modules/suppliers/repository.ts",
   "apps/api/src/modules/suppliers/admin-routes.ts",
+  "apps/api/src/modules/suppliers/document-management-policy.ts",
+  "apps/api/src/modules/suppliers/document-management-policy.test.ts",
   "apps/api/src/modules/suppliers/routes.ts",
   "apps/api/src/modules/suppliers/service.ts",
   "apps/api/src/config.ts",
@@ -275,6 +277,8 @@ const requiredFiles = [
   "docs/backend/phase-4i-supplier-document-download-audit-listing.md",
   "docs/backend/phase-4j-supplier-document-grant-audit-listing.md",
   "docs/backend/phase-4k-supplier-document-audit-admin-ui.md",
+  "docs/backend/phase-4l-supplier-document-management-rules.md",
+  "src/test/supplier-document-management-contract.test.ts",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -455,6 +459,8 @@ const supplierFactory = read("apps/api/src/modules/suppliers/factory.ts");
 const supplierPostgresRepository = read("apps/api/src/modules/suppliers/postgres-repository.ts");
 const supplierRepository = read("apps/api/src/modules/suppliers/repository.ts");
 const supplierAdminRoutes = read("apps/api/src/modules/suppliers/admin-routes.ts");
+const supplierDocumentManagementPolicy = read("apps/api/src/modules/suppliers/document-management-policy.ts");
+const supplierDocumentManagementPolicyTest = read("apps/api/src/modules/suppliers/document-management-policy.test.ts");
 const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const supplierService = read("apps/api/src/modules/suppliers/service.ts");
 const accountRoute = read("apps/api/src/routes/account.ts");
@@ -531,6 +537,8 @@ const phase4hSupplierDocumentDownloadUi = read("docs/backend/phase-4h-supplier-d
 const phase4iSupplierDocumentDownloadAuditListing = read("docs/backend/phase-4i-supplier-document-download-audit-listing.md");
 const phase4jSupplierDocumentGrantAuditListing = read("docs/backend/phase-4j-supplier-document-grant-audit-listing.md");
 const phase4kSupplierDocumentAuditAdminUi = read("docs/backend/phase-4k-supplier-document-audit-admin-ui.md");
+const phase4lSupplierDocumentManagementRules = read("docs/backend/phase-4l-supplier-document-management-rules.md");
+const supplierDocumentManagementContractTest = read("src/test/supplier-document-management-contract.test.ts");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -733,6 +741,9 @@ if (pkg.scripts["smoke:self-hosted-workspace-postgres:run"] !== "node scripts/sm
 if (pkg.scripts["test:api"] !== "npm run contracts:build && vitest run --config apps/api/vitest.config.ts") {
   failures.push("package.json: test:api must build contracts before apps/api tests");
 }
+if (pkg.scripts["test:supplier-document-management-policy"] !== "npm run contracts:build && vitest run src/test/supplier-document-management-contract.test.ts && vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/document-management-policy.test.ts") {
+  failures.push("package.json: test:supplier-document-management-policy must cover contracts and API policy tests");
+}
 if (!pkg.scripts["ci:core"]?.includes("npm run check:self-hosted-api")) {
   failures.push("package.json: ci:core must run check:self-hosted-api");
 }
@@ -741,6 +752,9 @@ if (!pkg.scripts["ci:core"]?.includes("npm run api:build")) {
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run test:api")) {
   failures.push("package.json: ci:core must run test:api");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:supplier-document-management-policy")) {
+  failures.push("package.json: ci:core must run supplier document management policy tests");
 }
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-health-readiness:run")) {
   failures.push("package.json: ci:core must run the self-hosted health readiness smoke");
@@ -3132,6 +3146,20 @@ for (const marker of [
 ]) {
   requireText("docs/backend/phase-4k-supplier-document-audit-admin-ui.md", phase4kSupplierDocumentAuditAdminUi, marker);
 }
+for (const marker of [
+  "Backend Phase 4L",
+  "Supplier Document Management Rules Gate",
+  "supplierDocumentManagementCreateRequestSchema",
+  "supplierDocumentManagementAuditEventSchema",
+  "evaluateSupplierDocumentManagementPolicy",
+  "supplierDocumentManagementAuditActionByAction",
+  "approved_document_immutable",
+  "admin_role_required",
+  "Plan / Fact",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4l-supplier-document-management-rules.md", phase4lSupplierDocumentManagementRules, marker);
+}
 for (const [file, text, marker] of [
   ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "downloadSupplierDocument"],
   ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "requestDocumentDownloadGrant"],
@@ -4038,13 +4066,43 @@ requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryCon
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierProductionFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierLogisticsFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentPayloadSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentTypeSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentStatusSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentDownloadGrantSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentDownloadGrantResponseSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentDownloadEventAdminQuerySchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentDownloadEventAdminListResponseSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementCreateRequestSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementUpdateRequestSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementAuditEventSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "productionFacts: supplierProductionFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "logisticsFacts: supplierLogisticsFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocuments: z.array(supplierDocumentPayloadSchema)");
+for (const marker of [
+  "evaluateSupplierDocumentManagementPolicy",
+  "supplierDocumentManagementAuditActionByAction",
+  "approved_document_immutable",
+  "admin_role_required",
+  "invalid_status_transition",
+]) {
+  requireText("apps/api/src/modules/suppliers/document-management-policy.ts", supplierDocumentManagementPolicy, marker);
+}
+for (const marker of [
+  "supplierDocumentManagementCreateRequestSchema",
+  "fileAssetId",
+  "downloadPath",
+  "supplierDocumentManagementAuditEventSchema",
+]) {
+  requireText("src/test/supplier-document-management-contract.test.ts", supplierDocumentManagementContractTest, marker);
+}
+for (const marker of [
+  "supplier_owner",
+  "approved_document_immutable",
+  "admin_role_required",
+  "supplierDocumentManagementAuditActionByAction",
+]) {
+  requireText("apps/api/src/modules/suppliers/document-management-policy.test.ts", supplierDocumentManagementPolicyTest, marker);
+}
 requireText("apps/api/src/modules/auth/session.ts", authSession, "resolveOptionalAccountSession");
 for (const marker of [
   "auth_sign_in=ok",

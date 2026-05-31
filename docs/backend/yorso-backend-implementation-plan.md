@@ -857,3 +857,35 @@ Implemented:
 Next scoped backend direction after Phase 4K: define supplier owner/admin
 document management ownership, validation and audit rules before implementing
 upload/edit/delete.
+
+## Backend Phase 4L Checkpoint - Supplier Document Management Rules Gate
+
+Status: implemented.
+
+Phase 4L closes the rules gate for future supplier document management writes.
+It does not add upload/edit/delete runtime endpoints.
+
+Implemented:
+
+- shared contract schemas for supplier document management role, action, create
+  payload, update payload and audit event;
+- strict browser payload validation that rejects `fileAssetId`, object/storage
+  keys, `downloadPath` and direct download URLs;
+- `evaluateSupplierDocumentManagementPolicy` for owner/admin role decisions;
+- stable audit action map `supplierDocumentManagementAuditActionByAction`;
+- tests for contract shape, storage-boundary rejection, audit shape and the
+  role/status decision matrix;
+- production-scale and self-hosted guard coverage.
+
+Plan / Fact:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Зафиксировать роли owner/admin. | `supplier_owner` и `admin` закреплены в contract. | Подключить роли к real session claims в write routes. |
+| Запретить прямое редактирование approved документов. | `approved_document_immutable` блокирует owner/admin delete approved и owner metadata update approved. | Replacement flow отдельным scope. |
+| Оставить approve/reject/expire администратору. | Owner получает `admin_role_required`. | Admin mutation API/UI отдельным scope. |
+| Не раскрывать storage internals в browser payload. | Create/update schemas strict и не принимают storage/download fields. | Runtime upload должен выдавать backend-owned upload id. |
+
+Next scoped backend direction after Phase 4L: implement the first write path
+only after choosing persistence shape: supplier owner upload/create review
+document or admin approve/reject route. Do not implement both in one batch.

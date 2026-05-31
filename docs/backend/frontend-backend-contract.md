@@ -465,6 +465,10 @@ Acceptance:
 - `/admin/supplier-document-audit` is a read-only admin UI over the download
   event and grant audit APIs and rejects browser-facing payloads that leak
   `fileAssetId`, object keys, storage keys, direct file URLs or `downloadPath`;
+- supplier document management writes are gated by Phase 4L policy before any
+  upload/edit/delete endpoint exists: browser create/update payloads are strict,
+  storage internals are rejected, owner/admin status transitions are explicit
+  and future routes must emit the stable `supplier_document.*` audit actions;
 - access request panel uses backend statuses;
 - canonical and SEO rules are defined before public indexing.
 

@@ -98,25 +98,81 @@ export const supplierLegalDetailsSchema = z.object({
   foundedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
+export const supplierDocumentTypeSchema = z.enum([
+  "health_certificate",
+  "origin_certificate",
+  "analysis_certificate",
+  "packing_list",
+  "bill_of_lading",
+  "halal_kosher",
+  "audit_report",
+  "other",
+]);
+
+export const supplierDocumentStatusSchema = z.enum(["approved", "review", "expired", "on_request"]);
+
 export const supplierDocumentPayloadSchema = z.object({
   id: z.string().min(1).max(80),
   title: z.string().min(1).max(180),
-  documentType: z.enum([
-    "health_certificate",
-    "origin_certificate",
-    "analysis_certificate",
-    "packing_list",
-    "bill_of_lading",
-    "halal_kosher",
-    "audit_report",
-    "other",
-  ]),
-  status: z.enum(["approved", "review", "expired", "on_request"]),
+  documentType: supplierDocumentTypeSchema,
+  status: supplierDocumentStatusSchema,
   issuedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
   expiresAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
   fileName: z.string().min(1).max(180).nullable(),
   fileAssetId: z.string().min(1).max(120).nullable(),
 });
+
+export const supplierDocumentManagementRoleSchema = z.enum(["supplier_owner", "admin"]);
+export const supplierDocumentManagementActionSchema = z.enum([
+  "create",
+  "update_metadata",
+  "submit_for_review",
+  "approve",
+  "reject",
+  "expire",
+  "delete",
+]);
+export const supplierDocumentManagementAuditActionSchema = z.enum([
+  "supplier_document.create",
+  "supplier_document.update_metadata",
+  "supplier_document.submit_for_review",
+  "supplier_document.approve",
+  "supplier_document.reject",
+  "supplier_document.expire",
+  "supplier_document.delete",
+]);
+
+const supplierDocumentManagementDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable();
+
+export const supplierDocumentManagementCreateRequestSchema = z.object({
+  title: z.string().trim().min(1).max(180),
+  documentType: supplierDocumentTypeSchema,
+  issuedAt: supplierDocumentManagementDateSchema.optional(),
+  expiresAt: supplierDocumentManagementDateSchema.optional(),
+  fileUploadId: z.string().trim().min(1).max(120),
+  fileName: z.string().trim().min(1).max(180),
+}).strict();
+
+export const supplierDocumentManagementUpdateRequestSchema = z.object({
+  title: z.string().trim().min(1).max(180).optional(),
+  documentType: supplierDocumentTypeSchema.optional(),
+  issuedAt: supplierDocumentManagementDateSchema.optional(),
+  expiresAt: supplierDocumentManagementDateSchema.optional(),
+}).strict().refine((value) => Object.keys(value).length > 0, {
+  message: "At least one supplier document metadata field is required",
+});
+
+export const supplierDocumentManagementAuditEventSchema = z.object({
+  action: supplierDocumentManagementAuditActionSchema,
+  actorRole: supplierDocumentManagementRoleSchema,
+  supplierId: z.string().min(1).max(80),
+  documentId: z.string().min(1).max(80),
+  previousStatus: supplierDocumentStatusSchema.nullable(),
+  nextStatus: supplierDocumentStatusSchema.nullable(),
+  reason: z.string().min(1).max(160),
+  requestId: z.string().min(1).max(120),
+  createdAt: z.string().datetime(),
+}).strict();
 
 export const supplierDocumentDownloadGrantSchema = z.object({
   id: z.string().min(1).max(120),
@@ -314,8 +370,16 @@ export type SupplierDocumentDownloadGrantStatus = z.infer<typeof supplierDocumen
 export type SupplierDocumentDownloadEventAdminItem = z.infer<typeof supplierDocumentDownloadEventAdminItemSchema>;
 export type SupplierDocumentDownloadEventAdminQuery = z.infer<typeof supplierDocumentDownloadEventAdminQuerySchema>;
 export type SupplierDocumentDownloadEventStatus = z.infer<typeof supplierDocumentDownloadEventStatusSchema>;
+export type SupplierDocumentManagementAction = z.infer<typeof supplierDocumentManagementActionSchema>;
+export type SupplierDocumentManagementAuditAction = z.infer<typeof supplierDocumentManagementAuditActionSchema>;
+export type SupplierDocumentManagementAuditEvent = z.infer<typeof supplierDocumentManagementAuditEventSchema>;
+export type SupplierDocumentManagementCreateRequest = z.infer<typeof supplierDocumentManagementCreateRequestSchema>;
+export type SupplierDocumentManagementRole = z.infer<typeof supplierDocumentManagementRoleSchema>;
+export type SupplierDocumentManagementUpdateRequest = z.infer<typeof supplierDocumentManagementUpdateRequestSchema>;
 export type SupplierDocumentPayload = z.infer<typeof supplierDocumentPayloadSchema>;
 export type SupplierDocumentReadiness = z.infer<typeof supplierDocumentReadinessSchema>;
+export type SupplierDocumentStatus = z.infer<typeof supplierDocumentStatusSchema>;
+export type SupplierDocumentType = z.infer<typeof supplierDocumentTypeSchema>;
 export type SupplierFaqItem = z.infer<typeof supplierFaqItemSchema>;
 export type SupplierLogisticsFacts = z.infer<typeof supplierLogisticsFactsSchema>;
 export type SupplierLegalDetails = z.infer<typeof supplierLegalDetailsSchema>;
