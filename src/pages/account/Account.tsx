@@ -2269,23 +2269,17 @@ const MetaRegionsSection = ({
 
   return (
     <div className="space-y-4" data-testid="account-section-meta-regions">
-      <AccountSectionCard
+      <ListSectionHeader
         title={t.account_metaRegions_title}
         description={t.account_metaRegions_desc}
-      >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <p className="text-sm text-muted-foreground">{t.account_metaRegions_explainer}</p>
-          <Button
-            type="button"
-            onClick={startAdd}
-            className="shrink-0"
-            data-testid="account-meta-add"
-          >
-            <Plus className="mr-2 h-4 w-4" aria-hidden />
-            {t.account_metaRegion_add}
-          </Button>
-        </div>
-      </AccountSectionCard>
+        explainer={t.account_metaRegions_explainer}
+        action={{
+          label: t.account_metaRegion_add,
+          onClick: startAdd,
+          testId: "account-meta-add",
+        }}
+      />
+
       {draft ? (
         <AccountSectionCard
           title={editingId ? t.account_metaRegion_form_title_edit : t.account_metaRegion_form_title_add}
