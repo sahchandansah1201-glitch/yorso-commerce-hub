@@ -16,18 +16,19 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4G Supplier Document Grant Consumption / File Serving Endpoint is
-committed locally at `37cae608`; release validation passed.
+Backend Phase 4H Supplier Document Download UI Integration is committed locally
+at `06ef6922`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Download route | Добавить self-hosted endpoint для consumption grant-а и выдачи файла. | Реализовано: `GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=...`. | Phase 4H: UI download action. |
-| Access validation | Проверять grant, buyer, supplier, document, expiry, status и текущий access до чтения файла. | Реализовано: `consumeSupplierDocumentDownloadGrant`. | Добавить retention/cleanup policy later. |
-| Audit persistence | Сохранять successful/denied/expired/access-denied/unavailable attempts. | Реализовано: migration `0036_supplier_document_download_events` и `recordDocumentDownloadEvent`. | Наблюдаемость/retention позже. |
-| Browser payload | Не отдавать `fileAssetId`, object key, storage key или direct URL. | Реализовано: file bytes stream через API; storage identifiers остаются backend-only. | UI не должен сохранять storage identifiers. |
-| Guards | Зафиксировать download behavior тестами и checks. | Реализовано: API/storage/repository/DB tests, smoke, self-hosted and scale checks pass. | Держать guards в release path. |
+| UI download action | Подключить qualified supplier document rows к self-hosted grant/download flow. | Реализовано: `supplier-document-download` вызывает `downloadSupplierDocument`. | Phase 4I: owner/admin document management decision. |
+| Access boundary | Не показывать скачивание locked buyers. | Реализовано: кнопка появляется only for approved qualified docs with configured API. | Keep access gating guarded. |
+| Storage redaction | Не раскрывать `fileAssetId`, object keys, storage keys или direct URLs. | Реализовано: `redactSupplierDocumentFileAssets` и DOM/e2e assertions. | Keep backend payload guards. |
+| Failure copy | Добавить buyer-safe loading, expired-grant и failed-download states. | Реализовано: localized preparing, started, expired and failed copy. | Dedicated retry button later if needed. |
+| Production passport resilience | Не прятать документы, если optional logistics facts отсутствуют. | Реализовано: documents block renders independently when logistics is missing. | Backend should still provide complete facts. |
+| Guards | Зафиксировать docs, self-hosted guard and 10k-user review. | Реализовано: Phase 4H docs, guards and validation. | Keep in release path. |
 
 ## Current Status
 
@@ -46,6 +47,27 @@ committed locally at `37cae608`; release validation passed.
 - Backend Phase 4E is committed locally at `7f566ca2`; release validation passed.
 - Backend Phase 4F is committed locally at `75c42a60`; release validation passed.
 - Backend Phase 4G is committed locally at `37cae608`; release validation passed.
+- Backend Phase 4H is committed locally at `06ef6922`; release validation passed.
+
+## Phase 4H Files
+
+- `docs/backend/phase-4h-supplier-document-download-ui.md`
+- `src/lib/supplier-directory-api.ts`
+- `src/lib/supplier-directory-api.test.ts`
+- `src/lib/supplier-documents.ts`
+- `src/lib/supplier-directory-view.ts`
+- `src/lib/use-supplier-directory.ts`
+- `src/pages/SupplierProfile.tsx`
+- `src/pages/__tests__/SupplierProfile.access.test.tsx`
+- `src/i18n/translations.ts`
+- `e2e/supplier-directory-profile-api-flow.spec.ts`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
 
 ## Phase 4G Files
 
@@ -409,16 +431,17 @@ Known non-blocking warning:
 
 ## Next Recommended Workstream
 
-Backend Phase 4H: Supplier Document Download UI Integration.
+Backend Phase 4I: Supplier Document Owner/Admin Management Decision.
 
 Concrete first scope:
 
-- wire qualified supplier profile document rows to request a backend document
-  grant and then open the returned API download path;
-- keep locked buyers in non-downloadable document-readiness states;
-- avoid exposing `fileAssetId`, object keys, storage keys or direct file URLs in
-  React state, DOM, analytics or errors;
-- add expired-grant retry/failure copy and frontend/e2e coverage.
+- decide whether the next document step is supplier owner/admin upload-editing
+  or bounded admin download-audit listing;
+- if upload/editing is selected, define source-of-truth tables, role guards,
+  file ownership, validation and audit events;
+- if audit listing is selected, expose bounded admin reads over
+  `yorso_supplier_document_download_events`;
+- keep the Phase 4H buyer download path grant-bound and storage-id-free.
 
 ## Preserve
 

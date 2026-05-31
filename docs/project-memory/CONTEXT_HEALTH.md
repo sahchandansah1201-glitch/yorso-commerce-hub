@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-31"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "37cae608_phase_4g_supplier_document_serving"
+head_commit: "06ef6922_phase_4h_supplier_document_download_ui"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4g_supplier_document_download_serving"
+active_workstream: "backend_phase_4h_supplier_document_download_ui"
 pull_request: null
-recommended_action: "start Backend Phase 4H Supplier Document Download UI Integration"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4G are documented, committed and validated."
+recommended_action: "start Backend Phase 4I Supplier Document Owner/Admin Management Decision"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4H are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4g_supplier_document_download_serving.
-Current HEAD baseline: Backend Phase 4G supplier document serving implementation commit 37cae608 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4h_supplier_document_download_ui.
+Current HEAD baseline: Backend Phase 4H supplier document download UI implementation commit 06ef6922 is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,12 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: start Backend Phase 4H Supplier Document Download UI Integration.
+Current recommended action: start Backend Phase 4I Supplier Document Owner/Admin Management Decision.
+Phase 4H implemented and committed locally at 06ef6922: qualified supplier profile document rows now request a self-hosted document grant and download the returned API downloadPath through downloadSupplierDocument.
+Phase 4H browser payload boundary: `redactSupplierDocumentFileAssets` strips fileAssetId before React-visible supplier document state; DOM/e2e assertions guard against fileAssetId, object keys, storage keys and direct file URLs.
+Phase 4H UI behavior: `supplier-document-download` is rendered only for approved qualified documents with configured API; locked buyers keep non-downloadable document-readiness states; expired/failed grants show localized retry copy.
+Phase 4H production passport resilience: backend document rows remain visible even when optional logistics facts are absent.
+Phase 4H validation passed: TDD red/green API client and SupplierProfile tests; `npm run test:supplier-directory-frontend`; `npm run smoke:e2e:supplier-directory-profile-api-flow`; `npm run check:self-hosted-api`; `npm run check:production-scale-baseline`; `npx tsc -b --noEmit`; `npm run lint`; `npm run build`; `npm test`; `git diff --check`.
 Phase 4G implemented and committed locally at 37cae608: GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=... validates grant id, buyer user, supplier id, document id, expiry, grant status and current supplier access before reading a backend-owned file asset.
 Phase 4G browser payload boundary: the serving endpoint streams the file through the API with no fileAssetId, object key, storage key or direct storage URL exposed to the browser.
 Phase 4G persistence: migration 0036_supplier_document_download_events adds yorso_supplier_document_download_events with status/recent, supplier/recent, buyer/recent and grant/recent indexes.
@@ -383,5 +388,5 @@ Lovable sync for Batch #128 is confirmed clean at f1f482b with no conflicts and 
 Lovable confirmed RegistrationLayout, CountryPhoneInput, SignIn, ResetPassword, RegisterChoose/Email/Verify/Details/Onboarding/Countries/Ready, e2e/public-auth-registration-a11y.spec.ts, package smoke wiring, Batch #128 production-scale notes, registration field autocomplete, skip/main landmarks, no nested controls, /register/ready Button asChild CTA, 44px mobile registration targets, preserved Batch #112 code splitting, Batch #113 error boundary, Batch #125 landmarks, Batch #126 skip-to-main and Batch #127 blog tap targets.
 Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
 Known warning remains: Browserslist data is stale.
-Next step: start Backend Phase 4H Supplier Document Download UI Integration from current main.
+Next step: start Backend Phase 4I Supplier Document Owner/Admin Management Decision from current main.
 ```

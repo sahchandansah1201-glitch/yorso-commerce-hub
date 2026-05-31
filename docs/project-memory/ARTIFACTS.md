@@ -1477,3 +1477,15 @@
 - `apps/api/src/server.test.ts`, `apps/api/src/modules/suppliers/__tests__/repository.test.ts`, `apps/api/src/modules/storage/__tests__/storage.test.ts`, `src/test/self-hosted-db-contract.test.ts`, `packages/db/src/migrator.test.ts` and `packages/db/src/cli.test.ts`: regression coverage for serving route, repository/storage behavior and migration manifest.
 - `scripts/smoke-self-hosted-account-api.mjs`: runtime smoke markers `supplier_document_download_missing_grant=ok` and `supplier_document_download_stream=ok`.
 - `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4G route, migration, docs, event persistence and 10,000-user baseline markers.
+
+## Backend Phase 4H Supplier Document Download UI
+
+- `docs/backend/phase-4h-supplier-document-download-ui.md`: implementation note, Russian plan/fact table, access decision, runtime contract, remaining debt, validation and 10,000 concurrent-user review.
+- `src/lib/supplier-directory-api.ts`: `downloadSupplierDocument` requests a document grant and then downloads the returned API path with buyer session headers.
+- `src/lib/supplier-documents.ts`: `redactSupplierDocumentFileAssets` strips backend-only file asset ids before React-visible state.
+- `src/lib/supplier-directory-view.ts` and `src/lib/use-supplier-directory.ts`: supplier document metadata mapping applies file-asset redaction for API and local-preview paths.
+- `src/pages/SupplierProfile.tsx`: qualified-only `supplier-document-download` action, loading/success/expired/failure copy and document block fallback when optional logistics facts are missing.
+- `src/i18n/translations.ts`: EN/RU/ES download, preparing, started, expired and failed-copy keys.
+- `src/lib/supplier-directory-api.test.ts` and `src/pages/__tests__/SupplierProfile.access.test.tsx`: unit coverage for grant-bound download and DOM/storage-id redaction.
+- `e2e/supplier-directory-profile-api-flow.spec.ts`: API-backed browser coverage for document grant, download, session headers, success copy and DOM redaction.
+- `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4H docs, source markers and 10,000-user baseline.

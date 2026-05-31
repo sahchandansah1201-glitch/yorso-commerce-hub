@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "37cae608"
-  head_summary: "Backend Phase 4G supplier document grant consumption and file serving endpoint; release validation passed."
+  head_commit: "06ef6922"
+  head_summary: "Backend Phase 4H supplier document download UI integration; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4G implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4H implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,23 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4g_supplier_document_download_serving"
-  summary: "Supplier document grants are consumed by a self-hosted file serving endpoint that re-validates buyer access and streams backend-owned files without exposing storage identifiers."
+  id: "backend_phase_4h_supplier_document_download_ui"
+  summary: "Qualified supplier profile document rows now download through self-hosted document grants and API file serving without exposing backend storage identifiers."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4H implementation is recorded in docs/backend/phase-4h-supplier-document-download-ui.md."
+    - "src/lib/supplier-directory-api.ts exposes downloadSupplierDocument, which requests a self-hosted document grant and then fetches the returned relative API downloadPath with buyer session headers."
+    - "src/pages/SupplierProfile.tsx renders data-testid=\"supplier-document-download\" only for approved qualified supplier documents when VITE_YORSO_API_URL is configured."
+    - "src/lib/supplier-documents.ts exposes redactSupplierDocumentFileAssets; supplier-directory adapters strip fileAssetId before React-visible supplier document state."
+    - "Locked buyers keep non-downloadable document-readiness states and do not receive download buttons."
+    - "Backend document rows remain visible in the production passport even when optional logistics facts are absent from the supplier payload."
+    - "e2e/supplier-directory-profile-api-flow.spec.ts covers grant request, download request, session headers, DOM redaction and success copy."
+    - "check:self-hosted-api and check:production-scale-baseline guard the Phase 4H docs, source markers and 10,000 concurrent-user review."
+    - "Phase 4H release validation passed: TDD red/green API client and SupplierProfile tests, supplier-directory frontend suite, API-backed supplier profile e2e, self-hosted guards, production-scale guard, TypeScript build graph, lint, production build, full npm test and git diff --check."
+    - "Phase 4H is committed locally at 06ef6922."
+    - "Recommended next scoped workstream: Backend Phase 4I Supplier Document Owner/Admin Management Decision."
     - "Phase 4G implementation is recorded in docs/backend/phase-4g-supplier-document-download-serving.md."
     - "GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=... requires an authenticated self-hosted account session and validates grant id, buyer user, supplier id, document id, expiry, granted status and current supplier access before reading backend file bytes."
     - "apps/api/src/modules/suppliers/service.ts now owns consumeSupplierDocumentDownloadGrant and records successful, missing, denied, expired, access-denied, document-unavailable and file-unavailable attempts."
@@ -1905,4 +1916,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 4G implementation question. Next scoped decision: Backend Phase 4H Supplier Document Download UI Integration."
+  - "No open Phase 4H implementation question. Next scoped decision: Backend Phase 4I Supplier Document Owner/Admin Management Decision."

@@ -3287,3 +3287,51 @@ Keep this file factual and append-only.
   - Browserslist data stale.
 - Next scoped workstream: Backend Phase 4H Supplier Document Download UI
   Integration.
+
+## 2026-05-31 Phase 4H Checkpoint
+
+- Latest implementation commit: `06ef6922` (`[codex] Backend Phase 4H supplier document download UI`).
+- Scoped workstream: Backend Phase 4H Supplier Document Download UI
+  Integration.
+- Implemented qualified supplier document download UI:
+  - `downloadSupplierDocument` requests a self-hosted document grant and then
+    fetches the returned API download path with buyer session headers;
+  - `SupplierProfile.tsx` renders `supplier-document-download` only for
+    approved qualified documents when the self-hosted API is configured;
+  - locked buyers keep non-downloadable document-readiness states;
+  - expired and failed download attempts show localized retry copy;
+  - backend document rows remain visible in the production passport even when
+    optional logistics facts are absent.
+- Hardened browser payload boundary:
+  - `redactSupplierDocumentFileAssets` strips `fileAssetId` before
+    React-visible supplier document state;
+  - tests/e2e assert that `fileAssetId`, object keys, storage keys and direct
+    file URLs do not appear in DOM-visible output.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| UI download action | Подключить qualified supplier document rows к grant/download flow. | Реализовано: `supplier-document-download` calls `downloadSupplierDocument`. | Phase 4I owner/admin document decision. |
+| Access boundary | Не показывать download locked buyers. | Реализовано: button only for approved qualified docs with configured API. | Keep access gating guarded. |
+| Storage redaction | Не раскрывать backend storage identifiers. | Реализовано: `redactSupplierDocumentFileAssets` plus DOM/e2e assertions. | Keep backend guards from Phase 4E/4G. |
+| Failure states | Показывать loading, expired grant and failed download copy. | Реализовано: EN/RU/ES copy in `translations.ts`. | Dedicated retry button later if needed. |
+| Guards | Зафиксировать docs and 10k-user review. | Реализовано: Phase 4H docs, self-hosted guard and production-scale guard. | Keep in release path. |
+
+- Validation passed:
+  - TDD red: focused `downloadSupplierDocument` test failed before API client
+    implementation;
+  - TDD green: `npm test -- src/lib/supplier-directory-api.test.ts`;
+  - TDD red: focused SupplierProfile download test failed before UI action;
+  - `npm run test:supplier-directory-frontend`;
+  - `npm run smoke:e2e:supplier-directory-profile-api-flow`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run build`;
+  - `npm test` passed: 177 files, 1263 passed, 2 skipped;
+  - `git diff --check`.
+- Known non-blocking warning preserved:
+  - Browserslist data stale.
+- Next scoped workstream: Backend Phase 4I Supplier Document Owner/Admin
+  Management Decision.

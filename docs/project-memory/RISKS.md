@@ -40,9 +40,10 @@
   no-store cache policy and future retention/rate controls.
   Mitigation: Phase 4G validates grants and current access before file reads,
   streams only through the self-hosted API, records download events with recent
-  indexes and documents the 10,000-user profile. Future upload/download UI work
-  must avoid exposing storage identifiers and should add retention/rate policy
-  before broad production rollout.
+  indexes and documents the 10,000-user profile. Phase 4H connects the buyer UI
+  to grant-bound downloads without exposing storage identifiers. Future
+  owner/admin document management and audit listing should add retention/rate
+  policy before broad production rollout.
 
 ## Resolved Risks
 
