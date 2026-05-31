@@ -507,7 +507,16 @@ async function routeWorkRequest(
   )) return;
   if (await handleOfferCatalogRoute(request, response, context, offerCatalogService, authService, url)) return;
   if (await handleSupplierAccessRoute(request, response, context, supplierAccessService, authService, url, jsonBodyOptions, auditSink)) return;
-  if (await handleSupplierDirectoryRoute(request, response, context, supplierService, authService, url)) return;
+  if (await handleSupplierDirectoryRoute(
+    request,
+    response,
+    context,
+    supplierService,
+    authService,
+    url,
+    accountService,
+    jsonBodyOptions,
+  )) return;
 
   sendError(response, 404, "not_found", "Endpoint not found.", context);
 }

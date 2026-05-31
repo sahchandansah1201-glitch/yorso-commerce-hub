@@ -549,6 +549,25 @@ async function runSmoke(baseUrl) {
   assertEqual(documentCreate.document?.status, "uploaded", "document status");
   console.log("document_upload=ok");
 
+  const supplierDocumentCreate = await jsonRequest(baseUrl, "/v1/suppliers/sup-no-001/documents", {
+    method: "POST",
+    body: {
+      title: "Smoke supplier audit report",
+      documentType: "audit_report",
+      issuedAt: null,
+      expiresAt: null,
+      fileUploadId: documentCreate.document.fileAssetId,
+      fileName: "smoke-haccp.pdf",
+    },
+  });
+  assertEqual(supplierDocumentCreate.ok, true, "supplier owner document create ok");
+  assertEqual(supplierDocumentCreate.document?.status, "review", "supplier owner document review status");
+  assertEqual(supplierDocumentCreate.audit?.action, "supplier_document.create", "supplier owner document audit action");
+  assertDoesNotContain(supplierDocumentCreate, documentCreate.document.fileAssetId, "supplier owner create file asset id");
+  assertDoesNotContain(supplierDocumentCreate, "fileAssetId", "supplier owner create file asset field");
+  assertDoesNotContain(supplierDocumentCreate, "objectKey", "supplier owner create object key");
+  console.log("supplier_document_owner_create_review=ok");
+
   const documents = await jsonRequest(baseUrl, "/v1/account/documents");
   assertEqual(documents.ok, true, "documents ok");
   assertEqual(

@@ -71,6 +71,7 @@ mistaken for production data surfaces.
 | `/offers/:id` | Offer decision page | self-hosted `catalog-api` when configured; API-disabled local fixture preview | offer detail API, documents, supplier trust, related offers | Phase 3A catalog fallback removed |
 | `/suppliers` | Supplier directory | self-hosted supplier directory API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; session shortlist | supplier directory API, public/qualified views, shortlist API | Phase 4A source-of-truth audit |
 | `/suppliers/:supplierId` | Supplier dossier | self-hosted supplier detail API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; local access request bridge; backend-owned `productionFacts` / `logisticsFacts`, `shipmentCases` / `faqItems`, and qualified-only `legalDetails` / `supplierDocuments`; qualified document download UI uses grant-bound API path | supplier profile API, supplier offers API, backend-owned dossier/evidence/legal/document facts, access workflow, grant-bound supplier document downloads | Phase 4H document download UI |
+| `/v1/suppliers/:supplierId/documents` | Supplier owner document create API | self-hosted API only; authenticated supplier owner session; no browser storage internals in response | owner create review document from backend-owned upload id, supplier ownership check, management audit | Phase 4M supplier owner document create |
 | `/v1/suppliers/:supplierId/documents/:documentId/grant` | Supplier document grant API | self-hosted API only; no API-disabled preview grant | supplier document metadata, supplier access grant, document grant audit | Phase 4F supplier document download grant |
 | `/v1/suppliers/:supplierId/documents/:documentId/download?grantId=...` | Supplier document serving API | self-hosted API only; no direct storage URL or API-disabled local serving | supplier document grant, supplier access grant, file asset metadata, object storage, document download audit | Phase 4G supplier document file serving |
 | `/v1/admin/supplier-documents/download-events` | Admin supplier document download audit API | self-hosted API only; authenticated admin session; no API-disabled preview | bounded read over `yorso_supplier_document_download_events`; no `fileAssetId`, storage key, direct file URL or `downloadPath` in response | Phase 4I supplier document download audit listing |
@@ -469,6 +470,13 @@ Acceptance:
   upload/edit/delete endpoint exists: browser create/update payloads are strict,
   storage internals are rejected, owner/admin status transitions are explicit
   and future routes must emit the stable `supplier_document.*` audit actions;
+- supplier owner document create is implemented through
+  `POST /v1/suppliers/:supplierId/documents`: it requires a self-hosted
+  supplier owner session, binds supplier ownership by `company_id`, creates a
+  `review` document from backend-owned `fileUploadId`, writes
+  `supplier_document.create` in `yorso_supplier_document_management_events`,
+  and returns sanitized metadata without `fileAssetId`, object keys, storage
+  keys or direct download URLs;
 - access request panel uses backend statuses;
 - canonical and SEO rules are defined before public indexing.
 

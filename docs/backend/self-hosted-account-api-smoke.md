@@ -136,6 +136,7 @@ logo_read_by_asset=ok
 file_owner_guard=ok
 logo_read_by_object_key=ok
 document_upload=ok
+supplier_document_owner_create_review=ok
 documents_list=ok
 supplier_directory_locked=ok
 supplier_directory_verified_filter=ok

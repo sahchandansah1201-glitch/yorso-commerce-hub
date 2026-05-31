@@ -6142,6 +6142,85 @@ Marker: approved_document_immutable.
 Marker: admin_role_required.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4M - Supplier Owner Document Create Runtime
+
+Status: implemented.
+
+Phase 4M adds the first supplier document management write path:
+authenticated supplier owner creates a new `review` document from a
+self-hosted backend-owned upload id.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Implement one write path only. | `POST /v1/suppliers/:supplierId/documents` creates `review` documents for supplier owners. | Admin approve/reject and owner update/delete are separate scopes. |
+| Bind owner to account/company. | Route requires self-hosted session, `accountRole=supplier|both` and matching supplier `company_id`. | Supplier staff permission granularity remains future work. |
+| Keep storage internals private. | Response omits `fileAssetId`, object keys, storage keys and direct URLs. | Supplier-specific upload UX can be added later. |
+| Persist audit. | `supplier_document.create` is inserted into `yorso_supplier_document_management_events`. | Admin management-event listing remains future work. |
+
+Expected read/write profile:
+
+- This is low-volume operational write traffic, not public catalog browsing.
+- A successful request performs one session resolution, one company read, one
+  file asset ownership read, one supplier row update guarded by
+  `supplier_id + company_id`, and one audit insert.
+- The endpoint stays uncached.
+
+Cache, queue and backpressure strategy:
+
+- Existing request-size, timeout, lifecycle and session fail-closed guardrails
+  apply.
+- No queue, scheduler, polling, worker or external provider is added.
+- File scanning/transformation requires a separate outbox/worker phase before
+  production expansion.
+
+Database indexing and pagination strategy:
+
+- The write path is a point mutation on supplier id and company id.
+- `yorso_supplier_document_management_events` has supplier/recent,
+  actor/recent, action/recent and supplier/document/recent indexes.
+- Future admin listing over this audit table must use bounded `limit <= 100`
+  or cursor pagination.
+
+Failure mode and graceful degradation:
+
+- Missing/invalid session uses existing account session errors.
+- Buyer-only account role or company mismatch returns
+  `supplier_document_owner_required`.
+- Missing file returns `file_asset_not_found`.
+- Wrong company/file purpose returns `supplier_document_file_unavailable`.
+- File-name mismatch returns `supplier_document_file_name_mismatch`.
+- Duplicate document returns `supplier_document_conflict`.
+- Failed responses do not reveal storage internals.
+
+Observability and load-test plan:
+
+- Successful mutations persist `supplier_document.create`.
+- Smoke output must include `supplier_document_owner_create_review=ok`.
+- Load tests should cover concurrent owner creates, duplicate file/document
+  conflicts, malformed payloads, wrong owner company, missing files and
+  storage-field redaction at the 10,000 concurrent-user baseline.
+
+Validation:
+
+- `npm run test:supplier-document-management-runtime`;
+- `npm run test:supplier-document-management-policy`;
+- `npm run test:db-migrations`;
+- `npm run smoke:self-hosted-account-api:run`;
+- `npm run check:self-hosted-api`;
+- `npm run check:production-scale-baseline`.
+
+Marker: Backend Phase 4M Supplier Owner Document Create Runtime.
+Marker: /v1/suppliers/:supplierId/documents.
+Marker: createSupplierDocumentForOwner.
+Marker: supplierDocumentManagementCreateResponseSchema.
+Marker: yorso_supplier_document_management_events.
+Marker: 0037_supplier_document_management_events.
+Marker: supplier_document_owner_create_review=ok.
+Marker: supplier_document.create.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

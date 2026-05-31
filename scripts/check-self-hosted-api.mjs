@@ -278,6 +278,7 @@ const requiredFiles = [
   "docs/backend/phase-4j-supplier-document-grant-audit-listing.md",
   "docs/backend/phase-4k-supplier-document-audit-admin-ui.md",
   "docs/backend/phase-4l-supplier-document-management-rules.md",
+  "docs/backend/phase-4m-supplier-document-owner-create.md",
   "src/test/supplier-document-management-contract.test.ts",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
@@ -298,6 +299,7 @@ const requiredFiles = [
   "packages/db/migrations/0034_supplier_profile_restricted_documents.sql",
   "packages/db/migrations/0035_supplier_document_download_grants.sql",
   "packages/db/migrations/0036_supplier_document_download_events.sql",
+  "packages/db/migrations/0037_supplier_document_management_events.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
@@ -325,6 +327,7 @@ const read = (file) => readFileSync(file, "utf8");
 const pkg = JSON.parse(read("package.json"));
 const ciWorkflow = read(".github/workflows/ci.yml");
 const server = read("apps/api/src/server.ts");
+const serverTest = read("apps/api/src/server.test.ts");
 const config = read("apps/api/src/config.ts");
 const audit = read("apps/api/src/audit.ts");
 const errorObservability = read("apps/api/src/error-observability.ts");
@@ -504,6 +507,7 @@ const supplierProfileLegalDetailsMigration = read("packages/db/migrations/0033_s
 const supplierProfileRestrictedDocumentsMigration = read("packages/db/migrations/0034_supplier_profile_restricted_documents.sql");
 const supplierDocumentDownloadGrantsMigration = read("packages/db/migrations/0035_supplier_document_download_grants.sql");
 const supplierDocumentDownloadEventsMigration = read("packages/db/migrations/0036_supplier_document_download_events.sql");
+const supplierDocumentManagementEventsMigration = read("packages/db/migrations/0037_supplier_document_management_events.sql");
 const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
@@ -538,6 +542,7 @@ const phase4iSupplierDocumentDownloadAuditListing = read("docs/backend/phase-4i-
 const phase4jSupplierDocumentGrantAuditListing = read("docs/backend/phase-4j-supplier-document-grant-audit-listing.md");
 const phase4kSupplierDocumentAuditAdminUi = read("docs/backend/phase-4k-supplier-document-audit-admin-ui.md");
 const phase4lSupplierDocumentManagementRules = read("docs/backend/phase-4l-supplier-document-management-rules.md");
+const phase4mSupplierDocumentOwnerCreate = read("docs/backend/phase-4m-supplier-document-owner-create.md");
 const supplierDocumentManagementContractTest = read("src/test/supplier-document-management-contract.test.ts");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
@@ -1264,7 +1269,7 @@ for (const marker of [
   "fileService,\n    authService",
   "handleOfferCatalogRoute(request, response, context, offerCatalogService, authService",
   "handleSupplierAccessRoute(request, response, context, supplierAccessService, authService",
-  "handleSupplierDirectoryRoute(request, response, context, supplierService, authService",
+  "handleSupplierDirectoryRoute(",
 ]) {
   requireText("apps/api/src/server.ts", server, marker);
 }
@@ -2926,6 +2931,15 @@ for (const marker of [
   requireText("packages/db/migrations/0036_supplier_document_download_events.sql", supplierDocumentDownloadEventsMigration, marker);
 }
 for (const marker of [
+  "Backend Phase 4M",
+  "yorso_supplier_document_management_events",
+  "yorso_supplier_document_management_action",
+  "idx_yorso_supplier_document_management_events_supplier_recent",
+  "never file asset ids, object keys or storage URLs",
+]) {
+  requireText("packages/db/migrations/0037_supplier_document_management_events.sql", supplierDocumentManagementEventsMigration, marker);
+}
+for (const marker of [
   "PasswordRecoveryTokenIssuer",
   "createPasswordRecoveryTokenCodec",
   "hashPasswordRecoveryToken",
@@ -3159,6 +3173,35 @@ for (const marker of [
   "10,000 concurrent users",
 ]) {
   requireText("docs/backend/phase-4l-supplier-document-management-rules.md", phase4lSupplierDocumentManagementRules, marker);
+}
+for (const marker of [
+  "Backend Phase 4M",
+  "Supplier Owner Document Create Runtime",
+  "/v1/suppliers/:supplierId/documents",
+  "createSupplierDocumentForOwner",
+  "supplierDocumentManagementCreateResponseSchema",
+  "yorso_supplier_document_management_events",
+  "supplier_document_owner_create_review=ok",
+  "supplier_document.create",
+  "План / факт",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4m-supplier-document-owner-create.md", phase4mSupplierDocumentOwnerCreate, marker);
+}
+for (const [file, text, marker] of [
+  ["packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementCreateResponseSchema"],
+  ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/^\\/v1\\/suppliers\\/([^/]+)\\/documents$/"],
+  ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "createSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "createSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentManagementCreateResponseSchema"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "redactSupplierDocumentManagementItem"],
+  ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "createSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "yorso_supplier_document_management_events"],
+  ["apps/api/src/server.test.ts", serverTest, "lets a supplier owner create a review document"],
+  ["scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_document_owner_create_review=ok"],
+  ["packages/db/migrations/0037_supplier_document_management_events.sql", supplierDocumentManagementEventsMigration, "yorso_supplier_document_management_events"],
+]) {
+  requireText(file, text, marker);
 }
 for (const [file, text, marker] of [
   ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "downloadSupplierDocument"],
@@ -4075,6 +4118,7 @@ requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryCon
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementCreateRequestSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementUpdateRequestSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementAuditEventSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementCreateResponseSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "productionFacts: supplierProductionFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "logisticsFacts: supplierLogisticsFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocuments: z.array(supplierDocumentPayloadSchema)");
@@ -4092,6 +4136,7 @@ for (const marker of [
   "fileAssetId",
   "downloadPath",
   "supplierDocumentManagementAuditEventSchema",
+  "supplierDocumentManagementCreateResponseSchema",
 ]) {
   requireText("src/test/supplier-document-management-contract.test.ts", supplierDocumentManagementContractTest, marker);
 }
@@ -4575,6 +4620,7 @@ requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "sel
 requireText("docs/backend/self-hosted-auth-api-smoke.md", authApiSmokeDocs, "self_hosted_auth_observability_smoke=ok");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "npm run smoke:self-hosted-account-api");
 requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "self_hosted_account_api_smoke=ok");
+requireText("docs/backend/self-hosted-account-api-smoke.md", accountApiSmokeDocs, "supplier_document_owner_create_review=ok");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "Self-Hosted Offer Detail Smoke");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "npm run smoke:self-hosted-offer-detail");
 requireText("docs/backend/self-hosted-offer-detail-smoke.md", offerDetailSmokeDocs, "offer_detail_locked=ok");
@@ -4685,6 +4731,7 @@ console.log("- apps/api builds as a standalone Node service.");
 console.log("- Account and file repositories implement self-hosted profile, workspace and document storage.");
 console.log("- Supplier directory API exposes access-shaped supplier discovery without Supabase production coupling.");
 console.log("- Supplier profile production and logistics dossier facts are backend-owned in the supplier directory contract.");
+console.log("- Supplier owner document create writes review documents through self-hosted ownership, file and audit boundaries.");
 console.log("- Offer catalog API exposes access-shaped offer discovery without Supabase production coupling.");
 console.log("- Supplier access API exposes request, decision, grant and notification flow without Supabase production coupling.");
 console.log("- Supplier access UX consumes self-hosted request status and approval notifications with local fallback.");

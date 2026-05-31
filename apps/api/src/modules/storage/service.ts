@@ -106,6 +106,12 @@ export class FileService {
     return accountCompanyDocumentsSchema.parse(await this.repository.listCompanyDocuments(companyId));
   }
 
+  async getFileAssetForUser(userId: string, assetId: string) {
+    const asset = await this.repository.getFileAssetForUser(userId, assetId);
+    if (!asset) throw new Error("file_asset_not_found");
+    return accountFileAssetSchema.parse(asset);
+  }
+
   async getFileForUser(userId: string, assetId: string) {
     const asset = await this.repository.getFileAssetForUser(userId, assetId);
     if (!asset) throw new Error("file_asset_not_found");

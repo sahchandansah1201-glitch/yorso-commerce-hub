@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { ZodError } from "zod";
-import { methodNotAllowed, sendError, sendJson, sendValidationError, type ApiRequestContext } from "../../http.js";
+import { methodNotAllowed, readJsonBody, sendError, sendJson, sendValidationError, type ApiRequestContext, type JsonBodyReadOptions } from "../../http.js";
+import type { AccountService } from "../account/service.js";
 import {
   AccountSessionError,
   type AccountSessionAuthority,
@@ -19,8 +20,41 @@ export async function handleSupplierDirectoryRoute(
   service: SupplierDirectoryService,
   sessionAuthority: AccountSessionAuthority,
   url: URL,
+  accountService?: AccountService,
+  jsonBodyOptions?: JsonBodyReadOptions,
 ) {
   try {
+    const documentCreateMatch = url.pathname.match(/^\/v1\/suppliers\/([^/]+)\/documents$/);
+    if (documentCreateMatch) {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+      if (!accountService || !jsonBodyOptions) {
+        sendError(response, 503, "supplier_document_management_unavailable", "Supplier document management is unavailable.", context);
+        return true;
+      }
+
+      const supplierId = decodeURIComponent(documentCreateMatch[1]);
+      const session = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const company = await accountService.getCompanyProfile(session.userId);
+      sendJson(
+        response,
+        201,
+        await service.createSupplierDocumentForOwner(
+          supplierId,
+          await readJsonBody(request, jsonBodyOptions),
+          context.requestId,
+          {
+            userId: session.userId,
+            companyId: company.id,
+            accountRole: company.accountRole,
+          },
+        ),
+      );
+      return true;
+    }
+
     const documentDownloadMatch = url.pathname.match(/^\/v1\/suppliers\/([^/]+)\/documents\/([^/]+)\/download$/);
     if (documentDownloadMatch) {
       if (request.method !== "GET") {
@@ -142,6 +176,46 @@ export async function handleSupplierDirectoryRoute(
 
     if (error instanceof Error && error.message === "supplier_document_file_unavailable") {
       sendError(response, 409, error.message, "Supplier document file is not available.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "supplier_document_owner_required") {
+      sendError(response, 403, error.message, "Supplier owner access is required for this document mutation.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "supplier_document_conflict") {
+      sendError(response, 409, error.message, "Supplier document already exists.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "supplier_document_file_name_mismatch") {
+      sendError(response, 400, error.message, "Supplier document file name does not match the uploaded file.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "file_asset_not_found") {
+      sendError(response, 404, error.message, "Uploaded file was not found.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "company_not_found") {
+      sendError(response, 403, error.message, "Supplier owner company profile is required.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "invalid_json") {
+      sendError(response, 400, "invalid_json", "Request body must be valid JSON.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "request_body_too_large") {
+      sendError(response, 413, "request_body_too_large", "Request body is too large.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "request_body_timeout") {
+      sendError(response, 408, "request_body_timeout", "Request body read timed out.", context);
       return true;
     }
 

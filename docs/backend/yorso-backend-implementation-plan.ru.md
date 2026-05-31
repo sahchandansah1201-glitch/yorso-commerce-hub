@@ -1099,3 +1099,38 @@ Phase 4L закрывает rules gate перед runtime-реализацией
 Следующий scoped backend direction после Phase 4L: выбрать один первый write
 path, а не смешивать всё сразу: либо supplier owner upload/create review
 document, либо admin approve/reject route.
+
+## Backend Phase 4M Checkpoint - Owner create документов поставщика
+
+Статус: реализовано.
+
+Phase 4M выбирает первый write path: supplier owner создаёт новый документ
+поставщика в статусе `review`. Admin approve/reject, metadata edit, delete и
+frontend UI не входят в этот инкремент.
+
+Реализовано:
+
+- `POST /v1/suppliers/:supplierId/documents` для authenticated self-hosted
+  account session;
+- проверка supplier owner через company `accountRole=supplier|both` и
+  совпадение `supplier.company_id`;
+- safe create payload: metadata + backend-owned `fileUploadId`;
+- Phase 4L policy enforcement через `evaluateSupplierDocumentManagementPolicy`;
+- sanitized response без `fileAssetId`, `objectKey`, storage keys и direct
+  download URLs;
+- atomic PostgreSQL CTE: append в supplier document JSONB + insert в
+  `yorso_supplier_document_management_events`;
+- smoke marker `supplier_document_owner_create_review=ok`.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Взять только owner create path. | Owner create -> `review` реализован. | Admin approve/reject и owner update/delete отдельными scope. |
+| Связать owner с account/company. | Проверяется self-hosted session, company role и `supplier.company_id`. | Supplier staff roles отдельно. |
+| Не раскрывать storage internals. | Response не содержит `fileAssetId`, `objectKey`, storage keys, direct URLs. | Supplier-specific upload UX отдельно. |
+| Писать audit. | `supplier_document.create` пишется в `yorso_supplier_document_management_events`. | Admin listing по management events отдельно. |
+
+Следующий scoped backend direction после Phase 4M: либо admin approve/reject для
+review documents, либо owner metadata/update/delete для non-approved
+documents. Не смешивать оба направления, если batch становится слишком широким.

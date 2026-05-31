@@ -10,6 +10,7 @@ import type {
   SupplierDocumentDownloadEventStatus,
   SupplierDocumentDownloadGrantAdminQuery,
   SupplierDocumentDownloadGrantStatus,
+  SupplierDocumentManagementAuditEvent,
   SupplierDocumentPayload,
   SupplierFaqItem,
   SupplierLegalDetails,
@@ -32,6 +33,7 @@ export interface SupplierRepository {
   listDocumentDownloadGrants(input: SupplierDocumentDownloadGrantAdminQuery): Promise<SupplierDocumentDownloadGrantAuditRecord[]>;
   recordDocumentDownloadEvent(input: SupplierDocumentDownloadEventInput): Promise<SupplierDocumentDownloadEventRecord>;
   listDocumentDownloadEvents(input: SupplierDocumentDownloadEventAdminQuery): Promise<SupplierDocumentDownloadEventRecord[]>;
+  createSupplierDocumentForOwner(input: SupplierDocumentManagementCreateInput): Promise<SupplierDocumentManagementCreateRecord | null>;
 }
 
 export interface SupplierRepositoryListOptions {
@@ -70,6 +72,19 @@ export interface SupplierDocumentDownloadEventInput {
 
 export interface SupplierDocumentDownloadEventRecord extends SupplierDocumentDownloadEventInput {
   createdAt: string;
+}
+
+export interface SupplierDocumentManagementCreateInput {
+  supplierId: string;
+  ownerCompanyId: string;
+  actorUserId: string;
+  document: SupplierDocumentPayload;
+  auditEvent: SupplierDocumentManagementAuditEvent;
+}
+
+export interface SupplierDocumentManagementCreateRecord {
+  document: SupplierDocumentPayload;
+  auditEvent: SupplierDocumentManagementAuditEvent;
 }
 
 const cert = (code: string, label = code): SupplierCertificationBadge => ({ code, label, logo: null });
@@ -427,6 +442,10 @@ export const demoSupplierRecords: SupplierDirectoryRecord[] = [
   },
 ];
 
+const demoSupplierOwnerCompanyIds = new Map<string, string>([
+  ["sup-no-001", "11111111-1111-4111-8111-111111111111"],
+]);
+
 const includesText = (value: string, needle: string) => value.toLowerCase().includes(needle);
 
 function matchesQuery(
@@ -504,8 +523,12 @@ function compareSuppliers(
 export class MemorySupplierRepository implements SupplierRepository {
   private readonly documentGrantAudit: SupplierDocumentDownloadGrantAuditRecord[] = [];
   private readonly documentDownloadEvents: SupplierDocumentDownloadEventRecord[] = [];
+  private readonly documentManagementAudit: SupplierDocumentManagementAuditEvent[] = [];
 
-  constructor(private readonly suppliers = demoSupplierRecords) {}
+  constructor(
+    private readonly suppliers = demoSupplierRecords,
+    private readonly supplierOwnerCompanyIds = demoSupplierOwnerCompanyIds,
+  ) {}
 
   async listSuppliers(query: SupplierDirectoryQuery, options: SupplierRepositoryListOptions = {}) {
     const privateSearchSupplierIds = new Set(options.privateSearchSupplierIds ?? []);
@@ -521,6 +544,25 @@ export class MemorySupplierRepository implements SupplierRepository {
   async getSupplierById(id: string) {
     const supplier = this.suppliers.find((item) => item.id === id);
     return supplier ? { ...supplier } : null;
+  }
+
+  async createSupplierDocumentForOwner(input: SupplierDocumentManagementCreateInput) {
+    const supplier = this.suppliers.find((item) => item.id === input.supplierId);
+    if (!supplier) return null;
+    if (this.supplierOwnerCompanyIds.get(input.supplierId) !== input.ownerCompanyId) return null;
+    if (supplier.supplierDocuments.some((document) => document.id === input.document.id)) {
+      throw new Error("supplier_document_conflict");
+    }
+
+    supplier.supplierDocuments = [...supplier.supplierDocuments, { ...input.document }];
+    if (supplier.documentReadiness === "on_request") supplier.documentReadiness = "partial";
+    supplier.updatedAt = new Date().toISOString();
+    this.documentManagementAudit.push({ ...input.auditEvent });
+
+    return structuredClone({
+      document: input.document,
+      auditEvent: input.auditEvent,
+    });
   }
 
   async getDocumentDownloadGrantById(id: string) {
@@ -558,7 +600,7 @@ export class MemorySupplierRepository implements SupplierRepository {
     );
   }
 
-  async listDocumentDownloadEvents(input: { limit: number; offset: number }) {
+  async listDocumentDownloadEvents(input: SupplierDocumentDownloadEventAdminQuery) {
     return structuredClone(
       this.documentDownloadEvents
         .slice()

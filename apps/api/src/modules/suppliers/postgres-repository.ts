@@ -22,6 +22,7 @@ import type {
   SupplierDocumentDownloadEventRecord,
   SupplierDocumentDownloadGrantAuditInput,
   SupplierDocumentDownloadGrantAuditRecord,
+  SupplierDocumentManagementCreateInput,
   SupplierRepository,
   SupplierRepositoryListOptions,
 } from "./repository.js";
@@ -75,6 +76,18 @@ interface SupplierRow extends Record<string, unknown> {
 
 interface SupplierDocumentDownloadGrantAuditRow extends SupplierDocumentDownloadGrantAuditRecord, Record<string, unknown> {}
 interface SupplierDocumentDownloadEventRow extends SupplierDocumentDownloadEventRecord, Record<string, unknown> {}
+interface SupplierDocumentManagementCreateRow extends Record<string, unknown> {
+  document: SupplierDocumentPayload;
+  action: SupplierDocumentManagementCreateInput["auditEvent"]["action"];
+  actorRole: SupplierDocumentManagementCreateInput["auditEvent"]["actorRole"];
+  supplierId: string;
+  documentId: string;
+  previousStatus: SupplierDocumentManagementCreateInput["auditEvent"]["previousStatus"];
+  nextStatus: SupplierDocumentManagementCreateInput["auditEvent"]["nextStatus"];
+  reason: string;
+  requestId: string;
+  createdAt: Date | string;
+}
 
 const ensureIso = (value: Date | string) => (value instanceof Date ? value.toISOString() : new Date(value).toISOString());
 const emptyProductionFacts = (): SupplierProductionFacts => ({
@@ -223,6 +236,23 @@ function mapDocumentDownloadGrant(row: SupplierDocumentDownloadGrantAuditRow): S
   };
 }
 
+function mapDocumentManagementCreate(row: SupplierDocumentManagementCreateRow) {
+  return {
+    document: row.document,
+    auditEvent: {
+      action: row.action,
+      actorRole: row.actorRole,
+      supplierId: row.supplierId,
+      documentId: row.documentId,
+      previousStatus: row.previousStatus,
+      nextStatus: row.nextStatus,
+      reason: row.reason,
+      requestId: row.requestId,
+      createdAt: ensureIso(row.createdAt),
+    },
+  };
+}
+
 export class PostgresSupplierRepository implements SupplierRepository {
   private readonly client: SupplierQueryClient;
 
@@ -265,6 +295,98 @@ export class PostgresSupplierRepository implements SupplierRepository {
     );
 
     return result.rows[0] ? mapSupplier(result.rows[0]) : null;
+  }
+
+  async createSupplierDocumentForOwner(input: SupplierDocumentManagementCreateInput) {
+    const result = await this.client.query<SupplierDocumentManagementCreateRow>(
+      `
+        with updated_supplier as (
+          update yorso_suppliers_directory
+          set
+            supplier_documents = supplier_documents || $4::jsonb,
+            document_readiness = case
+              when document_readiness = 'on_request' then 'partial'
+              else document_readiness
+            end,
+            updated_at = now()
+          where id = $1
+            and company_id = $2::uuid
+            and publication_status in ('draft', 'published')
+            and not exists (
+              select 1
+              from jsonb_array_elements(supplier_documents) as document
+              where document->>'id' = $3
+            )
+          returning ($5::jsonb) as document
+        ),
+        inserted_audit as (
+          insert into yorso_supplier_document_management_events (
+            action,
+            actor_role,
+            actor_user_id,
+            supplier_id,
+            document_id,
+            previous_status,
+            next_status,
+            reason,
+            request_id,
+            created_at
+          )
+          select
+            $6,
+            $7,
+            $8::uuid,
+            $1,
+            $3,
+            $9,
+            $10,
+            $11,
+            $12,
+            $13::timestamptz
+          from updated_supplier
+          returning
+            action,
+            actor_role as "actorRole",
+            supplier_id as "supplierId",
+            document_id as "documentId",
+            previous_status as "previousStatus",
+            next_status as "nextStatus",
+            reason,
+            request_id as "requestId",
+            created_at as "createdAt"
+        )
+        select
+          updated_supplier.document as "document",
+          inserted_audit.action,
+          inserted_audit."actorRole",
+          inserted_audit."supplierId",
+          inserted_audit."documentId",
+          inserted_audit."previousStatus",
+          inserted_audit."nextStatus",
+          inserted_audit.reason,
+          inserted_audit."requestId",
+          inserted_audit."createdAt"
+        from updated_supplier
+        join inserted_audit on true
+      `,
+      [
+        input.supplierId,
+        input.ownerCompanyId,
+        input.document.id,
+        JSON.stringify([input.document]),
+        JSON.stringify(input.document),
+        input.auditEvent.action,
+        input.auditEvent.actorRole,
+        input.actorUserId,
+        input.auditEvent.previousStatus,
+        input.auditEvent.nextStatus,
+        input.auditEvent.reason,
+        input.auditEvent.requestId,
+        input.auditEvent.createdAt,
+      ],
+    );
+
+    return result.rows[0] ? mapDocumentManagementCreate(result.rows[0]) : null;
   }
 
   async getDocumentDownloadGrantById(id: string) {

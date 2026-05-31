@@ -426,6 +426,17 @@
       "dependsOn": [
         "0035_supplier_document_download_grants"
       ]
+    },
+    {
+      "id": "0037_supplier_document_management_events",
+      "file": "migrations/0037_supplier_document_management_events.sql",
+      "description": "Create supplier document management mutation audit records.",
+      "ownedTables": [
+        "yorso_supplier_document_management_events"
+      ],
+      "dependsOn": [
+        "0036_supplier_document_download_events"
+      ]
     }
   ]
 }

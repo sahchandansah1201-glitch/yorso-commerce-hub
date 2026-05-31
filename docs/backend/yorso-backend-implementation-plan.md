@@ -889,3 +889,38 @@ Plan / Fact:
 Next scoped backend direction after Phase 4L: implement the first write path
 only after choosing persistence shape: supplier owner upload/create review
 document or admin approve/reject route. Do not implement both in one batch.
+
+## Backend Phase 4M Checkpoint - Supplier Owner Document Create Runtime
+
+Status: implemented.
+
+Phase 4M chooses the first write path: supplier owner creates a new supplier
+document in `review` status. Admin approve/reject, metadata edits, deletion and
+frontend UI remain outside this increment.
+
+Implemented:
+
+- `POST /v1/suppliers/:supplierId/documents` for authenticated self-hosted
+  account sessions;
+- supplier owner authorization through company `accountRole=supplier|both` and
+  supplier `company_id` ownership;
+- safe create payload with metadata plus backend-owned `fileUploadId`;
+- Phase 4L policy enforcement through `evaluateSupplierDocumentManagementPolicy`;
+- sanitized response schema without `fileAssetId`, object keys, storage keys or
+  direct download URLs;
+- atomic PostgreSQL CTE append to supplier document JSONB plus
+  `yorso_supplier_document_management_events` audit insert;
+- smoke marker `supplier_document_owner_create_review=ok`.
+
+Plan / Fact:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Взять только owner create path. | Owner create -> `review` реализован. | Admin approve/reject и owner update/delete отдельными scope. |
+| Связать owner с account/company. | Проверяется self-hosted session, company role и `supplier.company_id`. | Supplier staff roles отдельно. |
+| Не раскрывать storage internals. | Response не содержит `fileAssetId`, `objectKey`, storage keys, direct URLs. | Supplier-specific upload UX отдельно. |
+| Писать audit. | `supplier_document.create` пишется в `yorso_supplier_document_management_events`. | Admin listing по management events отдельно. |
+
+Next scoped backend direction after Phase 4M: implement either admin
+approve/reject for review documents or owner metadata/update/delete for
+non-approved documents. Do not mix both if the batch becomes too broad.

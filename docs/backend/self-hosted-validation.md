@@ -1840,3 +1840,42 @@ Required markers:
 - `admin-document-audit-page`;
 - `admin-supplier-document-audit.spec.ts`;
 - `10,000 concurrent users`.
+
+## Backend Phase 4M Supplier Owner Document Create Runtime Validation
+
+Run:
+
+```bash
+npm run test:supplier-document-management-runtime
+npm run test:supplier-document-management-policy
+npm run test:db-migrations
+npm run smoke:self-hosted-account-api:run
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `POST /v1/suppliers/:supplierId/documents` requires an authenticated
+  self-hosted account session.
+- The authenticated company must have `accountRole=supplier|both`.
+- The supplier row must belong to the same `company_id`.
+- The payload accepts safe metadata plus backend-owned `fileUploadId`, not
+  browser-controlled `fileAssetId`, object keys, storage keys or direct URLs.
+- `createSupplierDocumentForOwner` applies the Phase 4L policy and creates a
+  `review` document only.
+- PostgreSQL writes the document append and
+  `yorso_supplier_document_management_events` audit insert in one CTE.
+- The browser response is sanitized and contains no storage identifiers.
+- Smoke output includes `supplier_document_owner_create_review=ok`.
+
+Required markers:
+
+- `Backend Phase 4M`;
+- `Supplier Owner Document Create Runtime`;
+- `/v1/suppliers/:supplierId/documents`;
+- `createSupplierDocumentForOwner`;
+- `supplierDocumentManagementCreateResponseSchema`;
+- `yorso_supplier_document_management_events`;
+- `supplier_document_owner_create_review=ok`;
+- `10,000 concurrent users`.

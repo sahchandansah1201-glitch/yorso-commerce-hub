@@ -48,6 +48,7 @@ describe("self-hosted DB migration planner", () => {
       "0034_supplier_profile_restricted_documents",
       "0035_supplier_document_download_grants",
       "0036_supplier_document_download_events",
+      "0037_supplier_document_management_events",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -87,6 +88,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0034_supplier_profile_restricted_documents.sql",
       "migrations/0035_supplier_document_download_grants.sql",
       "migrations/0036_supplier_document_download_events.sql",
+      "migrations/0037_supplier_document_management_events.sql",
     ]);
   });
 
@@ -138,6 +140,7 @@ describe("self-hosted DB migration planner", () => {
     const supplierProfileRestrictedDocuments = plan.migrations[34];
     const supplierDocumentDownloadGrants = plan.migrations[35];
     const supplierDocumentDownloadEvents = plan.migrations[36];
+    const supplierDocumentManagementEvents = plan.migrations[37];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -230,6 +233,9 @@ describe("self-hosted DB migration planner", () => {
     expect(supplierDocumentDownloadEvents.dependsOn).toEqual(["0035_supplier_document_download_grants"]);
     expect(supplierDocumentDownloadEvents.sql).toContain("create table if not exists yorso_supplier_document_download_events");
     expect(supplierDocumentDownloadEvents.sql).toContain("idx_yorso_supplier_document_download_events_buyer_recent");
+    expect(supplierDocumentManagementEvents.dependsOn).toEqual(["0036_supplier_document_download_events"]);
+    expect(supplierDocumentManagementEvents.sql).toContain("create table if not exists yorso_supplier_document_management_events");
+    expect(supplierDocumentManagementEvents.sql).toContain("idx_yorso_supplier_document_management_events_supplier_recent");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

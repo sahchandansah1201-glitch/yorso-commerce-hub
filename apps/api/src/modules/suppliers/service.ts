@@ -5,21 +5,24 @@ import {
   supplierDocumentDownloadGrantAdminListResponseSchema,
   supplierDocumentDownloadGrantAdminQuerySchema,
   supplierDocumentDownloadGrantResponseSchema,
+  supplierDocumentManagementCreateRequestSchema,
+  supplierDocumentManagementCreateResponseSchema,
   supplierDirectoryDetailResponseSchema,
   supplierDirectoryItemSchema,
   supplierDirectoryListResponseSchema,
+  supplierDocumentPayloadSchema,
   supplierDirectoryQuerySchema,
+  type AccountRole,
   type SupplierDirectoryAccessLevel,
   type SupplierDirectoryItem,
   type SupplierDirectoryRecord,
+  type SupplierDocumentDownloadEventStatus,
+  type SupplierDocumentDownloadGrantStatus,
 } from "../../../../../packages/contracts/dist/index.js";
 import type { SupplierAccessRepository } from "../access/repository.js";
 import type { FileService } from "../storage/service.js";
-import type {
-  SupplierDocumentDownloadEventStatus,
-  SupplierDocumentDownloadGrantStatus,
-  SupplierRepository,
-} from "./repository.js";
+import { evaluateSupplierDocumentManagementPolicy } from "./document-management-policy.js";
+import type { SupplierRepository } from "./repository.js";
 
 export class SupplierDirectoryService {
   constructor(
@@ -289,6 +292,82 @@ export class SupplierDirectoryService {
     });
   }
 
+  async createSupplierDocumentForOwner(
+    supplierId: string,
+    payload: unknown,
+    requestId: string,
+    owner: { userId: string; companyId: string; accountRole: AccountRole },
+  ) {
+    if (owner.accountRole !== "supplier" && owner.accountRole !== "both") {
+      throw new Error("supplier_document_owner_required");
+    }
+    if (!this.fileService) throw new Error("supplier_document_file_unavailable");
+
+    const create = supplierDocumentManagementCreateRequestSchema.parse(payload);
+    const supplier = await this.repository.getSupplierById(supplierId);
+    if (!supplier) throw new Error("supplier_not_found");
+    if (supplier.supplierDocuments.some((document) => document.fileAssetId === create.fileUploadId)) {
+      throw new Error("supplier_document_conflict");
+    }
+
+    const policy = evaluateSupplierDocumentManagementPolicy({
+      actorRole: "supplier_owner",
+      action: "create",
+      currentStatus: null,
+    });
+    if (!policy.allowed || policy.nextStatus !== "review") throw new Error(policy.reason);
+
+    const fileAsset = await this.fileService.getFileAssetForUser(owner.userId, create.fileUploadId);
+    if (fileAsset.companyId !== owner.companyId) {
+      throw new Error("supplier_document_file_unavailable");
+    }
+    if (!allowedSupplierDocumentFilePurposes.has(fileAsset.purpose)) {
+      throw new Error("supplier_document_file_unavailable");
+    }
+    if (fileAsset.originalFileName !== create.fileName) {
+      throw new Error("supplier_document_file_name_mismatch");
+    }
+
+    const now = new Date().toISOString();
+    const document = supplierDocumentPayloadSchema.parse({
+      id: `sdoc_${randomUUID()}`,
+      title: create.title,
+      documentType: create.documentType,
+      status: policy.nextStatus,
+      issuedAt: create.issuedAt ?? null,
+      expiresAt: create.expiresAt ?? null,
+      fileName: fileAsset.originalFileName,
+      fileAssetId: fileAsset.id,
+    });
+    const auditEvent = {
+      action: policy.auditAction,
+      actorRole: "supplier_owner" as const,
+      supplierId,
+      documentId: document.id,
+      previousStatus: null,
+      nextStatus: policy.nextStatus,
+      reason: "supplier_owner_created_review_document",
+      requestId,
+      createdAt: now,
+    };
+
+    const record = await this.repository.createSupplierDocumentForOwner({
+      supplierId,
+      ownerCompanyId: owner.companyId,
+      actorUserId: owner.userId,
+      document,
+      auditEvent,
+    });
+    if (!record) throw new Error("supplier_document_owner_required");
+
+    return supplierDocumentManagementCreateResponseSchema.parse({
+      ok: true,
+      document: redactSupplierDocumentManagementItem(record.document),
+      audit: record.auditEvent,
+      requestId,
+    });
+  }
+
   async listAdminDocumentDownloadEvents(rawQuery: Record<string, string | undefined>, requestId: string) {
     const query = supplierDocumentDownloadEventAdminQuerySchema.parse(rawQuery);
     const events = await this.repository.listDocumentDownloadEvents(query);
@@ -405,6 +484,26 @@ export class SupplierDirectoryService {
     });
   }
 }
+
+const allowedSupplierDocumentFilePurposes = new Set(["company_document", "supplier_certificate", "supplier_trade_document"]);
+
+const redactSupplierDocumentManagementItem = (document: {
+  id: string;
+  title: string;
+  documentType: string;
+  status: string;
+  issuedAt: string | null;
+  expiresAt: string | null;
+  fileName: string | null;
+}) => ({
+  id: document.id,
+  title: document.title,
+  documentType: document.documentType,
+  status: document.status,
+  issuedAt: document.issuedAt,
+  expiresAt: document.expiresAt,
+  fileName: document.fileName,
+});
 
 export function shapeSupplierForAccess(
   supplier: SupplierDirectoryRecord,

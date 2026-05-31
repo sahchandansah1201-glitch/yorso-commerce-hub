@@ -174,6 +174,17 @@ export const supplierDocumentManagementAuditEventSchema = z.object({
   createdAt: z.string().datetime(),
 }).strict();
 
+export const supplierDocumentManagementItemSchema = supplierDocumentPayloadSchema.omit({
+  fileAssetId: true,
+}).strict();
+
+export const supplierDocumentManagementCreateResponseSchema = z.object({
+  ok: z.literal(true),
+  document: supplierDocumentManagementItemSchema,
+  audit: supplierDocumentManagementAuditEventSchema,
+  requestId: z.string(),
+});
+
 export const supplierDocumentDownloadGrantSchema = z.object({
   id: z.string().min(1).max(120),
   supplierId: z.string().min(1).max(80),
@@ -373,7 +384,9 @@ export type SupplierDocumentDownloadEventStatus = z.infer<typeof supplierDocumen
 export type SupplierDocumentManagementAction = z.infer<typeof supplierDocumentManagementActionSchema>;
 export type SupplierDocumentManagementAuditAction = z.infer<typeof supplierDocumentManagementAuditActionSchema>;
 export type SupplierDocumentManagementAuditEvent = z.infer<typeof supplierDocumentManagementAuditEventSchema>;
+export type SupplierDocumentManagementCreateResponse = z.infer<typeof supplierDocumentManagementCreateResponseSchema>;
 export type SupplierDocumentManagementCreateRequest = z.infer<typeof supplierDocumentManagementCreateRequestSchema>;
+export type SupplierDocumentManagementItem = z.infer<typeof supplierDocumentManagementItemSchema>;
 export type SupplierDocumentManagementRole = z.infer<typeof supplierDocumentManagementRoleSchema>;
 export type SupplierDocumentManagementUpdateRequest = z.infer<typeof supplierDocumentManagementUpdateRequestSchema>;
 export type SupplierDocumentPayload = z.infer<typeof supplierDocumentPayloadSchema>;

@@ -25,6 +25,7 @@ const requiredFiles = [
   "docs/backend/phase-4j-supplier-document-grant-audit-listing.md",
   "docs/backend/phase-4k-supplier-document-audit-admin-ui.md",
   "docs/backend/phase-4l-supplier-document-management-rules.md",
+  "docs/backend/phase-4m-supplier-document-owner-create.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -62,6 +63,7 @@ const requiredFiles = [
   "packages/db/migrations/0034_supplier_profile_restricted_documents.sql",
   "packages/db/migrations/0035_supplier_document_download_grants.sql",
   "packages/db/migrations/0036_supplier_document_download_events.sql",
+  "packages/db/migrations/0037_supplier_document_management_events.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
@@ -292,6 +294,7 @@ const phase4iSupplierDocumentDownloadAuditListing = read("docs/backend/phase-4i-
 const phase4jSupplierDocumentGrantAuditListing = read("docs/backend/phase-4j-supplier-document-grant-audit-listing.md");
 const phase4kSupplierDocumentAuditAdminUi = read("docs/backend/phase-4k-supplier-document-audit-admin-ui.md");
 const phase4lSupplierDocumentManagementRules = read("docs/backend/phase-4l-supplier-document-management-rules.md");
+const phase4mSupplierDocumentOwnerCreate = read("docs/backend/phase-4m-supplier-document-owner-create.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -330,6 +333,7 @@ const supplierProfileLegalDetailsMigration = read("packages/db/migrations/0033_s
 const supplierProfileRestrictedDocumentsMigration = read("packages/db/migrations/0034_supplier_profile_restricted_documents.sql");
 const supplierDocumentDownloadGrantsMigration = read("packages/db/migrations/0035_supplier_document_download_grants.sql");
 const supplierDocumentDownloadEventsMigration = read("packages/db/migrations/0036_supplier_document_download_events.sql");
+const supplierDocumentManagementEventsMigration = read("packages/db/migrations/0037_supplier_document_management_events.sql");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
 const authPasswordRecoveryCleanupScheduler = read("apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts");
@@ -671,6 +675,7 @@ for (const marker of [
   "Backend Phase 4G Supplier Document Grant Consumption / File Serving Endpoint",
   "Backend Phase 4H Supplier Document Download UI Integration",
   "Backend Phase 4I Supplier Document Download Audit Listing",
+  "Backend Phase 4M Supplier Owner Document Create Runtime",
   "productionFacts",
   "logisticsFacts",
   "shipmentCases",
@@ -681,12 +686,15 @@ for (const marker of [
   "downloadSupplierDocument",
   "supplier-document-download",
   "supplier_document_download_events",
+  "yorso_supplier_document_management_events",
+  "supplier_document_owner_create_review=ok",
   "0031_supplier_profile_dossier_facts",
   "0032_supplier_profile_evidence_blocks",
   "0033_supplier_profile_legal_details",
   "0034_supplier_profile_restricted_documents",
   "0035_supplier_document_download_grants",
   "0036_supplier_document_download_events",
+  "0037_supplier_document_management_events",
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
@@ -3242,9 +3250,24 @@ for (const marker of [
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
 for (const marker of [
+  "Backend Phase 4M",
+  "Supplier Owner Document Create Runtime",
+  "/v1/suppliers/:supplierId/documents",
+  "createSupplierDocumentForOwner",
+  "supplierDocumentManagementCreateResponseSchema",
+  "yorso_supplier_document_management_events",
+  "supplier_document_owner_create_review=ok",
+  "supplier_document.create",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4m-supplier-document-owner-create.md", phase4mSupplierDocumentOwnerCreate, marker);
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
   "supplierDocumentManagementCreateRequestSchema",
   "supplierDocumentManagementUpdateRequestSchema",
   "supplierDocumentManagementAuditEventSchema",
+  "supplierDocumentManagementCreateResponseSchema",
   "supplierDocumentStatusSchema",
 ]) {
   requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, marker);
@@ -3261,6 +3284,7 @@ for (const marker of [
   "fileAssetId",
   "downloadPath",
   "supplierDocumentManagementAuditEventSchema",
+  "supplierDocumentManagementCreateResponseSchema",
 ]) {
   requireText("src/test/supplier-document-management-contract.test.ts", supplierDocumentManagementContractTest, marker);
 }
@@ -3322,6 +3346,15 @@ for (const marker of [
   "never returned to browser clients",
 ]) {
   requireText("packages/db/migrations/0036_supplier_document_download_events.sql", supplierDocumentDownloadEventsMigration, marker);
+}
+for (const marker of [
+  "Backend Phase 4M",
+  "yorso_supplier_document_management_events",
+  "yorso_supplier_document_management_action",
+  "idx_yorso_supplier_document_management_events_supplier_recent",
+  "never file asset ids, object keys or storage URLs",
+]) {
+  requireText("packages/db/migrations/0037_supplier_document_management_events.sql", supplierDocumentManagementEventsMigration, marker);
 }
 for (const marker of [
   "PasswordRecoveryDeliveryWorker",

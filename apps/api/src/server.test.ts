@@ -1661,6 +1661,64 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(JSON.stringify(grantedBody)).not.toContain("storage");
   });
 
+  it("lets a supplier owner create a review document without leaking backend file storage identifiers", async () => {
+    const fetchApi = await startTestServer();
+    const uploaded = await fetchApi("/v1/account/documents", {
+      method: "POST",
+      body: JSON.stringify({
+        title: "Factory audit report",
+        documentType: "other",
+        visibility: "buyer_qualified",
+        expiresAt: "2027-05-31",
+        file: filePayload("supplier-audit-bytes", "factory-audit.pdf", "application/pdf"),
+      }),
+    });
+    const uploadedBody = (await uploaded.json()) as JsonBody;
+    const uploadedDocument = uploadedBody.document as JsonBody;
+    expect(uploaded.status).toBe(201);
+    expect(String(uploadedDocument.fileAssetId)).toBeTruthy();
+
+    const created = await fetchApi("/v1/suppliers/sup-no-001/documents", {
+      method: "POST",
+      body: JSON.stringify({
+        title: "Factory audit report",
+        documentType: "audit_report",
+        issuedAt: "2026-05-31",
+        expiresAt: "2027-05-31",
+        fileUploadId: uploadedDocument.fileAssetId,
+        fileName: "factory-audit.pdf",
+      }),
+    });
+    const createdBody = (await created.json()) as JsonBody;
+
+    expect(created.status).toBe(201);
+    expect(createdBody).toMatchObject({
+      ok: true,
+      document: {
+        title: "Factory audit report",
+        documentType: "audit_report",
+        status: "review",
+        issuedAt: "2026-05-31",
+        expiresAt: "2027-05-31",
+        fileName: "factory-audit.pdf",
+      },
+      audit: {
+        action: "supplier_document.create",
+        actorRole: "supplier_owner",
+        supplierId: "sup-no-001",
+        previousStatus: null,
+        nextStatus: "review",
+        reason: "supplier_owner_created_review_document",
+      },
+    });
+    expect((createdBody.document as JsonBody).id).toEqual(expect.stringMatching(/^sdoc_/));
+    expect((createdBody.audit as JsonBody).documentId).toBe((createdBody.document as JsonBody).id);
+    expect(JSON.stringify(createdBody)).not.toContain(String(uploadedDocument.fileAssetId));
+    expect(JSON.stringify(createdBody)).not.toContain("fileAssetId");
+    expect(JSON.stringify(createdBody)).not.toContain("objectKey");
+    expect(JSON.stringify(createdBody)).not.toContain("storage");
+  });
+
   it("streams supplier document files only through valid document download grants", async () => {
     const fetchApi = await startTestServer();
     const grantPath = "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/grant";
