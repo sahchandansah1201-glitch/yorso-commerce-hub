@@ -320,7 +320,9 @@ const PersonalSection = ({
             >
               <Field label={t.account_personal_firstName} value={v.firstName} />
               <Field label={t.account_personal_lastName} value={v.lastName} />
-              <Field label={t.account_personal_role} value={v.roleInCompany} />
+              <div className="sm:col-span-2">
+                <Field label={t.account_personal_role} value={v.roleInCompany} />
+              </div>
               <Field label={t.account_personal_email} value={v.email} />
               <Field
                 label={t.account_personal_phone}
