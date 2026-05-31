@@ -2,62 +2,55 @@
 
 ## Current Next Action
 
-Backend Phase 4Q is implemented and committed locally at `b2473ede`.
+Backend Phase 4R is implemented and committed locally at `474c290c`.
 
-Phase 4Q closes the backend audit visibility path for supplier document
-management events:
+Phase 4R closes the read-only admin UI over supplier document management events:
 
-- `GET /v1/admin/supplier-documents/management-events`
-  returns a bounded admin-only list of supplier document management events;
-- `GET /v1/admin/supplier-documents/management-events/export`
-  exports the same bounded event set as JSON or CSV;
-- both routes require a self-hosted account session and admin role;
-- filters cover `action`, `supplierId`, `documentId`, `actorUserId`, `limit`
-  and `offset`;
-- listing and exports are sanitized and do not expose `fileAssetId`, object
-  keys, storage keys, `downloadPath` or direct storage URLs;
-- route-level audit actions are
-  `admin.supplier_document_management_events.read` and
-  `admin.supplier_document_management_events.export`;
-- the smoke marker `supplier_document_management_events_export=ok` verifies
-  listing plus JSON/CSV export.
+- `/admin/supplier-document-management-events` renders a read-only operator page;
+- `createAdminSupplierDocumentManagementEventsApiClient` reads Phase 4Q list/export endpoints;
+- `useAdminSupplierDocumentManagementEvents` handles disabled, session-required, forbidden, loading, ready and error states;
+- filters cover `action`, `supplierId`, `documentId` and `actorUserId`;
+- JSON/CSV export controls call `/v1/admin/supplier-documents/management-events/export`;
+- browser-facing rows are sanitized and do not render `fileAssetId`, object keys, storage keys, `downloadPath`, direct storage URLs or session identifiers;
+- e2e guard `admin-supplier-document-management-events.spec.ts` verifies list rendering, headers, export wiring, RU forbidden copy, redaction and no horizontal overflow.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Дать admin-only audit visibility по management events без UI и без новой миграции. | Реализованы list/export routes поверх существующей `yorso_supplier_document_management_events`. | Phase 4R: admin UI поверх этих endpoints или scheduler expiry decision. |
-| Access | Пускать только self-hosted admin. | Missing session -> 401; non-admin -> `admin_role_required`. | Сохранять owner/admin разделение. |
-| Filters | Дать bounded фильтры по action/supplier/document/actor. | Поддержаны `action`, `supplierId`, `documentId`, `actorUserId`, `limit`, `offset`; export добавляет `format`. | UI сможет переиспользовать тот же контракт. |
-| Export | Нужен operator handoff без storage leakage. | JSON и CSV export используют тот же sanitized event shape. | Добавить frontend download controls в Phase 4R, если выбран UI scope. |
-| Response boundary | Не раскрывать backend file identifiers. | Нет `fileAssetId`, storage keys, `downloadPath` или direct URLs в list/export. | Держать этот guard во всех admin audit clients. |
-| Persistence | Не создавать новую таблицу, читать существующий audit ledger. | PostgreSQL читает `yorso_supplier_document_management_events` с bounded where/order. | При росте объема добавить cursor pagination только отдельным scope. |
-| Smoke/guards | Закрепить docs, tests, runtime smoke и 10k-user review. | Runtime script, self-hosted guard, production-scale guard и release checks зелёные. | Поддерживать в release path. |
+| Admin route | Добавить read-only страницу для management events. | Реализована `/admin/supplier-document-management-events`. | Phase 4S: mutation actions на той же admin surface. |
+| API client | Подключить frontend к Phase 4Q list/export. | Adapter читает `/management-events` и `/management-events/export`. | Переиспользовать client для action refresh. |
+| Hook | Дать явные runtime states. | Disabled/session/forbidden/loading/ready/error покрыты тестами. | Сохранять fail-closed поведение. |
+| Filters/export | Дать operator filters + JSON/CSV handoff. | UI фильтры и export controls реализованы. | Добавить action controls отдельно. |
+| Redaction | Не раскрывать storage internals в браузере. | Adapter/page/e2e ловят `fileAssetId`, object keys, storage, `downloadPath`. | Сохранить для mutation UI. |
+| Guards | Закрепить тестами, e2e, docs и CI. | Frontend tests, browser smoke, self-hosted/production guards зелёные. | Держать в release path. |
 
-## Next Implementation After Phase 4Q
+## Next Implementation After Phase 4R
 
 Recommended next scoped implementation:
 
-Backend Phase 4R - admin UI over supplier document management events.
+Backend Phase 4S - admin mutation UI actions for supplier documents.
 
 Concrete scope:
 
-1. Add a read-only admin page, likely
-   `/admin/supplier-document-management-events`, using the Phase 4Q list/export
-   endpoints.
-2. Show action, actor role/user, supplier, document, status transition, reason
-   and request id without backend storage identifiers.
-3. Add filters for action, supplier id, document id and actor user id, using
-   bounded pagination.
-4. Add JSON/CSV export controls that call the Phase 4Q export endpoint.
-5. Add frontend API client/hook tests, page tests, e2e smoke, route/nav wiring,
-   docs and production-scale guards.
+1. Add approve/reject controls for review documents by calling the existing
+   Phase 4N `/v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`
+   endpoint.
+2. Add expire/delete controls by calling the existing Phase 4P
+   `/v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`
+   endpoint.
+3. Keep controls status-aware: approve/reject only for `review`, expire only for
+   `approved`, delete only for `review`, `on_request` and `expired`.
+4. Require explicit reason input for reject/delete/expire actions.
+5. Refresh the Phase 4R event list after successful mutation and keep all
+   storage/internal fields out of browser state.
+6. Add focused API-client/page tests, e2e smoke, docs and production-scale guards.
 
 Alternative next scoped implementation:
 
-Backend Phase 4R - automated approved-document expiry scheduler decision,
-only if product priority shifts from operator audit visibility to automatic
-document lifecycle cleanup.
+Backend Phase 4S - automated approved-document expiry scheduler decision, only
+if product priority shifts from operator-controlled document actions to
+automatic lifecycle cleanup.
 
 ## Guardrails To Preserve
 
@@ -68,7 +61,5 @@ document lifecycle cleanup.
 - Access gating: `anonymous_locked`, `registered_locked`, `qualified_unlocked`.
 - Supplier identity redaction.
 - Exact-price locks.
-- Supplier document download grants and file serving remain qualified-only and
-  audit-bound.
-- Self-contained production direction: do not add or expand hosted BaaS/Supabase
-  dependency in production paths.
+- Supplier document download grants and file serving remain qualified-only and audit-bound.
+- Self-contained production direction: do not add or expand hosted BaaS/Supabase dependency in production paths.

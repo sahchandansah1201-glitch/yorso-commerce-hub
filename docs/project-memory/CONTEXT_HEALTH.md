@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-31"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "b2473ede_phase_4q_supplier_document_management_events"
+head_commit: "474c290c_phase_4r_supplier_document_management_events_admin_ui"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4q_supplier_document_management_events"
+active_workstream: "backend_phase_4r_supplier_document_management_events_admin_ui"
 pull_request: null
-recommended_action: "Backend Phase 4R admin UI over supplier document management events"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4Q are documented, committed and validated."
+recommended_action: "Backend Phase 4S admin mutation UI actions for supplier documents"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4R are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4q_supplier_document_management_events.
-Current HEAD baseline: Backend Phase 4Q supplier document management event listing/export implementation commit b2473ede is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4r_supplier_document_management_events_admin_ui.
+Current HEAD baseline: Backend Phase 4R supplier document management events admin UI implementation commit 474c290c is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,13 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: Backend Phase 4R admin UI over supplier document management events, unless product priority shifts to automated approved-document expiry scheduler.
+Current recommended action: Backend Phase 4S admin mutation UI actions for supplier documents, unless product priority shifts to automated approved-document expiry scheduler.
+Phase 4R implemented and committed locally at 474c290c: /admin/supplier-document-management-events renders a read-only admin UI over the Phase 4Q supplier document management event list/export endpoints.
+Phase 4R frontend client: src/lib/admin-supplier-document-management-events-api.ts provides createAdminSupplierDocumentManagementEventsApiClient for bounded list and JSON/CSV export calls.
+Phase 4R hook: src/lib/use-admin-supplier-document-management-events.ts exposes disabled, session_required, forbidden, loading, ready and error states.
+Phase 4R route/nav: src/App.tsx lazy-loads the new page and src/components/admin/AdminOperatorNav.tsx links it as Doc events.
+Phase 4R browser boundary: UI rows and exports reject storage-only fields and keep fileAssetId, object keys, storage keys, downloadPath, direct URLs and session ids out of DOM.
+Phase 4R validation passed: npm run test:admin-supplier-document-management-events-frontend; npm run smoke:e2e:admin-supplier-document-management-events; npm run check:self-hosted-api; npm run check:production-scale-baseline; npm run lint; npx tsc -b --noEmit; git diff --check.
 Phase 4Q implemented and committed locally at b2473ede: GET /v1/admin/supplier-documents/management-events lets authenticated admins list supplier document management audit events, and GET /v1/admin/supplier-documents/management-events/export exports the same bounded event set as JSON or CSV.
 Phase 4Q access boundary: both routes require a self-hosted account session and admin role; missing sessions return 401 and non-admin sessions return admin_role_required.
 Phase 4Q query boundary: action, supplierId, documentId, actorUserId, limit and offset filters are bounded through shared contracts; export additionally supports format=json|csv.

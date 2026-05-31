@@ -381,6 +381,41 @@
   `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
   validation, smoke and plan updates.
 
+## Backend Phase 4R Supplier Document Management Events Admin UI
+
+- `docs/backend/phase-4r-supplier-document-management-events-admin-ui.md`:
+  Phase 4R implementation note, Russian plan/fact table and 10,000
+  concurrent-user review.
+- `src/lib/admin-supplier-document-management-events-api.ts`: self-hosted
+  frontend client over Phase 4Q list/export endpoints with browser-facing
+  storage-leak rejection.
+- `src/lib/admin-supplier-document-management-events-api.test.ts`: adapter
+  coverage for disabled mode, session headers, bounded filters, JSON/CSV export,
+  admin-role errors and storage-field rejection.
+- `src/lib/use-admin-supplier-document-management-events.ts`: hook for
+  disabled, session-required, forbidden, loading, ready and error states.
+- `src/lib/use-admin-supplier-document-management-events.test.tsx`: hook
+  coverage for disabled, ready/refresh and forbidden states.
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.tsx`: read-only admin
+  UI with filters, sanitized event rows and JSON/CSV export controls.
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx`: page
+  coverage for disabled/session-required, sanitized rows/export and localized
+  forbidden state.
+- `e2e/admin-supplier-document-management-events.spec.ts`: API-backed browser
+  smoke for route rendering, session headers, sanitized rows, export wiring,
+  localized admin-role guard and no horizontal overflow.
+- `src/App.tsx`, `src/components/admin/AdminOperatorNav.tsx` and
+  `src/test/app-route-code-splitting.test.ts`: route/nav/lazy-loading wiring.
+- `.github/workflows/ci.yml`, `package.json`,
+  `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: release gate wiring.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/self-hosted-validation.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/yorso-backend-implementation-plan.md` and
+  `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
+  validation and plan updates.
+
 ## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
 
 - `docs/backend/phase-4b-supplier-profile-dossier-completeness.md`: Phase 4B

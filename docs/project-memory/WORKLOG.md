@@ -3847,3 +3847,55 @@ Keep this file factual and append-only.
 - Next scoped implementation: Backend Phase 4R admin UI over supplier document
   management events, unless product priority shifts to automated approved
   document expiry scheduler.
+
+## 2026-05-31 Phase 4R Checkpoint
+
+- Latest implementation commit: `474c290c` (`[codex] Backend Phase 4R supplier document events admin UI`).
+- Scoped workstream: Backend Phase 4R Supplier Document Management Events
+  Admin UI.
+- Implemented read-only admin UI only:
+  - `/admin/supplier-document-management-events`;
+  - no new backend mutation, scheduler, migration or storage behavior change was
+    added in this phase.
+- Implemented frontend data boundary:
+  - `createAdminSupplierDocumentManagementEventsApiClient` calls Phase 4Q
+    listing and JSON/CSV export endpoints;
+  - `useAdminSupplierDocumentManagementEvents` exposes disabled,
+    session-required, forbidden, loading, ready and error states;
+  - the page shows action, actor role/user, supplier, document, status
+    transition, reason, request id and created time.
+- Implemented redaction and access behavior:
+  - disabled mode appears when `VITE_YORSO_API_URL` is missing;
+  - missing session renders a session-required state;
+  - non-admin sessions render a localized forbidden state;
+  - browser-facing UI rejects or avoids `fileAssetId`, object keys, storage
+    keys, `downloadPath`, direct URLs and session ids.
+- Implemented route/nav/guard wiring:
+  - `src/App.tsx` lazy-loads the new route;
+  - `AdminOperatorNav` includes `Doc events`;
+  - package scripts, CI workflow, self-hosted guard and production-scale guard
+    include the new frontend tests and browser smoke.
+- План / факт:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Admin route | Добавить read-only страницу для management events. | Реализована `/admin/supplier-document-management-events`. | Phase 4S: mutation actions approve/reject/expire/delete. |
+| API client | Подключить UI к Phase 4Q list/export. | Adapter + hook реализованы и протестированы. | Переиспользовать list refresh после mutations. |
+| Filters/export | Дать action/supplier/document/actor filters и JSON/CSV export. | UI фильтры и export controls реализованы. | Cursor pagination отдельно, если нужен. |
+| Redaction | Не раскрывать storage/session internals в DOM. | Unit/e2e ловят storage-only поля и session ids. | Сохранить для mutation UI. |
+| Guards | Закрепить тестами, e2e, docs и CI. | Frontend tests, browser smoke, self-hosted and production-scale guards зелёные. | Держать в release path. |
+
+- Validation passed:
+  - `npm run test:admin-supplier-document-management-events-frontend`;
+  - `npm run smoke:e2e:admin-supplier-document-management-events`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Browserslist data stale during Vite build inside the e2e smoke;
+  - existing React Router future flag warnings in frontend tests.
+- Next scoped implementation: Backend Phase 4S admin mutation UI actions for
+  approve/reject/expire/delete, unless product priority shifts to automated
+  approved-document expiry scheduler.

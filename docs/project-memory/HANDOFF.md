@@ -16,19 +16,19 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4Q Supplier Document Management Event Listing/Export is
-committed locally at `b2473ede`; release validation passed.
+Backend Phase 4R Supplier Document Management Events Admin UI is committed
+locally at `474c290c`; release validation passed.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Реализовать admin-only list/export для supplier document management events, без UI и новой миграции. | Реализованы `GET /v1/admin/supplier-documents/management-events` и `/export`. | Phase 4R: admin UI over management events или scheduler expiry decision. |
-| Access | Пускать только self-hosted admin. | Missing session -> 401; non-admin -> `admin_role_required`. | Не расширять owner bypass. |
-| Filters | Дать bounded фильтры по action/supplier/document/actor. | Поддержаны `action`, `supplierId`, `documentId`, `actorUserId`, `limit`, `offset`; export добавляет `format`. | UI может переиспользовать контракт. |
-| Response boundary | Не раскрывать backend file identifiers. | List/export sanitized, без `fileAssetId`, storage keys, `downloadPath` или direct URLs. | Сохранять для admin audit clients. |
-| Persistence | Читать существующий audit ledger. | PostgreSQL читает `yorso_supplier_document_management_events` с bounded indexed filters. | Cursor pagination отдельно при росте объема. |
-| Guards | Зафиксировать docs, tests и 10k-user review. | Runtime script, smoke, self-hosted guard и production-scale guard обновлены. | Держать в release path. |
+| Scope | Реализовать read-only admin UI поверх Phase 4Q management events. | Реализована `/admin/supplier-document-management-events`. | Phase 4S: admin mutation UI actions. |
+| Access | Пускать только self-hosted admin через существующий frontend session bridge. | Disabled/session-required/forbidden states явные и протестированы. | Не расширять owner bypass. |
+| Filters/export | Дать фильтры и JSON/CSV handoff. | UI фильтры `action/supplierId/documentId/actorUserId` и export controls реализованы. | Переиспользовать list refresh после mutations. |
+| Response boundary | Не раскрывать backend file identifiers. | Adapter/page/e2e запрещают storage-only поля и session ids в DOM. | Сохранять для mutation UI. |
+| Routing/nav | Подключить страницу как lazy route. | `src/App.tsx` и `AdminOperatorNav` обновлены. | Action UI должен остаться в том же admin workflow. |
+| Guards | Зафиксировать tests, e2e и 10k-user review. | Frontend tests, browser smoke, self-hosted guard, production-scale guard зелёные. | Держать в release path. |
 
 ## Current Status
 
@@ -57,6 +57,30 @@ committed locally at `b2473ede`; release validation passed.
 - Backend Phase 4O is committed locally at `4a9bbc2e`; release validation passed.
 - Backend Phase 4P is committed locally at `84954e9d`; release validation passed.
 - Backend Phase 4Q is committed locally at `b2473ede`; release validation passed.
+- Backend Phase 4R is committed locally at `474c290c`; release validation passed.
+
+## Phase 4R Files
+
+- `docs/backend/phase-4r-supplier-document-management-events-admin-ui.md`
+- `src/lib/admin-supplier-document-management-events-api.ts`
+- `src/lib/admin-supplier-document-management-events-api.test.ts`
+- `src/lib/use-admin-supplier-document-management-events.ts`
+- `src/lib/use-admin-supplier-document-management-events.test.tsx`
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.tsx`
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx`
+- `e2e/admin-supplier-document-management-events.spec.ts`
+- `src/App.tsx`
+- `src/components/admin/AdminOperatorNav.tsx`
+- `src/test/app-route-code-splitting.test.ts`
+- `.github/workflows/ci.yml`
+- `package.json`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
 
 ## Phase 4Q Files
 
