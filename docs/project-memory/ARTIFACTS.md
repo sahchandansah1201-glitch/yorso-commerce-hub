@@ -25,6 +25,13 @@
 - `infra/`: infrastructure area.
 - `e2e/`: end-to-end tests.
 
+## UX / UI Review Artifacts
+
+- `output/account-personal-ui-audit/desktop-1440-account-personal.png`:
+  desktop screenshot after `/account/personal` scanability pass.
+- `output/account-personal-ui-audit/mobile-390-account-personal.png`:
+  mobile screenshot after `/account/personal` scanability pass.
+
 ## Backend Phase 0 Closure Audit
 
 - `docs/backend/phase-0-closure-audit.md`: Phase 0 closure audit, exit

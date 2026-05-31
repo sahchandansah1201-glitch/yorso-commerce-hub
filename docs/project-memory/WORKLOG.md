@@ -3990,3 +3990,30 @@ Keep this file factual and append-only.
 - Next scoped implementation after Phase 4T: choose one only - automated
   approved-document expiry scheduler decision/design, or structured reason
   taxonomy for supplier document management actions.
+
+## 2026-05-31 Account Personal UI Scanability Pass
+
+- Audited `/account/personal` from the real `src/pages/account/Account.tsx`
+  implementation after the user flagged that personal-data fields required too
+  much reading.
+- Confirmed the core UI issue: read-only profile fields were visually loose
+  vertical label/value blocks inside a large card, so labels and values did not
+  form a quick key/value scan path.
+- Updated the shared account `Field` primitive to render read-only values as
+  compact key/value rows with a muted label column, stronger value column and
+  thin row separators.
+- Lightened the personal jump bar by removing the shadow and reducing vertical
+  weight while keeping sticky in-page navigation.
+- Updated `EditableCard` actions so edit/save/cancel controls have a clearer
+  hit target and responsive header behavior: desktop keeps actions top-right;
+  mobile stacks actions below the title so headings no longer wrap awkwardly.
+- Screenshots saved:
+  - `output/account-personal-ui-audit/desktop-1440-account-personal.png`
+  - `output/account-personal-ui-audit/mobile-390-account-personal.png`
+- Validation passed:
+  - `npm test -- --run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`
+  - Playwright runtime check for `/account/personal` at `1440x1000` and
+    `390x844`: horizontal overflow `0`, edit button height `40px` desktop and
+    `44px` mobile.
+  - `npm run lint -- src/pages/account/Account.tsx src/components/account/EditableCard.tsx`
+  - `git diff --check -- src/pages/account/Account.tsx src/components/account/EditableCard.tsx`
