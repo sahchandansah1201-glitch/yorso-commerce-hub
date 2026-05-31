@@ -1054,24 +1054,23 @@ const BranchesSection = ({
       ) : null}
       <div className="grid gap-3 sm:grid-cols-2">
         {profile.branches.length === 0 ? (
-          <AccountSectionCard title={t.account_branch_empty} testId="account-branch-empty">
-            <p className="text-sm text-muted-foreground">{t.account_branch_empty_desc}</p>
-          </AccountSectionCard>
+          <ListEmpty
+            title={t.account_branch_empty}
+            description={t.account_branch_empty_desc}
+            testId="account-branch-empty"
+          />
         ) : visibleBranches.length === 0 ? (
-          <AccountSectionCard
+          <ListEmpty
             title={t.account_branch_noResults}
             description={t.account_branch_noResults_desc}
             testId="account-branch-no-results"
-          >
-            <Button
-              type="button"
-              variant="outline"
-              onClick={resetFilters}
-              data-testid="account-branch-no-results-reset"
-            >
-              {t.account_action_reset}
-            </Button>
-          </AccountSectionCard>
+            action={{
+              label: t.account_action_reset,
+              onClick: resetFilters,
+              testId: "account-branch-no-results-reset",
+            }}
+          />
+
         ) : (
           visibleBranches.map((b) => (
             <AccountSectionCard key={b.id} title={b.name} testId={`account-branch-${b.id}`}>
