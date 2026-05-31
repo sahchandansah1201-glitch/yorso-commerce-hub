@@ -1627,23 +1627,17 @@ const ProductsSection = ({
 
   return (
     <div className="space-y-4" data-testid="account-section-products">
-      <AccountSectionCard
+      <ListSectionHeader
         title={t.account_products_title}
         description={t.account_products_desc}
-      >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <p className="text-sm text-muted-foreground">{t.account_products_matchingExplainer}</p>
-          <Button
-            type="button"
-            onClick={startAdd}
-            className="shrink-0"
-            data-testid="account-product-add"
-          >
-            <Plus className="mr-2 h-4 w-4" aria-hidden />
-            {t.account_product_add}
-          </Button>
-        </div>
-      </AccountSectionCard>
+        explainer={t.account_products_matchingExplainer}
+        action={{
+          label: t.account_product_add,
+          onClick: startAdd,
+          testId: "account-product-add",
+        }}
+      />
+
       {profile.products.length > 0 ? (
         <AccountSectionCard
           title={t.account_product_search_title}
