@@ -6221,6 +6221,83 @@ Marker: supplier_document_owner_create_review=ok.
 Marker: supplier_document.create.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4N - Supplier Document Admin Decision Runtime
+
+Status: implemented.
+
+Phase 4N adds the admin decision mutation for supplier documents under review:
+approve to `approved` or reject back to `on_request`.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Add admin-only decision route. | `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision` implemented. | Admin expire/delete and owner update/delete remain separate scopes. |
+| Apply Phase 4L policy. | `decideSupplierDocumentAsAdmin` allows only `review -> approved` and `review -> on_request`. | Replacement/re-review flow remains future work. |
+| Keep storage internals private. | Decision response omits `fileAssetId`, object keys, storage keys, `downloadPath` and direct URLs. | Same boundary must hold for future update/expire/delete. |
+| Persist audit. | `supplier_document.approve` / `supplier_document.reject` are inserted into `yorso_supplier_document_management_events`. | Admin management-event listing remains future work. |
+
+Expected read/write profile:
+
+- This is low-volume admin/operator mutation traffic.
+- A successful request performs one session resolution, one admin role check,
+  one supplier detail read, one supplier row JSONB status update and one audit
+  insert.
+- The endpoint stays uncached.
+
+Cache, queue and backpressure strategy:
+
+- Existing request-size, timeout, lifecycle and session fail-closed guardrails
+  apply.
+- No queue, scheduler, polling, worker or external provider is added.
+- Bulk approval/rejection must be a separate bounded queue/backpressure phase.
+
+Database indexing and pagination strategy:
+
+- The mutation is a point write by supplier id and document id.
+- `yorso_supplier_document_management_events` already has supplier/recent,
+  actor/recent, action/recent and supplier/document/recent indexes.
+- Future management-event listing must use bounded `limit <= 100` or cursor
+  pagination.
+
+Failure mode and graceful degradation:
+
+- Missing/invalid session uses existing account session errors.
+- Non-admin sessions return `admin_role_required`.
+- Missing supplier returns `supplier_not_found`.
+- Missing document returns `supplier_document_not_found`.
+- Repeated or stale decisions return `invalid_status_transition`.
+- Failed responses do not reveal storage internals.
+
+Observability and load-test plan:
+
+- Successful mutations persist `supplier_document.approve` or
+  `supplier_document.reject`.
+- Admin route attempts are emitted through the admin audit sink as
+  `admin.supplier_document_management.decide`.
+- Smoke output must include `supplier_document_admin_decision_review=ok`.
+- Load tests should cover concurrent decisions on the same review document,
+  stale status conflicts, malformed payloads and admin role denial at the
+  10,000 concurrent-user baseline.
+
+Validation:
+
+- `npm run test:supplier-document-management-runtime`;
+- `npm run test:supplier-document-management-policy`;
+- `npm run smoke:self-hosted-account-api:run`;
+- `npm run check:self-hosted-api`;
+- `npm run check:production-scale-baseline`.
+
+Marker: Backend Phase 4N Supplier Document Admin Decision Runtime.
+Marker: /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision.
+Marker: decideSupplierDocumentAsAdmin.
+Marker: supplierDocumentManagementDecisionResponseSchema.
+Marker: yorso_supplier_document_management_events.
+Marker: supplier_document_admin_decision_review=ok.
+Marker: supplier_document.approve.
+Marker: supplier_document.reject.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

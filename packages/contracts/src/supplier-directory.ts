@@ -162,6 +162,11 @@ export const supplierDocumentManagementUpdateRequestSchema = z.object({
   message: "At least one supplier document metadata field is required",
 });
 
+export const supplierDocumentManagementDecisionRequestSchema = z.object({
+  decision: z.enum(["approve", "reject"]),
+  reason: z.string().trim().min(1).max(160).optional(),
+}).strict();
+
 export const supplierDocumentManagementAuditEventSchema = z.object({
   action: supplierDocumentManagementAuditActionSchema,
   actorRole: supplierDocumentManagementRoleSchema,
@@ -179,6 +184,13 @@ export const supplierDocumentManagementItemSchema = supplierDocumentPayloadSchem
 }).strict();
 
 export const supplierDocumentManagementCreateResponseSchema = z.object({
+  ok: z.literal(true),
+  document: supplierDocumentManagementItemSchema,
+  audit: supplierDocumentManagementAuditEventSchema,
+  requestId: z.string(),
+});
+
+export const supplierDocumentManagementDecisionResponseSchema = z.object({
   ok: z.literal(true),
   document: supplierDocumentManagementItemSchema,
   audit: supplierDocumentManagementAuditEventSchema,
@@ -386,6 +398,8 @@ export type SupplierDocumentManagementAuditAction = z.infer<typeof supplierDocum
 export type SupplierDocumentManagementAuditEvent = z.infer<typeof supplierDocumentManagementAuditEventSchema>;
 export type SupplierDocumentManagementCreateResponse = z.infer<typeof supplierDocumentManagementCreateResponseSchema>;
 export type SupplierDocumentManagementCreateRequest = z.infer<typeof supplierDocumentManagementCreateRequestSchema>;
+export type SupplierDocumentManagementDecisionRequest = z.infer<typeof supplierDocumentManagementDecisionRequestSchema>;
+export type SupplierDocumentManagementDecisionResponse = z.infer<typeof supplierDocumentManagementDecisionResponseSchema>;
 export type SupplierDocumentManagementItem = z.infer<typeof supplierDocumentManagementItemSchema>;
 export type SupplierDocumentManagementRole = z.infer<typeof supplierDocumentManagementRoleSchema>;
 export type SupplierDocumentManagementUpdateRequest = z.infer<typeof supplierDocumentManagementUpdateRequestSchema>;

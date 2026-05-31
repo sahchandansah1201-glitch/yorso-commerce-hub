@@ -7,12 +7,15 @@ import {
   supplierDocumentDownloadGrantResponseSchema,
   supplierDocumentManagementCreateRequestSchema,
   supplierDocumentManagementCreateResponseSchema,
+  supplierDocumentManagementDecisionRequestSchema,
+  supplierDocumentManagementDecisionResponseSchema,
   supplierDirectoryDetailResponseSchema,
   supplierDirectoryItemSchema,
   supplierDirectoryListResponseSchema,
   supplierDocumentPayloadSchema,
   supplierDirectoryQuerySchema,
   type AccountRole,
+  type SupplierDocumentManagementAction,
   type SupplierDirectoryAccessLevel,
   type SupplierDirectoryItem,
   type SupplierDirectoryRecord,
@@ -361,6 +364,59 @@ export class SupplierDirectoryService {
     if (!record) throw new Error("supplier_document_owner_required");
 
     return supplierDocumentManagementCreateResponseSchema.parse({
+      ok: true,
+      document: redactSupplierDocumentManagementItem(record.document),
+      audit: record.auditEvent,
+      requestId,
+    });
+  }
+
+  async decideSupplierDocumentAsAdmin(
+    supplierId: string,
+    documentId: string,
+    payload: unknown,
+    requestId: string,
+    admin: { userId: string },
+  ) {
+    const decision = supplierDocumentManagementDecisionRequestSchema.parse(payload);
+    const supplier = await this.repository.getSupplierById(supplierId);
+    if (!supplier) throw new Error("supplier_not_found");
+
+    const document = supplier.supplierDocuments.find((item) => item.id === documentId);
+    if (!document) throw new Error("supplier_document_not_found");
+
+    const action: SupplierDocumentManagementAction = decision.decision === "approve" ? "approve" : "reject";
+    const policy = evaluateSupplierDocumentManagementPolicy({
+      actorRole: "admin",
+      action,
+      currentStatus: document.status,
+    });
+    if (!policy.allowed || !policy.nextStatus) throw new Error(policy.reason);
+
+    const now = new Date().toISOString();
+    const auditEvent = {
+      action: policy.auditAction,
+      actorRole: "admin" as const,
+      supplierId,
+      documentId,
+      previousStatus: document.status,
+      nextStatus: policy.nextStatus,
+      reason: decision.reason ?? (action === "approve" ? "admin_approved_review_document" : "admin_rejected_review_document"),
+      requestId,
+      createdAt: now,
+    };
+
+    const record = await this.repository.decideSupplierDocumentAsAdmin({
+      supplierId,
+      documentId,
+      currentStatus: document.status,
+      nextStatus: policy.nextStatus,
+      actorUserId: admin.userId,
+      auditEvent,
+    });
+    if (!record) throw new Error("invalid_status_transition");
+
+    return supplierDocumentManagementDecisionResponseSchema.parse({
       ok: true,
       document: redactSupplierDocumentManagementItem(record.document),
       audit: record.auditEvent,

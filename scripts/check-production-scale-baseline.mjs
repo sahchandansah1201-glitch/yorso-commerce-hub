@@ -26,6 +26,7 @@ const requiredFiles = [
   "docs/backend/phase-4k-supplier-document-audit-admin-ui.md",
   "docs/backend/phase-4l-supplier-document-management-rules.md",
   "docs/backend/phase-4m-supplier-document-owner-create.md",
+  "docs/backend/phase-4n-supplier-document-admin-decision.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -295,6 +296,7 @@ const phase4jSupplierDocumentGrantAuditListing = read("docs/backend/phase-4j-sup
 const phase4kSupplierDocumentAuditAdminUi = read("docs/backend/phase-4k-supplier-document-audit-admin-ui.md");
 const phase4lSupplierDocumentManagementRules = read("docs/backend/phase-4l-supplier-document-management-rules.md");
 const phase4mSupplierDocumentOwnerCreate = read("docs/backend/phase-4m-supplier-document-owner-create.md");
+const phase4nSupplierDocumentAdminDecision = read("docs/backend/phase-4n-supplier-document-admin-decision.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -676,6 +678,7 @@ for (const marker of [
   "Backend Phase 4H Supplier Document Download UI Integration",
   "Backend Phase 4I Supplier Document Download Audit Listing",
   "Backend Phase 4M Supplier Owner Document Create Runtime",
+  "Backend Phase 4N Supplier Document Admin Decision Runtime",
   "productionFacts",
   "logisticsFacts",
   "shipmentCases",
@@ -688,6 +691,7 @@ for (const marker of [
   "supplier_document_download_events",
   "yorso_supplier_document_management_events",
   "supplier_document_owner_create_review=ok",
+  "supplier_document_admin_decision_review=ok",
   "0031_supplier_profile_dossier_facts",
   "0032_supplier_profile_evidence_blocks",
   "0033_supplier_profile_legal_details",
@@ -3264,10 +3268,27 @@ for (const marker of [
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
 for (const marker of [
+  "Backend Phase 4N",
+  "Supplier Document Admin Decision Runtime",
+  "/v1/admin/supplier-documents/:supplierId/documents/:documentId/decision",
+  "decideSupplierDocumentAsAdmin",
+  "supplierDocumentManagementDecisionResponseSchema",
+  "yorso_supplier_document_management_events",
+  "supplier_document_admin_decision_review=ok",
+  "supplier_document.approve",
+  "supplier_document.reject",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4n-supplier-document-admin-decision.md", phase4nSupplierDocumentAdminDecision, marker);
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
   "supplierDocumentManagementCreateRequestSchema",
   "supplierDocumentManagementUpdateRequestSchema",
+  "supplierDocumentManagementDecisionRequestSchema",
   "supplierDocumentManagementAuditEventSchema",
   "supplierDocumentManagementCreateResponseSchema",
+  "supplierDocumentManagementDecisionResponseSchema",
   "supplierDocumentStatusSchema",
 ]) {
   requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, marker);
@@ -3351,6 +3372,8 @@ for (const marker of [
   "Backend Phase 4M",
   "yorso_supplier_document_management_events",
   "yorso_supplier_document_management_action",
+  "supplier_document.approve",
+  "supplier_document.reject",
   "idx_yorso_supplier_document_management_events_supplier_recent",
   "never file asset ids, object keys or storage URLs",
 ]) {
@@ -4095,6 +4118,8 @@ for (const [file, text, marker] of [
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_download_events.read"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/v1/admin/supplier-documents/download-grants"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_download_grants.read"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/^\\/v1\\/admin\\/supplier-documents\\/([^/]+)\\/documents\\/([^/]+)\\/decision$/"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_management.decide"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin_role_required"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession"],
 ]) {

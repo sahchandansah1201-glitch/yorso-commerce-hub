@@ -76,6 +76,7 @@ mistaken for production data surfaces.
 | `/v1/suppliers/:supplierId/documents/:documentId/download?grantId=...` | Supplier document serving API | self-hosted API only; no direct storage URL or API-disabled local serving | supplier document grant, supplier access grant, file asset metadata, object storage, document download audit | Phase 4G supplier document file serving |
 | `/v1/admin/supplier-documents/download-events` | Admin supplier document download audit API | self-hosted API only; authenticated admin session; no API-disabled preview | bounded read over `yorso_supplier_document_download_events`; no `fileAssetId`, storage key, direct file URL or `downloadPath` in response | Phase 4I supplier document download audit listing |
 | `/v1/admin/supplier-documents/download-grants` | Admin supplier document grant audit API | self-hosted API only; authenticated admin session; no API-disabled preview | bounded read over `yorso_supplier_document_download_grants`; no `fileAssetId`, storage key, direct file URL or `downloadPath` in response | Phase 4J supplier document grant audit listing |
+| `/v1/admin/supplier-documents/:supplierId/documents/:documentId/decision` | Admin supplier document approve/reject API | self-hosted API only; authenticated admin session; no browser storage internals in response | approve `review -> approved`, reject `review -> on_request`, management audit | Phase 4N supplier document admin decision |
 | `/admin/supplier-document-audit` | Admin supplier document audit UI | self-hosted admin document audit adapter; authenticated admin session; API-disabled and session-required states are explicit | read-only frontend over `/v1/admin/supplier-documents/download-events` and `/download-grants`; no `fileAssetId`, storage key, direct file URL or `downloadPath` rendered | Phase 4K supplier document audit admin UI |
 | `/about` | Public company/trust page | static info page content, route-owned SEO | CMS-ready static page or local content source with route SEO | P3 |
 | `/contact` | Public contact/trust page | static info page content, route-owned SEO | CMS-ready contact content, support/contact routing later | P3 |
@@ -477,6 +478,13 @@ Acceptance:
   `supplier_document.create` in `yorso_supplier_document_management_events`,
   and returns sanitized metadata without `fileAssetId`, object keys, storage
   keys or direct download URLs;
+- admin supplier document decision is implemented through
+  `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`:
+  it requires a self-hosted admin session, applies Phase 4L approve/reject
+  status transitions, writes `supplier_document.approve` or
+  `supplier_document.reject` in `yorso_supplier_document_management_events`,
+  and returns sanitized metadata without `fileAssetId`, object keys, storage
+  keys, direct download URLs or `downloadPath`;
 - access request panel uses backend statuses;
 - canonical and SEO rules are defined before public indexing.
 

@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 const repoRoot = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const apiEntry = path.join(repoRoot, "apps/api/dist/index.js");
 const smokeUserId = "00000000-0000-4000-8000-000000000001";
+const smokeAdminUserId = "00000000-0000-4000-8000-000000000090";
 const accountHeaders = {
   "content-type": "application/json",
   "x-yorso-user-id": smokeUserId,
@@ -568,6 +569,68 @@ async function runSmoke(baseUrl) {
   assertDoesNotContain(supplierDocumentCreate, "objectKey", "supplier owner create object key");
   console.log("supplier_document_owner_create_review=ok");
 
+  const rejectDocumentBytes = Buffer.from("Smoke supplier rejection target");
+  const rejectDocumentCreate = await jsonRequest(baseUrl, "/v1/account/documents", {
+    method: "POST",
+    body: {
+      title: "Smoke Supplier Rejection Target",
+      documentType: "other",
+      visibility: "private",
+      expiresAt: null,
+      file: {
+        fileName: "smoke-rejection-target.pdf",
+        contentType: "application/pdf",
+        sizeBytes: rejectDocumentBytes.byteLength,
+        contentBase64: rejectDocumentBytes.toString("base64"),
+      },
+    },
+  });
+  assertEqual(rejectDocumentCreate.ok, true, "reject document create ok");
+  const supplierDocumentRejectCreate = await jsonRequest(baseUrl, "/v1/suppliers/sup-no-001/documents", {
+    method: "POST",
+    body: {
+      title: "Smoke supplier rejection target",
+      documentType: "audit_report",
+      issuedAt: null,
+      expiresAt: null,
+      fileUploadId: rejectDocumentCreate.document.fileAssetId,
+      fileName: "smoke-rejection-target.pdf",
+    },
+  });
+  assertEqual(supplierDocumentRejectCreate.ok, true, "supplier reject target create ok");
+
+  const adminHeaders = await signInSmokeAdmin(baseUrl);
+  const supplierDocumentApprove = await jsonRequestAs(
+    baseUrl,
+    `/v1/admin/supplier-documents/sup-no-001/documents/${encodeURIComponent(supplierDocumentCreate.document.id)}/decision`,
+    adminHeaders,
+    {
+      method: "POST",
+      body: { decision: "approve", reason: "smoke_admin_verified_review_document" },
+    },
+  );
+  assertEqual(supplierDocumentApprove.ok, true, "supplier admin approve ok");
+  assertEqual(supplierDocumentApprove.document?.status, "approved", "supplier admin approved status");
+  assertEqual(supplierDocumentApprove.audit?.action, "supplier_document.approve", "supplier admin approve audit action");
+  assertDoesNotContain(supplierDocumentApprove, documentCreate.document.fileAssetId, "supplier admin approve file asset id");
+  assertDoesNotContain(supplierDocumentApprove, "fileAssetId", "supplier admin approve file asset field");
+
+  const supplierDocumentReject = await jsonRequestAs(
+    baseUrl,
+    `/v1/admin/supplier-documents/sup-no-001/documents/${encodeURIComponent(supplierDocumentRejectCreate.document.id)}/decision`,
+    adminHeaders,
+    {
+      method: "POST",
+      body: { decision: "reject", reason: "smoke_admin_requested_current_certificate" },
+    },
+  );
+  assertEqual(supplierDocumentReject.ok, true, "supplier admin reject ok");
+  assertEqual(supplierDocumentReject.document?.status, "on_request", "supplier admin rejected status");
+  assertEqual(supplierDocumentReject.audit?.action, "supplier_document.reject", "supplier admin reject audit action");
+  assertDoesNotContain(supplierDocumentReject, rejectDocumentCreate.document.fileAssetId, "supplier admin reject file asset id");
+  assertDoesNotContain(supplierDocumentReject, "fileAssetId", "supplier admin reject file asset field");
+  console.log("supplier_document_admin_decision_review=ok");
+
   const documents = await jsonRequest(baseUrl, "/v1/account/documents");
   assertEqual(documents.ok, true, "documents ok");
   assertEqual(
@@ -594,10 +657,33 @@ async function signInSmokeBuyer(baseUrl) {
   console.log("account_session_authority=ok");
 }
 
+async function signInSmokeAdmin(baseUrl) {
+  const response = await fetch(`${baseUrl}/v1/auth/sign-in`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      email: "admin@example.com",
+      password: "Password1",
+    }),
+  });
+  const body = await response.json();
+  assertStatus(response, 200, "self-hosted admin auth sign-in");
+  assertEqual(body.session?.userId, smokeAdminUserId, "self-hosted admin auth user id");
+  return {
+    "content-type": "application/json",
+    "x-yorso-user-id": smokeAdminUserId,
+    "x-yorso-session-id": body.session.id,
+  };
+}
+
 async function jsonRequest(baseUrl, pathName, init = {}) {
+  return jsonRequestAs(baseUrl, pathName, accountHeaders, init);
+}
+
+async function jsonRequestAs(baseUrl, pathName, headers, init = {}) {
   const response = await fetch(`${baseUrl}${pathName}`, {
     method: init.method ?? "GET",
-    headers: accountHeaders,
+    headers,
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
   });
   if (!response.ok) {

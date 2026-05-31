@@ -392,6 +392,94 @@ describe("supplier directory repositories", () => {
     ]);
   });
 
+  it("PostgreSQL repository decides review supplier documents with one audited CTE", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const document = {
+      id: "sdoc_review_1",
+      title: "Factory audit report",
+      documentType: "audit_report" as const,
+      status: "approved" as const,
+      issuedAt: "2026-05-31",
+      expiresAt: "2027-05-31",
+      fileName: "factory-audit.pdf",
+      fileAssetId: "11111111-1111-4111-8111-111111111111",
+    };
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        return {
+          rows: [
+            {
+              document,
+              action: "supplier_document.approve",
+              actorRole: "admin",
+              supplierId: "sup-no-001",
+              documentId: "sdoc_review_1",
+              previousStatus: "review",
+              nextStatus: "approved",
+              reason: "verified_against_registry",
+              requestId: "req-admin-decision",
+              createdAt: new Date("2026-05-31T10:00:00.000Z"),
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+
+    const decided = await repository.decideSupplierDocumentAsAdmin({
+      supplierId: "sup-no-001",
+      documentId: "sdoc_review_1",
+      currentStatus: "review",
+      nextStatus: "approved",
+      actorUserId: "00000000-0000-4000-8000-000000000090",
+      auditEvent: {
+        action: "supplier_document.approve",
+        actorRole: "admin",
+        supplierId: "sup-no-001",
+        documentId: "sdoc_review_1",
+        previousStatus: "review",
+        nextStatus: "approved",
+        reason: "verified_against_registry",
+        requestId: "req-admin-decision",
+        createdAt: "2026-05-31T10:00:00.000Z",
+      },
+    });
+
+    expect(decided).toMatchObject({
+      document: {
+        id: "sdoc_review_1",
+        status: "approved",
+      },
+      auditEvent: {
+        action: "supplier_document.approve",
+        actorRole: "admin",
+        previousStatus: "review",
+        nextStatus: "approved",
+      },
+    });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].sql).toContain("with target_document as");
+    expect(calls[0].sql).toContain("update yorso_suppliers_directory");
+    expect(calls[0].sql).toContain("jsonb_set(");
+    expect(calls[0].sql).toContain("document.value->>'status' = $3");
+    expect(calls[0].sql).toContain("insert into yorso_supplier_document_management_events");
+    expect(calls[0].params).toEqual([
+      "sup-no-001",
+      "sdoc_review_1",
+      "review",
+      "approved",
+      "supplier_document.approve",
+      "admin",
+      "00000000-0000-4000-8000-000000000090",
+      "review",
+      "approved",
+      "verified_against_registry",
+      "req-admin-decision",
+      "2026-05-31T10:00:00.000Z",
+    ]);
+  });
+
   it("PostgreSQL repository reads grants and persists supplier document download events", async () => {
     const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
     const client: SupplierQueryClient = {

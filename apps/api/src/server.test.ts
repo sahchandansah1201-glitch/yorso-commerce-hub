@@ -1719,6 +1719,133 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(JSON.stringify(createdBody)).not.toContain("storage");
   });
 
+  it("lets an admin approve and reject review supplier documents without leaking backend file storage identifiers", async () => {
+    const supplierRepository = new MemorySupplierRepository();
+    const fetchApi = await startRawTestServer({ supplierRepository });
+    const ownerHeaders = await signIn(fetchApi, "buyer@example.com");
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+
+    const createReviewDocument = async (title: string, fileName: string) => {
+      const uploaded = await fetchApi("/v1/account/documents", {
+        method: "POST",
+        headers: ownerHeaders,
+        body: JSON.stringify({
+          title,
+          documentType: "other",
+          visibility: "buyer_qualified",
+          expiresAt: "2027-05-31",
+          file: filePayload(`${title} bytes`, fileName, "application/pdf"),
+        }),
+      });
+      const uploadedBody = (await uploaded.json()) as JsonBody;
+      expect(uploaded.status).toBe(201);
+
+      const created = await fetchApi("/v1/suppliers/sup-no-001/documents", {
+        method: "POST",
+        headers: ownerHeaders,
+        body: JSON.stringify({
+          title,
+          documentType: "audit_report",
+          issuedAt: "2026-05-31",
+          expiresAt: "2027-05-31",
+          fileUploadId: (uploadedBody.document as JsonBody).fileAssetId,
+          fileName,
+        }),
+      });
+      const createdBody = (await created.json()) as JsonBody;
+      expect(created.status).toBe(201);
+      return {
+        fileAssetId: String((uploadedBody.document as JsonBody).fileAssetId),
+        documentId: String((createdBody.document as JsonBody).id),
+      };
+    };
+
+    const approveTarget = await createReviewDocument("Factory audit approval target", "factory-audit-approval.pdf");
+    const rejectTarget = await createReviewDocument("Factory audit rejection target", "factory-audit-rejection.pdf");
+    const approvePath = `/v1/admin/supplier-documents/sup-no-001/documents/${approveTarget.documentId}/decision`;
+    const rejectPath = `/v1/admin/supplier-documents/sup-no-001/documents/${rejectTarget.documentId}/decision`;
+
+    const missingSession = await fetchApi(approvePath, {
+      method: "POST",
+      body: JSON.stringify({ decision: "approve" }),
+    });
+    expect(missingSession.status).toBe(401);
+
+    const blocked = await fetchApi(approvePath, {
+      method: "POST",
+      headers: ownerHeaders,
+      body: JSON.stringify({ decision: "approve" }),
+    });
+    const blockedBody = (await blocked.json()) as JsonBody;
+    expect(blocked.status).toBe(403);
+    expect(blockedBody.error).toMatchObject({ code: "admin_role_required" });
+
+    const approved = await fetchApi(approvePath, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ decision: "approve", reason: "verified_against_registry" }),
+    });
+    const approvedBody = (await approved.json()) as JsonBody;
+    expect(approved.status).toBe(200);
+    expect(approvedBody).toMatchObject({
+      ok: true,
+      document: {
+        id: approveTarget.documentId,
+        status: "approved",
+      },
+      audit: {
+        action: "supplier_document.approve",
+        actorRole: "admin",
+        supplierId: "sup-no-001",
+        documentId: approveTarget.documentId,
+        previousStatus: "review",
+        nextStatus: "approved",
+        reason: "verified_against_registry",
+      },
+    });
+
+    const rejected = await fetchApi(rejectPath, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ decision: "reject", reason: "missing_current_certificate" }),
+    });
+    const rejectedBody = (await rejected.json()) as JsonBody;
+    expect(rejected.status).toBe(200);
+    expect(rejectedBody).toMatchObject({
+      ok: true,
+      document: {
+        id: rejectTarget.documentId,
+        status: "on_request",
+      },
+      audit: {
+        action: "supplier_document.reject",
+        actorRole: "admin",
+        supplierId: "sup-no-001",
+        documentId: rejectTarget.documentId,
+        previousStatus: "review",
+        nextStatus: "on_request",
+        reason: "missing_current_certificate",
+      },
+    });
+
+    const invalidTransition = await fetchApi(approvePath, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ decision: "reject" }),
+    });
+    const invalidTransitionBody = (await invalidTransition.json()) as JsonBody;
+    expect(invalidTransition.status).toBe(409);
+    expect(invalidTransitionBody.error).toMatchObject({ code: "invalid_status_transition" });
+
+    const serialized = `${JSON.stringify(approvedBody)}\n${JSON.stringify(rejectedBody)}`;
+    expect(serialized).not.toContain(approveTarget.fileAssetId);
+    expect(serialized).not.toContain(rejectTarget.fileAssetId);
+    expect(serialized).not.toContain("fileAssetId");
+    expect(serialized).not.toContain("objectKey");
+    expect(serialized).not.toContain("storage");
+    expect(serialized).not.toContain("downloadPath");
+  });
+
   it("streams supplier document files only through valid document download grants", async () => {
     const fetchApi = await startTestServer();
     const grantPath = "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/grant";

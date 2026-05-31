@@ -34,6 +34,7 @@ export interface SupplierRepository {
   recordDocumentDownloadEvent(input: SupplierDocumentDownloadEventInput): Promise<SupplierDocumentDownloadEventRecord>;
   listDocumentDownloadEvents(input: SupplierDocumentDownloadEventAdminQuery): Promise<SupplierDocumentDownloadEventRecord[]>;
   createSupplierDocumentForOwner(input: SupplierDocumentManagementCreateInput): Promise<SupplierDocumentManagementCreateRecord | null>;
+  decideSupplierDocumentAsAdmin(input: SupplierDocumentManagementDecisionInput): Promise<SupplierDocumentManagementCreateRecord | null>;
 }
 
 export interface SupplierRepositoryListOptions {
@@ -84,6 +85,15 @@ export interface SupplierDocumentManagementCreateInput {
 
 export interface SupplierDocumentManagementCreateRecord {
   document: SupplierDocumentPayload;
+  auditEvent: SupplierDocumentManagementAuditEvent;
+}
+
+export interface SupplierDocumentManagementDecisionInput {
+  supplierId: string;
+  documentId: string;
+  currentStatus: SupplierDocumentPayload["status"];
+  nextStatus: SupplierDocumentPayload["status"];
+  actorUserId: string;
   auditEvent: SupplierDocumentManagementAuditEvent;
 }
 
@@ -561,6 +571,22 @@ export class MemorySupplierRepository implements SupplierRepository {
 
     return structuredClone({
       document: input.document,
+      auditEvent: input.auditEvent,
+    });
+  }
+
+  async decideSupplierDocumentAsAdmin(input: SupplierDocumentManagementDecisionInput) {
+    const supplier = this.suppliers.find((item) => item.id === input.supplierId);
+    if (!supplier) return null;
+    const document = supplier.supplierDocuments.find((item) => item.id === input.documentId);
+    if (!document || document.status !== input.currentStatus) return null;
+
+    document.status = input.nextStatus;
+    supplier.updatedAt = new Date().toISOString();
+    this.documentManagementAudit.push({ ...input.auditEvent });
+
+    return structuredClone({
+      document,
       auditEvent: input.auditEvent,
     });
   }

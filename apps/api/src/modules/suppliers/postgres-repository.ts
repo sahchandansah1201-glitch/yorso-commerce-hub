@@ -23,6 +23,7 @@ import type {
   SupplierDocumentDownloadGrantAuditInput,
   SupplierDocumentDownloadGrantAuditRecord,
   SupplierDocumentManagementCreateInput,
+  SupplierDocumentManagementDecisionInput,
   SupplierRepository,
   SupplierRepositoryListOptions,
 } from "./repository.js";
@@ -375,6 +376,110 @@ export class PostgresSupplierRepository implements SupplierRepository {
         input.document.id,
         JSON.stringify([input.document]),
         JSON.stringify(input.document),
+        input.auditEvent.action,
+        input.auditEvent.actorRole,
+        input.actorUserId,
+        input.auditEvent.previousStatus,
+        input.auditEvent.nextStatus,
+        input.auditEvent.reason,
+        input.auditEvent.requestId,
+        input.auditEvent.createdAt,
+      ],
+    );
+
+    return result.rows[0] ? mapDocumentManagementCreate(result.rows[0]) : null;
+  }
+
+  async decideSupplierDocumentAsAdmin(input: SupplierDocumentManagementDecisionInput) {
+    const result = await this.client.query<SupplierDocumentManagementCreateRow>(
+      `
+        with target_document as (
+          select
+            supplier.id as supplier_id,
+            (document.ordinality - 1)::int as document_index,
+            document.value as previous_document
+          from yorso_suppliers_directory supplier
+          cross join lateral jsonb_array_elements(supplier.supplier_documents) with ordinality as document(value, ordinality)
+          where supplier.id = $1
+            and supplier.publication_status in ('draft', 'published')
+            and document.value->>'id' = $2
+            and document.value->>'status' = $3
+          limit 1
+        ),
+        updated_supplier as (
+          update yorso_suppliers_directory supplier
+          set
+            supplier_documents = jsonb_set(
+              supplier.supplier_documents,
+              array[target_document.document_index::text, 'status'],
+              to_jsonb($4::text),
+              false
+            ),
+            updated_at = now()
+          from target_document
+          where supplier.id = target_document.supplier_id
+          returning jsonb_set(
+            target_document.previous_document,
+            '{status}',
+            to_jsonb($4::text),
+            false
+          ) as document
+        ),
+        inserted_audit as (
+          insert into yorso_supplier_document_management_events (
+            action,
+            actor_role,
+            actor_user_id,
+            supplier_id,
+            document_id,
+            previous_status,
+            next_status,
+            reason,
+            request_id,
+            created_at
+          )
+          select
+            $5,
+            $6,
+            $7::uuid,
+            $1,
+            $2,
+            $8,
+            $9,
+            $10,
+            $11,
+            $12::timestamptz
+          from updated_supplier
+          returning
+            action,
+            actor_role as "actorRole",
+            supplier_id as "supplierId",
+            document_id as "documentId",
+            previous_status as "previousStatus",
+            next_status as "nextStatus",
+            reason,
+            request_id as "requestId",
+            created_at as "createdAt"
+        )
+        select
+          updated_supplier.document as "document",
+          inserted_audit.action,
+          inserted_audit."actorRole",
+          inserted_audit."supplierId",
+          inserted_audit."documentId",
+          inserted_audit."previousStatus",
+          inserted_audit."nextStatus",
+          inserted_audit.reason,
+          inserted_audit."requestId",
+          inserted_audit."createdAt"
+        from updated_supplier
+        join inserted_audit on true
+      `,
+      [
+        input.supplierId,
+        input.documentId,
+        input.currentStatus,
+        input.nextStatus,
         input.auditEvent.action,
         input.auditEvent.actorRole,
         input.actorUserId,

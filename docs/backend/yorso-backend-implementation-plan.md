@@ -921,6 +921,36 @@ Plan / Fact:
 | Не раскрывать storage internals. | Response не содержит `fileAssetId`, `objectKey`, storage keys, direct URLs. | Supplier-specific upload UX отдельно. |
 | Писать audit. | `supplier_document.create` пишется в `yorso_supplier_document_management_events`. | Admin listing по management events отдельно. |
 
-Next scoped backend direction after Phase 4M: implement either admin
-approve/reject for review documents or owner metadata/update/delete for
-non-approved documents. Do not mix both if the batch becomes too broad.
+## Backend Phase 4N Checkpoint - Supplier Document Admin Decision Runtime
+
+Status: implemented.
+
+Phase 4N implements the next narrow write path: admin approves or rejects a
+supplier document currently in `review`. Owner metadata edits, delete, expire
+and frontend UI remain outside this increment.
+
+Implemented:
+
+- `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`
+  for authenticated self-hosted admin sessions;
+- decision payload `approve|reject` plus optional bounded audit reason;
+- Phase 4L policy enforcement through `evaluateSupplierDocumentManagementPolicy`;
+- transitions `review -> approved` and `review -> on_request`;
+- sanitized response schema without `fileAssetId`, object keys, storage keys,
+  `downloadPath` or direct download URLs;
+- atomic PostgreSQL CTE status update in supplier document JSONB plus
+  `yorso_supplier_document_management_events` audit insert;
+- smoke marker `supplier_document_admin_decision_review=ok`.
+
+Plan / Fact:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Взять только admin decision path. | Admin approve/reject для `review` реализован. | Owner update/delete и admin expire/delete отдельными scope. |
+| Требовать admin session. | Buyer/supplier sessions получают `admin_role_required`. | Admin subroles отдельно. |
+| Не раскрывать storage internals. | Response не содержит `fileAssetId`, `objectKey`, storage keys, `downloadPath`, direct URLs. | Сохранить для будущих mutations. |
+| Писать audit. | `supplier_document.approve` / `supplier_document.reject` пишутся в `yorso_supplier_document_management_events`. | Admin listing по management events отдельно. |
+
+Next scoped backend direction after Phase 4N: implement either owner metadata
+update/delete for non-approved documents or admin expire/delete. Do not mix both
+if the batch becomes too broad.

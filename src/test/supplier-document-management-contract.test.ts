@@ -3,6 +3,8 @@ import {
   supplierDocumentManagementAuditEventSchema,
   supplierDocumentManagementCreateRequestSchema,
   supplierDocumentManagementCreateResponseSchema,
+  supplierDocumentManagementDecisionRequestSchema,
+  supplierDocumentManagementDecisionResponseSchema,
   supplierDocumentManagementUpdateRequestSchema,
 } from "../../packages/contracts/src";
 
@@ -48,6 +50,21 @@ describe("supplier document management contracts", () => {
   });
 
   it("requires immutable audit metadata for each management decision", () => {
+    expect(
+      supplierDocumentManagementDecisionRequestSchema.parse({
+        decision: "approve",
+        reason: "verified_against_registry",
+      }),
+    ).toEqual({
+      decision: "approve",
+      reason: "verified_against_registry",
+    });
+    expect(() =>
+      supplierDocumentManagementDecisionRequestSchema.parse({
+        decision: "expire",
+      }),
+    ).toThrow();
+
     const event = supplierDocumentManagementAuditEventSchema.parse({
       action: "supplier_document.approve",
       actorRole: "admin",
@@ -100,6 +117,49 @@ describe("supplier document management contracts", () => {
     expect(JSON.stringify(response)).not.toContain("objectKey");
     expect(() =>
       supplierDocumentManagementCreateResponseSchema.parse({
+        ...response,
+        document: {
+          ...response.document,
+          fileAssetId: "backend-file-asset",
+        },
+      }),
+    ).toThrow();
+  });
+
+  it("returns sanitized admin decision responses without backend file storage identifiers", () => {
+    const response = supplierDocumentManagementDecisionResponseSchema.parse({
+      ok: true,
+      document: {
+        id: "sdoc_review_1",
+        title: "Factory audit report",
+        documentType: "audit_report",
+        status: "approved",
+        issuedAt: "2026-05-31",
+        expiresAt: "2027-05-31",
+        fileName: "factory-audit.pdf",
+      },
+      audit: {
+        action: "supplier_document.approve",
+        actorRole: "admin",
+        supplierId: "sup-no-001",
+        documentId: "sdoc_review_1",
+        previousStatus: "review",
+        nextStatus: "approved",
+        reason: "verified_against_registry",
+        requestId: "req-admin-decision",
+        createdAt: "2026-05-31T10:00:00.000Z",
+      },
+      requestId: "req-admin-decision",
+    });
+
+    expect(response.document).toMatchObject({
+      id: "sdoc_review_1",
+      status: "approved",
+    });
+    expect(JSON.stringify(response)).not.toContain("fileAssetId");
+    expect(JSON.stringify(response)).not.toContain("downloadPath");
+    expect(() =>
+      supplierDocumentManagementDecisionResponseSchema.parse({
         ...response,
         document: {
           ...response.document,

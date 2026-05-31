@@ -481,6 +481,7 @@ async function routeWorkRequest(
     authService,
     url,
     auditSink,
+    jsonBodyOptions,
   )) return;
   if (await handleAccountRoute(
     request,

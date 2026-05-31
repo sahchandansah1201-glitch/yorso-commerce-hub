@@ -38,6 +38,7 @@ npm run db:migrations:apply:dry-run
 npm run api:build
 npm run test:api
 npm run test:supplier-document-management-policy
+npm run test:supplier-document-management-runtime
 npm run smoke:self-hosted-auth-api
 npm run smoke:e2e:self-hosted-auth-frontend
 npm run smoke:self-hosted-account-api
@@ -74,6 +75,7 @@ npm run ci:core
 | `api:build` | Compiles the self-hosted API service to `apps/api/dist`. |
 | `test:api` | Runs API endpoint and config tests. |
 | `test:supplier-document-management-policy` | Builds contracts and verifies supplier document owner/admin management schemas, storage-boundary rejection, audit actions and policy decisions. |
+| `test:supplier-document-management-runtime` | Builds contracts and verifies supplier owner create plus admin approve/reject API/repository runtime paths. |
 | `smoke:self-hosted-auth-api` | Builds and starts the standalone API, then verifies self-hosted sign-in, session read, sign-out, invalid credentials, validation guards, password reset abuse-control and password recovery cleanup scheduler wiring over real HTTP. |
 | `smoke:e2e:self-hosted-auth-frontend` | Builds the frontend with `VITE_YORSO_API_URL` enabled and verifies `/signin` uses the owned auth API, stores backend session/user ids and sends them to downstream self-hosted API calls. |
 | `smoke:self-hosted-account-api` | Builds and starts the standalone API, then verifies account session headers, company/profile writes, product matrix replacement, row-level workspace CRUD, media upload, document upload, file ownership, supplier directory access shaping and offer catalog access shaping over real HTTP. |
@@ -1878,4 +1880,44 @@ Required markers:
 - `supplierDocumentManagementCreateResponseSchema`;
 - `yorso_supplier_document_management_events`;
 - `supplier_document_owner_create_review=ok`;
+- `10,000 concurrent users`.
+
+## Backend Phase 4N Supplier Document Admin Decision Runtime Validation
+
+Run:
+
+```bash
+npm run test:supplier-document-management-runtime
+npm run test:supplier-document-management-policy
+npm run smoke:self-hosted-account-api:run
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`
+  requires an authenticated self-hosted admin session.
+- Buyer/supplier owner sessions receive `admin_role_required`.
+- The request body accepts only `decision=approve|reject` and optional bounded
+  audit `reason`.
+- `decideSupplierDocumentAsAdmin` applies the Phase 4L policy: `review ->
+  approved` and `review -> on_request`.
+- Invalid repeated decisions return `invalid_status_transition`.
+- PostgreSQL updates the JSONB document status and inserts
+  `yorso_supplier_document_management_events` audit metadata in one CTE.
+- The browser response is sanitized and contains no storage identifiers or
+  `downloadPath`.
+- Smoke output includes `supplier_document_admin_decision_review=ok`.
+
+Required markers:
+
+- `Backend Phase 4N`;
+- `Supplier Document Admin Decision Runtime`;
+- `/v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`;
+- `decideSupplierDocumentAsAdmin`;
+- `supplierDocumentManagementDecisionResponseSchema`;
+- `supplier_document_admin_decision_review=ok`;
+- `supplier_document.approve`;
+- `supplier_document.reject`;
 - `10,000 concurrent users`.

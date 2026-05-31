@@ -44,7 +44,8 @@ The route:
 2. reads the account company profile;
 3. requires company `accountRole` to be `supplier` or `both`;
 4. validates the safe management create payload;
-5. resolves the backend-owned file asset through `FileService.getFileForUser`;
+5. resolves the backend-owned file asset metadata through
+   `FileService.getFileAssetForUser`;
 6. checks the file belongs to the same company and is an allowed document
    purpose;
 7. applies the Phase 4L policy decision for `supplier_owner/create`;
