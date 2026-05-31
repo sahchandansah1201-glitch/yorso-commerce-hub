@@ -109,6 +109,23 @@ async function runSmoke(baseUrl) {
   assertEqual(supplierBeforeGrant.supplier?.supplierDocuments, null, "supplier documents hidden before grant");
   console.log("supplier_directory_requires_grant=ok");
 
+  const supplierDocumentGrantDenied = await fetch(
+    `${baseUrl}/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/grant`,
+    {
+      method: "POST",
+      headers: accountHeaders,
+    },
+  );
+  assertStatus(supplierDocumentGrantDenied, 403, "supplier document grant requires access");
+  const supplierDocumentGrantDeniedBody = await supplierDocumentGrantDenied.json();
+  assertEqual(
+    supplierDocumentGrantDeniedBody.error?.code,
+    "supplier_document_access_required",
+    "supplier document grant denied code",
+  );
+  assertDoesNotContain(supplierDocumentGrantDeniedBody, "file_sup-no-001-health-certificate", "denied document grant asset id");
+  console.log("supplier_document_grant_requires_access=ok");
+
   const supplierPrivateSearchBeforeGrant = await jsonRequest(
     baseUrl,
     "/v1/suppliers?q=Nordfjord&accessLevel=qualified_unlocked",
@@ -217,6 +234,33 @@ async function runSmoke(baseUrl) {
   assertEqual(supplierUnlocked.supplier?.website, "https://example-nordfjord.no", "unlocked supplier website");
   assertEqual(supplierUnlocked.supplier?.supplierDocuments?.[0]?.fileName, "sup-no-001-health-certificate.pdf", "unlocked supplier document metadata");
   console.log("supplier_directory_unlocked=ok");
+
+  const supplierDocumentGrant = await jsonRequest(
+    baseUrl,
+    "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/grant",
+    { method: "POST" },
+  );
+  assertEqual(supplierDocumentGrant.ok, true, "supplier document grant ok");
+  assertEqual(supplierDocumentGrant.grant?.supplierId, "sup-no-001", "supplier document grant supplier");
+  assertEqual(
+    supplierDocumentGrant.grant?.documentId,
+    "sup-no-001-health-certificate",
+    "supplier document grant document",
+  );
+  assertEqual(
+    supplierDocumentGrant.grant?.fileName,
+    "sup-no-001-health-certificate.pdf",
+    "supplier document grant file name",
+  );
+  assertEqual(
+    String(supplierDocumentGrant.grant?.downloadPath).startsWith(
+      "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_",
+    ),
+    true,
+    "supplier document grant download path",
+  );
+  assertDoesNotContain(supplierDocumentGrant, "file_sup-no-001-health-certificate", "granted document grant asset id");
+  console.log("supplier_document_grant_unlocked=ok");
 
   const supplierPrivateSearchAfterGrant = await jsonRequest(
     baseUrl,

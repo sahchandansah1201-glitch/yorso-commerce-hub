@@ -240,4 +240,68 @@ describe("supplier directory repositories", () => {
     expect(calls[1].sql).toContain("private_search_text ilike $1");
     expect(calls[1].params).toEqual(["%Supplier Legal%", ["sup-row"], 10, 0]);
   });
+
+  it("PostgreSQL repository persists supplier document download grant audit with backend-only asset ids", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        return {
+          rows: [
+            {
+              id: "sdg_grant_1",
+              buyerUserId: "00000000-0000-4000-8000-000000000001",
+              supplierId: "sup-no-001",
+              documentId: "sup-no-001-health-certificate",
+              fileAssetId: "file_sup-no-001-health-certificate",
+              status: "granted",
+              reason: "granted",
+              requestId: "req-1",
+              downloadPath: "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_grant_1",
+              grantedAt: "2026-05-31T08:00:00.000Z",
+              expiresAt: "2026-05-31T08:15:00.000Z",
+              createdAt: "2026-05-31T08:00:00.000Z",
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+    const record = await repository.recordDocumentDownloadGrant({
+      id: "sdg_grant_1",
+      buyerUserId: "00000000-0000-4000-8000-000000000001",
+      supplierId: "sup-no-001",
+      documentId: "sup-no-001-health-certificate",
+      fileAssetId: "file_sup-no-001-health-certificate",
+      status: "granted",
+      reason: "granted",
+      requestId: "req-1",
+      downloadPath: "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_grant_1",
+      grantedAt: "2026-05-31T08:00:00.000Z",
+      expiresAt: "2026-05-31T08:15:00.000Z",
+    });
+
+    expect(record).toMatchObject({
+      id: "sdg_grant_1",
+      status: "granted",
+      supplierId: "sup-no-001",
+      documentId: "sup-no-001-health-certificate",
+    });
+    expect(calls[0].sql).toContain("insert into yorso_supplier_document_download_grants");
+    expect(calls[0].sql).toContain("file_asset_id");
+    expect(calls[0].sql).toContain("returning");
+    expect(calls[0].params).toEqual([
+      "sdg_grant_1",
+      "00000000-0000-4000-8000-000000000001",
+      "sup-no-001",
+      "sup-no-001-health-certificate",
+      "file_sup-no-001-health-certificate",
+      "granted",
+      "granted",
+      "req-1",
+      "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_grant_1",
+      "2026-05-31T08:00:00.000Z",
+      "2026-05-31T08:15:00.000Z",
+    ]);
+  });
 });

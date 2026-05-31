@@ -1615,6 +1615,51 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(unrelatedPrivateSearchBody.suppliers).toEqual([]);
   });
 
+  it("issues supplier document download grants only after qualified supplier access", async () => {
+    const fetchApi = await startTestServer();
+    const grantPath = "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/grant";
+
+    const denied = await fetchApi(grantPath, { method: "POST" });
+    const deniedBody = (await denied.json()) as JsonBody;
+    expect(denied.status).toBe(403);
+    expect(deniedBody).toMatchObject({
+      ok: false,
+      error: { code: "supplier_document_access_required" },
+    });
+    expect(JSON.stringify(deniedBody)).not.toContain("file_sup-no-001-health-certificate");
+
+    const accessRequest = await fetchApi("/v1/access/suppliers/sup-no-001/request", {
+      method: "POST",
+      body: JSON.stringify({ message: "" }),
+    });
+    const accessRequestBody = (await accessRequest.json()) as JsonBody;
+    const requestId = (accessRequestBody.request as { id: string }).id;
+
+    const decision = await fetchApi(`/v1/access/supplier-requests/${requestId}/decision`, {
+      method: "POST",
+      body: JSON.stringify({ status: "approved" }),
+    });
+    expect(decision.status).toBe(200);
+
+    const granted = await fetchApi(grantPath, { method: "POST" });
+    const grantedBody = (await granted.json()) as JsonBody;
+    expect(granted.status).toBe(200);
+    expect(grantedBody).toMatchObject({
+      ok: true,
+      grant: {
+        supplierId: "sup-no-001",
+        documentId: "sup-no-001-health-certificate",
+        fileName: "sup-no-001-health-certificate.pdf",
+      },
+    });
+    expect((grantedBody.grant as JsonBody).id).toEqual(expect.stringMatching(/^sdg_/));
+    expect((grantedBody.grant as JsonBody).downloadPath).toEqual(expect.stringContaining("/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_"));
+    expect(new Date(String((grantedBody.grant as JsonBody).expiresAt)).getTime()).toBeGreaterThan(Date.now());
+    expect(JSON.stringify(grantedBody)).not.toContain("file_sup-no-001-health-certificate");
+    expect(JSON.stringify(grantedBody)).not.toContain("objectKey");
+    expect(JSON.stringify(grantedBody)).not.toContain("storage");
+  });
+
   it("validates supplier directory query params and returns 404 for missing supplier", async () => {
     const invalid = await request("/v1/suppliers?limit=999");
     expect(invalid.status).toBe(400);

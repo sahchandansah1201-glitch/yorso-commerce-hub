@@ -118,6 +118,22 @@ export const supplierDocumentPayloadSchema = z.object({
   fileAssetId: z.string().min(1).max(120).nullable(),
 });
 
+export const supplierDocumentDownloadGrantSchema = z.object({
+  id: z.string().min(1).max(120),
+  supplierId: z.string().min(1).max(80),
+  documentId: z.string().min(1).max(80),
+  fileName: z.string().min(1).max(180),
+  downloadPath: z.string().min(1).max(360),
+  grantedAt: z.string().datetime(),
+  expiresAt: z.string().datetime(),
+});
+
+export const supplierDocumentDownloadGrantResponseSchema = z.object({
+  ok: z.literal(true),
+  grant: supplierDocumentDownloadGrantSchema,
+  requestId: z.string(),
+});
+
 export const supplierDirectoryRecordSchema = z.object({
   id: z.string().min(1).max(80),
   companyName: z.string().min(2).max(180),
@@ -217,6 +233,7 @@ export type SupplierDirectoryRecord = z.infer<typeof supplierDirectoryRecordSche
 export type SupplierDirectoryResponseSignal = z.infer<typeof supplierResponseSignalSchema>;
 export type SupplierDirectorySortBy = z.infer<typeof supplierDirectorySortBySchema>;
 export type SupplierDirectorySortDirection = z.infer<typeof supplierDirectorySortDirectionSchema>;
+export type SupplierDocumentDownloadGrant = z.infer<typeof supplierDocumentDownloadGrantSchema>;
 export type SupplierDocumentPayload = z.infer<typeof supplierDocumentPayloadSchema>;
 export type SupplierDocumentReadiness = z.infer<typeof supplierDocumentReadinessSchema>;
 export type SupplierFaqItem = z.infer<typeof supplierFaqItemSchema>;

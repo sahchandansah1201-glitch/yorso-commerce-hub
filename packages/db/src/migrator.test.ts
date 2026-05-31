@@ -46,6 +46,7 @@ describe("self-hosted DB migration planner", () => {
       "0032_supplier_profile_evidence_blocks",
       "0033_supplier_profile_legal_details",
       "0034_supplier_profile_restricted_documents",
+      "0035_supplier_document_download_grants",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -83,6 +84,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0032_supplier_profile_evidence_blocks.sql",
       "migrations/0033_supplier_profile_legal_details.sql",
       "migrations/0034_supplier_profile_restricted_documents.sql",
+      "migrations/0035_supplier_document_download_grants.sql",
     ]);
   });
 
@@ -132,6 +134,7 @@ describe("self-hosted DB migration planner", () => {
     const supplierProfileEvidenceBlocks = plan.migrations[32];
     const supplierProfileLegalDetails = plan.migrations[33];
     const supplierProfileRestrictedDocuments = plan.migrations[34];
+    const supplierDocumentDownloadGrants = plan.migrations[35];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -218,6 +221,9 @@ describe("self-hosted DB migration planner", () => {
     expect(supplierProfileRestrictedDocuments.dependsOn).toEqual(["0033_supplier_profile_legal_details"]);
     expect(supplierProfileRestrictedDocuments.sql).toContain("supplier_documents jsonb not null");
     expect(supplierProfileRestrictedDocuments.sql).toContain("yorso_suppliers_supplier_documents_array");
+    expect(supplierDocumentDownloadGrants.dependsOn).toEqual(["0034_supplier_profile_restricted_documents"]);
+    expect(supplierDocumentDownloadGrants.sql).toContain("create table if not exists yorso_supplier_document_download_grants");
+    expect(supplierDocumentDownloadGrants.sql).toContain("idx_yorso_supplier_document_grants_buyer_recent");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

@@ -22,10 +22,35 @@ export interface SupplierRepository {
     options?: SupplierRepositoryListOptions,
   ): Promise<{ suppliers: SupplierDirectoryRecord[]; total: number }>;
   getSupplierById(id: string): Promise<SupplierDirectoryRecord | null>;
+  recordDocumentDownloadGrant(input: SupplierDocumentDownloadGrantAuditInput): Promise<SupplierDocumentDownloadGrantAuditRecord>;
 }
 
 export interface SupplierRepositoryListOptions {
   privateSearchSupplierIds?: readonly string[];
+}
+
+export type SupplierDocumentDownloadGrantStatus =
+  | "granted"
+  | "access_denied"
+  | "document_not_found"
+  | "document_unavailable";
+
+export interface SupplierDocumentDownloadGrantAuditInput {
+  id: string;
+  buyerUserId: string;
+  supplierId: string;
+  documentId: string;
+  fileAssetId: string | null;
+  status: SupplierDocumentDownloadGrantStatus;
+  reason: string;
+  requestId: string;
+  downloadPath: string | null;
+  grantedAt: string | null;
+  expiresAt: string | null;
+}
+
+export interface SupplierDocumentDownloadGrantAuditRecord extends SupplierDocumentDownloadGrantAuditInput {
+  createdAt: string;
 }
 
 const cert = (code: string, label = code): SupplierCertificationBadge => ({ code, label, logo: null });
@@ -458,6 +483,8 @@ function compareSuppliers(
 }
 
 export class MemorySupplierRepository implements SupplierRepository {
+  private readonly documentGrantAudit: SupplierDocumentDownloadGrantAuditRecord[] = [];
+
   constructor(private readonly suppliers = demoSupplierRecords) {}
 
   async listSuppliers(query: SupplierDirectoryQuery, options: SupplierRepositoryListOptions = {}) {
@@ -474,5 +501,23 @@ export class MemorySupplierRepository implements SupplierRepository {
   async getSupplierById(id: string) {
     const supplier = this.suppliers.find((item) => item.id === id);
     return supplier ? { ...supplier } : null;
+  }
+
+  async recordDocumentDownloadGrant(input: SupplierDocumentDownloadGrantAuditInput) {
+    const record: SupplierDocumentDownloadGrantAuditRecord = {
+      ...input,
+      createdAt: new Date().toISOString(),
+    };
+    this.documentGrantAudit.push(record);
+    return structuredClone(record);
+  }
+
+  async listDocumentDownloadGrantAudit(input: { limit: number; offset: number }) {
+    return structuredClone(
+      this.documentGrantAudit
+        .slice()
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id))
+        .slice(input.offset, input.offset + input.limit),
+    );
   }
 }

@@ -15,7 +15,12 @@ import type {
   SupplierShipmentCase,
   SupplierType,
 } from "../../../../../packages/contracts/dist/index.js";
-import type { SupplierRepository, SupplierRepositoryListOptions } from "./repository.js";
+import type {
+  SupplierDocumentDownloadGrantAuditInput,
+  SupplierDocumentDownloadGrantAuditRecord,
+  SupplierRepository,
+  SupplierRepositoryListOptions,
+} from "./repository.js";
 
 export interface SupplierQueryClient {
   query<Row extends Record<string, unknown> = Record<string, unknown>>(
@@ -63,6 +68,8 @@ interface SupplierRow extends Record<string, unknown> {
   whatsapp: string | null;
   updated_at: Date | string;
 }
+
+interface SupplierDocumentDownloadGrantAuditRow extends SupplierDocumentDownloadGrantAuditRecord, Record<string, unknown> {}
 
 const ensureIso = (value: Date | string) => (value instanceof Date ? value.toISOString() : new Date(value).toISOString());
 const emptyProductionFacts = (): SupplierProductionFacts => ({
@@ -221,5 +228,57 @@ export class PostgresSupplierRepository implements SupplierRepository {
     );
 
     return result.rows[0] ? mapSupplier(result.rows[0]) : null;
+  }
+
+  async recordDocumentDownloadGrant(input: SupplierDocumentDownloadGrantAuditInput) {
+    const result = await this.client.query<SupplierDocumentDownloadGrantAuditRow>(
+      `
+        insert into yorso_supplier_document_download_grants (
+          id,
+          buyer_user_id,
+          supplier_id,
+          document_id,
+          file_asset_id,
+          status,
+          reason,
+          request_id,
+          download_path,
+          granted_at,
+          expires_at
+        ) values (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9,
+          $10::timestamptz,
+          $11::timestamptz
+        )
+        returning
+          id,
+          buyer_user_id as "buyerUserId",
+          supplier_id as "supplierId",
+          document_id as "documentId",
+          file_asset_id as "fileAssetId",
+          status,
+          reason,
+          request_id as "requestId",
+          download_path as "downloadPath",
+          granted_at as "grantedAt",
+          expires_at as "expiresAt",
+          created_at as "createdAt"
+      `,
+      [
+        input.id,
+        input.buyerUserId,
+        input.supplierId,
+        input.documentId,
+        input.fileAssetId,
+        input.status,
+        input.reason,
+        input.requestId,
+        input.downloadPath,
+        input.grantedAt,
+        input.expiresAt,
+      ],
+    );
+
+    return result.rows[0];
   }
 }

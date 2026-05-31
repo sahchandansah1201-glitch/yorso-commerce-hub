@@ -1621,3 +1621,41 @@ Required markers:
 - `supplier_documents`;
 - `qualified_unlocked`;
 - `locked buyer responses must contain null`.
+
+## Backend Phase 4F Supplier Document Download Grants Validation
+
+Run:
+
+```bash
+npm run contracts:build
+npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "issues supplier document download grants"
+npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts
+npm test -- src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-api.test.ts
+npm run test:db-migrations
+npm run test:db-contract
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `supplierDocumentDownloadGrantResponseSchema` is part of the typed
+  supplier-directory contract.
+- `POST /v1/suppliers/:supplierId/documents/:documentId/grant` requires an
+  authenticated account session.
+- The grant route re-checks supplier access and returns
+  `supplier_document_access_required` before document lookup for locked buyers.
+- Successful grant responses include a short-lived relative `downloadPath` but
+  no `fileAssetId`, storage key or direct file URL.
+- `MemorySupplierRepository` and `PostgresSupplierRepository` persist grant
+  attempts in audit storage.
+- Migration `0035_supplier_document_download_grants` exists and is guarded.
+
+Required markers:
+
+- `Backend Phase 4F`;
+- `Supplier Document Download Grant Endpoint`;
+- `supplierDocumentDownloadGrant`;
+- `supplier_document_download_grants`;
+- `qualified-only`;
+- `must never expose file_asset_id, storage keys or direct file URLs`.

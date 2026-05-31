@@ -4,6 +4,7 @@ import { methodNotAllowed, sendError, sendJson, sendValidationError, type ApiReq
 import {
   AccountSessionError,
   type AccountSessionAuthority,
+  resolveAuthenticatedAccountSession,
   resolveOptionalAuthenticatedAccountSession,
   sendAccountSessionError,
 } from "../auth/session.js";
@@ -20,6 +21,26 @@ export async function handleSupplierDirectoryRoute(
   url: URL,
 ) {
   try {
+    const documentGrantMatch = url.pathname.match(/^\/v1\/suppliers\/([^/]+)\/documents\/([^/]+)\/grant$/);
+    if (documentGrantMatch) {
+      if (request.method !== "POST") {
+        methodNotAllowed(response, context, "POST");
+        return true;
+      }
+
+      const supplierId = decodeURIComponent(documentGrantMatch[1]);
+      const documentId = decodeURIComponent(documentGrantMatch[2]);
+      const session = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      sendJson(
+        response,
+        200,
+        await service.createSupplierDocumentDownloadGrant(supplierId, documentId, context.requestId, {
+          buyerUserId: session.userId,
+        }),
+      );
+      return true;
+    }
+
     if (url.pathname === "/v1/suppliers") {
       if (request.method !== "GET") {
         methodNotAllowed(response, context, "GET");
@@ -60,6 +81,21 @@ export async function handleSupplierDirectoryRoute(
 
     if (error instanceof Error && error.message === "supplier_not_found") {
       sendError(response, 404, error.message, "Supplier was not found.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "supplier_document_access_required") {
+      sendError(response, 403, error.message, "Supplier document access is required.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "supplier_document_not_found") {
+      sendError(response, 404, error.message, "Supplier document was not found.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "supplier_document_unavailable") {
+      sendError(response, 409, error.message, "Supplier document is not available for download.", context);
       return true;
     }
 

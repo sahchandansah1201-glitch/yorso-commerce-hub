@@ -223,4 +223,38 @@ describe("supplier directory API adapter", () => {
     expect((fetchImpl.mock.calls[0][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
     expect((fetchImpl.mock.calls[1][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
   });
+
+  it("requests self-hosted supplier document download grants without local preview fallback", async () => {
+    const localClient = createSupplierDirectoryApiClient({ baseUrl: "" });
+    await expect(localClient.requestDocumentDownloadGrant("sup-no-001", "doc-1")).rejects.toThrow(
+      "supplier_document_grant_requires_api",
+    );
+
+    const fetchImpl = vi.fn(async (_url: string, _init?: RequestInit) => new Response(JSON.stringify({
+      ok: true,
+      grant: {
+        id: "sdg_grant_1",
+        supplierId: "sup-no-001",
+        documentId: "sup-no-001-health-certificate",
+        fileName: "sup-no-001-health-certificate.pdf",
+        downloadPath: "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_grant_1",
+        grantedAt: "2026-05-31T08:00:00.000Z",
+        expiresAt: "2026-05-31T08:15:00.000Z",
+      },
+      requestId: "req-grant",
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+
+    const client = createSupplierDirectoryApiClient({ baseUrl: "http://localhost:3000", fetchImpl: fetchImpl as unknown as typeof fetch });
+    const grant = await client.requestDocumentDownloadGrant("sup-no-001", "sup-no-001-health-certificate");
+
+    expect(grant).toMatchObject({
+      id: "sdg_grant_1",
+      supplierId: "sup-no-001",
+      documentId: "sup-no-001-health-certificate",
+    });
+    expect(fetchImpl.mock.calls[0][0]).toBe("http://localhost:3000/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/grant");
+    expect(fetchImpl.mock.calls[0][1]?.method).toBe("POST");
+    expect((fetchImpl.mock.calls[0][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
+    expect(JSON.stringify(grant)).not.toContain("fileAssetId");
+  });
 });

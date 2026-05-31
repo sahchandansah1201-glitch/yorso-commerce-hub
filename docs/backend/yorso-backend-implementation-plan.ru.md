@@ -671,6 +671,8 @@ Exit criteria:
 
 - locked users не получают скрытые supplier fields;
 - qualified users видят approved data;
+- document download grant выдаётся только после повторной проверки supplier
+  access и не раскрывает `fileAssetId`, storage keys или прямые file URLs;
 - supplier owner видит свой полный профиль;
 - browser и DOM leak tests проходят.
 

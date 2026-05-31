@@ -404,6 +404,17 @@
       "dependsOn": [
         "0033_supplier_profile_legal_details"
       ]
+    },
+    {
+      "id": "0035_supplier_document_download_grants",
+      "file": "migrations/0035_supplier_document_download_grants.sql",
+      "description": "Create qualified-only supplier document download grant audit records.",
+      "ownedTables": [
+        "yorso_supplier_document_download_grants"
+      ],
+      "dependsOn": [
+        "0034_supplier_profile_restricted_documents"
+      ]
     }
   ]
 }

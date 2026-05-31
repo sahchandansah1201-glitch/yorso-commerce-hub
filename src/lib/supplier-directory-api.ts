@@ -96,6 +96,22 @@ interface SupplierDirectoryDetailResponse {
   requestId: string;
 }
 
+export interface SupplierDocumentDownloadGrant {
+  id: string;
+  supplierId: string;
+  documentId: string;
+  fileName: string;
+  downloadPath: string;
+  grantedAt: string;
+  expiresAt: string;
+}
+
+interface SupplierDocumentDownloadGrantResponse {
+  ok: true;
+  grant: SupplierDocumentDownloadGrant;
+  requestId: string;
+}
+
 export interface SupplierDirectoryClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -267,10 +283,11 @@ export function createSupplierDirectoryApiClient(options: SupplierDirectoryClien
   const fetchImpl = options.fetchImpl ?? fetch;
   const enabled = Boolean(baseUrl);
 
-  const request = async <T>(path: string): Promise<T> => {
+  const request = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
     const response = await fetchImpl(`${baseUrl}${path}`, {
-      method: "GET",
+      method: init.method ?? "GET",
       headers: supplierDirectoryHeaders(),
+      body: init.body,
     });
     const body = await response.json() as T & { error?: { code?: string; message?: string } };
     if (!response.ok) throw new Error(body.error?.code ?? `supplier_directory_api_${response.status}`);
@@ -317,6 +334,17 @@ export function createSupplierDirectoryApiClient(options: SupplierDirectoryClien
         `/v1/suppliers/${encodeURIComponent(id)}?${params.toString()}`,
       );
       return response.supplier;
+    },
+    async requestDocumentDownloadGrant(supplierId: string, documentId: string) {
+      if (!enabled) {
+        throw new Error("supplier_document_grant_requires_api");
+      }
+
+      const response = await request<SupplierDocumentDownloadGrantResponse>(
+        `/v1/suppliers/${encodeURIComponent(supplierId)}/documents/${encodeURIComponent(documentId)}/grant`,
+        { method: "POST" },
+      );
+      return response.grant;
     },
   };
 }

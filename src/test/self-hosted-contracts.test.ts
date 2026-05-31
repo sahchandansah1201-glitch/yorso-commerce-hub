@@ -19,6 +19,7 @@ import {
   supplierDirectoryRecordSchema,
   supplierAccessNotificationsAckResponseSchema,
   supplierAccessNotificationsAckSchema,
+  supplierDocumentDownloadGrantResponseSchema,
   userProfileSchema,
 } from "../../packages/contracts/src";
 
@@ -442,6 +443,26 @@ describe("self-hosted account/company contracts", () => {
 
     expect(() => supplierDirectoryQuerySchema.parse({ limit: 999 })).toThrow();
     expect(() => supplierDirectoryQuerySchema.parse({ countryCode: "NOR" })).toThrow();
+  });
+
+  it("accepts bounded supplier document download grant responses without asset leakage", () => {
+    const parsed = supplierDocumentDownloadGrantResponseSchema.parse({
+      ok: true,
+      grant: {
+        id: "sdg_11111111-1111-4111-8111-111111111111",
+        supplierId: "sup-contract-1",
+        documentId: "contract-doc-health-1",
+        fileName: "contract-health-certificate.pdf",
+        downloadPath: "/v1/suppliers/sup-contract-1/documents/contract-doc-health-1/download?grantId=sdg_11111111-1111-4111-8111-111111111111",
+        grantedAt: "2026-05-31T08:00:00.000Z",
+        expiresAt: "2026-05-31T08:15:00.000Z",
+      },
+      requestId: "req_1",
+    });
+
+    expect(parsed.grant.downloadPath).toContain("/v1/suppliers/sup-contract-1/documents/contract-doc-health-1/download");
+    expect(JSON.stringify(parsed)).not.toContain("fileAssetId");
+    expect(JSON.stringify(parsed)).not.toContain("objectKey");
   });
 
   it("accepts bounded supplier access notification acknowledgement payloads", () => {

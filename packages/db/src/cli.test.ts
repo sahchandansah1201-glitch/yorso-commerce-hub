@@ -69,6 +69,7 @@ describe("self-hosted DB migration CLI", () => {
     expect(output).toContain("0032_supplier_profile_evidence_blocks planned");
     expect(output).toContain("0033_supplier_profile_legal_details planned");
     expect(output).toContain("0034_supplier_profile_restricted_documents planned");
+    expect(output).toContain("0035_supplier_document_download_grants planned");
   });
 
   it("prints static dry-run apply without requiring a database", () => {
@@ -76,7 +77,7 @@ describe("self-hosted DB migration CLI", () => {
 
     expect(output).toContain("Dry-run apply preview from local plan");
     expect(output).toContain("dryRun=true");
-    expect(output).toContain("pending=35");
+    expect(output).toContain("pending=36");
     expect(output).toContain("pending 0007_supplier_access_flow");
     expect(output).toContain("pending 0008_access_notification_ack");
     expect(output).toContain("pending 0009_supplier_directory_pagination_sort");
@@ -105,6 +106,7 @@ describe("self-hosted DB migration CLI", () => {
     expect(output).toContain("pending 0032_supplier_profile_evidence_blocks");
     expect(output).toContain("pending 0033_supplier_profile_legal_details");
     expect(output).toContain("pending 0034_supplier_profile_restricted_documents");
+    expect(output).toContain("pending 0035_supplier_document_download_grants");
   });
 
   it("blocks live apply without explicit confirmation", () => {

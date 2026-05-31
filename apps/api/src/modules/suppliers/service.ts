@@ -1,4 +1,6 @@
+import { randomUUID } from "node:crypto";
 import {
+  supplierDocumentDownloadGrantResponseSchema,
   supplierDirectoryDetailResponseSchema,
   supplierDirectoryItemSchema,
   supplierDirectoryListResponseSchema,
@@ -8,7 +10,7 @@ import {
   type SupplierDirectoryRecord,
 } from "../../../../../packages/contracts/dist/index.js";
 import type { SupplierAccessRepository } from "../access/repository.js";
-import type { SupplierRepository } from "./repository.js";
+import type { SupplierDocumentDownloadGrantStatus, SupplierRepository } from "./repository.js";
 
 export class SupplierDirectoryService {
   constructor(
@@ -61,6 +63,102 @@ export class SupplierDirectoryService {
     });
   }
 
+  async createSupplierDocumentDownloadGrant(
+    supplierId: string,
+    documentId: string,
+    requestId: string,
+    viewer: { buyerUserId: string },
+  ) {
+    const supplier = await this.repository.getSupplierById(supplierId);
+    if (!supplier) throw new Error("supplier_not_found");
+
+    const hasAccess = this.accessRepository
+      ? await this.accessRepository.hasSupplierAccess({ buyerUserId: viewer.buyerUserId, supplierId })
+      : false;
+    if (!hasAccess) {
+      await this.recordDocumentGrantAttempt({
+        buyerUserId: viewer.buyerUserId,
+        supplierId,
+        documentId,
+        fileAssetId: null,
+        status: "access_denied",
+        reason: "supplier_access_required",
+        requestId,
+        downloadPath: null,
+        grantedAt: null,
+        expiresAt: null,
+      });
+      throw new Error("supplier_document_access_required");
+    }
+
+    const document = supplier.supplierDocuments.find((item) => item.id === documentId);
+    if (!document) {
+      await this.recordDocumentGrantAttempt({
+        buyerUserId: viewer.buyerUserId,
+        supplierId,
+        documentId,
+        fileAssetId: null,
+        status: "document_not_found",
+        reason: "supplier_document_not_found",
+        requestId,
+        downloadPath: null,
+        grantedAt: null,
+        expiresAt: null,
+      });
+      throw new Error("supplier_document_not_found");
+    }
+
+    if (!document.fileAssetId || !document.fileName || document.status !== "approved") {
+      await this.recordDocumentGrantAttempt({
+        buyerUserId: viewer.buyerUserId,
+        supplierId,
+        documentId,
+        fileAssetId: document.fileAssetId,
+        status: "document_unavailable",
+        reason: "supplier_document_unavailable",
+        requestId,
+        downloadPath: null,
+        grantedAt: null,
+        expiresAt: null,
+      });
+      throw new Error("supplier_document_unavailable");
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 15 * 60_000);
+    const grantId = `sdg_${randomUUID()}`;
+    const downloadPath = `/v1/suppliers/${encodeURIComponent(supplierId)}/documents/${encodeURIComponent(documentId)}/download?grantId=${encodeURIComponent(grantId)}`;
+    const responseGrant = {
+      id: grantId,
+      supplierId,
+      documentId,
+      fileName: document.fileName,
+      downloadPath,
+      grantedAt: now.toISOString(),
+      expiresAt: expiresAt.toISOString(),
+    };
+
+    await this.recordDocumentGrantAttempt({
+      id: responseGrant.id,
+      buyerUserId: viewer.buyerUserId,
+      supplierId,
+      documentId,
+      fileAssetId: document.fileAssetId,
+      status: "granted",
+      reason: "granted",
+      requestId,
+      downloadPath,
+      grantedAt: responseGrant.grantedAt,
+      expiresAt: responseGrant.expiresAt,
+    });
+
+    return supplierDocumentDownloadGrantResponseSchema.parse({
+      ok: true,
+      grant: responseGrant,
+      requestId,
+    });
+  }
+
   private async listAccessibleSupplierIds(
     requested: SupplierDirectoryAccessLevel,
     viewer: { buyerUserId: string } | null,
@@ -92,6 +190,26 @@ export class SupplierDirectoryService {
       supplierId,
     });
     return hasAccess ? "qualified_unlocked" : "registered_locked";
+  }
+
+  private async recordDocumentGrantAttempt(input: {
+    id?: string;
+    buyerUserId: string;
+    supplierId: string;
+    documentId: string;
+    fileAssetId: string | null;
+    status: SupplierDocumentDownloadGrantStatus;
+    reason: string;
+    requestId: string;
+    downloadPath: string | null;
+    grantedAt: string | null;
+    expiresAt: string | null;
+  }) {
+    const { id, ...record } = input;
+    await this.repository.recordDocumentDownloadGrant({
+      id: id ?? `sdga_${randomUUID()}`,
+      ...record,
+    });
   }
 }
 

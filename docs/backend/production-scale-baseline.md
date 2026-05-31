@@ -5655,6 +5655,67 @@ Marker: locked buyer responses must contain null.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4F Supplier Document Download Grant Endpoint
+
+Phase 4F adds a qualified-only supplier document download grant endpoint while
+keeping `/suppliers/:supplierId` metadata-only. The grant response is typed by
+`supplierDocumentDownloadGrantResponseSchema` and excludes `fileAssetId`, raw
+storage keys and direct file URLs.
+
+Expected read/write profile:
+
+- Grant issuance is one authenticated `POST
+  /v1/suppliers/:supplierId/documents/:documentId/grant` per buyer action.
+- Each request performs one supplier detail read, one supplier access check and
+  one append-only audit insert into `yorso_supplier_document_download_grants`.
+- No list/profile route polling, scheduler or background worker is introduced.
+
+Cache, queue and backpressure strategy:
+
+- No queue is needed for synchronous grant issuance.
+- API request guardrails, auth session validation and supplier access checks
+  remain the backpressure boundary.
+- Grant TTL is 15 minutes; replay window is intentionally short.
+
+Database indexing and pagination strategy:
+
+- Migration `0035_supplier_document_download_grants` creates the append-only
+  audit table.
+- Buyer recent, supplier recent and status recent indexes support bounded admin
+  review/audit reads later.
+- Granted rows have an expiry index for future cleanup/download validation.
+
+Failure mode and graceful degradation:
+
+- Missing or invalid session fails before grant logic.
+- Missing supplier returns `supplier_not_found`.
+- Missing supplier access returns `supplier_document_access_required` and does
+  not check document existence.
+- Non-downloadable documents return `supplier_document_unavailable`.
+- Audit persistence failure fails closed; no grant is returned without audit.
+
+Observability and load-test plan:
+
+- Release validation must include API route tests, supplier repository audit
+  persistence tests, DB migration/manifest tests, `check:self-hosted-api`,
+  `check:production-scale-baseline`, TypeScript, lint and production build.
+- Load tests should cover denied and granted attempts at the same
+  buyer/supplier/document tuple and audit table growth under concurrent writes.
+- Future byte-serving route must re-check grant expiry before streaming.
+
+Validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "issues supplier document download grants"`.
+
+Marker: Backend Phase 4F.
+Marker: Supplier Document Download Grant Endpoint.
+Marker: supplierDocumentDownloadGrant.
+Marker: supplier_document_download_grants.
+Marker: 0035_supplier_document_download_grants.
+Marker: qualified-only.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,
