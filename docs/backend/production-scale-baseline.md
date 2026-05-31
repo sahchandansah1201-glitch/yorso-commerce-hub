@@ -6550,6 +6550,67 @@ Marker: admin.supplier_document_management_events.read.
 Marker: admin.supplier_document_management_events.export.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4R - Supplier Document Management Events Admin UI
+
+Status: implemented.
+
+Phase 4R adds a read-only admin UI over the Phase 4Q supplier document
+management event listing/export endpoints. No new backend tables, schedulers,
+lifecycle mutations or storage behavior changes are introduced in this phase.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Add read-only admin UI route. | `/admin/supplier-document-management-events` renders a bounded event list. | Add deep links only when supplier/document views exist. |
+| Add adapter/hook contract and tests. | Adapter/hook/page unit tests cover disabled/session/forbidden/ready states. | Cursor pagination only if audit volume requires it. |
+| Keep storage internals private in the browser. | Frontend rejects storage-only fields and keeps session ids out of DOM. | Preserve boundary when adding download UX. |
+| Add browser smoke gate. | `smoke:e2e:admin-supplier-document-management-events` covers list + export. | Expand only if the UI becomes mutation-capable. |
+
+Expected read/write profile:
+
+- Admin/operator read-only traffic; not on the buyer/supplier critical path.
+- UI performs one bounded list request per refresh and optional bounded export
+  requests; no full-table exports exist.
+- The only write is the existing route-level API audit sink.
+
+Cache, queue and backpressure strategy:
+
+- No application cache is added; audit visibility must be current.
+- UI uses bounded `limit/offset` and relies on existing request timeouts and
+  fail-closed session handling.
+
+Failure mode and graceful degradation:
+
+- If VITE_YORSO_API_URL is missing, UI shows an explicit disabled state.
+- Missing/invalid session shows an explicit session-required state.
+- Non-admin accounts show an explicit forbidden state.
+- Errors surface a bounded message without leaking backend URLs or storage
+  fields.
+
+Observability and load-test plan:
+
+- Admin list requests emit `admin.supplier_document_management_events.read`.
+- Admin exports emit `admin.supplier_document_management_events.export`.
+- Browser smoke covers:
+  - session headers (`x-yorso-user-id`, `x-yorso-session-id`);
+  - list + JSON/CSV export wiring;
+  - storage-redaction guard in the DOM.
+
+Validation:
+
+- `npm run test:admin-supplier-document-management-events-frontend`;
+- `npm run smoke:e2e:admin-supplier-document-management-events`;
+- `npm run check:self-hosted-api`;
+- `npm run check:production-scale-baseline`.
+
+Marker: Backend Phase 4R Supplier Document Management Events Admin UI.
+Marker: /admin/supplier-document-management-events.
+Marker: createAdminSupplierDocumentManagementEventsApiClient.
+Marker: useAdminSupplierDocumentManagementEvents.
+Marker: admin-supplier-document-management-events.spec.ts.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

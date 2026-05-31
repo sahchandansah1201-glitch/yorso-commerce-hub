@@ -105,6 +105,13 @@ const requiredFiles = [
   "src/pages/admin/AdminSupplierDocumentAudit.tsx",
   "src/pages/admin/AdminSupplierDocumentAudit.test.tsx",
   "e2e/admin-supplier-document-audit.spec.ts",
+  "src/lib/admin-supplier-document-management-events-api.ts",
+  "src/lib/admin-supplier-document-management-events-api.test.ts",
+  "src/lib/use-admin-supplier-document-management-events.ts",
+  "src/lib/use-admin-supplier-document-management-events.test.tsx",
+  "src/pages/admin/AdminSupplierDocumentManagementEvents.tsx",
+  "src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx",
+  "e2e/admin-supplier-document-management-events.spec.ts",
   "apps/api/src/modules/access/factory.ts",
   "apps/api/src/modules/access/postgres-repository.ts",
   "apps/api/src/modules/access/repository.ts",
@@ -277,6 +284,7 @@ const requiredFiles = [
   "docs/backend/phase-4i-supplier-document-download-audit-listing.md",
   "docs/backend/phase-4j-supplier-document-grant-audit-listing.md",
   "docs/backend/phase-4k-supplier-document-audit-admin-ui.md",
+  "docs/backend/phase-4r-supplier-document-management-events-admin-ui.md",
   "docs/backend/phase-4l-supplier-document-management-rules.md",
   "docs/backend/phase-4m-supplier-document-owner-create.md",
   "docs/backend/phase-4n-supplier-document-admin-decision.md",
@@ -382,6 +390,7 @@ const adminOperationsRoutes = read("apps/api/src/modules/admin-operations/routes
 const adminOperationsService = read("apps/api/src/modules/admin-operations/service.ts");
 const adminOperationsContract = read("packages/contracts/src/admin-operations.ts");
 const adminOperatorNav = read("src/components/admin/AdminOperatorNav.tsx");
+const appSource = read("src/App.tsx");
 const adminOperationsApi = read("src/lib/admin-operations-api.ts");
 const adminOperationsApiTest = read("src/lib/admin-operations-api.test.ts");
 const useAdminOperationsOverview = read("src/lib/use-admin-operations-overview.ts");
@@ -436,6 +445,13 @@ const useAdminSupplierDocumentAuditTest = read("src/lib/use-admin-supplier-docum
 const adminSupplierDocumentAuditPage = read("src/pages/admin/AdminSupplierDocumentAudit.tsx");
 const adminSupplierDocumentAuditPageTest = read("src/pages/admin/AdminSupplierDocumentAudit.test.tsx");
 const adminSupplierDocumentAuditE2E = read("e2e/admin-supplier-document-audit.spec.ts");
+const adminSupplierDocumentManagementEventsApi = read("src/lib/admin-supplier-document-management-events-api.ts");
+const adminSupplierDocumentManagementEventsApiTest = read("src/lib/admin-supplier-document-management-events-api.test.ts");
+const useAdminSupplierDocumentManagementEvents = read("src/lib/use-admin-supplier-document-management-events.ts");
+const useAdminSupplierDocumentManagementEventsTest = read("src/lib/use-admin-supplier-document-management-events.test.tsx");
+const adminSupplierDocumentManagementEventsPage = read("src/pages/admin/AdminSupplierDocumentManagementEvents.tsx");
+const adminSupplierDocumentManagementEventsPageTest = read("src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx");
+const adminSupplierDocumentManagementEventsE2E = read("e2e/admin-supplier-document-management-events.spec.ts");
 const accessFactory = read("apps/api/src/modules/access/factory.ts");
 const accessPostgresRepository = read("apps/api/src/modules/access/postgres-repository.ts");
 const accessRepository = read("apps/api/src/modules/access/repository.ts");
@@ -545,6 +561,7 @@ const phase4hSupplierDocumentDownloadUi = read("docs/backend/phase-4h-supplier-d
 const phase4iSupplierDocumentDownloadAuditListing = read("docs/backend/phase-4i-supplier-document-download-audit-listing.md");
 const phase4jSupplierDocumentGrantAuditListing = read("docs/backend/phase-4j-supplier-document-grant-audit-listing.md");
 const phase4kSupplierDocumentAuditAdminUi = read("docs/backend/phase-4k-supplier-document-audit-admin-ui.md");
+const phase4rSupplierDocumentManagementEventsAdminUi = read("docs/backend/phase-4r-supplier-document-management-events-admin-ui.md");
 const phase4lSupplierDocumentManagementRules = read("docs/backend/phase-4l-supplier-document-management-rules.md");
 const phase4mSupplierDocumentOwnerCreate = read("docs/backend/phase-4m-supplier-document-owner-create.md");
 const phase4nSupplierDocumentAdminDecision = read("docs/backend/phase-4n-supplier-document-admin-decision.md");
@@ -865,6 +882,12 @@ if (pkg.scripts["test:admin-supplier-document-audit-frontend"] !== "vitest run s
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-supplier-document-audit-frontend")) {
   failures.push("package.json: ci:core must run the supplier document audit frontend tests");
 }
+if (pkg.scripts["test:admin-supplier-document-management-events-frontend"] !== "vitest run src/lib/admin-supplier-document-management-events-api.test.ts src/lib/use-admin-supplier-document-management-events.test.tsx src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx") {
+  failures.push("package.json: test:admin-supplier-document-management-events-frontend must cover supplier document management events adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-supplier-document-management-events-frontend")) {
+  failures.push("package.json: ci:core must run supplier document management events frontend tests");
+}
 if (pkg.scripts["smoke:e2e:admin-runtime-status"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-runtime-status:run") {
   failures.push("package.json: smoke:e2e:admin-runtime-status must build with the self-hosted admin runtime adapter enabled");
 }
@@ -994,6 +1017,17 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-supplier-document
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin supplier document audit browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-supplier-document-audit");
+if (pkg.scripts["smoke:e2e:admin-supplier-document-management-events"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-supplier-document-management-events:run") {
+  failures.push("package.json: smoke:e2e:admin-supplier-document-management-events must build with the self-hosted supplier document management events adapter enabled");
+}
+if (pkg.scripts["smoke:e2e:admin-supplier-document-management-events:run"] !== "E2E_USE_WEB_SERVER=1 playwright test e2e/admin-supplier-document-management-events.spec.ts --project=chromium") {
+  failures.push("package.json: smoke:e2e:admin-supplier-document-management-events:run must execute e2e/admin-supplier-document-management-events.spec.ts");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-supplier-document-management-events")) {
+  failures.push("package.json: ci:full must include supplier document management events browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin supplier document management events browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-supplier-document-management-events");
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
 }
@@ -3270,6 +3304,18 @@ for (const marker of [
 ]) {
   requireText("docs/backend/phase-4q-supplier-document-management-events.md", phase4qSupplierDocumentManagementEvents, marker);
 }
+for (const marker of [
+  "Backend Phase 4R",
+  "Supplier Document Management Events Admin UI",
+  "/admin/supplier-document-management-events",
+  "createAdminSupplierDocumentManagementEventsApiClient",
+  "useAdminSupplierDocumentManagementEvents",
+  "admin-supplier-document-management-events.spec.ts",
+  "План / факт",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4r-supplier-document-management-events-admin-ui.md", phase4rSupplierDocumentManagementEventsAdminUi, marker);
+}
 for (const [file, text, marker] of [
   ["packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementCreateResponseSchema"],
   ["packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementDecisionResponseSchema"],
@@ -3332,6 +3378,30 @@ for (const [file, text, marker] of [
   ["scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_document_admin_lifecycle_cleanup=ok"],
   ["scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_document_management_events_export=ok"],
   ["packages/db/migrations/0037_supplier_document_management_events.sql", supplierDocumentManagementEventsMigration, "yorso_supplier_document_management_events"],
+]) {
+  requireText(file, text, marker);
+}
+for (const [file, text, marker] of [
+  ["src/lib/admin-supplier-document-management-events-api.ts", adminSupplierDocumentManagementEventsApi, "createAdminSupplierDocumentManagementEventsApiClient"],
+  ["src/lib/admin-supplier-document-management-events-api.ts", adminSupplierDocumentManagementEventsApi, "/v1/admin/supplier-documents/management-events"],
+  ["src/lib/admin-supplier-document-management-events-api.ts", adminSupplierDocumentManagementEventsApi, "/v1/admin/supplier-documents/management-events/export"],
+  ["src/lib/admin-supplier-document-management-events-api.ts", adminSupplierDocumentManagementEventsApi, "admin_supplier_document_management_events_invalid_response"],
+  ["src/lib/admin-supplier-document-management-events-api.test.ts", adminSupplierDocumentManagementEventsApiTest, "lists management events with bounded filters"],
+  ["src/lib/admin-supplier-document-management-events-api.test.ts", adminSupplierDocumentManagementEventsApiTest, "exports sanitized JSON and CSV event handoffs"],
+  ["src/lib/admin-supplier-document-management-events-api.test.ts", adminSupplierDocumentManagementEventsApiTest, "rejects storage-leaking responses"],
+  ["src/lib/use-admin-supplier-document-management-events.ts", useAdminSupplierDocumentManagementEvents, "useAdminSupplierDocumentManagementEvents"],
+  ["src/lib/use-admin-supplier-document-management-events.ts", useAdminSupplierDocumentManagementEvents, "client.list"],
+  ["src/lib/use-admin-supplier-document-management-events.test.tsx", useAdminSupplierDocumentManagementEventsTest, "loads management events and supports refresh"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-page"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-export-csv"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "AdminOperatorNav"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx", adminSupplierDocumentManagementEventsPageTest, "renders sanitized management event rows and exports JSON/CSV"],
+  ["src/components/admin/AdminOperatorNav.tsx", adminOperatorNav, "/admin/supplier-document-management-events"],
+  ["src/App.tsx", appSource, "/admin/supplier-document-management-events"],
+  ["src/test/app-route-code-splitting.test.ts", read("src/test/app-route-code-splitting.test.ts"), "AdminSupplierDocumentManagementEvents"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "Phase 4R browser guard"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "x-yorso-user-id"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "admin-document-management-events-page"],
 ]) {
   requireText(file, text, marker);
 }

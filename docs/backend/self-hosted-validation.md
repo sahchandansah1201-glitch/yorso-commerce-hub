@@ -2014,6 +2014,39 @@ Required markers:
 - `admin.supplier_document_management_events.export`;
 - `10,000 concurrent users`.
 
+## Backend Phase 4R Supplier Document Management Events Admin UI Validation
+
+Run:
+
+```bash
+npm run test:admin-supplier-document-management-events-frontend
+npm run smoke:e2e:admin-supplier-document-management-events
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `/admin/supplier-document-management-events` renders the bounded event list
+  in API-enabled mode.
+- Requests carry `x-yorso-user-id` and `x-yorso-session-id` headers from the
+  self-hosted buyer session.
+- Disabled mode (missing `VITE_YORSO_API_URL`) and session-required mode are
+  explicit and fail closed.
+- Non-admin sessions render the localized admin-role guard state.
+- Export controls call the Phase 4Q export endpoint and do not render
+  storage-only fields or session identifiers in the DOM.
+
+Required markers:
+
+- `Backend Phase 4R`;
+- `Supplier Document Management Events Admin UI`;
+- `/admin/supplier-document-management-events`;
+- `createAdminSupplierDocumentManagementEventsApiClient`;
+- `useAdminSupplierDocumentManagementEvents`;
+- `admin-supplier-document-management-events.spec.ts`;
+- `10,000 concurrent users`.
+
 ## Backend Phase 4P Supplier Document Admin Lifecycle Cleanup Validation
 
 Run:

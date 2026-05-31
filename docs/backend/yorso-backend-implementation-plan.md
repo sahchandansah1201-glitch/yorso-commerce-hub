@@ -1069,3 +1069,43 @@ Plan / Fact:
 Next scoped backend direction after Phase 4Q: either an admin UI over
 management events, or automated approved-document expiry scheduler. Do not mix
 UI and scheduler work in one scope.
+
+## Backend Phase 4R Checkpoint - Supplier Document Management Events Admin UI
+
+Status: implemented.
+
+Phase 4R adds a read-only admin UI over the Phase 4Q management event
+listing/export endpoints. This increment does not add new backend tables,
+schedulers, lifecycle mutations or file-storage behavior changes.
+
+Implemented:
+
+- admin route `/admin/supplier-document-management-events`;
+- frontend API adapter `createAdminSupplierDocumentManagementEventsApiClient`
+  over:
+  - `GET /v1/admin/supplier-documents/management-events`
+  - `GET /v1/admin/supplier-documents/management-events/export?format=json|csv`
+- hook `useAdminSupplierDocumentManagementEvents` with explicit disabled,
+  session-required, forbidden, loading and error states;
+- UI filters for action, supplierId, documentId and actorUserId plus bounded
+  paging parameters;
+- JSON/CSV export controls wired to the Phase 4Q export endpoint;
+- UI redaction guard: browser-facing state rejects `fileAssetId`, object keys,
+  storage keys, `downloadPath` and direct URLs;
+- unit tests for adapter/hook/page plus browser smoke
+  `e2e/admin-supplier-document-management-events.spec.ts`.
+
+Plan / Fact:
+
+| Plan | Done | Will be implemented |
+|---|---|---|
+| Add a read-only admin page. | `/admin/supplier-document-management-events` renders management events. | Deep-link to supplier/document views only if those surfaces exist. |
+| Add a self-hosted admin adapter/hook. | Adapter + hook wired and tested. | Cursor pagination only if audit volume requires it. |
+| Keep storage internals private. | Adapter rejects storage-only fields; page tests assert no leakage. | Preserve boundary when adding download UX. |
+| Add export handoff. | JSON/CSV export controls call the export endpoint. | Scheduled exports/reports remain separate. |
+| Add release gates. | Frontend tests + browser smoke wired into CI scripts. | Keep as baseline for later admin UI expansions. |
+
+Next scoped backend direction after Phase 4R: either a single admin surface that
+combines decision/lifecycle actions (approve/reject/expire/delete) with the same
+bounded redaction guarantees, or an automated approved-document expiry
+scheduler decision. Keep mutation UI and scheduler work scoped separately.

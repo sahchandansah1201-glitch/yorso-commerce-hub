@@ -19,6 +19,12 @@ describe("app route code splitting", () => {
     expect(appSource).toContain(
       'const AdminSupplierDocumentAudit = lazy(() => import("./pages/admin/AdminSupplierDocumentAudit.tsx"));',
     );
+    expect(appSource).toContain(
+      'const AdminSupplierDocumentManagementEvents = lazy(() => import("./pages/admin/AdminSupplierDocumentManagementEvents.tsx"));',
+    );
+    expect(appSource).toContain(
+      '<Route path="/admin/supplier-document-management-events" element={<AdminSupplierDocumentManagementEvents />} />',
+    );
     expect(appSource).toContain("<Suspense fallback={<RouteFallback />}>");
     expect(appSource).toContain('import { RouteChunkErrorBoundary } from "./components/routing/RouteChunkErrorBoundary.tsx";');
     expect(appSource).toContain("<RouteChunkErrorBoundary>");

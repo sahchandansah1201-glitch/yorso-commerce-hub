@@ -170,6 +170,9 @@ jobs:
       - name: Run admin supplier document audit browser smoke
         run: npm run smoke:e2e:admin-supplier-document-audit
 
+      - name: Run admin supplier document management events browser smoke
+        run: npm run smoke:e2e:admin-supplier-document-management-events
+
       - name: Run admin incidents browser smoke
         run: npm run smoke:e2e:admin-incidents
 
