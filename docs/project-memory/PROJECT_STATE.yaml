@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "06ef6922"
-  head_summary: "Backend Phase 4H supplier document download UI integration; release validation passed."
+  head_commit: "bd05bc60"
+  head_summary: "Backend Phase 4I supplier document download audit listing; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4H implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4I implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,24 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4h_supplier_document_download_ui"
-  summary: "Qualified supplier profile document rows now download through self-hosted document grants and API file serving without exposing backend storage identifiers."
+  id: "backend_phase_4i_supplier_document_download_audit_listing"
+  summary: "Admin users can read bounded supplier document download audit events without browser-facing file asset leakage."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4I implementation is recorded in docs/backend/phase-4i-supplier-document-download-audit-listing.md."
+    - "GET /v1/admin/supplier-documents/download-events requires an authenticated admin session; missing sessions return 401 and buyer sessions return admin_role_required."
+    - "packages/contracts/src/supplier-directory.ts defines supplierDocumentDownloadEventAdminQuerySchema and supplierDocumentDownloadEventAdminListResponseSchema with bounded limit<=100 and offset<=10000."
+    - "apps/api/src/modules/suppliers/admin-routes.ts emits audit action admin.supplier_document_download_events.read for admin listing attempts."
+    - "apps/api/src/modules/suppliers/service.ts shapes admin event responses without fileAssetId, object keys, storage keys, direct storage URLs or downloadPath."
+    - "apps/api/src/modules/suppliers/postgres-repository.ts reads yorso_supplier_document_download_events with optional status/supplierId/buyerUserId filters and order created_at desc, id asc."
+    - "apps/api/src/server.test.ts covers missing session, non-admin block, real grant+download event creation, admin listing and storage-id redaction."
+    - "apps/api/src/modules/suppliers/__tests__/repository.test.ts covers bounded indexed PostgreSQL listing filters."
+    - "check:self-hosted-api and check:production-scale-baseline guard the Phase 4I docs, route, contract, repository/service markers and 10,000 concurrent-user review."
+    - "Phase 4I release validation passed: TDD red/green API route test, supplier repository test, test:api, self-hosted guard, production-scale guard, TypeScript build graph, lint, production build, full npm test and git diff --check."
+    - "Phase 4I is committed locally at bd05bc60."
+    - "Recommended next scoped workstream: Backend Phase 4J Supplier Document Grant Audit Listing."
     - "Phase 4H implementation is recorded in docs/backend/phase-4h-supplier-document-download-ui.md."
     - "src/lib/supplier-directory-api.ts exposes downloadSupplierDocument, which requests a self-hosted document grant and then fetches the returned relative API downloadPath with buyer session headers."
     - "src/pages/SupplierProfile.tsx renders data-testid=\"supplier-document-download\" only for approved qualified supplier documents when VITE_YORSO_API_URL is configured."

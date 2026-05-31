@@ -2,50 +2,48 @@
 
 ## Current Next Action
 
-Backend Phase 4H is implemented and committed locally at `06ef6922`.
+Backend Phase 4I is implemented and committed locally at `bd05bc60`.
 
-Phase 4H connects qualified supplier profile document rows to the self-hosted
-document grant and serving flow:
+Phase 4I closes the first admin/operator read over supplier document download
+events:
 
-- `SupplierProfile.tsx` renders a download button only for approved
-  `qualified_unlocked` supplier documents when `VITE_YORSO_API_URL` is
-  configured.
-- `downloadSupplierDocument` requests
-  `/v1/suppliers/:supplierId/documents/:documentId/grant`, then fetches the
-  returned relative API `downloadPath` with the current buyer session headers.
-- `fileAssetId`, object keys, storage keys and direct file URLs are stripped
-  before React-visible state and guarded from DOM/e2e assertions.
-- Locked buyers keep non-downloadable document-readiness states.
-- Backend document rows remain visible in the production passport even when
-  optional logistics facts are absent.
+- `GET /v1/admin/supplier-documents/download-events` requires an authenticated
+  admin session.
+- Buyer/non-admin sessions receive `admin_role_required`.
+- Query params are bounded by contract: optional `status`, `supplierId`,
+  `buyerUserId`, `limit <= 100`, `offset <= 10 000`.
+- The route reads `yorso_supplier_document_download_events` and orders by
+  `created_at desc, id asc`.
+- Admin JSON responses do not include `fileAssetId`, object keys, storage keys,
+  direct file URLs or `downloadPath`.
+- Reads emit audit action `admin.supplier_document_download_events.read`.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| UI download action | Подключить qualified supplier document rows к self-hosted grant/download flow. | Реализовано: `supplier-document-download` вызывает `downloadSupplierDocument`. | Owner/admin document management отдельно. |
-| Access boundary | Не показывать скачивание locked buyers. | Реализовано: кнопка появляется only for approved qualified docs with configured API. | Keep access gating guarded. |
-| Storage redaction | Не раскрывать `fileAssetId`, object keys, storage keys или direct URLs. | Реализовано: `redactSupplierDocumentFileAssets` и DOM/e2e assertions. | Keep backend payload guards from Phase 4E/4G. |
-| Failure copy | Добавить buyer-safe loading, expired-grant и failed-download states. | Реализовано: localized preparing, started, expired and failed copy. | Dedicated retry button later if needed. |
-| Production passport resilience | Не прятать документы, если optional logistics facts отсутствуют. | Реализовано: documents block renders independently when logistics is missing. | Backend should still provide complete facts. |
-| Guards | Зафиксировать docs, self-hosted guard and 10k-user baseline. | Реализовано: `phase-4h-supplier-document-download-ui.md`, `check:self-hosted-api`, `check:production-scale-baseline`. | Keep in release path. |
+| Решение по scope | Выбрать owner/admin upload или admin audit listing. | Выбрано audit listing, потому что event table уже есть после Phase 4G. | Owner/admin upload остается отдельной supplier operations phase. |
+| Admin endpoint | Дать admin bounded read по download events. | Реализовано: `/v1/admin/supplier-documents/download-events`. | Добавить grant audit listing, если нужен полный operator view. |
+| Role guard | Не отдавать audit buyer-сессиям. | Реализовано: 401 без сессии, 403 `admin_role_required` для buyer. | Возможные subroles позже. |
+| Payload boundary | Не раскрывать backend storage identifiers. | Реализовано: service response убирает `fileAssetId`; тесты защищают от object/storage/download leakage. | Держать admin responses без storage identifiers. |
+| Пагинация и индексы | Сделать bounded pagination и indexed filters. | Реализовано: `status`, `supplierId`, `buyerUserId`, `limit<=100`, `offset<=10000`; Postgres query использует существующие recent indexes. | Cursor pagination только если объем audit этого потребует. |
+| Guards | Зафиксировать docs, self-hosted guard и 10k-user review. | Реализовано: Phase 4I doc, contract map, validation doc, production baseline, guard markers. | Держать в release path. |
 
-## Next Implementation After Phase 4H
+## Next Implementation After Phase 4I
 
 Recommended next scoped workstream:
 
-Backend Phase 4I: Supplier Document Owner/Admin Management Decision.
+Backend Phase 4J: Supplier Document Grant Audit Listing.
 
 Concrete scope:
 
-- decide whether the next supplier-document step is owner upload/editing or
-  admin download-audit listing;
-- if owner/admin upload is selected, define source-of-truth tables, validation,
-  file ownership, audit events and role guards;
-- if audit listing is selected, expose bounded admin reads over
-  `yorso_supplier_document_download_events`;
-- keep buyer profile downloads grant-bound and storage-id-free;
-- update docs, guards and 10,000 concurrent-user review.
+- expose bounded admin reads over `yorso_supplier_document_download_grants`;
+- keep response storage-id-free for browser/admin JSON while preserving
+  backend-only file asset for repository/database forensics;
+- support indexed filters that already exist or add no new unindexed scans;
+- require admin session and audit reads;
+- update docs, guards and 10,000 concurrent-user review;
+- do not implement owner upload/editing yet.
 
 ## Guardrails To Preserve
 

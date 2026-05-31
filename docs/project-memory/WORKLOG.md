@@ -3335,3 +3335,55 @@ Keep this file factual and append-only.
   - Browserslist data stale.
 - Next scoped workstream: Backend Phase 4I Supplier Document Owner/Admin
   Management Decision.
+
+## 2026-05-31 Phase 4I Checkpoint
+
+- Latest implementation commit: `bd05bc60` (`[codex] Backend Phase 4I supplier document audit listing`).
+- Scoped workstream: Backend Phase 4I Supplier Document Download Audit
+  Listing.
+- Implemented admin/operator download audit listing:
+  - `GET /v1/admin/supplier-documents/download-events` requires an
+    authenticated self-hosted admin session;
+  - missing sessions return 401 and buyer/non-admin sessions return 403
+    `admin_role_required`;
+  - query params support optional `status`, `supplierId`, `buyerUserId`,
+    `limit <= 100` and `offset <= 10000`;
+  - admin JSON responses exclude `fileAssetId`, object keys, storage keys,
+    direct file URLs and `downloadPath`;
+  - reads emit audit action
+    `admin.supplier_document_download_events.read`.
+- Reused existing Phase 4G persistence:
+  - no new table/migration was needed;
+  - PostgreSQL reads `yorso_supplier_document_download_events` ordered by
+    `created_at desc, id asc`;
+  - filters align with existing recent indexes.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Решение по scope | Выбрать owner/admin upload или admin audit listing. | Выбрано audit listing, потому что event table уже есть после Phase 4G. | Owner/admin upload остается отдельной supplier operations phase. |
+| Admin endpoint | Дать admin bounded read по download events. | Реализовано: `/v1/admin/supplier-documents/download-events`. | Phase 4J: grant audit listing. |
+| Role guard | Не отдавать audit buyer-сессиям. | Реализовано: 401 без сессии, 403 `admin_role_required` для buyer. | Возможные subroles позже. |
+| Payload boundary | Не раскрывать backend storage identifiers. | Реализовано: в admin JSON нет `fileAssetId`, object keys, storage keys, direct file URLs и `downloadPath`. | Держать admin responses без storage identifiers. |
+| Пагинация и индексы | Сделать bounded pagination и indexed filters. | Реализовано: `status`, `supplierId`, `buyerUserId`, `limit<=100`, `offset<=10000`; Postgres использует существующие recent indexes. | Cursor pagination только если объем audit этого потребует. |
+| Guards | Зафиксировать docs, self-hosted guard и 10k-user review. | Реализовано: Phase 4I docs, self-hosted guard, production baseline, validation. | Держать в release path. |
+
+- Validation passed:
+  - TDD red: focused admin download-events test failed with 404 before route
+    implementation;
+  - TDD green: focused admin route test passed after implementation;
+  - `npm run contracts:build`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "serves admin supplier document download audit without file asset leakage"`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`;
+  - `npm run test:api`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run build`;
+  - `npm test` passed: 177 files, 1263 passed, 2 skipped;
+  - `git diff --check`.
+- Known non-blocking warning preserved:
+  - Browserslist data stale.
+- Next scoped workstream: Backend Phase 4J Supplier Document Grant Audit
+  Listing.
