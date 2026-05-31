@@ -59,19 +59,19 @@ const Field = ({ label, value, badge }: { label: string; value: string; badge?: 
   const { t } = useLanguage();
   const isEmpty = !value || !value.trim();
   return (
-    <div className="min-w-0">
-      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+    <div className="grid min-w-0 gap-1 border-b border-border/70 pb-3 last:border-b-0 sm:grid-cols-[7.25rem_minmax(0,1fr)] sm:items-baseline sm:gap-4">
+      <dt className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </dt>
       <dd
         className={
           isEmpty
-            ? "mt-1 flex items-center text-[15px] italic text-muted-foreground"
-            : "mt-1 flex items-center text-[15px] font-medium text-foreground"
+            ? "flex min-w-0 items-center text-[15px] italic leading-6 text-muted-foreground"
+            : "flex min-w-0 items-center text-[15px] font-semibold leading-6 text-foreground"
         }
         title={isEmpty ? undefined : value}
       >
-        <span className="truncate">{fallback(value, t.account_value_notSpecified)}</span>
+        <span className="min-w-0 truncate">{fallback(value, t.account_value_notSpecified)}</span>
         {badge}
       </dd>
     </div>
@@ -305,7 +305,7 @@ const PersonalSection = ({
     <div className="space-y-4" data-testid="account-section-personal">
       <nav
         aria-label={t.account_personal_jump_aria}
-        className="sticky top-2 z-10 -mx-1 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background/95 px-2 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85"
+        className="sticky top-2 z-10 -mx-1 flex flex-wrap items-center gap-2 rounded-lg border border-border/70 bg-background/90 px-2 py-1.5 backdrop-blur supports-[backdrop-filter]:bg-background/80"
         data-testid="account-personal-jumpbar"
       >
         <span
@@ -319,7 +319,7 @@ const PersonalSection = ({
             key={a.id}
             type="button"
             onClick={() => jumpTo(a.id)}
-            className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="inline-flex min-h-9 items-center rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             aria-describedby="account-personal-jump-label"
             data-testid={`account-personal-jump-${a.id}`}
           >
@@ -361,14 +361,14 @@ const PersonalSection = ({
           return (
             <div className="space-y-6" data-field-group-root>
               <FieldGroup title={t.account_group_identity}>
-                <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                   <Field label={t.account_personal_firstName} value={v.firstName} />
                   <Field label={t.account_personal_lastName} value={v.lastName} />
                   <Field label={t.account_personal_role} value={v.roleInCompany} />
                 </dl>
               </FieldGroup>
               <FieldGroup title={t.account_group_contacts}>
-                <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                   <Field label={t.account_personal_email} value={v.email} />
                   <Field
                     label={t.account_personal_phone}
@@ -389,7 +389,7 @@ const PersonalSection = ({
                 </dl>
               </FieldGroup>
               <FieldGroup title={t.account_group_locale}>
-                <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                <dl className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                   <Field label={t.account_personal_timezone} value={v.timezone} />
                   <Field label={t.account_personal_language} value={langLabel} />
                 </dl>

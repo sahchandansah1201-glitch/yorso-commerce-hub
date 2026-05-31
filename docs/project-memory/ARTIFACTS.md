@@ -24,6 +24,13 @@
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
+## UX / UI Review Artifacts
+
+- `output/account-personal-ui-audit/desktop-1440-account-personal.png`:
+  desktop screenshot after `/account/personal` scanability pass.
+- `output/account-personal-ui-audit/mobile-390-account-personal.png`:
+  mobile screenshot after `/account/personal` scanability pass.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional

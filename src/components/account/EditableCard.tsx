@@ -311,7 +311,7 @@ export function EditableCard<T>({
       data-save-state={saveState}
       onKeyDown={onKeyDown}
     >
-      <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
+      <CardHeader className="flex flex-col gap-3 space-y-0 pb-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="space-y-1">
           <CardTitle id={titleId} className="text-base font-semibold">
             {title}
@@ -322,7 +322,7 @@ export function EditableCard<T>({
             </p>
           ) : null}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
           {(() => {
             // Status chip: visible in both view and edit modes when relevant
             const showSaving = isSaving;
@@ -395,7 +395,7 @@ export function EditableCard<T>({
               ref={editBtnRef}
               size="sm"
               variant="outline"
-              className="gap-1.5 text-xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="!h-10 gap-1.5 px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               onClick={enter}
               aria-label={editAriaLabel}
               aria-controls={liveId}
@@ -410,7 +410,7 @@ export function EditableCard<T>({
               <Button
                 size="sm"
                 variant="outline"
-                className="text-xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="!h-10 px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 onClick={cancel}
                 disabled={isSaving}
                 aria-label={cancelAriaLabel}
@@ -420,7 +420,7 @@ export function EditableCard<T>({
               </Button>
               <Button
                 size="sm"
-                className="text-xs focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="!h-10 px-3 text-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 onClick={save}
                 disabled={isSaving}
                 aria-busy={isSaving}
