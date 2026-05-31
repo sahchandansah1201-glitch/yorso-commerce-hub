@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-05-29"
+updated_at: "2026-05-31"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -10,13 +10,13 @@ source_policy:
 
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-05-29"
+  git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "d8988d50"
-  head_summary: "Backend Phase 4C supplier profile evidence blocks; release validation passed."
+  head_commit: "84dd9588"
+  head_summary: "Backend Phase 4D supplier profile legal/compliance details; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4C implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4D implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,23 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4c_supplier_profile_evidence_blocks"
-  summary: "Supplier profile shipment evidence and FAQ blocks are backend-owned through the supplier directory contract/API/DB."
+  id: "backend_phase_4d_supplier_profile_legal_details"
+  summary: "Supplier profile legal/compliance details are backend-owned through the supplier directory contract/API/DB and qualified-only access boundary."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4D implementation is recorded in docs/backend/phase-4d-supplier-profile-legal-details.md."
+    - "packages/contracts/src/supplier-directory.ts now includes supplierLegalDetailsSchema and legalDetails."
+    - "apps/api supplier repositories return legalDetails from memory records and yorso_suppliers_directory legal_details."
+    - "apps/api src/modules/suppliers/service.ts returns legalDetails only for qualified_unlocked; anonymous_locked and registered_locked receive null."
+    - "packages/db/migrations/0033_supplier_profile_legal_details.sql adds legal_details JSONB object storage with restricted-access comment."
+    - "src/pages/SupplierProfile.tsx now reads supplier?.legalDetails and no longer calls frontend legal hash synthesis for production profile rendering."
+    - "src/lib/supplier-legal.ts keeps explicit API-disabled local preview helper localPreviewSupplierLegalDetails separate from configured production API truth."
+    - "check:self-hosted-api and check:production-scale-baseline guard the Phase 4D contract, migration and docs."
+    - "Phase 4D release validation passed: TDD red supplier profile legalDetails test, contracts build, focused supplier contract/view/profile tests, API supplier repository tests, DB migration/contract tests, self-hosted guards, TypeScript build graph, full npm test, lint, API build, production build, API tests, supplier-directory frontend suite, backend contract suite, self-hosted DB check and diff check."
+    - "Phase 4D is committed locally at 84dd9588."
+    - "Recommended next scoped workstream: Backend Phase 4E Supplier Profile Restricted Document Payload Boundary."
     - "Phase 4C implementation is recorded in docs/backend/phase-4c-supplier-profile-evidence-blocks.md."
     - "packages/contracts/src/supplier-directory.ts now includes supplierShipmentCaseSchema, supplierFaqItemSchema, shipmentCases and faqItems."
     - "apps/api supplier repositories return shipmentCases/faqItems from memory records and yorso_suppliers_directory shipment_cases/profile_faq_items."
@@ -1860,4 +1871,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 4C implementation question. Next scoped decision: Backend Phase 4D Supplier Profile Legal/Compliance Details Source Boundary."
+  - "No open Phase 4D implementation question. Next scoped decision: Backend Phase 4E Supplier Profile Restricted Document Payload Boundary."

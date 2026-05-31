@@ -3064,3 +3064,58 @@ Keep this file factual and append-only.
   - Browserslist data stale.
 - Next scoped workstream: Backend Phase 4D Supplier Profile Legal/Compliance
   Details Source Boundary.
+
+## 2026-05-31 Phase 4D Checkpoint
+
+- Latest implementation commit: `84dd9588` (`[codex] Backend Phase 4D supplier legal details`).
+- Scoped workstream: Backend Phase 4D Supplier Profile Legal/Compliance Details Source Boundary.
+- Implemented backend-owned supplier profile legal/compliance details:
+  - `packages/contracts/src/supplier-directory.ts` now defines
+    `supplierLegalDetailsSchema` and `legalDetails`;
+  - memory and PostgreSQL supplier repositories return legal details from the
+    supplier directory record;
+  - `apps/api/src/modules/suppliers/service.ts` exposes `legalDetails` only for
+    `qualified_unlocked` buyers and returns null for locked buyers;
+  - migration `0033_supplier_profile_legal_details.sql` adds `legal_details`
+    JSONB object storage to `yorso_suppliers_directory`;
+  - `SupplierProfile.tsx` renders the legal/compliance block from
+    `supplier?.legalDetails`.
+- Removed production profile legal synthesis:
+  - `SupplierProfile.tsx` no longer calls the frontend legal helper;
+  - API-disabled preview uses explicit `localPreviewSupplierLegalDetails` in
+    `src/lib/supplier-legal.ts`.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Contract | Добавить backend-owned legal/compliance details. | Реализовано: contract schema and field added. | Owner/admin write validation later. |
+| Persistence | Хранить legal details в self-hosted supplier table. | Реализовано: migration `0033_supplier_profile_legal_details`. | Backfill verified legal details later. |
+| Access boundary | Не отдавать legal identifiers locked buyers. | Реализовано: locked responses get `legalDetails: null`. | Phase 4E restricted document payload boundary. |
+| Profile UI | Убрать frontend legal synthesis из production profile. | Реализовано: profile reads legal details from supplier record. | Demo-mode retirement later. |
+| Guards | Зафиксировать qualified-only legalDetails regression. | Реализовано: tests plus self-hosted/scale checks. | Keep in `ci:core`. |
+
+- Validation passed:
+  - TDD red: `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx`
+    failed before implementation because backend legal details were ignored;
+  - `npm run contracts:build`;
+  - `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx`;
+  - `npm test -- src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-view.test.ts src/lib/supplier-directory-api.test.ts src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`;
+  - `npm run test:db-migrations`;
+  - `npm run test:db-contract`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm test`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `npm run build`;
+  - `npm run test:api`;
+  - `npm run test:supplier-directory-frontend`;
+  - `npm run test:backend-contract`;
+  - `npm run check:self-hosted-db`;
+  - `git diff --check`.
+- Known non-blocking warning preserved:
+  - Browserslist data stale.
+- Next scoped workstream: Backend Phase 4E Supplier Profile Restricted Document
+  Payload Boundary.

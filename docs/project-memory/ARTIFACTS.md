@@ -1430,3 +1430,14 @@
 - `apps/api/src/config.ts`, `packages/contracts/src/admin-runtime.ts`, `src/lib/admin-runtime-api.ts`, `src/pages/admin/AdminRuntimeStatus.tsx`: provider-neutral runtime policy/status surface.
 - `packages/db/migration-manifest.json` and `packages/db/src/migrator.ts`: removed provider-specific manifest role from the self-hosted DB contract.
 - Deleted `supabase/`, `src/integrations/supabase/`, Supabase CLI/access/type scripts and Supabase/RLS reference tests: active provider reference tooling retired.
+
+## Backend Phase 4D Supplier Profile Legal/Compliance Details
+
+- `docs/backend/phase-4d-supplier-profile-legal-details.md`: implementation note, Russian plan/fact table, access decision, runtime contract, remaining debt, validation and 10,000 concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: supplier directory contract now owns `supplierLegalDetailsSchema` and `legalDetails`.
+- `apps/api/src/modules/suppliers/repository.ts`, `apps/api/src/modules/suppliers/postgres-repository.ts` and `apps/api/src/modules/suppliers/service.ts`: memory/PostgreSQL supplier repositories return legal details, and access shaping returns `legalDetails` only for `qualified_unlocked`.
+- `packages/db/migrations/0033_supplier_profile_legal_details.sql` and `packages/db/migration-manifest.json`: self-hosted DB migration and manifest entry for restricted `legal_details` JSONB object storage.
+- `src/lib/supplier-legal.ts`: explicit API-disabled local preview helper `localPreviewSupplierLegalDetails`.
+- `src/lib/supplier-directory-api.ts`, `src/lib/supplier-directory-view.ts`, `src/lib/use-supplier-directory.ts` and `src/pages/SupplierProfile.tsx`: frontend adapters/profile render legal details from the supplier record and keep locked views null.
+- `src/test/self-hosted-contracts.test.ts`, `src/test/self-hosted-db-contract.test.ts`, `apps/api/src/modules/suppliers/__tests__/repository.test.ts`, `src/lib/supplier-directory-api.test.ts`, `src/lib/supplier-directory-view.test.ts`, `src/lib/use-supplier-directory.test.tsx`, `src/pages/Suppliers.test.tsx` and `src/pages/__tests__/SupplierProfile.access.test.tsx`: regression coverage for typed contract, DB migration, repository mapping, local preview boundary and qualified-only profile rendering.
+- `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4D docs, migration and production-scale baseline markers.
