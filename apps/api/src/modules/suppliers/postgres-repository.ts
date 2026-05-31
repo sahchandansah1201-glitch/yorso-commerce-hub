@@ -8,6 +8,8 @@ import type {
   SupplierDirectoryRecord,
   SupplierDocumentDownloadEventAdminQuery,
   SupplierDocumentDownloadGrantAdminQuery,
+  SupplierDocumentManagementEventAdminItem,
+  SupplierDocumentManagementEventAdminQuery,
   SupplierDocumentPayload,
   SupplierFaqItem,
   SupplierLegalDetails,
@@ -80,6 +82,7 @@ interface SupplierRow extends Record<string, unknown> {
 
 interface SupplierDocumentDownloadGrantAuditRow extends SupplierDocumentDownloadGrantAuditRecord, Record<string, unknown> {}
 interface SupplierDocumentDownloadEventRow extends SupplierDocumentDownloadEventRecord, Record<string, unknown> {}
+interface SupplierDocumentManagementEventAdminRow extends SupplierDocumentManagementEventAdminItem, Record<string, unknown> {}
 interface SupplierDocumentManagementCreateRow extends Record<string, unknown> {
   document: SupplierDocumentPayload;
   action: SupplierDocumentManagementCreateInput["auditEvent"]["action"];
@@ -254,6 +257,22 @@ function mapDocumentManagementCreate(row: SupplierDocumentManagementCreateRow) {
       requestId: row.requestId,
       createdAt: ensureIso(row.createdAt),
     },
+  };
+}
+
+function mapDocumentManagementEvent(row: SupplierDocumentManagementEventAdminRow): SupplierDocumentManagementEventAdminItem {
+  return {
+    id: String(row.id),
+    action: row.action,
+    actorRole: row.actorRole,
+    actorUserId: row.actorUserId,
+    supplierId: row.supplierId,
+    documentId: row.documentId,
+    previousStatus: row.previousStatus,
+    nextStatus: row.nextStatus,
+    reason: row.reason,
+    requestId: row.requestId,
+    createdAt: ensureIso(row.createdAt),
   };
 }
 
@@ -1016,5 +1035,47 @@ export class PostgresSupplierRepository implements SupplierRepository {
     );
 
     return result.rows.map(mapDocumentDownloadEvent);
+  }
+
+  async listSupplierDocumentManagementEvents(input: SupplierDocumentManagementEventAdminQuery) {
+    const params: unknown[] = [];
+    const where: string[] = [];
+    const add = (value: unknown) => {
+      params.push(value);
+      return `$${params.length}`;
+    };
+
+    if (input.action) where.push(`action = ${add(input.action)}`);
+    if (input.supplierId) where.push(`supplier_id = ${add(input.supplierId)}`);
+    if (input.documentId) where.push(`document_id = ${add(input.documentId)}`);
+    if (input.actorUserId) where.push(`actor_user_id = ${add(input.actorUserId)}::uuid`);
+
+    const limitParam = add(input.limit);
+    const offsetParam = add(input.offset);
+    const whereSql = where.length ? `where ${where.join(" and ")}` : "";
+    const result = await this.client.query<SupplierDocumentManagementEventAdminRow>(
+      `
+        select
+          id::text as "id",
+          action,
+          actor_role as "actorRole",
+          actor_user_id as "actorUserId",
+          supplier_id as "supplierId",
+          document_id as "documentId",
+          previous_status as "previousStatus",
+          next_status as "nextStatus",
+          reason,
+          request_id as "requestId",
+          created_at as "createdAt"
+        from yorso_supplier_document_management_events
+        ${whereSql}
+        order by created_at desc, id desc
+        limit ${limitParam}
+        offset ${offsetParam}
+      `,
+      params,
+    );
+
+    return result.rows.map(mapDocumentManagementEvent);
   }
 }

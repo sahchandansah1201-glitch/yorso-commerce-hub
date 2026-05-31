@@ -6467,6 +6467,89 @@ Marker: supplier_document.delete.
 Marker: approved_document_immutable.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4Q - Supplier Document Management Event Listing And Export
+
+Status: implemented.
+
+Phase 4Q adds bounded admin listing and export for supplier document management
+events already persisted by Phases 4M-4P. Frontend UI, lifecycle mutations,
+retention jobs and automated expiry scheduling remain outside this increment.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Add admin listing endpoint. | `GET /v1/admin/supplier-documents/management-events` reads management events. | Frontend admin UI remains future work. |
+| Add bounded export. | `GET /v1/admin/supplier-documents/management-events/export?format=json|csv` exports the same bounded page. | Scheduled reporting remains future work. |
+| Support indexed filters. | `action`, `supplierId`, `documentId`, `actorUserId`, `limit`, `offset`. | Cursor pagination if offset cap becomes insufficient. |
+| Keep storage internals private. | Responses/exports omit `fileAssetId`, object keys, storage keys, `downloadPath` and direct URLs. | Same boundary must hold for UI/export consumers. |
+| Reuse existing audit table. | Reads `yorso_supplier_document_management_events`; no new migration. | Retention policy remains a separate scope. |
+
+Expected read/write profile:
+
+- This is low-volume admin/operator read traffic.
+- A successful request performs one session resolution, one admin role check and
+  one bounded indexed read.
+- The only write is the existing route-level API audit sink.
+- No public browse or buyer workflow traffic depends on this route.
+
+Cache, queue and backpressure strategy:
+
+- No application cache is used because data is operational audit material.
+- Existing request timeout, draining and session fail-closed guardrails apply.
+- `limit <= 100` and `offset <= 10000` cap read amplification.
+- JSON/CSV export uses the same bounded read path; no full-table export is
+  introduced.
+
+Database indexing and pagination strategy:
+
+- Uses existing indexes on `yorso_supplier_document_management_events`:
+  supplier/recent, actor/recent, action/recent and supplier/document/recent.
+- PostgreSQL orders by `created_at desc, id desc`.
+- Future cursor pagination can use `(created_at, id)` if operator volume grows
+  beyond the offset cap.
+
+Failure mode and graceful degradation:
+
+- Missing/invalid session uses existing account session errors.
+- Non-admin accounts return `admin_role_required`.
+- Invalid filters or export format return contract validation errors.
+- Empty pages return `ok=true` with `items=[]`.
+- Failed responses do not expose storage internals.
+
+Observability and load-test plan:
+
+- Route-level admin reads emit
+  `admin.supplier_document_management_events.read`.
+- Route-level admin exports emit
+  `admin.supplier_document_management_events.export`.
+- Smoke output must include `supplier_document_management_events_export=ok`.
+- Load tests should cover filtered listing, JSON export, CSV export, invalid
+  query params and empty pages at the 10,000 concurrent-user baseline.
+
+Validation:
+
+- `npm run test:supplier-document-management-runtime`;
+- `npm run test:supplier-document-management-policy`;
+- `npm run smoke:self-hosted-account-api:run`;
+- `npm run check:self-hosted-api`;
+- `npm run check:production-scale-baseline`.
+
+Marker: Backend Phase 4Q Supplier Document Management Event Listing And Export.
+Marker: /v1/admin/supplier-documents/management-events.
+Marker: /v1/admin/supplier-documents/management-events/export.
+Marker: listAdminSupplierDocumentManagementEvents.
+Marker: exportAdminSupplierDocumentManagementEvents.
+Marker: listSupplierDocumentManagementEvents.
+Marker: supplierDocumentManagementEventAdminQuerySchema.
+Marker: supplierDocumentManagementEventExportQuerySchema.
+Marker: supplierDocumentManagementEventAdminListResponseSchema.
+Marker: yorso_supplier_document_management_events.
+Marker: supplier_document_management_events_export=ok.
+Marker: admin.supplier_document_management_events.read.
+Marker: admin.supplier_document_management_events.export.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

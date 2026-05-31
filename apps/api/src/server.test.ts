@@ -2011,6 +2011,138 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(serialized).not.toContain("downloadPath");
   });
 
+  it("serves admin supplier document management events and exports without storage leakage", async () => {
+    const fetchApi = await startRawTestServer({ supplierRepository: new MemorySupplierRepository() });
+    const ownerHeaders = await signIn(fetchApi, "buyer@example.com");
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+    const adminUserId = String(adminHeaders["x-yorso-user-id"]);
+    const auditPath = "/v1/admin/supplier-documents/management-events";
+
+    const missingSession = await fetchApi(auditPath);
+    expect(missingSession.status).toBe(401);
+
+    const blocked = await fetchApi(auditPath, { headers: ownerHeaders });
+    const blockedBody = (await blocked.json()) as JsonBody;
+    expect(blocked.status).toBe(403);
+    expect(blockedBody.error).toMatchObject({ code: "admin_role_required" });
+
+    const uploaded = await fetchApi("/v1/account/documents", {
+      method: "POST",
+      headers: ownerHeaders,
+      body: JSON.stringify({
+        title: "Management event export target",
+        documentType: "other",
+        visibility: "buyer_qualified",
+        expiresAt: "2027-05-31",
+        file: filePayload("management event bytes", "management-event-export.pdf", "application/pdf"),
+      }),
+    });
+    const uploadedBody = (await uploaded.json()) as JsonBody;
+    expect(uploaded.status).toBe(201);
+    const fileAssetId = String((uploadedBody.document as JsonBody).fileAssetId);
+
+    const created = await fetchApi("/v1/suppliers/sup-no-001/documents", {
+      method: "POST",
+      headers: ownerHeaders,
+      body: JSON.stringify({
+        title: "Management event export target",
+        documentType: "audit_report",
+        issuedAt: "2026-05-31",
+        expiresAt: "2027-05-31",
+        fileUploadId: fileAssetId,
+        fileName: "management-event-export.pdf",
+      }),
+    });
+    const createdBody = (await created.json()) as JsonBody;
+    expect(created.status).toBe(201);
+    const documentId = String((createdBody.document as JsonBody).id);
+
+    const decisionPath = `/v1/admin/supplier-documents/sup-no-001/documents/${documentId}/decision`;
+    const lifecyclePath = `/v1/admin/supplier-documents/sup-no-001/documents/${documentId}/lifecycle`;
+
+    const approved = await fetchApi(decisionPath, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ decision: "approve", reason: "verified_for_management_export" }),
+    });
+    expect(approved.status).toBe(200);
+
+    const expired = await fetchApi(lifecyclePath, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ action: "expire", reason: "certificate_expired_for_management_export" }),
+    });
+    expect(expired.status).toBe(200);
+
+    const listed = await fetchApi(
+      `${auditPath}?action=supplier_document.expire&supplierId=sup-no-001&documentId=${documentId}&actorUserId=${adminUserId}&limit=5&offset=0`,
+      { headers: adminHeaders },
+    );
+    const listedBody = (await listed.json()) as JsonBody;
+    const listedSerialized = JSON.stringify(listedBody);
+
+    expect(listed.status).toBe(200);
+    expect(listedBody).toMatchObject({
+      ok: true,
+      limit: 5,
+      offset: 0,
+      items: [
+        expect.objectContaining({
+          action: "supplier_document.expire",
+          actorRole: "admin",
+          actorUserId: adminUserId,
+          supplierId: "sup-no-001",
+          documentId,
+          previousStatus: "approved",
+          nextStatus: "expired",
+          reason: "certificate_expired_for_management_export",
+        }),
+      ],
+    });
+    expect((listedBody.items as JsonBody[])[0].id).toEqual(expect.any(String));
+    expect((listedBody.items as JsonBody[])[0].createdAt).toEqual(expect.any(String));
+    expect(listedSerialized).not.toContain(fileAssetId);
+    expect(listedSerialized).not.toContain("fileAssetId");
+    expect(listedSerialized).not.toContain("objectKey");
+    expect(listedSerialized).not.toContain("storage");
+    expect(listedSerialized).not.toContain("downloadPath");
+
+    const jsonExport = await fetchApi(
+      `${auditPath}/export?format=json&action=supplier_document.expire&supplierId=sup-no-001&limit=5`,
+      { headers: adminHeaders },
+    );
+    const jsonExportBody = (await jsonExport.json()) as JsonBody;
+    expect(jsonExport.status).toBe(200);
+    expect(jsonExport.headers.get("content-type")).toContain("application/json");
+    expect(String(jsonExport.headers.get("content-disposition"))).toContain("supplier-document-management-events.json");
+    expect(jsonExportBody).toMatchObject({
+      ok: true,
+      items: [
+        expect.objectContaining({
+          action: "supplier_document.expire",
+          documentId,
+        }),
+      ],
+    });
+
+    const csvExport = await fetchApi(
+      `${auditPath}/export?format=csv&action=supplier_document.expire&supplierId=sup-no-001&limit=5`,
+      { headers: adminHeaders },
+    );
+    const csvText = await csvExport.text();
+    expect(csvExport.status).toBe(200);
+    expect(csvExport.headers.get("content-type")).toContain("text/csv");
+    expect(String(csvExport.headers.get("content-disposition"))).toContain("supplier-document-management-events.csv");
+    expect(csvText).toContain("\"id\",\"createdAt\",\"action\",\"actorRole\",\"actorUserId\",\"supplierId\",\"documentId\"");
+    expect(csvText).toContain("\"supplier_document.expire\"");
+    expect(csvText).toContain("\"certificate_expired_for_management_export\"");
+    expect(csvText).not.toContain(fileAssetId);
+    expect(csvText).not.toContain("fileAssetId");
+    expect(csvText).not.toContain("objectKey");
+    expect(csvText).not.toContain("storage");
+    expect(csvText).not.toContain("downloadPath");
+  });
+
   it("lets supplier owners update and delete non-approved documents without leaking backend file storage identifiers", async () => {
     const supplierRepository = new MemorySupplierRepository();
     const fetchApi = await startRawTestServer({ supplierRepository });

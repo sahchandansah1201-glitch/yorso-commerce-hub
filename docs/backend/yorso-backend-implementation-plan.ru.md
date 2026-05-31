@@ -1240,3 +1240,42 @@ replacement и management-event listing не входят в этот инкре
 Следующий scoped backend direction после Phase 4P: listing/export по supplier
 document management events либо automated approved-document expiry scheduler. Не
 смешивать с frontend UI без отдельного scope.
+
+## Backend Phase 4Q Checkpoint - Listing/export management events документов поставщика
+
+Статус: реализовано.
+
+Phase 4Q реализует admin read/export для supplier document management events.
+Frontend UI, retention, scheduler и новые lifecycle mutations не входят в этот
+инкремент.
+
+Реализовано:
+
+- `GET /v1/admin/supplier-documents/management-events` для authenticated
+  self-hosted admin session;
+- `GET /v1/admin/supplier-documents/management-events/export?format=json|csv`
+  для bounded JSON/CSV export;
+- фильтры `action`, `supplierId`, `documentId`, `actorUserId`, `limit`,
+  `offset`;
+- contract schemas
+  `supplierDocumentManagementEventAdminQuerySchema`,
+  `supplierDocumentManagementEventExportQuerySchema` и
+  `supplierDocumentManagementEventAdminListResponseSchema`;
+- PostgreSQL bounded read из `yorso_supplier_document_management_events`;
+- sanitized responses/exports без `fileAssetId`, object keys, storage keys,
+  `downloadPath` и direct download URLs;
+- smoke marker `supplier_document_management_events_export=ok`.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Добавить admin listing endpoint. | Management event listing реализован. | Frontend UI отдельно. |
+| Добавить bounded export. | JSON и CSV export реализованы. | Scheduled reports отдельно. |
+| Поддержать фильтры. | `action/supplierId/documentId/actorUserId/limit/offset`. | Cursor pagination позже, если нужно. |
+| Не раскрывать storage internals. | Responses/exports не содержат storage-sensitive поля. | Сохранять boundary для UI. |
+| Использовать audit table. | Используются существующие Phase 4M table/indexes. | Retention policy отдельно. |
+
+Следующий scoped backend direction после Phase 4Q: либо admin UI над management
+events, либо automated approved-document expiry scheduler. Не смешивать UI и
+scheduler в одном scope.

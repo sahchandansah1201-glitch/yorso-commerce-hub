@@ -1033,4 +1033,70 @@ describe("supplier directory repositories", () => {
       50,
     ]);
   });
+
+  it("PostgreSQL repository lists supplier document management events with bounded indexed filters", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        return {
+          rows: [
+            {
+              id: "42",
+              action: "supplier_document.expire",
+              actorRole: "admin",
+              actorUserId: "00000000-0000-4000-8000-000000000002",
+              supplierId: "sup-no-001",
+              documentId: "sdoc_123",
+              previousStatus: "approved",
+              nextStatus: "expired",
+              reason: "certificate_expired",
+              requestId: "req-management-events",
+              createdAt: new Date("2026-05-31T12:00:00.000Z"),
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+
+    const events = await repository.listSupplierDocumentManagementEvents({
+      action: "supplier_document.expire",
+      supplierId: "sup-no-001",
+      documentId: "sdoc_123",
+      actorUserId: "00000000-0000-4000-8000-000000000002",
+      limit: 25,
+      offset: 50,
+    });
+
+    expect(events).toEqual([
+      expect.objectContaining({
+        id: "42",
+        action: "supplier_document.expire",
+        actorRole: "admin",
+        actorUserId: "00000000-0000-4000-8000-000000000002",
+        supplierId: "sup-no-001",
+        documentId: "sdoc_123",
+        previousStatus: "approved",
+        nextStatus: "expired",
+        createdAt: "2026-05-31T12:00:00.000Z",
+      }),
+    ]);
+    expect(calls[0].sql).toContain("from yorso_supplier_document_management_events");
+    expect(calls[0].sql).toContain("action = $1");
+    expect(calls[0].sql).toContain("supplier_id = $2");
+    expect(calls[0].sql).toContain("document_id = $3");
+    expect(calls[0].sql).toContain("actor_user_id = $4::uuid");
+    expect(calls[0].sql).toContain("order by created_at desc, id desc");
+    expect(calls[0].sql).toContain("limit $5");
+    expect(calls[0].sql).toContain("offset $6");
+    expect(calls[0].params).toEqual([
+      "supplier_document.expire",
+      "sup-no-001",
+      "sdoc_123",
+      "00000000-0000-4000-8000-000000000002",
+      25,
+      50,
+    ]);
+  });
 });

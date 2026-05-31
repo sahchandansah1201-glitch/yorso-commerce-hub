@@ -146,6 +146,7 @@ supplier_document_owner_create_review=ok
 supplier_document_admin_decision_review=ok
 supplier_document_owner_update_delete=ok
 supplier_document_admin_lifecycle_cleanup=ok
+supplier_document_management_events_export=ok
 documents_list=ok
 supplier_directory_locked=ok
 supplier_directory_verified_filter=ok

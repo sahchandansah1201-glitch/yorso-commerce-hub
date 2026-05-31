@@ -216,6 +216,32 @@ export const supplierDocumentManagementDeleteResponseSchema = z.object({
   requestId: z.string(),
 });
 
+export const supplierDocumentManagementEventAdminQuerySchema = z.object({
+  action: supplierDocumentManagementAuditActionSchema.optional(),
+  supplierId: z.string().trim().min(1).max(80).optional(),
+  documentId: z.string().trim().min(1).max(80).optional(),
+  actorUserId: z.string().uuid().optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  offset: z.coerce.number().int().min(0).max(10_000).default(0),
+});
+
+export const supplierDocumentManagementEventExportQuerySchema = supplierDocumentManagementEventAdminQuerySchema.extend({
+  format: z.enum(["json", "csv"]).default("json"),
+});
+
+export const supplierDocumentManagementEventAdminItemSchema = supplierDocumentManagementAuditEventSchema.extend({
+  id: z.string().min(1).max(120),
+  actorUserId: z.string().uuid(),
+}).strict();
+
+export const supplierDocumentManagementEventAdminListResponseSchema = z.object({
+  ok: z.literal(true),
+  items: z.array(supplierDocumentManagementEventAdminItemSchema),
+  limit: z.number().int().min(1).max(100),
+  offset: z.number().int().min(0).max(10_000),
+  requestId: z.string(),
+});
+
 export const supplierDocumentDownloadGrantSchema = z.object({
   id: z.string().min(1).max(120),
   supplierId: z.string().min(1).max(80),
@@ -420,6 +446,9 @@ export type SupplierDocumentManagementCreateRequest = z.infer<typeof supplierDoc
 export type SupplierDocumentManagementDecisionRequest = z.infer<typeof supplierDocumentManagementDecisionRequestSchema>;
 export type SupplierDocumentManagementDecisionResponse = z.infer<typeof supplierDocumentManagementDecisionResponseSchema>;
 export type SupplierDocumentManagementDeleteResponse = z.infer<typeof supplierDocumentManagementDeleteResponseSchema>;
+export type SupplierDocumentManagementEventAdminItem = z.infer<typeof supplierDocumentManagementEventAdminItemSchema>;
+export type SupplierDocumentManagementEventAdminQuery = z.infer<typeof supplierDocumentManagementEventAdminQuerySchema>;
+export type SupplierDocumentManagementEventExportQuery = z.infer<typeof supplierDocumentManagementEventExportQuerySchema>;
 export type SupplierDocumentManagementItem = z.infer<typeof supplierDocumentManagementItemSchema>;
 export type SupplierDocumentManagementLifecycleRequest = z.infer<typeof supplierDocumentManagementLifecycleRequestSchema>;
 export type SupplierDocumentManagementRole = z.infer<typeof supplierDocumentManagementRoleSchema>;

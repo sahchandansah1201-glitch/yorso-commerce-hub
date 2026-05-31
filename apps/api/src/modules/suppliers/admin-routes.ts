@@ -13,6 +13,8 @@ import type { SupplierDirectoryService } from "./service.js";
 
 const downloadEventsRoute = "/v1/admin/supplier-documents/download-events";
 const downloadGrantsRoute = "/v1/admin/supplier-documents/download-grants";
+const managementEventsRoute = "/v1/admin/supplier-documents/management-events";
+const managementEventsExportRoute = "/v1/admin/supplier-documents/management-events/export";
 
 const queryParams = (url: URL) => Object.fromEntries(url.searchParams.entries());
 
@@ -80,9 +82,23 @@ export async function handleSupplierDocumentAdminRoute(
       return true;
     }
 
+    if (routeConfig.kind === "management_events_export") {
+      const payload = await service.exportAdminSupplierDocumentManagementEvents(queryParams(url), context.requestId);
+      auditSupplierDocumentAdminRead(auditSink, context, request, session, routeConfig, "success", null, 200);
+      response.writeHead(200, {
+        "cache-control": "no-store",
+        "content-disposition": `attachment; filename="${payload.fileName}"`,
+        "content-type": payload.contentType,
+      });
+      response.end(payload.body);
+      return true;
+    }
+
     const payload = routeConfig.kind === "download_events"
       ? await service.listAdminDocumentDownloadEvents(queryParams(url), context.requestId)
-      : await service.listAdminDocumentDownloadGrants(queryParams(url), context.requestId);
+      : routeConfig.kind === "download_grants"
+        ? await service.listAdminDocumentDownloadGrants(queryParams(url), context.requestId)
+        : await service.listAdminSupplierDocumentManagementEvents(queryParams(url), context.requestId);
     auditSupplierDocumentAdminRead(auditSink, context, request, session, routeConfig, "success", null, 200);
     sendJson(response, 200, payload);
     return true;
@@ -145,7 +161,7 @@ export async function handleSupplierDocumentAdminRoute(
 
 type SupplierDocumentAdminReadRouteConfig = {
   action: string;
-  kind: "download_events" | "download_grants";
+  kind: "download_events" | "download_grants" | "management_events" | "management_events_export";
   resourceType: string;
   route: string;
 };
@@ -213,6 +229,24 @@ function resolveSupplierDocumentAdminRoute(pathname: string): SupplierDocumentAd
       kind: "download_grants",
       resourceType: "supplier_document_download_grant",
       route: downloadGrantsRoute,
+    };
+  }
+
+  if (pathname === managementEventsRoute) {
+    return {
+      action: "admin.supplier_document_management_events.read",
+      kind: "management_events",
+      resourceType: "supplier_document_management_event",
+      route: managementEventsRoute,
+    };
+  }
+
+  if (pathname === managementEventsExportRoute) {
+    return {
+      action: "admin.supplier_document_management_events.export",
+      kind: "management_events_export",
+      resourceType: "supplier_document_management_event",
+      route: managementEventsExportRoute,
     };
   }
 

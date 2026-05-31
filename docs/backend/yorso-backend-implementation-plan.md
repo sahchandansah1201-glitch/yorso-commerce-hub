@@ -1030,3 +1030,42 @@ Plan / Fact:
 Next scoped backend direction after Phase 4P: supplier document management event
 listing/export, or automated approved-document expiry scheduler. Do not combine
 with frontend UI unless explicitly scoped.
+
+## Backend Phase 4Q Checkpoint - Supplier Document Management Event Listing/Export
+
+Status: implemented.
+
+Phase 4Q implements admin read/export for supplier document management events.
+Frontend UI, retention, scheduler and new lifecycle mutations remain outside
+this increment.
+
+Implemented:
+
+- `GET /v1/admin/supplier-documents/management-events` for authenticated
+  self-hosted admin sessions;
+- `GET /v1/admin/supplier-documents/management-events/export?format=json|csv`
+  for bounded JSON/CSV exports;
+- filters `action`, `supplierId`, `documentId`, `actorUserId`, `limit`,
+  `offset`;
+- contract schemas
+  `supplierDocumentManagementEventAdminQuerySchema`,
+  `supplierDocumentManagementEventExportQuerySchema` and
+  `supplierDocumentManagementEventAdminListResponseSchema`;
+- PostgreSQL bounded read from `yorso_supplier_document_management_events`;
+- sanitized responses and exports without `fileAssetId`, object keys, storage
+  keys, `downloadPath` or direct download URLs;
+- smoke marker `supplier_document_management_events_export=ok`.
+
+Plan / Fact:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Add admin listing endpoint. | Management event listing implemented. | Frontend UI separate. |
+| Add bounded export. | JSON and CSV export implemented. | Scheduled reports separate. |
+| Support filters. | `action/supplierId/documentId/actorUserId/limit/offset`. | Cursor pagination later if needed. |
+| Keep storage internals private. | Responses/exports omit storage-sensitive fields. | Keep this boundary for UI. |
+| Reuse audit table. | Existing Phase 4M table and indexes used. | Retention policy separate. |
+
+Next scoped backend direction after Phase 4Q: either an admin UI over
+management events, or automated approved-document expiry scheduler. Do not mix
+UI and scheduler work in one scope.

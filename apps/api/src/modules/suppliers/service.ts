@@ -10,6 +10,9 @@ import {
   supplierDocumentManagementDecisionRequestSchema,
   supplierDocumentManagementDecisionResponseSchema,
   supplierDocumentManagementDeleteResponseSchema,
+  supplierDocumentManagementEventAdminListResponseSchema,
+  supplierDocumentManagementEventAdminQuerySchema,
+  supplierDocumentManagementEventExportQuerySchema,
   supplierDocumentManagementLifecycleRequestSchema,
   supplierDirectoryDetailResponseSchema,
   supplierDirectoryItemSchema,
@@ -25,6 +28,7 @@ import {
   type SupplierDirectoryRecord,
   type SupplierDocumentDownloadEventStatus,
   type SupplierDocumentDownloadGrantStatus,
+  type SupplierDocumentManagementEventAdminItem,
 } from "../../../../../packages/contracts/dist/index.js";
 import type { SupplierAccessRepository } from "../access/repository.js";
 import type { FileService } from "../storage/service.js";
@@ -670,6 +674,45 @@ export class SupplierDirectoryService {
     });
   }
 
+  async listAdminSupplierDocumentManagementEvents(rawQuery: Record<string, string | undefined>, requestId: string) {
+    const query = supplierDocumentManagementEventAdminQuerySchema.parse(rawQuery);
+    const events = await this.repository.listSupplierDocumentManagementEvents(query);
+
+    return supplierDocumentManagementEventAdminListResponseSchema.parse({
+      ok: true,
+      items: events,
+      limit: query.limit,
+      offset: query.offset,
+      requestId,
+    });
+  }
+
+  async exportAdminSupplierDocumentManagementEvents(rawQuery: Record<string, string | undefined>, requestId: string) {
+    const { format, ...query } = supplierDocumentManagementEventExportQuerySchema.parse(rawQuery);
+    const events = await this.repository.listSupplierDocumentManagementEvents(query);
+    const response = supplierDocumentManagementEventAdminListResponseSchema.parse({
+      ok: true,
+      items: events,
+      limit: query.limit,
+      offset: query.offset,
+      requestId,
+    });
+
+    if (format === "csv") {
+      return {
+        body: formatSupplierDocumentManagementEventsCsv(response.items),
+        contentType: "text/csv; charset=utf-8",
+        fileName: "supplier-document-management-events.csv",
+      };
+    }
+
+    return {
+      body: `${JSON.stringify(response)}\n`,
+      contentType: "application/json; charset=utf-8",
+      fileName: "supplier-document-management-events.json",
+    };
+  }
+
   private async listAccessibleSupplierIds(
     requested: SupplierDirectoryAccessLevel,
     viewer: { buyerUserId: string } | null,
@@ -759,6 +802,33 @@ const redactSupplierDocumentManagementItem = (document: {
   expiresAt: document.expiresAt,
   fileName: document.fileName,
 });
+
+const supplierDocumentManagementEventCsvColumns = [
+  "id",
+  "createdAt",
+  "action",
+  "actorRole",
+  "actorUserId",
+  "supplierId",
+  "documentId",
+  "previousStatus",
+  "nextStatus",
+  "reason",
+  "requestId",
+] as const;
+
+function formatSupplierDocumentManagementEventsCsv(events: SupplierDocumentManagementEventAdminItem[]) {
+  const rows = [
+    supplierDocumentManagementEventCsvColumns.map(csvCell).join(","),
+    ...events.map((event) => supplierDocumentManagementEventCsvColumns.map((column) => csvCell(event[column])).join(",")),
+  ];
+  return `${rows.join("\n")}\n`;
+}
+
+function csvCell(value: string | null) {
+  const text = value === null ? "" : String(value);
+  return `"${text.replace(/"/g, "\"\"")}"`;
+}
 
 export function shapeSupplierForAccess(
   supplier: SupplierDirectoryRecord,

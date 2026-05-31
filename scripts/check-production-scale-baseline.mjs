@@ -29,6 +29,7 @@ const requiredFiles = [
   "docs/backend/phase-4n-supplier-document-admin-decision.md",
   "docs/backend/phase-4o-supplier-document-owner-correction.md",
   "docs/backend/phase-4p-supplier-document-admin-lifecycle.md",
+  "docs/backend/phase-4q-supplier-document-management-events.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -301,6 +302,7 @@ const phase4mSupplierDocumentOwnerCreate = read("docs/backend/phase-4m-supplier-
 const phase4nSupplierDocumentAdminDecision = read("docs/backend/phase-4n-supplier-document-admin-decision.md");
 const phase4oSupplierDocumentOwnerCorrection = read("docs/backend/phase-4o-supplier-document-owner-correction.md");
 const phase4pSupplierDocumentAdminLifecycle = read("docs/backend/phase-4p-supplier-document-admin-lifecycle.md");
+const phase4qSupplierDocumentManagementEvents = read("docs/backend/phase-4q-supplier-document-management-events.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -3326,10 +3328,33 @@ for (const marker of [
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
 for (const marker of [
+  "Backend Phase 4Q",
+  "Supplier Document Management Event Listing And Export",
+  "/v1/admin/supplier-documents/management-events",
+  "/v1/admin/supplier-documents/management-events/export",
+  "listAdminSupplierDocumentManagementEvents",
+  "exportAdminSupplierDocumentManagementEvents",
+  "listSupplierDocumentManagementEvents",
+  "supplierDocumentManagementEventAdminQuerySchema",
+  "supplierDocumentManagementEventExportQuerySchema",
+  "supplierDocumentManagementEventAdminListResponseSchema",
+  "yorso_supplier_document_management_events",
+  "supplier_document_management_events_export=ok",
+  "admin.supplier_document_management_events.read",
+  "admin.supplier_document_management_events.export",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4q-supplier-document-management-events.md", phase4qSupplierDocumentManagementEvents, marker);
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
   "supplierDocumentManagementCreateRequestSchema",
   "supplierDocumentManagementUpdateRequestSchema",
   "supplierDocumentManagementDecisionRequestSchema",
   "supplierDocumentManagementLifecycleRequestSchema",
+  "supplierDocumentManagementEventAdminQuerySchema",
+  "supplierDocumentManagementEventExportQuerySchema",
+  "supplierDocumentManagementEventAdminListResponseSchema",
   "supplierDocumentManagementAuditEventSchema",
   "supplierDocumentManagementCreateResponseSchema",
   "supplierDocumentManagementDecisionResponseSchema",
@@ -4170,17 +4195,27 @@ for (const [file, text, marker] of [
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_management.decide"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/^\\/v1\\/admin\\/supplier-documents\\/([^/]+)\\/documents\\/([^/]+)\\/lifecycle$/"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_management.lifecycle"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/v1/admin/supplier-documents/management-events"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/v1/admin/supplier-documents/management-events/export"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_management_events.read"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_management_events.export"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin_role_required"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/^\\/v1\\/suppliers\\/([^/]+)\\/documents\\/([^/]+)$/"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "updateSupplierDocumentForOwner"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "deleteSupplierDocumentForOwner"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "manageSupplierDocumentLifecycleAsAdmin"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentManagementLifecycleRequestSchema"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "listAdminSupplierDocumentManagementEvents"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "exportAdminSupplierDocumentManagementEvents"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentManagementEventAdminQuerySchema"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentManagementEventExportQuerySchema"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "updateSupplierDocumentForOwner"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "deleteSupplierDocumentForOwner"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "hasSupplierOwnerCompany"],
   ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "expireSupplierDocumentAsAdmin"],
   ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "deleteSupplierDocumentAsAdmin"],
+  ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "listSupplierDocumentManagementEvents"],
+  ["apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "listSupplierDocumentManagementEvents"],
   ["apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "jsonb_agg(remaining.value order by remaining.ordinality)"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession"],
 ]) {
@@ -4191,6 +4226,7 @@ for (const marker of [
   "account_session_invalid",
   "supplier_document_owner_update_delete=ok",
   "supplier_document_admin_lifecycle_cleanup=ok",
+  "supplier_document_management_events_export=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
 }
@@ -4217,4 +4253,5 @@ if (failures.length > 0) {
 console.log("Production scale baseline check passed.");
 console.log("- 10,000 concurrent-user target is documented.");
 console.log("- supplier, offer and access-flow paths have scaling guardrails.");
+console.log("- supplier document management event listing/export has bounded admin read guardrails.");
 console.log("- ci:core enforces the baseline check.");

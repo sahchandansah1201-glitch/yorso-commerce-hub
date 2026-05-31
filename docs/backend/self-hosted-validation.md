@@ -1968,6 +1968,52 @@ Required markers:
 - `approved_document_immutable`;
 - `10,000 concurrent users`.
 
+## Backend Phase 4Q Supplier Document Management Event Listing/Export Validation
+
+Run:
+
+```bash
+npm run test:supplier-document-management-runtime
+npm run test:supplier-document-management-policy
+npm run smoke:self-hosted-account-api:run
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `GET /v1/admin/supplier-documents/management-events` requires an
+  authenticated self-hosted admin session.
+- `GET /v1/admin/supplier-documents/management-events/export?format=json|csv`
+  uses the same admin boundary and bounded read path.
+- Buyer/supplier owner sessions receive `admin_role_required`; missing sessions
+  fail through the account session boundary.
+- Query params support bounded filters: `action`, `supplierId`, `documentId`,
+  `actorUserId`, `limit`, `offset`; export also supports `format=json|csv`.
+- PostgreSQL reads `yorso_supplier_document_management_events` with bounded
+  `limit <= 100`, `offset <= 10000` and existing recent indexes.
+- JSON and CSV responses contain only sanitized management event metadata.
+- Responses and exports contain no storage identifiers, storage keys,
+  `downloadPath` or direct storage URLs.
+- Smoke output includes `supplier_document_management_events_export=ok`.
+
+Required markers:
+
+- `Backend Phase 4Q`;
+- `Supplier Document Management Event Listing And Export`;
+- `/v1/admin/supplier-documents/management-events`;
+- `/v1/admin/supplier-documents/management-events/export`;
+- `listAdminSupplierDocumentManagementEvents`;
+- `exportAdminSupplierDocumentManagementEvents`;
+- `listSupplierDocumentManagementEvents`;
+- `supplierDocumentManagementEventAdminQuerySchema`;
+- `supplierDocumentManagementEventExportQuerySchema`;
+- `supplierDocumentManagementEventAdminListResponseSchema`;
+- `supplier_document_management_events_export=ok`;
+- `admin.supplier_document_management_events.read`;
+- `admin.supplier_document_management_events.export`;
+- `10,000 concurrent users`.
+
 ## Backend Phase 4P Supplier Document Admin Lifecycle Cleanup Validation
 
 Run:

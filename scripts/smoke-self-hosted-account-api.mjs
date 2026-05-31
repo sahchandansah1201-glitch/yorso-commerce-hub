@@ -698,6 +698,39 @@ async function runSmoke(baseUrl) {
   assertDoesNotContain(supplierDocumentAdminDelete, "fileAssetId", "supplier admin delete file asset field");
   console.log("supplier_document_admin_lifecycle_cleanup=ok");
 
+  const managementEventList = await jsonRequestAs(
+    baseUrl,
+    `/v1/admin/supplier-documents/management-events?action=supplier_document.expire&supplierId=sup-no-001&documentId=${encodeURIComponent(supplierDocumentCreate.document.id)}&actorUserId=${smokeAdminUserId}&limit=5`,
+    adminHeaders,
+  );
+  assertEqual(managementEventList.ok, true, "supplier management event list ok");
+  assertEqual(managementEventList.items?.[0]?.action, "supplier_document.expire", "supplier management event action");
+  assertEqual(managementEventList.items?.[0]?.actorUserId, smokeAdminUserId, "supplier management event actor user");
+  assertEqual(managementEventList.items?.[0]?.documentId, supplierDocumentCreate.document.id, "supplier management event document id");
+  assertDoesNotContain(managementEventList, documentCreate.document.fileAssetId, "supplier management event list file asset id");
+  assertDoesNotContain(managementEventList, "fileAssetId", "supplier management event list file asset field");
+
+  const managementEventJsonExport = await jsonRequestAs(
+    baseUrl,
+    `/v1/admin/supplier-documents/management-events/export?format=json&action=supplier_document.expire&supplierId=sup-no-001&limit=5`,
+    adminHeaders,
+  );
+  assertEqual(managementEventJsonExport.ok, true, "supplier management event json export ok");
+  assertEqual(managementEventJsonExport.items?.[0]?.action, "supplier_document.expire", "supplier management json export action");
+  assertDoesNotContain(managementEventJsonExport, documentCreate.document.fileAssetId, "supplier management json export file asset id");
+  assertDoesNotContain(managementEventJsonExport, "fileAssetId", "supplier management json export file asset field");
+
+  const managementEventCsvExport = await fetch(
+    `${baseUrl}/v1/admin/supplier-documents/management-events/export?format=csv&action=supplier_document.expire&supplierId=sup-no-001&limit=5`,
+    { headers: adminHeaders },
+  );
+  assertStatus(managementEventCsvExport, 200, "supplier management event csv export");
+  const managementEventCsvText = await managementEventCsvExport.text();
+  assertIncludes(managementEventCsvText, "\"supplier_document.expire\"", "supplier management csv export action");
+  assertDoesNotContain(managementEventCsvText, documentCreate.document.fileAssetId, "supplier management csv export file asset id");
+  assertDoesNotContain(managementEventCsvText, "fileAssetId", "supplier management csv export file asset field");
+  console.log("supplier_document_management_events_export=ok");
+
   const documents = await jsonRequest(baseUrl, "/v1/account/documents");
   assertEqual(documents.ok, true, "documents ok");
   assertEqual(
@@ -822,6 +855,12 @@ function assertEqual(actual, expected, label) {
 function assertArray(value, label) {
   if (!Array.isArray(value)) {
     throw new Error(`${label}: expected array, got ${typeof value}`);
+  }
+}
+
+function assertIncludes(value, expected, label) {
+  if (!String(value).includes(expected)) {
+    throw new Error(`${label}: expected ${JSON.stringify(expected)} in ${JSON.stringify(value)}`);
   }
 }
 

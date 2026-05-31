@@ -6,6 +6,9 @@ import {
   supplierDocumentManagementDecisionRequestSchema,
   supplierDocumentManagementDecisionResponseSchema,
   supplierDocumentManagementDeleteResponseSchema,
+  supplierDocumentManagementEventAdminListResponseSchema,
+  supplierDocumentManagementEventAdminQuerySchema,
+  supplierDocumentManagementEventExportQuerySchema,
   supplierDocumentManagementLifecycleRequestSchema,
   supplierDocumentManagementUpdateRequestSchema,
   supplierDocumentManagementUpdateResponseSchema,
@@ -106,6 +109,78 @@ describe("supplier document management contracts", () => {
     expect(() =>
       supplierDocumentManagementLifecycleRequestSchema.parse({
         action: "approve",
+      }),
+    ).toThrow();
+  });
+
+  it("accepts bounded admin management event queries and sanitized list responses", () => {
+    expect(
+      supplierDocumentManagementEventAdminQuerySchema.parse({
+        action: "supplier_document.expire",
+        supplierId: "sup-no-001",
+        documentId: "sdoc_123",
+        actorUserId: "00000000-0000-4000-8000-000000000002",
+        limit: "25",
+        offset: "10",
+      }),
+    ).toMatchObject({
+      action: "supplier_document.expire",
+      limit: 25,
+      offset: 10,
+    });
+    expect(supplierDocumentManagementEventExportQuerySchema.parse({ format: "csv" })).toMatchObject({
+      format: "csv",
+      limit: 50,
+      offset: 0,
+    });
+    expect(() =>
+      supplierDocumentManagementEventAdminQuerySchema.parse({
+        action: "supplier_document.download",
+      }),
+    ).toThrow();
+    expect(() =>
+      supplierDocumentManagementEventAdminQuerySchema.parse({
+        limit: 500,
+      }),
+    ).toThrow();
+
+    const response = supplierDocumentManagementEventAdminListResponseSchema.parse({
+      ok: true,
+      items: [
+        {
+          id: "42",
+          action: "supplier_document.expire",
+          actorRole: "admin",
+          actorUserId: "00000000-0000-4000-8000-000000000002",
+          supplierId: "sup-no-001",
+          documentId: "sdoc_123",
+          previousStatus: "approved",
+          nextStatus: "expired",
+          reason: "certificate_expired",
+          requestId: "req-management-events",
+          createdAt: "2026-05-31T12:00:00.000Z",
+        },
+      ],
+      limit: 25,
+      offset: 10,
+      requestId: "req-list",
+    });
+
+    expect(response.items[0]).toMatchObject({
+      action: "supplier_document.expire",
+      actorRole: "admin",
+    });
+    expect(JSON.stringify(response)).not.toContain("fileAssetId");
+    expect(JSON.stringify(response)).not.toContain("downloadPath");
+    expect(() =>
+      supplierDocumentManagementEventAdminListResponseSchema.parse({
+        ...response,
+        items: [
+          {
+            ...response.items[0],
+            fileAssetId: "backend-file-asset",
+          },
+        ],
       }),
     ).toThrow();
   });

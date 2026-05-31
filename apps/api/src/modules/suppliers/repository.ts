@@ -11,6 +11,8 @@ import type {
   SupplierDocumentDownloadGrantAdminQuery,
   SupplierDocumentDownloadGrantStatus,
   SupplierDocumentManagementAuditEvent,
+  SupplierDocumentManagementEventAdminItem,
+  SupplierDocumentManagementEventAdminQuery,
   SupplierDocumentPayload,
   SupplierFaqItem,
   SupplierLegalDetails,
@@ -34,6 +36,7 @@ export interface SupplierRepository {
   listDocumentDownloadGrants(input: SupplierDocumentDownloadGrantAdminQuery): Promise<SupplierDocumentDownloadGrantAuditRecord[]>;
   recordDocumentDownloadEvent(input: SupplierDocumentDownloadEventInput): Promise<SupplierDocumentDownloadEventRecord>;
   listDocumentDownloadEvents(input: SupplierDocumentDownloadEventAdminQuery): Promise<SupplierDocumentDownloadEventRecord[]>;
+  listSupplierDocumentManagementEvents(input: SupplierDocumentManagementEventAdminQuery): Promise<SupplierDocumentManagementEventAdminItem[]>;
   createSupplierDocumentForOwner(input: SupplierDocumentManagementCreateInput): Promise<SupplierDocumentManagementCreateRecord | null>;
   decideSupplierDocumentAsAdmin(input: SupplierDocumentManagementDecisionInput): Promise<SupplierDocumentManagementCreateRecord | null>;
   expireSupplierDocumentAsAdmin(input: SupplierDocumentManagementDecisionInput): Promise<SupplierDocumentManagementCreateRecord | null>;
@@ -570,7 +573,7 @@ function compareSuppliers(
 export class MemorySupplierRepository implements SupplierRepository {
   private readonly documentGrantAudit: SupplierDocumentDownloadGrantAuditRecord[] = [];
   private readonly documentDownloadEvents: SupplierDocumentDownloadEventRecord[] = [];
-  private readonly documentManagementAudit: SupplierDocumentManagementAuditEvent[] = [];
+  private readonly documentManagementAudit: SupplierDocumentManagementEventAdminItem[] = [];
 
   constructor(
     private readonly suppliers = demoSupplierRecords,
@@ -608,7 +611,7 @@ export class MemorySupplierRepository implements SupplierRepository {
     supplier.supplierDocuments = [...supplier.supplierDocuments, { ...input.document }];
     if (supplier.documentReadiness === "on_request") supplier.documentReadiness = "partial";
     supplier.updatedAt = new Date().toISOString();
-    this.documentManagementAudit.push({ ...input.auditEvent });
+    this.documentManagementAudit.push(memoryDocumentManagementAuditRecord(input.auditEvent, input.actorUserId));
 
     return structuredClone({
       document: input.document,
@@ -624,7 +627,7 @@ export class MemorySupplierRepository implements SupplierRepository {
 
     document.status = input.nextStatus;
     supplier.updatedAt = new Date().toISOString();
-    this.documentManagementAudit.push({ ...input.auditEvent });
+    this.documentManagementAudit.push(memoryDocumentManagementAuditRecord(input.auditEvent, input.actorUserId));
 
     return structuredClone({
       document,
@@ -645,7 +648,7 @@ export class MemorySupplierRepository implements SupplierRepository {
 
     supplier.supplierDocuments.splice(documentIndex, 1);
     supplier.updatedAt = new Date().toISOString();
-    this.documentManagementAudit.push({ ...input.auditEvent });
+    this.documentManagementAudit.push(memoryDocumentManagementAuditRecord(input.auditEvent, input.actorUserId));
 
     return structuredClone({
       document,
@@ -663,7 +666,7 @@ export class MemorySupplierRepository implements SupplierRepository {
 
     supplier.supplierDocuments[documentIndex] = { ...input.document };
     supplier.updatedAt = new Date().toISOString();
-    this.documentManagementAudit.push({ ...input.auditEvent });
+    this.documentManagementAudit.push(memoryDocumentManagementAuditRecord(input.auditEvent, input.actorUserId));
 
     return structuredClone({
       document: input.document,
@@ -681,7 +684,7 @@ export class MemorySupplierRepository implements SupplierRepository {
 
     supplier.supplierDocuments.splice(documentIndex, 1);
     supplier.updatedAt = new Date().toISOString();
-    this.documentManagementAudit.push({ ...input.auditEvent });
+    this.documentManagementAudit.push(memoryDocumentManagementAuditRecord(input.auditEvent, input.actorUserId));
 
     return structuredClone({
       document,
@@ -735,4 +738,28 @@ export class MemorySupplierRepository implements SupplierRepository {
         .slice(input.offset, input.offset + input.limit),
     );
   }
+
+  async listSupplierDocumentManagementEvents(input: SupplierDocumentManagementEventAdminQuery) {
+    return structuredClone(
+      this.documentManagementAudit
+        .slice()
+        .filter((event) => !input.action || event.action === input.action)
+        .filter((event) => !input.supplierId || event.supplierId === input.supplierId)
+        .filter((event) => !input.documentId || event.documentId === input.documentId)
+        .filter((event) => !input.actorUserId || event.actorUserId === input.actorUserId)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id))
+        .slice(input.offset, input.offset + input.limit),
+    );
+  }
+}
+
+function memoryDocumentManagementAuditRecord(
+  auditEvent: SupplierDocumentManagementAuditEvent,
+  actorUserId: string,
+): SupplierDocumentManagementEventAdminItem {
+  return {
+    ...auditEvent,
+    actorUserId,
+    id: `sdme_${auditEvent.createdAt.replace(/[^0-9]/g, "")}_${auditEvent.documentId}`,
+  };
 }
