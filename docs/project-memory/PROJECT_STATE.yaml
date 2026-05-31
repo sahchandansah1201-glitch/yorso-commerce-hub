@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "474c290c"
-  head_summary: "Backend Phase 4R supplier document management events admin UI; release validation passed."
-  dirty_worktree_before_project_memory: false
+  head_commit: "3796bd80"
+  head_summary: "Backend Phase 4S supplier document admin mutation UI; release validation passed."
+  dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4R implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4S implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,23 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4r_supplier_document_management_events_admin_ui"
-  summary: "Admins can inspect supplier document management audit events through a self-hosted read-only UI with bounded filters, sanitized rows and JSON/CSV export controls."
+  id: "backend_phase_4s_supplier_document_admin_mutation_ui"
+  summary: "Admins can run status-aware supplier document approve/reject/expire/delete actions from the management events UI through existing self-hosted decision/lifecycle endpoints."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4S implementation is recorded in docs/backend/phase-4s-supplier-document-admin-mutation-ui.md."
+    - "/admin/supplier-document-management-events preserves Phase 4R list/export and now adds status-aware document action controls."
+    - "src/lib/admin-supplier-document-management-events-api.ts exposes runDocumentAction."
+    - "runDocumentAction maps approve/reject to POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision with { decision, reason? }."
+    - "runDocumentAction maps expire/delete to POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle with { action, reason? }."
+    - "Review rows expose approve/reject/delete; approved rows expose expire; on_request/expired rows expose delete."
+    - "Reject, expire and delete require an operator reason in the UI."
+    - "Successful actions refresh the bounded management event list."
+    - "API, page and e2e tests guard action payloads, session headers, refresh and storage/session redaction."
+    - "Phase 4S validation passed: test:admin-supplier-document-management-events-frontend; smoke:e2e:admin-supplier-document-management-events; check:self-hosted-api; check:production-scale-baseline; lint; TypeScript build graph; git diff --check."
+    - "Phase 4S implementation is committed locally at 3796bd80."
     - "Phase 4R implementation is recorded in docs/backend/phase-4r-supplier-document-management-events-admin-ui.md."
     - "/admin/supplier-document-management-events renders a read-only admin UI over Phase 4Q management event listing/export endpoints."
     - "src/lib/admin-supplier-document-management-events-api.ts provides createAdminSupplierDocumentManagementEventsApiClient with storage-leak rejection for browser-visible responses."

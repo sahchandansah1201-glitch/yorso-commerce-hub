@@ -416,6 +416,35 @@
   `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
   validation and plan updates.
 
+## Backend Phase 4S Supplier Document Admin Mutation UI
+
+- `docs/backend/phase-4s-supplier-document-admin-mutation-ui.md`: Phase 4S
+  implementation note, Russian plan/fact table and 10,000 concurrent-user
+  review.
+- `src/lib/admin-supplier-document-management-events-api.ts`:
+  `runDocumentAction` maps approve/reject to the existing admin decision
+  endpoint and expire/delete to the existing admin lifecycle endpoint.
+- `src/lib/admin-supplier-document-management-events-api.test.ts`: adapter
+  coverage for approve/reject/expire/delete payload mapping and sanitized
+  action responses.
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.tsx`: status-aware
+  admin action controls on the management events page, with reason guard and
+  post-mutation list refresh.
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx`: page
+  coverage for approve/expire action wiring, refresh and DOM/session redaction.
+- `e2e/admin-supplier-document-management-events.spec.ts`: browser smoke for
+  list/export plus approve/expire actions, session headers, refresh and
+  storage/session redaction.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/self-hosted-validation.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/yorso-backend-implementation-plan.md` and
+  `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
+  validation, capacity and plan updates for Phase 4S.
+- `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4S
+  docs, action client markers, UI markers and browser smoke markers.
+
 ## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
 
 - `docs/backend/phase-4b-supplier-profile-dossier-completeness.md`: Phase 4B

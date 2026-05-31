@@ -3899,3 +3899,50 @@ Keep this file factual and append-only.
 - Next scoped implementation: Backend Phase 4S admin mutation UI actions for
   approve/reject/expire/delete, unless product priority shifts to automated
   approved-document expiry scheduler.
+
+## 2026-05-31 Phase 4S Checkpoint
+
+- Latest implementation commit: `3796bd80` (`[codex] Backend Phase 4S supplier document admin mutation UI`).
+- Scoped workstream: Backend Phase 4S Supplier Document Admin Mutation UI.
+- Implemented mutation UI only; no new backend endpoint, migration, scheduler,
+  storage path, Supabase path or lifecycle policy was added.
+- Implemented frontend action client:
+  - `runDocumentAction` maps approve/reject to
+    `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`;
+  - `runDocumentAction` maps expire/delete to
+    `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`;
+  - self-hosted session headers and storage-leak response rejection are
+    preserved.
+- Implemented status-aware admin controls:
+  - review rows: approve/reject/delete;
+  - approved rows: expire;
+  - on_request/expired rows: delete;
+  - reject/expire/delete require reason before submission.
+- Implemented refresh/redaction behavior:
+  - successful actions call `events.refresh()`;
+  - unit and e2e tests keep `fileAssetId`, object keys, storage keys,
+    `downloadPath`, direct URLs and session ids out of browser state.
+- План / факт:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Decision actions | Подключить approve/reject к existing Phase 4N endpoint. | `runDocumentAction` отправляет `{ decision, reason? }` в `/decision`. | Backend policy остается source of truth. |
+| Lifecycle actions | Подключить expire/delete к existing Phase 4P endpoint. | `runDocumentAction` отправляет `{ action, reason? }` в `/lifecycle`. | Scheduler expiry отдельно. |
+| UI state | Сделать controls status-aware и reason-gated. | Review/approved/on_request/expired rows получают только допустимые actions; risky actions disabled без reason. | Confirmation/undo UX отдельно. |
+| Refresh/redaction | После mutation перечитать список и не раскрывать secrets. | `events.refresh()` после success; unit/e2e redaction guards обновлены. | Сохранять при расширении admin UI. |
+| Docs/guards | Обновить docs, self-hosted и production-scale guard. | Phase 4S doc, validation, implementation plan, contract and guards обновлены. | Финальный commit только по запросу пользователя. |
+
+- Validation passed:
+  - `npm run test:admin-supplier-document-management-events-frontend`;
+  - `npm run smoke:e2e:admin-supplier-document-management-events`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Browserslist data stale during Vite build inside the e2e smoke;
+  - existing React Router future flag warnings in frontend tests.
+- Next scoped implementation after Phase 4S: choose one only - confirmation/undo
+  UX for destructive admin document actions, or automated approved-document
+  expiry scheduler decision.

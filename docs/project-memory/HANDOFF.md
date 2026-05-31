@@ -16,19 +16,21 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4R Supplier Document Management Events Admin UI is committed
-locally at `474c290c`; release validation passed.
+Backend Phase 4S Supplier Document Admin Mutation UI is committed locally at
+`3796bd80`; release validation passed. It extends `/admin/supplier-document-management-events` with
+status-aware approve/reject/expire/delete controls over existing self-hosted
+Phase 4N `/decision` and Phase 4P `/lifecycle` endpoints.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Реализовать read-only admin UI поверх Phase 4Q management events. | Реализована `/admin/supplier-document-management-events`. | Phase 4S: admin mutation UI actions. |
-| Access | Пускать только self-hosted admin через существующий frontend session bridge. | Disabled/session-required/forbidden states явные и протестированы. | Не расширять owner bypass. |
-| Filters/export | Дать фильтры и JSON/CSV handoff. | UI фильтры `action/supplierId/documentId/actorUserId` и export controls реализованы. | Переиспользовать list refresh после mutations. |
-| Response boundary | Не раскрывать backend file identifiers. | Adapter/page/e2e запрещают storage-only поля и session ids в DOM. | Сохранять для mutation UI. |
-| Routing/nav | Подключить страницу как lazy route. | `src/App.tsx` и `AdminOperatorNav` обновлены. | Action UI должен остаться в том же admin workflow. |
-| Guards | Зафиксировать tests, e2e и 10k-user review. | Frontend tests, browser smoke, self-hosted guard, production-scale guard зелёные. | Держать в release path. |
+| Scope | Добавить admin mutation actions без новых backend endpoints. | UI вызывает existing `/decision` и `/lifecycle`. | Confirmation/undo UX или scheduler отдельно. |
+| Decision | Approve/reject должны идти через Phase 4N. | `runDocumentAction` отправляет `{ decision, reason? }`. | Backend policy остается source of truth. |
+| Lifecycle | Expire/delete должны идти через Phase 4P. | `runDocumentAction` отправляет `{ action, reason? }`. | Automated expiry scheduler отдельно. |
+| Reason guard | Рискованные действия требуют reason. | Reject/expire/delete disabled до заполнения reason. | Structured reason taxonomy отдельно. |
+| Refresh/redaction | После success перечитать список, не раскрывать storage/session internals. | `events.refresh()` + unit/e2e redaction guards. | Сохранять boundary. |
+| Guards | Зафиксировать tests, e2e, docs, 10k-user review. | Scoped checks зелёные: unit, e2e, guards, lint, TypeScript, diff-check; commit `3796bd80`. | Держать в release path. |
 
 ## Current Status
 
@@ -58,6 +60,23 @@ locally at `474c290c`; release validation passed.
 - Backend Phase 4P is committed locally at `84954e9d`; release validation passed.
 - Backend Phase 4Q is committed locally at `b2473ede`; release validation passed.
 - Backend Phase 4R is committed locally at `474c290c`; release validation passed.
+- Backend Phase 4S is committed locally at `3796bd80`; release validation passed.
+
+## Phase 4S Files
+
+- `docs/backend/phase-4s-supplier-document-admin-mutation-ui.md`
+- `src/lib/admin-supplier-document-management-events-api.ts`
+- `src/lib/admin-supplier-document-management-events-api.test.ts`
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.tsx`
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx`
+- `e2e/admin-supplier-document-management-events.spec.ts`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
 
 ## Phase 4R Files
 
