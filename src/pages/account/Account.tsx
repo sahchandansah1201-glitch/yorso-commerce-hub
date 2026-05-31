@@ -7,6 +7,7 @@ import { EditableCard } from "@/components/account/EditableCard";
 import { CompanyMediaCard, type CompanyMediaDraft } from "@/components/account/CompanyMediaCard";
 import { CompanyDocumentsCard } from "@/components/account/CompanyDocumentsCard";
 import { SupplierProfilePreview } from "@/components/account/SupplierProfilePreview";
+import { Field, FormRow, PendingFeatureRow, fallback, splitList } from "@/components/account/fields";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
