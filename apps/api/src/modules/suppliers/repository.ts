@@ -6,6 +6,8 @@ import type {
   SupplierDirectoryRecord,
   SupplierDirectorySortBy,
   SupplierDirectorySortDirection,
+  SupplierDocumentDownloadEventAdminQuery,
+  SupplierDocumentDownloadEventStatus,
   SupplierDocumentPayload,
   SupplierFaqItem,
   SupplierLegalDetails,
@@ -26,6 +28,7 @@ export interface SupplierRepository {
   getDocumentDownloadGrantById(id: string): Promise<SupplierDocumentDownloadGrantAuditRecord | null>;
   recordDocumentDownloadGrant(input: SupplierDocumentDownloadGrantAuditInput): Promise<SupplierDocumentDownloadGrantAuditRecord>;
   recordDocumentDownloadEvent(input: SupplierDocumentDownloadEventInput): Promise<SupplierDocumentDownloadEventRecord>;
+  listDocumentDownloadEvents(input: SupplierDocumentDownloadEventAdminQuery): Promise<SupplierDocumentDownloadEventRecord[]>;
 }
 
 export interface SupplierRepositoryListOptions {
@@ -37,15 +40,6 @@ export type SupplierDocumentDownloadGrantStatus =
   | "access_denied"
   | "document_not_found"
   | "document_unavailable";
-
-export type SupplierDocumentDownloadEventStatus =
-  | "downloaded"
-  | "grant_not_found"
-  | "grant_denied"
-  | "grant_expired"
-  | "access_denied"
-  | "document_unavailable"
-  | "file_unavailable";
 
 export interface SupplierDocumentDownloadGrantAuditInput {
   id: string;
@@ -568,6 +562,9 @@ export class MemorySupplierRepository implements SupplierRepository {
     return structuredClone(
       this.documentDownloadEvents
         .slice()
+        .filter((event) => !input.status || event.status === input.status)
+        .filter((event) => !input.supplierId || event.supplierId === input.supplierId)
+        .filter((event) => !input.buyerUserId || event.buyerUserId === input.buyerUserId)
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id))
         .slice(input.offset, input.offset + input.limit),
     );

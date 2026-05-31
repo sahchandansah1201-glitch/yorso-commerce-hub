@@ -21,6 +21,7 @@ const requiredFiles = [
   "docs/backend/phase-4f-supplier-document-download-grants.md",
   "docs/backend/phase-4g-supplier-document-download-serving.md",
   "docs/backend/phase-4h-supplier-document-download-ui.md",
+  "docs/backend/phase-4i-supplier-document-download-audit-listing.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -273,6 +274,7 @@ const phase4eSupplierProfileRestrictedDocuments = read("docs/backend/phase-4e-su
 const phase4fSupplierDocumentDownloadGrants = read("docs/backend/phase-4f-supplier-document-download-grants.md");
 const phase4gSupplierDocumentDownloadServing = read("docs/backend/phase-4g-supplier-document-download-serving.md");
 const phase4hSupplierDocumentDownloadUi = read("docs/backend/phase-4h-supplier-document-download-ui.md");
+const phase4iSupplierDocumentDownloadAuditListing = read("docs/backend/phase-4i-supplier-document-download-audit-listing.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -415,6 +417,7 @@ const accountRoutes = read("apps/api/src/modules/account/routes.ts");
 const accessRoutes = read("apps/api/src/modules/access/routes.ts");
 const storageRoutes = read("apps/api/src/modules/storage/routes.ts");
 const offerRoutes = read("apps/api/src/modules/offers/routes.ts");
+const supplierAdminRoutes = read("apps/api/src/modules/suppliers/admin-routes.ts");
 const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const healthReadinessSmoke = read("scripts/smoke-self-hosted-health-readiness.mjs");
@@ -632,6 +635,7 @@ for (const marker of [
   "Backend Phase 4F Supplier Document Download Grant Endpoint",
   "Backend Phase 4G Supplier Document Grant Consumption / File Serving Endpoint",
   "Backend Phase 4H Supplier Document Download UI Integration",
+  "Backend Phase 4I Supplier Document Download Audit Listing",
   "productionFacts",
   "logisticsFacts",
   "shipmentCases",
@@ -767,6 +771,7 @@ for (const marker of [
   "supplier profile detail browser e2e",
   "API-backed offer catalog detail flow",
   "Backend Phase 4H Supplier Document Download UI Validation",
+  "Backend Phase 4I Supplier Document Download Audit Listing Validation",
   "supplier-document-download",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
@@ -3079,6 +3084,17 @@ for (const marker of [
   requireText("docs/backend/phase-4h-supplier-document-download-ui.md", phase4hSupplierDocumentDownloadUi, marker);
 }
 for (const marker of [
+  "Backend Phase 4I",
+  "Supplier Document Download Audit Listing",
+  "/v1/admin/supplier-documents/download-events",
+  "supplierDocumentDownloadEventAdminListResponseSchema",
+  "admin.supplier_document_download_events.read",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4i-supplier-document-download-audit-listing.md", phase4iSupplierDocumentDownloadAuditListing, marker);
+}
+for (const marker of [
   "Backend Phase 4B",
   "production_facts jsonb not null",
   "logistics_facts jsonb not null",
@@ -3865,6 +3881,9 @@ for (const [file, text, marker] of [
   ["apps/api/src/modules/access/routes.ts", accessRoutes, "resolveAuthenticatedAccountSession"],
   ["apps/api/src/modules/storage/routes.ts", storageRoutes, "resolveAuthenticatedAccountSession"],
   ["apps/api/src/modules/offers/routes.ts", offerRoutes, "resolveOptionalAuthenticatedAccountSession"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/v1/admin/supplier-documents/download-events"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_download_events.read"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin_role_required"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession"],
 ]) {
   requireText(file, text, marker);

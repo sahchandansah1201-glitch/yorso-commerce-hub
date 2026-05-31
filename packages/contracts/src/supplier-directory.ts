@@ -134,6 +134,44 @@ export const supplierDocumentDownloadGrantResponseSchema = z.object({
   requestId: z.string(),
 });
 
+export const supplierDocumentDownloadEventStatusSchema = z.enum([
+  "downloaded",
+  "grant_not_found",
+  "grant_denied",
+  "grant_expired",
+  "access_denied",
+  "document_unavailable",
+  "file_unavailable",
+]);
+
+export const supplierDocumentDownloadEventAdminQuerySchema = z.object({
+  status: supplierDocumentDownloadEventStatusSchema.optional(),
+  supplierId: z.string().trim().min(1).max(80).optional(),
+  buyerUserId: z.string().uuid().optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  offset: z.coerce.number().int().min(0).max(10_000).default(0),
+});
+
+export const supplierDocumentDownloadEventAdminItemSchema = z.object({
+  id: z.string().min(1).max(120),
+  buyerUserId: z.string().uuid(),
+  supplierId: z.string().min(1).max(80),
+  documentId: z.string().min(1).max(80),
+  grantId: z.string().min(1).max(120).nullable(),
+  status: supplierDocumentDownloadEventStatusSchema,
+  reason: z.string().min(1).max(120),
+  requestId: z.string().min(1).max(120),
+  createdAt: z.string().datetime(),
+});
+
+export const supplierDocumentDownloadEventAdminListResponseSchema = z.object({
+  ok: z.literal(true),
+  items: z.array(supplierDocumentDownloadEventAdminItemSchema),
+  limit: z.number().int().min(1).max(100),
+  offset: z.number().int().min(0).max(10_000),
+  requestId: z.string(),
+});
+
 export const supplierDirectoryRecordSchema = z.object({
   id: z.string().min(1).max(80),
   companyName: z.string().min(2).max(180),
@@ -234,6 +272,9 @@ export type SupplierDirectoryResponseSignal = z.infer<typeof supplierResponseSig
 export type SupplierDirectorySortBy = z.infer<typeof supplierDirectorySortBySchema>;
 export type SupplierDirectorySortDirection = z.infer<typeof supplierDirectorySortDirectionSchema>;
 export type SupplierDocumentDownloadGrant = z.infer<typeof supplierDocumentDownloadGrantSchema>;
+export type SupplierDocumentDownloadEventAdminItem = z.infer<typeof supplierDocumentDownloadEventAdminItemSchema>;
+export type SupplierDocumentDownloadEventAdminQuery = z.infer<typeof supplierDocumentDownloadEventAdminQuerySchema>;
+export type SupplierDocumentDownloadEventStatus = z.infer<typeof supplierDocumentDownloadEventStatusSchema>;
 export type SupplierDocumentPayload = z.infer<typeof supplierDocumentPayloadSchema>;
 export type SupplierDocumentReadiness = z.infer<typeof supplierDocumentReadinessSchema>;
 export type SupplierFaqItem = z.infer<typeof supplierFaqItemSchema>;

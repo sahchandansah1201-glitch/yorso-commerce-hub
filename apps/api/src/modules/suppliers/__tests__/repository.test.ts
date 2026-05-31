@@ -388,4 +388,60 @@ describe("supplier directory repositories", () => {
       "req-download",
     ]);
   });
+
+  it("PostgreSQL repository lists supplier document download events with bounded indexed filters", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        return {
+          rows: [
+            {
+              id: "sdde_event_1",
+              buyerUserId: "00000000-0000-4000-8000-000000000001",
+              supplierId: "sup-no-001",
+              documentId: "sup-no-001-health-certificate",
+              grantId: "sdg_grant_1",
+              fileAssetId: "00000000-0000-4000-8000-00000000f001",
+              status: "downloaded",
+              reason: "downloaded",
+              requestId: "req-download",
+              createdAt: new Date("2026-05-31T08:01:00.000Z"),
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+
+    const events = await repository.listDocumentDownloadEvents({
+      status: "downloaded",
+      supplierId: "sup-no-001",
+      buyerUserId: "00000000-0000-4000-8000-000000000001",
+      limit: 25,
+      offset: 50,
+    });
+
+    expect(events).toEqual([
+      expect.objectContaining({
+        id: "sdde_event_1",
+        createdAt: "2026-05-31T08:01:00.000Z",
+        fileAssetId: "00000000-0000-4000-8000-00000000f001",
+      }),
+    ]);
+    expect(calls[0].sql).toContain("from yorso_supplier_document_download_events");
+    expect(calls[0].sql).toContain("status = $1");
+    expect(calls[0].sql).toContain("supplier_id = $2");
+    expect(calls[0].sql).toContain("buyer_user_id = $3");
+    expect(calls[0].sql).toContain("order by created_at desc, id asc");
+    expect(calls[0].sql).toContain("limit $4");
+    expect(calls[0].sql).toContain("offset $5");
+    expect(calls[0].params).toEqual([
+      "downloaded",
+      "sup-no-001",
+      "00000000-0000-4000-8000-000000000001",
+      25,
+      50,
+    ]);
+  });
 });

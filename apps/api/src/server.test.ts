@@ -1750,6 +1750,73 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(JSON.stringify(expiredGrantBody)).not.toContain(document.fileAssetId);
   });
 
+  it("serves admin supplier document download audit without file asset leakage", async () => {
+    const supplierRepository = new MemorySupplierRepository();
+    const fetchApi = await startRawTestServer({ supplierRepository });
+    const buyerHeaders = await signIn(fetchApi, "buyer@example.com");
+    const auditPath = "/v1/admin/supplier-documents/download-events";
+
+    const missingSession = await fetchApi(auditPath);
+    expect(missingSession.status).toBe(401);
+
+    const blocked = await fetchApi(auditPath, { headers: buyerHeaders });
+    const blockedBody = (await blocked.json()) as JsonBody;
+    expect(blocked.status).toBe(403);
+    expect(blockedBody.error).toMatchObject({ code: "admin_role_required" });
+
+    const accessRequest = await fetchApi("/v1/access/suppliers/sup-no-001/request", {
+      method: "POST",
+      headers: buyerHeaders,
+      body: JSON.stringify({ message: "" }),
+    });
+    const accessRequestBody = (await accessRequest.json()) as JsonBody;
+    const requestId = (accessRequestBody.request as { id: string }).id;
+    const decision = await fetchApi(`/v1/access/supplier-requests/${requestId}/decision`, {
+      method: "POST",
+      headers: buyerHeaders,
+      body: JSON.stringify({ status: "approved" }),
+    });
+    expect(decision.status).toBe(200);
+
+    const granted = await fetchApi("/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/grant", {
+      method: "POST",
+      headers: buyerHeaders,
+    });
+    const grantedBody = (await granted.json()) as JsonBody;
+    const downloadPath = String((grantedBody.grant as JsonBody).downloadPath);
+    const downloaded = await fetchApi(downloadPath, { headers: buyerHeaders });
+    expect(downloaded.status).toBe(200);
+
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+    const audit = await fetchApi(`${auditPath}?status=downloaded&supplierId=sup-no-001&limit=5&offset=0`, {
+      headers: adminHeaders,
+    });
+    const auditBody = (await audit.json()) as JsonBody;
+    const serialized = JSON.stringify(auditBody);
+
+    expect(audit.status).toBe(200);
+    expect(auditBody).toMatchObject({
+      ok: true,
+      limit: 5,
+      offset: 0,
+      items: [
+        expect.objectContaining({
+          buyerUserId: testAccountUserId,
+          supplierId: "sup-no-001",
+          documentId: "sup-no-001-health-certificate",
+          status: "downloaded",
+          reason: "downloaded",
+        }),
+      ],
+    });
+    expect((auditBody.items as JsonBody[])[0].grantId).toEqual(expect.stringMatching(/^sdg_/));
+    expect((auditBody.items as JsonBody[])[0].createdAt).toEqual(expect.any(String));
+    expect(serialized).not.toContain("fileAssetId");
+    expect(serialized).not.toContain("file_sup-no-001-health-certificate");
+    expect(serialized).not.toContain("objectKey");
+    expect(serialized).not.toContain("storage");
+  });
+
   it("validates supplier directory query params and returns 404 for missing supplier", async () => {
     const invalid = await request("/v1/suppliers?limit=999");
     expect(invalid.status).toBe(400);

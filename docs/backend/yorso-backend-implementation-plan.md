@@ -787,3 +787,27 @@ priority decision.
 This sequence matches the frontend already built and protects the central
 business rule of YORSO: exact price, supplier identity, contacts and commercial
 detail are valuable data and must be disclosed only through controlled access.
+
+## Backend Phase 4I Checkpoint - Supplier Document Download Audit Listing
+
+Status: implemented.
+
+Phase 4I chooses bounded admin download-audit listing as the next supplier
+document step. Owner/admin document upload and editing are intentionally left
+out of this increment.
+
+Implemented:
+
+- `GET /v1/admin/supplier-documents/download-events` for authenticated admin
+  sessions;
+- bounded query contract with optional `status`, `supplierId`, `buyerUserId`,
+  `limit <= 100` and `offset <= 10 000`;
+- read path over `yorso_supplier_document_download_events`;
+- response shaping without `fileAssetId`, object keys, storage keys, direct
+  storage URLs or `downloadPath`;
+- audit action `admin.supplier_document_download_events.read`;
+- API route and Postgres repository tests.
+
+Next scoped backend direction after Phase 4I: either add an admin UI for this
+audit listing, add adjacent grant-audit listing, or start supplier owner/admin
+document management after defining ownership and validation rules.

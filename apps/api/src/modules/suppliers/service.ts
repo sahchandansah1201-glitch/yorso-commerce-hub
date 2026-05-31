@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import {
+  supplierDocumentDownloadEventAdminListResponseSchema,
+  supplierDocumentDownloadEventAdminQuerySchema,
   supplierDocumentDownloadGrantResponseSchema,
   supplierDirectoryDetailResponseSchema,
   supplierDirectoryItemSchema,
@@ -281,6 +283,29 @@ export class SupplierDirectoryService {
     return supplierDocumentDownloadGrantResponseSchema.parse({
       ok: true,
       grant: responseGrant,
+      requestId,
+    });
+  }
+
+  async listAdminDocumentDownloadEvents(rawQuery: Record<string, string | undefined>, requestId: string) {
+    const query = supplierDocumentDownloadEventAdminQuerySchema.parse(rawQuery);
+    const events = await this.repository.listDocumentDownloadEvents(query);
+
+    return supplierDocumentDownloadEventAdminListResponseSchema.parse({
+      ok: true,
+      items: events.map((event) => ({
+        id: event.id,
+        buyerUserId: event.buyerUserId,
+        supplierId: event.supplierId,
+        documentId: event.documentId,
+        grantId: event.grantId,
+        status: event.status,
+        reason: event.reason,
+        requestId: event.requestId,
+        createdAt: event.createdAt,
+      })),
+      limit: query.limit,
+      offset: query.offset,
       requestId,
     });
   }

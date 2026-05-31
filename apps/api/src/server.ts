@@ -64,6 +64,7 @@ import type { OfferCatalogRepository } from "./modules/offers/repository.js";
 import { handleOfferCatalogRoute } from "./modules/offers/routes.js";
 import { OfferCatalogService } from "./modules/offers/service.js";
 import { createSupplierRepository } from "./modules/suppliers/factory.js";
+import { handleSupplierDocumentAdminRoute } from "./modules/suppliers/admin-routes.js";
 import type { SupplierRepository } from "./modules/suppliers/repository.js";
 import { handleSupplierDirectoryRoute } from "./modules/suppliers/routes.js";
 import { SupplierDirectoryService } from "./modules/suppliers/service.js";
@@ -471,6 +472,15 @@ async function routeWorkRequest(
     url,
     auditSink,
     jsonBodyOptions,
+  )) return;
+  if (await handleSupplierDocumentAdminRoute(
+    request,
+    response,
+    context,
+    supplierService,
+    authService,
+    url,
+    auditSink,
   )) return;
   if (await handleAccountRoute(
     request,

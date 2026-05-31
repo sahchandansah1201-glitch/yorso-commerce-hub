@@ -128,6 +128,7 @@ const requiredFiles = [
   "apps/api/src/modules/suppliers/factory.ts",
   "apps/api/src/modules/suppliers/postgres-repository.ts",
   "apps/api/src/modules/suppliers/repository.ts",
+  "apps/api/src/modules/suppliers/admin-routes.ts",
   "apps/api/src/modules/suppliers/routes.ts",
   "apps/api/src/modules/suppliers/service.ts",
   "apps/api/src/config.ts",
@@ -264,6 +265,7 @@ const requiredFiles = [
   "docs/backend/phase-4f-supplier-document-download-grants.md",
   "docs/backend/phase-4g-supplier-document-download-serving.md",
   "docs/backend/phase-4h-supplier-document-download-ui.md",
+  "docs/backend/phase-4i-supplier-document-download-audit-listing.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -436,6 +438,7 @@ const offerService = read("apps/api/src/modules/offers/service.ts");
 const supplierFactory = read("apps/api/src/modules/suppliers/factory.ts");
 const supplierPostgresRepository = read("apps/api/src/modules/suppliers/postgres-repository.ts");
 const supplierRepository = read("apps/api/src/modules/suppliers/repository.ts");
+const supplierAdminRoutes = read("apps/api/src/modules/suppliers/admin-routes.ts");
 const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const supplierService = read("apps/api/src/modules/suppliers/service.ts");
 const accountRoute = read("apps/api/src/routes/account.ts");
@@ -509,6 +512,7 @@ const phase4eSupplierProfileRestrictedDocuments = read("docs/backend/phase-4e-su
 const phase4fSupplierDocumentDownloadGrants = read("docs/backend/phase-4f-supplier-document-download-grants.md");
 const phase4gSupplierDocumentDownloadServing = read("docs/backend/phase-4g-supplier-document-download-serving.md");
 const phase4hSupplierDocumentDownloadUi = read("docs/backend/phase-4h-supplier-document-download-ui.md");
+const phase4iSupplierDocumentDownloadAuditListing = read("docs/backend/phase-4i-supplier-document-download-audit-listing.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -3059,6 +3063,17 @@ for (const marker of [
 ]) {
   requireText("docs/backend/phase-4h-supplier-document-download-ui.md", phase4hSupplierDocumentDownloadUi, marker);
 }
+for (const marker of [
+  "Backend Phase 4I",
+  "Supplier Document Download Audit Listing",
+  "/v1/admin/supplier-documents/download-events",
+  "supplierDocumentDownloadEventAdminListResponseSchema",
+  "admin.supplier_document_download_events.read",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4i-supplier-document-download-audit-listing.md", phase4iSupplierDocumentDownloadAuditListing, marker);
+}
 for (const [file, text, marker] of [
   ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "downloadSupplierDocument"],
   ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "requestDocumentDownloadGrant"],
@@ -3787,12 +3802,18 @@ requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPos
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "logistics_facts");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "yorso_supplier_document_download_grants");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "yorso_supplier_document_download_events");
+requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "listDocumentDownloadEvents");
+requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "order by created_at desc, id asc");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "interface SupplierRepository");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "class MemorySupplierRepository");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "productionFacts(");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "logisticsFacts(");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "recordDocumentDownloadGrant");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "recordDocumentDownloadEvent");
+requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "listDocumentDownloadEvents");
+requireText("apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/v1/admin/supplier-documents/download-events");
+requireText("apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_download_events.read");
+requireText("apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin_role_required");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers/");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "documents");
@@ -3805,6 +3826,8 @@ requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "sendSup
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDirectoryQuerySchema.parse");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "createSupplierDocumentDownloadGrant");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "consumeSupplierDocumentDownloadGrant");
+requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "listAdminDocumentDownloadEvents");
+requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentDownloadEventAdminListResponseSchema");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentDownloadGrantResponseSchema");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocuments: unlocked ? supplier.supplierDocuments : null");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "hasSupplierAccess");
@@ -3889,6 +3912,8 @@ requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryCon
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentPayloadSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentDownloadGrantSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentDownloadGrantResponseSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentDownloadEventAdminQuerySchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentDownloadEventAdminListResponseSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "productionFacts: supplierProductionFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "logisticsFacts: supplierLogisticsFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocuments: z.array(supplierDocumentPayloadSchema)");
@@ -4440,6 +4465,7 @@ forbidText("apps/api/src/modules/offers/service.ts", offerService, "@/integratio
 forbidText("apps/api/src/modules/suppliers/factory.ts", supplierFactory, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "@/integrations/supabase/client");
+forbidText("apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "@/integrations/supabase/client");
 forbidText("apps/api/src/modules/suppliers/service.ts", supplierService, "@/integrations/supabase/client");
 forbidText("apps/api/src/routes/account.ts", accountRoute, "@/integrations/supabase/client");
