@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle2, Copy, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Copy, Lock, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { getAccountProfile, saveAccountProfile } from "@/lib/account-store";
 import {
   createAccountApiClient,
