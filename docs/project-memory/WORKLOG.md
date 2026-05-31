@@ -3119,3 +3119,61 @@ Keep this file factual and append-only.
   - Browserslist data stale.
 - Next scoped workstream: Backend Phase 4E Supplier Profile Restricted Document
   Payload Boundary.
+
+## 2026-05-31 Phase 4E Checkpoint
+
+- Latest implementation commit: `7f566ca2` (`[codex] Backend Phase 4E supplier restricted documents`).
+- Scoped workstream: Backend Phase 4E Supplier Profile Restricted Document
+  Payload Boundary.
+- Implemented backend-owned restricted supplier document metadata:
+  - `packages/contracts/src/supplier-directory.ts` now defines
+    `supplierDocumentPayloadSchema` and `supplierDocuments`;
+  - memory and PostgreSQL supplier repositories return restricted document
+    metadata from the supplier directory record;
+  - `apps/api/src/modules/suppliers/service.ts` exposes `supplierDocuments`
+    only for `qualified_unlocked` buyers and returns null for locked buyers;
+  - migration `0034_supplier_profile_restricted_documents.sql` adds
+    `supplier_documents` JSONB array storage to `yorso_suppliers_directory`;
+  - `SupplierProfile.tsx` renders per-batch document metadata from
+    `supplier?.supplierDocuments`.
+- Protected browser payload boundary:
+  - locked buyers do not receive document metadata or file names;
+  - the profile payload does not expose file URLs, raw asset ids, storage keys
+    or download material;
+  - API-disabled preview uses explicit `localPreviewSupplierDocuments` in
+    `src/lib/supplier-documents.ts`.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Contract | Добавить backend-owned restricted document metadata. | Реализовано: contract schema and field added. | Phase 4F download grant endpoint. |
+| Persistence | Хранить document metadata в self-hosted supplier table. | Реализовано: migration `0034_supplier_profile_restricted_documents`. | Backfill verified supplier documents later. |
+| Access boundary | Не отдавать document metadata locked buyers. | Реализовано: locked responses get `supplierDocuments: null`. | Grant download must re-check access. |
+| Profile UI | Убрать static per-batch document list из production profile. | Реализовано: profile reads document metadata from supplier record. | Demo-mode retirement later. |
+| Guards | Зафиксировать qualified-only supplierDocuments regression. | Реализовано: tests plus self-hosted/scale checks. | Keep in `ci:core`. |
+
+- Validation passed:
+  - TDD red: `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx`
+    failed before implementation because backend document metadata was ignored;
+  - `npm run contracts:build`;
+  - `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx`;
+  - `npm test -- src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-view.test.ts src/lib/supplier-directory-api.test.ts src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`;
+  - `npm run test:db-migrations`;
+  - `npm run test:db-contract`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm test`;
+  - `npm run lint`;
+  - `npm run api:build`;
+  - `npm run build`;
+  - `npm run test:api`;
+  - `npm run test:supplier-directory-frontend`;
+  - `npm run test:backend-contract`;
+  - `npm run check:self-hosted-db`;
+  - `git diff --check`.
+- Known non-blocking warning preserved:
+  - Browserslist data stale.
+- Next scoped workstream: Backend Phase 4F Supplier Document Download Grant
+  Endpoint.

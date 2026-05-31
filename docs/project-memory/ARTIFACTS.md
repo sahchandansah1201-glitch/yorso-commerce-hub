@@ -1441,3 +1441,15 @@
 - `src/lib/supplier-directory-api.ts`, `src/lib/supplier-directory-view.ts`, `src/lib/use-supplier-directory.ts` and `src/pages/SupplierProfile.tsx`: frontend adapters/profile render legal details from the supplier record and keep locked views null.
 - `src/test/self-hosted-contracts.test.ts`, `src/test/self-hosted-db-contract.test.ts`, `apps/api/src/modules/suppliers/__tests__/repository.test.ts`, `src/lib/supplier-directory-api.test.ts`, `src/lib/supplier-directory-view.test.ts`, `src/lib/use-supplier-directory.test.tsx`, `src/pages/Suppliers.test.tsx` and `src/pages/__tests__/SupplierProfile.access.test.tsx`: regression coverage for typed contract, DB migration, repository mapping, local preview boundary and qualified-only profile rendering.
 - `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4D docs, migration and production-scale baseline markers.
+
+## Backend Phase 4E Supplier Profile Restricted Documents
+
+- `docs/backend/phase-4e-supplier-profile-restricted-documents.md`: implementation note, Russian plan/fact table, access decision, payload boundary, remaining debt, validation and 10,000 concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: supplier directory contract now owns `supplierDocumentPayloadSchema` and `supplierDocuments`.
+- `apps/api/src/modules/suppliers/repository.ts`, `apps/api/src/modules/suppliers/postgres-repository.ts` and `apps/api/src/modules/suppliers/service.ts`: memory/PostgreSQL supplier repositories return document metadata, and access shaping returns `supplierDocuments` only for `qualified_unlocked`.
+- `packages/db/migrations/0034_supplier_profile_restricted_documents.sql` and `packages/db/migration-manifest.json`: self-hosted DB migration and manifest entry for restricted `supplier_documents` JSONB array storage.
+- `src/lib/supplier-documents.ts`: explicit API-disabled local preview helper `localPreviewSupplierDocuments`.
+- `src/lib/supplier-directory-api.ts`, `src/lib/supplier-directory-view.ts`, `src/lib/use-supplier-directory.ts`, `src/data/mockSuppliers.ts` and `src/pages/SupplierProfile.tsx`: frontend adapters/profile render document metadata from the supplier record and keep locked views null.
+- `src/i18n/translations.ts`: EN/RU/ES supplier document labels, empty/locked copy, issued/expires labels and document status labels.
+- `src/test/self-hosted-contracts.test.ts`, `src/test/self-hosted-db-contract.test.ts`, `apps/api/src/modules/suppliers/__tests__/repository.test.ts`, `src/lib/supplier-directory-api.test.ts`, `src/lib/supplier-directory-view.test.ts`, `src/lib/use-supplier-directory.test.tsx`, `src/pages/Suppliers.test.tsx` and `src/pages/__tests__/SupplierProfile.access.test.tsx`: regression coverage for typed contract, DB migration, repository mapping, local preview boundary, locked null payload and qualified-only profile rendering.
+- `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4E docs, migration, contract fields and production-scale baseline markers.

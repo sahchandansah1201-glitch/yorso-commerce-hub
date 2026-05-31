@@ -16,18 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4D Supplier Profile Legal/Compliance Details Source Boundary is
-committed locally at `84dd9588`; release validation passed.
+Backend Phase 4E Supplier Profile Restricted Document Payload Boundary is
+committed locally at `7f566ca2`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Legal contract | Перенести legal/compliance details в supplier API contract. | Реализовано: `supplierLegalDetailsSchema` / `legalDetails` добавлены в contract, API repositories and frontend adapter. | Owner/admin write validation later. |
-| Persistence | Добавить self-hosted storage для legal details. | Реализовано: migration `0033_supplier_profile_legal_details` добавляет JSONB `legal_details`. | Backfill verified supplier legal details later. |
-| Access boundary | Не раскрывать legal identifiers locked buyers. | Реализовано: `shapeSupplierForAccess` отдаёт `legalDetails: null` для `anonymous_locked` и `registered_locked`. | Restricted documents require separate qualified-only payload/API. |
-| Supplier profile | Убрать frontend legal hash synthesis из production profile. | Реализовано: `SupplierProfile.tsx` читает `supplier?.legalDetails`; helper оставлен только как `localPreviewSupplierLegalDetails`. | Phase 4E: restricted document payload boundary. |
-| Guards | Зафиксировать qualified-only legalDetails contract. | Реализовано: tests, DB guards, `check:self-hosted-api`, `check:production-scale-baseline` проходят. | Держать guards в `ci:core`. |
+| Document contract | Перенести restricted supplier document metadata в supplier API contract. | Реализовано: `supplierDocumentPayloadSchema` / `supplierDocuments` добавлены в contract, API repositories and frontend adapter. | Phase 4F: download grant endpoint. |
+| Persistence | Добавить self-hosted storage для restricted document metadata. | Реализовано: migration `0034_supplier_profile_restricted_documents` добавляет JSONB `supplier_documents`. | Backfill verified supplier document metadata later. |
+| Access boundary | Не раскрывать document metadata locked buyers. | Реализовано: `shapeSupplierForAccess` отдаёт `supplierDocuments: null` для `anonymous_locked` и `registered_locked`; URLs/assets/storage keys не входят в payload. | Grant download separately after access re-check. |
+| Supplier profile | Убрать static per-batch document names из production profile. | Реализовано: `SupplierProfile.tsx` читает `supplier?.supplierDocuments`; locked state показывает placeholder without file names. | Demo-mode retirement separate decision. |
+| Guards | Зафиксировать qualified-only supplierDocuments contract. | Реализовано: tests, DB guards, `check:self-hosted-api`, `check:production-scale-baseline` проходят. | Держать guards в `ci:core`. |
 
 ## Current Status
 
@@ -43,6 +43,34 @@ committed locally at `84dd9588`; release validation passed.
 - Backend Phase 4B is committed locally at `799af493`; release validation passed.
 - Backend Phase 4C is committed locally at `d8988d50`; release validation passed.
 - Backend Phase 4D is committed locally at `84dd9588`; release validation passed.
+- Backend Phase 4E is committed locally at `7f566ca2`; release validation passed.
+
+## Phase 4E Files
+
+- `docs/backend/phase-4e-supplier-profile-restricted-documents.md`
+- `packages/contracts/src/supplier-directory.ts`
+- `apps/api/src/modules/suppliers/repository.ts`
+- `apps/api/src/modules/suppliers/postgres-repository.ts`
+- `apps/api/src/modules/suppliers/service.ts`
+- `packages/db/migrations/0034_supplier_profile_restricted_documents.sql`
+- `packages/db/migration-manifest.json`
+- `src/lib/supplier-documents.ts`
+- `src/lib/supplier-directory-api.ts`
+- `src/lib/supplier-directory-view.ts`
+- `src/lib/use-supplier-directory.ts`
+- `src/pages/SupplierProfile.tsx`
+- `src/data/mockSuppliers.ts`
+- `src/i18n/translations.ts`
+- `src/test/self-hosted-contracts.test.ts`
+- `src/test/self-hosted-db-contract.test.ts`
+- `apps/api/src/modules/suppliers/__tests__/repository.test.ts`
+- `src/lib/supplier-directory-api.test.ts`
+- `src/lib/supplier-directory-view.test.ts`
+- `src/lib/use-supplier-directory.test.tsx`
+- `src/pages/Suppliers.test.tsx`
+- `src/pages/__tests__/SupplierProfile.access.test.tsx`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
 
 ## Phase 4D Files
 
@@ -167,6 +195,30 @@ Removed active provider surface:
 
 ## Validation
 
+Phase 4E release validation passed locally on 2026-05-31:
+
+- `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx` initially
+  failed in TDD red because the profile ignored backend-owned supplier
+  documents.
+- `npm run contracts:build`
+- `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx`
+- `npm test -- src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-view.test.ts src/lib/supplier-directory-api.test.ts src/lib/use-supplier-directory.test.tsx src/pages/Suppliers.test.tsx src/pages/__tests__/SupplierProfile.access.test.tsx`
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`
+- `npm run test:db-migrations`
+- `npm run test:db-contract`
+- `npm run check:self-hosted-api`
+- `npm run check:production-scale-baseline`
+- `npx tsc -b --noEmit`
+- `npm test`
+- `npm run lint`
+- `npm run api:build`
+- `npm run build`
+- `npm run test:api`
+- `npm run test:supplier-directory-frontend`
+- `npm run test:backend-contract`
+- `npm run check:self-hosted-db`
+- `git diff --check`
+
 Phase 4D release validation passed locally on 2026-05-31:
 
 - `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx` initially
@@ -259,15 +311,15 @@ Known non-blocking warning:
 
 ## Next Recommended Workstream
 
-Backend Phase 4E: Supplier Profile Restricted Document Payload Boundary.
+Backend Phase 4F: Supplier Document Download Grant Endpoint.
 
 Concrete first scope:
 
-- audit supplier profile document-readiness UI and any document/download paths
-  still represented as frontend/local/prototype data;
-- define a qualified-only supplier document payload contract/API boundary;
-- keep `anonymous_locked` and `registered_locked` responses free of file URLs,
-  document payloads and supplier identity.
+- audit current document metadata payload and confirm no direct file URL exposure;
+- define a qualified-only download grant endpoint with supplier access
+  re-check, bounded response and audit event;
+- keep `/suppliers/:supplierId` payload metadata-only; no public file path,
+  storage key or raw asset id should be exposed in profile responses.
 
 ## Preserve
 

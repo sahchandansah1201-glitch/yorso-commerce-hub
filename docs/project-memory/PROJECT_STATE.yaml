@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "84dd9588"
-  head_summary: "Backend Phase 4D supplier profile legal/compliance details; release validation passed."
+  head_commit: "7f566ca2"
+  head_summary: "Backend Phase 4E supplier profile restricted document payload boundary; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4D implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4E implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,23 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4d_supplier_profile_legal_details"
-  summary: "Supplier profile legal/compliance details are backend-owned through the supplier directory contract/API/DB and qualified-only access boundary."
+  id: "backend_phase_4e_supplier_profile_restricted_documents"
+  summary: "Supplier profile restricted document metadata is backend-owned through the supplier directory contract/API/DB and qualified-only access boundary."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4E implementation is recorded in docs/backend/phase-4e-supplier-profile-restricted-documents.md."
+    - "packages/contracts/src/supplier-directory.ts now includes supplierDocumentPayloadSchema and supplierDocuments."
+    - "apps/api supplier repositories return supplierDocuments from memory records and yorso_suppliers_directory supplier_documents."
+    - "apps/api src/modules/suppliers/service.ts returns supplierDocuments only for qualified_unlocked; anonymous_locked and registered_locked receive null."
+    - "packages/db/migrations/0034_supplier_profile_restricted_documents.sql adds supplier_documents JSONB array storage with restricted-access comment."
+    - "src/pages/SupplierProfile.tsx now renders per-batch document metadata from supplier.supplierDocuments and shows a locked placeholder without file names for locked buyers."
+    - "src/lib/supplier-documents.ts keeps explicit API-disabled local preview helper localPreviewSupplierDocuments separate from configured production API truth."
+    - "check:self-hosted-api and check:production-scale-baseline guard the Phase 4E contract, migration and docs."
+    - "Phase 4E release validation passed: TDD red supplier profile supplierDocuments test, contracts build, focused supplier contract/view/profile tests, API supplier repository tests, DB migration/contract tests, self-hosted guards, TypeScript build graph, full npm test, lint, API build, production build, API tests, supplier-directory frontend suite, backend contract suite, self-hosted DB check and diff check."
+    - "Phase 4E is committed locally at 7f566ca2."
+    - "Recommended next scoped workstream: Backend Phase 4F Supplier Document Download Grant Endpoint."
     - "Phase 4D implementation is recorded in docs/backend/phase-4d-supplier-profile-legal-details.md."
     - "packages/contracts/src/supplier-directory.ts now includes supplierLegalDetailsSchema and legalDetails."
     - "apps/api supplier repositories return legalDetails from memory records and yorso_suppliers_directory legal_details."
@@ -1871,4 +1882,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 4D implementation question. Next scoped decision: Backend Phase 4E Supplier Profile Restricted Document Payload Boundary."
+  - "No open Phase 4E implementation question. Next scoped decision: Backend Phase 4F Supplier Document Download Grant Endpoint."
