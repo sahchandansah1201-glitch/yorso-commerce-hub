@@ -1109,3 +1109,46 @@ Next scoped backend direction after Phase 4R: either a single admin surface that
 combines decision/lifecycle actions (approve/reject/expire/delete) with the same
 bounded redaction guarantees, or an automated approved-document expiry
 scheduler decision. Keep mutation UI and scheduler work scoped separately.
+
+## Backend Phase 4S Checkpoint - Supplier Document Admin Mutation UI
+
+Status: implemented.
+
+Phase 4S adds mutation controls to the existing
+`/admin/supplier-document-management-events` admin surface. It reuses the
+existing Phase 4N admin decision endpoint and Phase 4P lifecycle endpoint; no
+new backend table, scheduler, storage path, Supabase path or lifecycle policy is
+introduced.
+
+Implemented:
+
+- `runDocumentAction` in
+  `src/lib/admin-supplier-document-management-events-api.ts`;
+- decision actions:
+  - `approve` / `reject` -> `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`
+  - request body `{ decision, reason? }`;
+- lifecycle actions:
+  - `expire` / `delete` -> `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`
+  - request body `{ action, reason? }`;
+- status-aware row controls:
+  - `review` -> approve/reject/delete;
+  - `approved` -> expire;
+  - `on_request` / `expired` -> delete;
+- UI reason guard for reject/expire/delete;
+- refresh of the bounded management event list after successful mutation;
+- storage/session redaction guards in unit and browser tests.
+
+Plan / Fact:
+
+| Plan | Done | Will be implemented |
+|---|---|---|
+| Add admin decision actions to the existing events UI. | Review rows can call approve/reject via `/decision`. | Backend policy remains the source of truth for valid transitions. |
+| Add admin lifecycle actions to the existing events UI. | Approved rows can expire; review/on_request/expired rows can delete via `/lifecycle`. | Automated expiry scheduler remains separate. |
+| Require explicit operator reason for risky mutations. | Reject/expire/delete buttons are disabled until a reason is filled. | Structured reason taxonomy remains separate. |
+| Refresh after mutation. | Successful action calls `events.refresh()`. | Optimistic updates require a future cursor/version contract. |
+| Keep browser boundary clean. | Adapter and tests reject storage-only fields and keep session ids out of DOM. | Preserve guard when adding confirmation UX. |
+
+Next scoped backend direction after Phase 4S: either add a confirmation/undo
+UX around destructive admin document mutations, or move to the separate
+approved-document expiry scheduler decision. Keep scheduler work separate from
+admin UI refinement.

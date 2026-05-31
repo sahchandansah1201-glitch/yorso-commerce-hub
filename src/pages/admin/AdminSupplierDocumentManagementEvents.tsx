@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { AlertTriangle, Download, FileClock, Filter, Lock, RefreshCw, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Check, Download, FileClock, Filter, Lock, RefreshCw, ShieldCheck, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AdminOperatorNav } from "@/components/admin/AdminOperatorNav";
 import Header from "@/components/landing/Header";
@@ -28,7 +28,11 @@ type ManagementEventsCopy = {
   actorRole: string;
   actorUserId: string;
   allActions: string;
+  approve: string;
+  actionComplete: string;
+  actionReason: string;
   createdAt: string;
+  delete: string;
   disabledBody: string;
   disabledTitle: string;
   documentId: string;
@@ -37,13 +41,17 @@ type ManagementEventsCopy = {
   exportCsv: string;
   exportJson: string;
   exportReady: string;
+  expire: string;
   filter: string;
   forbiddenBody: string;
   forbiddenTitle: string;
   loading: string;
   reason: string;
+  reject: string;
   refresh: string;
   requestId: string;
+  runActions: string;
+  saving: string;
   sessionBody: string;
   sessionCta: string;
   sessionTitle: string;
@@ -59,7 +67,11 @@ const COPY: Record<Language, ManagementEventsCopy> = {
     actorRole: "Actor role",
     actorUserId: "Actor user ID",
     allActions: "All actions",
+    approve: "Approve",
+    actionComplete: "Document action completed",
+    actionReason: "Action reason",
     createdAt: "Created",
+    delete: "Delete",
     disabledBody: "Set VITE_YORSO_API_URL to inspect supplier document management events through the self-hosted API.",
     disabledTitle: "Self-hosted API is not connected",
     documentId: "Document",
@@ -68,13 +80,17 @@ const COPY: Record<Language, ManagementEventsCopy> = {
     exportCsv: "Export CSV",
     exportJson: "Export JSON",
     exportReady: "Management event export ready",
+    expire: "Expire",
     filter: "Filter management events",
     forbiddenBody: "The backend rejected this session because it does not have the admin role.",
     forbiddenTitle: "Admin role required",
     loading: "Loading supplier document management events...",
     reason: "Reason",
+    reject: "Reject",
     refresh: "Refresh events",
     requestId: "Request",
+    runActions: "Document actions",
+    saving: "Saving...",
     sessionBody: "Sign in through the self-hosted auth flow before opening supplier document management events.",
     sessionCta: "Sign in",
     sessionTitle: "Self-hosted session required",
@@ -88,7 +104,11 @@ const COPY: Record<Language, ManagementEventsCopy> = {
     actorRole: "Роль автора",
     actorUserId: "ID автора",
     allActions: "Все действия",
+    approve: "Одобрить",
+    actionComplete: "Действие с документом выполнено",
+    actionReason: "Причина действия",
     createdAt: "Создано",
+    delete: "Удалить",
     disabledBody: "Укажите VITE_YORSO_API_URL, чтобы проверить события управления документами поставщика через self-hosted API.",
     disabledTitle: "Self-hosted API не подключен",
     documentId: "Документ",
@@ -97,13 +117,17 @@ const COPY: Record<Language, ManagementEventsCopy> = {
     exportCsv: "Экспорт CSV",
     exportJson: "Экспорт JSON",
     exportReady: "Экспорт событий управления готов",
+    expire: "Отметить истекшим",
     filter: "Фильтровать события управления",
     forbiddenBody: "Backend отклонил сессию, потому что у нее нет роли администратора.",
     forbiddenTitle: "Нужна роль администратора",
     loading: "Загружаем события управления документами поставщика...",
     reason: "Причина",
+    reject: "Отклонить",
     refresh: "Обновить события",
     requestId: "Request",
+    runActions: "Действия с документом",
+    saving: "Сохраняем...",
     sessionBody: "Войдите через self-hosted auth flow, чтобы открыть события управления документами поставщика.",
     sessionCta: "Войти",
     sessionTitle: "Нужна self-hosted сессия",
@@ -117,7 +141,11 @@ const COPY: Record<Language, ManagementEventsCopy> = {
     actorRole: "Rol del actor",
     actorUserId: "ID del actor",
     allActions: "Todas las acciones",
+    approve: "Aprobar",
+    actionComplete: "Acción del documento completada",
+    actionReason: "Motivo de la acción",
     createdAt: "Creado",
+    delete: "Eliminar",
     disabledBody: "Define VITE_YORSO_API_URL para revisar eventos de gestión de documentos de proveedor mediante la API self-hosted.",
     disabledTitle: "La API self-hosted no está conectada",
     documentId: "Documento",
@@ -126,13 +154,17 @@ const COPY: Record<Language, ManagementEventsCopy> = {
     exportCsv: "Exportar CSV",
     exportJson: "Exportar JSON",
     exportReady: "Export de eventos de gestión listo",
+    expire: "Marcar expirado",
     filter: "Filtrar eventos de gestión",
     forbiddenBody: "El backend rechazó esta sesión porque no tiene rol admin.",
     forbiddenTitle: "Rol admin requerido",
     loading: "Cargando eventos de gestión de documentos de proveedor...",
     reason: "Motivo",
+    reject: "Rechazar",
     refresh: "Actualizar eventos",
     requestId: "Request",
+    runActions: "Acciones del documento",
+    saving: "Guardando...",
     sessionBody: "Inicia sesión mediante self-hosted auth antes de abrir eventos de gestión de documentos de proveedor.",
     sessionCta: "Iniciar sesión",
     sessionTitle: "Sesión self-hosted requerida",
@@ -163,6 +195,8 @@ export default function AdminSupplierDocumentManagementEvents() {
   const [documentId, setDocumentId] = useState("");
   const [actorUserId, setActorUserId] = useState("");
   const [exportStatus, setExportStatus] = useState<string | null>(null);
+  const [actionStatus, setActionStatus] = useState<string | null>(null);
+  const [savingAction, setSavingAction] = useState<string | null>(null);
 
   const query = useMemo<AdminSupplierDocumentManagementEventsQuery>(() => ({
     action,
@@ -178,6 +212,31 @@ export default function AdminSupplierDocumentManagementEvents() {
     const client = createAdminSupplierDocumentManagementEventsApiClient({ session });
     await client.exportEvents({ ...query, format });
     setExportStatus(copy.exportReady);
+  };
+
+  const runDocumentAction = async (
+    item: AdminSupplierDocumentManagementEventItem,
+    action: "approve" | "reject" | "expire" | "delete",
+    reason?: string,
+  ) => {
+    const actionKey = `${item.id}:${action}`;
+    setSavingAction(actionKey);
+    setActionStatus(null);
+    try {
+      const client = createAdminSupplierDocumentManagementEventsApiClient({ session });
+      await client.runDocumentAction({
+        action,
+        documentId: item.documentId,
+        reason,
+        supplierId: item.supplierId,
+      });
+      setActionStatus(copy.actionComplete);
+      events.refresh();
+    } catch (error) {
+      setActionStatus(error instanceof Error ? error.message : copy.errorTitle);
+    } finally {
+      setSavingAction(null);
+    }
   };
 
   return (
@@ -230,6 +289,15 @@ export default function AdminSupplierDocumentManagementEvents() {
             data-testid="admin-document-management-events-export-status"
           >
             {exportStatus}
+          </p>
+        )}
+
+        {actionStatus && (
+          <p
+            className="rounded-2xl bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-900"
+            data-testid="admin-document-management-events-action-status"
+          >
+            {actionStatus}
           </p>
         )}
 
@@ -328,7 +396,12 @@ export default function AdminSupplierDocumentManagementEvents() {
         )}
 
         {events.data && (
-          <ManagementEventRows copy={copy} items={events.data.items} />
+          <ManagementEventRows
+            copy={copy}
+            items={events.data.items}
+            onRunAction={runDocumentAction}
+            savingAction={savingAction}
+          />
         )}
       </main>
     </div>
@@ -369,9 +442,17 @@ function FilterInput({
 function ManagementEventRows({
   copy,
   items,
+  onRunAction,
+  savingAction,
 }: {
   copy: ManagementEventsCopy;
   items: AdminSupplierDocumentManagementEventItem[];
+  onRunAction: (
+    item: AdminSupplierDocumentManagementEventItem,
+    action: "approve" | "reject" | "expire" | "delete",
+    reason?: string,
+  ) => Promise<void>;
+  savingAction: string | null;
 }) {
   if (items.length === 0) {
     return (
@@ -412,6 +493,12 @@ function ManagementEventRows({
                   <Meta label={copy.reason} value={item.reason} />
                   <Meta label={copy.requestId} value={item.requestId} />
                 </dl>
+                <DocumentActionControls
+                  copy={copy}
+                  item={item}
+                  onRunAction={onRunAction}
+                  savingAction={savingAction}
+                />
               </div>
               <dl className="grid min-w-0 gap-2 text-xs text-muted-foreground lg:max-w-xs lg:text-right">
                 <Meta label={copy.createdAt} value={formatDate(item.createdAt)} />
@@ -423,6 +510,102 @@ function ManagementEventRows({
     </Card>
   );
 }
+
+function DocumentActionControls({
+  copy,
+  item,
+  onRunAction,
+  savingAction,
+}: {
+  copy: ManagementEventsCopy;
+  item: AdminSupplierDocumentManagementEventItem;
+  onRunAction: (
+    item: AdminSupplierDocumentManagementEventItem,
+    action: "approve" | "reject" | "expire" | "delete",
+    reason?: string,
+  ) => Promise<void>;
+  savingAction: string | null;
+}) {
+  const [reason, setReason] = useState("");
+  const actions = allowedActions(item);
+  if (actions.length === 0) return null;
+
+  const run = (action: "approve" | "reject" | "expire" | "delete") => {
+    void onRunAction(item, action, reason.trim() || undefined);
+  };
+
+  return (
+    <div className="mt-4 rounded-xl border border-border/70 bg-muted/30 p-3" data-testid={`admin-document-management-events-actions-${item.id}`}>
+      <Label className="text-xs" htmlFor={`admin-document-management-events-reason-${item.id}`}>
+        {copy.actionReason}
+      </Label>
+      <Input
+        className="mt-2"
+        data-testid={`admin-document-management-events-reason-${item.id}`}
+        id={`admin-document-management-events-reason-${item.id}`}
+        onChange={(event) => setReason(event.target.value)}
+        placeholder={copy.reason}
+        value={reason}
+      />
+      <div className="mt-3 flex flex-wrap gap-2" aria-label={copy.runActions}>
+        {actions.includes("approve") && (
+          <Button
+            data-testid={`admin-document-management-events-approve-${item.id}`}
+            disabled={savingAction === `${item.id}:approve`}
+            onClick={() => run("approve")}
+            size="sm"
+          >
+            <Check className="mr-2 h-4 w-4" />
+            {savingAction === `${item.id}:approve` ? copy.saving : copy.approve}
+          </Button>
+        )}
+        {actions.includes("reject") && (
+          <Button
+            data-testid={`admin-document-management-events-reject-${item.id}`}
+            disabled={!reason.trim() || savingAction === `${item.id}:reject`}
+            onClick={() => run("reject")}
+            size="sm"
+            variant="outline"
+          >
+            <X className="mr-2 h-4 w-4" />
+            {savingAction === `${item.id}:reject` ? copy.saving : copy.reject}
+          </Button>
+        )}
+        {actions.includes("expire") && (
+          <Button
+            data-testid={`admin-document-management-events-expire-${item.id}`}
+            disabled={!reason.trim() || savingAction === `${item.id}:expire`}
+            onClick={() => run("expire")}
+            size="sm"
+            variant="outline"
+          >
+            <FileClock className="mr-2 h-4 w-4" />
+            {savingAction === `${item.id}:expire` ? copy.saving : copy.expire}
+          </Button>
+        )}
+        {actions.includes("delete") && (
+          <Button
+            data-testid={`admin-document-management-events-delete-${item.id}`}
+            disabled={!reason.trim() || savingAction === `${item.id}:delete`}
+            onClick={() => run("delete")}
+            size="sm"
+            variant="destructive"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {savingAction === `${item.id}:delete` ? copy.saving : copy.delete}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const allowedActions = (item: AdminSupplierDocumentManagementEventItem): Array<"approve" | "reject" | "expire" | "delete"> => {
+  if (item.nextStatus === "review") return ["approve", "reject", "delete"];
+  if (item.nextStatus === "approved") return ["expire"];
+  if (item.nextStatus === "on_request" || item.nextStatus === "expired") return ["delete"];
+  return [];
+};
 
 function Meta({ label, value }: { label: string; value: string }) {
   return (

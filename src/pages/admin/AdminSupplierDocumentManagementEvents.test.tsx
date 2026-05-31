@@ -33,6 +33,50 @@ const eventsPayload = (): AdminSupplierDocumentManagementEventsListResponse => (
   requestId: "00000000-0000-4000-8000-000000000451",
 });
 
+const actionableEventsPayload = (): AdminSupplierDocumentManagementEventsListResponse => ({
+  ...eventsPayload(),
+  items: [
+    {
+      ...eventsPayload().items[0],
+      action: "supplier_document.create",
+      id: "sdme_page_review",
+      nextStatus: "review",
+      previousStatus: null,
+      reason: "Supplier uploaded document for review",
+    },
+    {
+      ...eventsPayload().items[0],
+      id: "sdme_page_approved",
+      nextStatus: "approved",
+      previousStatus: "review",
+    },
+  ],
+});
+
+const actionPayload = (action: string) => ({
+  audit: {
+    action,
+    actorRole: "admin",
+    createdAt: "2026-05-31T08:05:00.000Z",
+    documentId: "sup-no-001-health-certificate",
+    nextStatus: action === "supplier_document.expire" ? "expired" : "approved",
+    previousStatus: action === "supplier_document.expire" ? "approved" : "review",
+    reason: "Reviewed by admin",
+    requestId: "req_management_action_page",
+    supplierId: "sup-no-001",
+  },
+  document: {
+    documentType: "health_certificate",
+    expiresAt: null,
+    id: "sup-no-001-health-certificate",
+    issuedAt: null,
+    status: action === "supplier_document.expire" ? "expired" : "approved",
+    title: "Health certificate",
+  },
+  ok: true,
+  requestId: "req_management_action_page",
+});
+
 const renderPage = () =>
   render(
     <MemoryRouter initialEntries={["/admin/supplier-document-management-events"]}>
@@ -144,6 +188,59 @@ describe("AdminSupplierDocumentManagementEvents page", () => {
     expect(bodyText).not.toContain("storage");
     expect(bodyText).not.toContain(adminSessionId);
     expect(bodyText).not.toContain("admin@yorso.test");
+  });
+
+  it("runs status-aware approve and expire actions then refreshes the event list", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
+    const fetchImpl = vi.fn<typeof fetch>(async (input) => {
+      const url = String(input);
+      if (url.endsWith("/decision")) {
+        return new Response(JSON.stringify(actionPayload("supplier_document.approve")), {
+          headers: { "content-type": "application/json" },
+        });
+      }
+      if (url.endsWith("/lifecycle")) {
+        return new Response(JSON.stringify(actionPayload("supplier_document.expire")), {
+          headers: { "content-type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify(actionableEventsPayload()), {
+        headers: { "content-type": "application/json" },
+      });
+    });
+    vi.stubGlobal("fetch", fetchImpl);
+    signInAdmin();
+
+    renderPage();
+
+    await screen.findByTestId("admin-document-management-events-rows");
+    fireEvent.click(screen.getByTestId("admin-document-management-events-approve-sdme_page_review"));
+    await waitFor(() => {
+      const decisionCall = fetchImpl.mock.calls.find((call) => String(call[0]).endsWith("/decision"));
+      expect(decisionCall).toBeTruthy();
+      expect(JSON.parse(String(decisionCall?.[1]?.body))).toEqual({ decision: "approve" });
+    });
+
+    expect(screen.getByTestId("admin-document-management-events-expire-sdme_page_approved")).toBeDisabled();
+    fireEvent.change(screen.getByTestId("admin-document-management-events-reason-sdme_page_approved"), {
+      target: { value: "Certificate validity passed" },
+    });
+    fireEvent.click(screen.getByTestId("admin-document-management-events-expire-sdme_page_approved"));
+
+    await waitFor(() => {
+      const lifecycleCall = fetchImpl.mock.calls.find((call) => String(call[0]).endsWith("/lifecycle"));
+      expect(lifecycleCall).toBeTruthy();
+      expect(JSON.parse(String(lifecycleCall?.[1]?.body))).toEqual({
+        action: "expire",
+        reason: "Certificate validity passed",
+      });
+    });
+    await waitFor(() => expect(fetchImpl.mock.calls.filter((call) => String(call[0]).includes("/management-events?"))).toHaveLength(3));
+
+    const bodyText = document.body.textContent ?? "";
+    expect(bodyText).not.toContain("fileAssetId");
+    expect(bodyText).not.toContain("downloadPath");
+    expect(bodyText).not.toContain(adminSessionId);
   });
 
   it("keeps RU forbidden copy localized", async () => {

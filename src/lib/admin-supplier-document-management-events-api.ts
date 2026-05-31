@@ -58,6 +58,35 @@ export interface AdminSupplierDocumentManagementEventsExportResponse {
   text: string;
 }
 
+export type AdminSupplierDocumentManagementUiAction = "approve" | "reject" | "expire" | "delete";
+
+export interface AdminSupplierDocumentManagementActionInput {
+  action: AdminSupplierDocumentManagementUiAction;
+  documentId: string;
+  reason?: string;
+  supplierId: string;
+}
+
+export interface AdminSupplierDocumentManagementActionResponse {
+  audit: {
+    action: AdminSupplierDocumentManagementEventAction;
+    actorRole: AdminSupplierDocumentManagementEventActorRole;
+    createdAt: string;
+    documentId: string;
+    nextStatus: AdminSupplierDocumentManagementEventStatus | null;
+    previousStatus: AdminSupplierDocumentManagementEventStatus | null;
+    reason: string;
+    requestId: string;
+    supplierId: string;
+  };
+  document: {
+    id: string;
+    status: AdminSupplierDocumentManagementEventStatus;
+  };
+  ok: true;
+  requestId: string;
+}
+
 export interface AdminSupplierDocumentManagementEventsApiClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -87,6 +116,9 @@ export class AdminSupplierDocumentManagementEventsApiError extends Error {
 
 const managementEventsEndpoint = "/v1/admin/supplier-documents/management-events";
 const managementEventsExportEndpoint = "/v1/admin/supplier-documents/management-events/export";
+
+const actionEndpoint = (supplierId: string, documentId: string, suffix: "decision" | "lifecycle") =>
+  `/v1/admin/supplier-documents/${encodeURIComponent(supplierId)}/documents/${encodeURIComponent(documentId)}/${suffix}`;
 
 const forbiddenResponseFields = [
   "downloadPath",
@@ -131,6 +163,12 @@ export function createAdminSupplierDocumentManagementEventsApiClient(
     const next = new Headers({ accept });
     if (userId) next.set(ACCOUNT_USER_ID_HEADER, userId);
     if (sessionId) next.set(ACCOUNT_SESSION_ID_HEADER, sessionId);
+    return next;
+  };
+
+  const jsonHeaders = () => {
+    const next = headers();
+    next.set("content-type", "application/json");
     return next;
   };
 
@@ -193,6 +231,33 @@ export function createAdminSupplierDocumentManagementEventsApiClient(
 
       return assertListShape(body);
     },
+    async runDocumentAction(
+      input: AdminSupplierDocumentManagementActionInput,
+    ): Promise<AdminSupplierDocumentManagementActionResponse> {
+      assertEnabledSession();
+
+      const isDecision = input.action === "approve" || input.action === "reject";
+      const body = isDecision
+        ? { decision: input.action, ...(input.reason?.trim() ? { reason: input.reason.trim() } : {}) }
+        : { action: input.action, ...(input.reason?.trim() ? { reason: input.reason.trim() } : {}) };
+      const response = await fetchImpl(
+        `${baseUrl}${actionEndpoint(input.supplierId, input.documentId, isDecision ? "decision" : "lifecycle")}`,
+        {
+          body: JSON.stringify(body),
+          headers: jsonHeaders(),
+          method: "POST",
+        },
+      );
+      const responseBody = (await response.json()) as AdminSupplierDocumentManagementActionResponse & {
+        error?: { code?: string; message?: string };
+      };
+
+      if (!response.ok) {
+        handleJsonError(responseBody, response.status);
+      }
+
+      return assertActionShape(responseBody);
+    },
   };
 }
 
@@ -242,6 +307,27 @@ function assertListShape(response: AdminSupplierDocumentManagementEventsListResp
     throw new AdminSupplierDocumentManagementEventsApiError(
       "admin_supplier_document_management_events_invalid_response",
       "Supplier document management event list response failed the self-hosted contract.",
+      200,
+    );
+  }
+
+  assertNoForbiddenFields(JSON.stringify(response));
+  return response;
+}
+
+function assertActionShape(response: AdminSupplierDocumentManagementActionResponse) {
+  if (
+    response?.ok !== true ||
+    typeof response.requestId !== "string" ||
+    !response.document ||
+    typeof response.document.id !== "string" ||
+    typeof response.document.status !== "string" ||
+    !response.audit ||
+    typeof response.audit.action !== "string"
+  ) {
+    throw new AdminSupplierDocumentManagementEventsApiError(
+      "admin_supplier_document_management_events_invalid_response",
+      "Supplier document management action response failed the self-hosted contract.",
       200,
     );
   }

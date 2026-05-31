@@ -31,6 +31,7 @@ const requiredFiles = [
   "docs/backend/phase-4p-supplier-document-admin-lifecycle.md",
   "docs/backend/phase-4q-supplier-document-management-events.md",
   "docs/backend/phase-4r-supplier-document-management-events-admin-ui.md",
+  "docs/backend/phase-4s-supplier-document-admin-mutation-ui.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -312,6 +313,7 @@ const phase4oSupplierDocumentOwnerCorrection = read("docs/backend/phase-4o-suppl
 const phase4pSupplierDocumentAdminLifecycle = read("docs/backend/phase-4p-supplier-document-admin-lifecycle.md");
 const phase4qSupplierDocumentManagementEvents = read("docs/backend/phase-4q-supplier-document-management-events.md");
 const phase4rSupplierDocumentManagementEventsAdminUi = read("docs/backend/phase-4r-supplier-document-management-events-admin-ui.md");
+const phase4sSupplierDocumentAdminMutationUi = read("docs/backend/phase-4s-supplier-document-admin-mutation-ui.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -4278,6 +4280,42 @@ requireText("apps/api/src/modules/offers/postgres-repository.ts", offerPostgresR
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run self-hosted access runtime browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:self-hosted-access-runtime");
 
+for (const marker of [
+  "Backend Phase 4S",
+  "Supplier Document Admin Mutation UI",
+  "runDocumentAction",
+  "/v1/admin/supplier-documents/:supplierId/documents/:documentId/decision",
+  "/v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle",
+  "admin-document-management-events-approve",
+  "admin-document-management-events-expire",
+  "План / факт",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4s-supplier-document-admin-mutation-ui.md", phase4sSupplierDocumentAdminMutationUi, marker);
+}
+for (const marker of [
+  "Backend Phase 4S",
+  "low-volume operator writes",
+  "No polling, subscriptions, batch mutation or full-table export introduced",
+  "post-mutation refresh",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const [file, text, marker] of [
+  ["src/lib/admin-supplier-document-management-events-api.ts", adminSupplierDocumentManagementEventsApi, "runDocumentAction"],
+  ["src/lib/admin-supplier-document-management-events-api.ts", adminSupplierDocumentManagementEventsApi, "actionEndpoint"],
+  ["src/lib/admin-supplier-document-management-events-api.test.ts", adminSupplierDocumentManagementEventsApiTest, "posts admin decision and lifecycle actions with sanitized responses"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "DocumentActionControls"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-approve"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-expire"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "events.refresh()"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "Phase 4R/4S browser guard"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "runs status-aware admin document actions without exposing storage fields"],
+]) {
+  requireText(file, text, marker);
+}
+
 if (failures.length > 0) {
   console.error("Production scale baseline check failed.");
   for (const failure of failures) console.error(`- ${failure}`);
@@ -4288,4 +4326,5 @@ console.log("Production scale baseline check passed.");
 console.log("- 10,000 concurrent-user target is documented.");
 console.log("- supplier, offer and access-flow paths have scaling guardrails.");
 console.log("- supplier document management event listing/export has bounded admin read guardrails.");
+console.log("- supplier document admin mutation UI has low-volume write and redaction guardrails.");
 console.log("- ci:core enforces the baseline check.");

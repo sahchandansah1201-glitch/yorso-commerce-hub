@@ -1318,3 +1318,46 @@ scheduler, lifecycle mutations или изменения file-storage повед
 которая объединит decision/lifecycle действия (approve/reject/expire/delete) с
 тем же bounded redaction guarantee, либо automated approved-document expiry
 scheduler decision. Не смешивать mutation UI и scheduler в одном scope.
+
+## Backend Phase 4S Checkpoint - Admin mutation UI документов поставщика
+
+Статус: реализовано.
+
+Phase 4S добавляет mutation controls в существующую admin surface
+`/admin/supplier-document-management-events`. Инкремент переиспользует
+существующие endpoints Phase 4N admin decision и Phase 4P lifecycle; новые
+backend tables, scheduler, storage path, Supabase path или lifecycle policy не
+добавляются.
+
+Реализовано:
+
+- `runDocumentAction` в
+  `src/lib/admin-supplier-document-management-events-api.ts`;
+- decision actions:
+  - `approve` / `reject` -> `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`
+  - request body `{ decision, reason? }`;
+- lifecycle actions:
+  - `expire` / `delete` -> `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`
+  - request body `{ action, reason? }`;
+- status-aware row controls:
+  - `review` -> approve/reject/delete;
+  - `approved` -> expire;
+  - `on_request` / `expired` -> delete;
+- UI reason guard для reject/expire/delete;
+- refresh bounded management event list после успешной mutation;
+- storage/session redaction guards в unit и browser tests.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Добавить admin decision actions в existing events UI. | Review rows вызывают approve/reject через `/decision`. | Backend policy остается источником правды для валидных переходов. |
+| Добавить admin lifecycle actions в existing events UI. | Approved rows могут expire; review/on_request/expired rows могут delete через `/lifecycle`. | Automated expiry scheduler отдельно. |
+| Требовать явную причину оператора для рискованных mutations. | Reject/expire/delete disabled, пока reason пустой. | Structured reason taxonomy отдельно. |
+| Обновлять список после mutation. | Successful action вызывает `events.refresh()`. | Optimistic updates требуют future cursor/version contract. |
+| Сохранять browser boundary. | Adapter и tests reject storage-only fields и не рендерят session ids в DOM. | Сохранять guard при добавлении confirmation UX. |
+
+Следующий scoped backend direction после Phase 4S: либо confirmation/undo UX
+для destructive admin document mutations, либо отдельное решение по
+approved-document expiry scheduler. Scheduler work не смешивать с refinement
+admin UI.

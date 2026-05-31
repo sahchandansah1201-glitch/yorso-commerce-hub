@@ -6611,6 +6611,80 @@ Marker: useAdminSupplierDocumentManagementEvents.
 Marker: admin-supplier-document-management-events.spec.ts.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4S - Supplier Document Admin Mutation UI
+
+Status: implemented.
+
+Phase 4S adds admin mutation controls to the existing
+`/admin/supplier-document-management-events` route. It does not add new
+backend tables, schedulers, object-storage behavior, Supabase paths or new
+lifecycle policy; it reuses the existing Phase 4N decision endpoint and Phase
+4P lifecycle endpoint.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Wire approve/reject actions. | `runDocumentAction` posts `{ decision, reason? }` to `/decision`. | Backend policy remains the only source of valid transitions. |
+| Wire expire/delete actions. | `runDocumentAction` posts `{ action, reason? }` to `/lifecycle`. | Automated expiry scheduler remains separate. |
+| Require operator reason for risky actions. | `reject`, `expire` and `delete` remain disabled until reason is filled. | Structured reason taxonomy remains separate. |
+| Refresh event list after mutation. | Successful mutation calls `events.refresh()`. | Cursor/version based optimistic UI remains separate. |
+| Preserve redaction boundary. | Unit/e2e guards keep storage-only fields and session ids out of DOM. | Keep guard with future confirmation UX. |
+
+Expected read/write profile:
+
+- One bounded list read on page load and after each successful mutation.
+- One admin write per explicit operator action.
+- This is low-volume operator writes, not public buyer or supplier traffic.
+- No polling, subscriptions, batch mutation or full-table export introduced.
+
+Cache, queue and backpressure strategy:
+
+- No frontend cache; operator decisions must reflect backend truth.
+- List reads stay bounded with the existing `limit=50` query.
+- Backend admin-role checks, document-management policy and request limits
+  remain the write backpressure/fail-closed boundary.
+
+Database indexing and pagination strategy:
+
+- Reuses Phase 4Q bounded reads over
+  `yorso_supplier_document_management_events`.
+- Reuses Phase 4N/4P document mutation paths and management-event audit writes;
+  no migration is introduced.
+
+Failure mode and graceful degradation:
+
+- Missing API URL, missing session and non-admin session continue to render the
+  explicit disabled/session-required/forbidden states.
+- Failed mutation surfaces a bounded error and does not apply an optimistic
+  browser-side mutation.
+- Storage identifiers, file asset ids, direct URLs and session ids stay out of
+  rendered DOM.
+
+Observability and load-test plan:
+
+- Mutations continue through the existing API route observability and durable
+  supplier document management event audit writes.
+- Browser smoke verifies decision/lifecycle endpoint selection, session
+  headers, post-mutation refresh and DOM redaction.
+- Load testing should replay low-rate admin writes alongside public buyer
+  catalog traffic to verify admin mutations do not affect buyer route latency.
+
+Validation:
+
+- `npm run test:admin-supplier-document-management-events-frontend`;
+- `npm run smoke:e2e:admin-supplier-document-management-events`;
+- `npm run check:self-hosted-api`;
+- `npm run check:production-scale-baseline`.
+
+Marker: Backend Phase 4S Supplier Document Admin Mutation UI.
+Marker: runDocumentAction.
+Marker: /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision.
+Marker: /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle.
+Marker: admin-document-management-events-approve.
+Marker: admin-document-management-events-expire.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -2047,6 +2047,41 @@ Required markers:
 - `admin-supplier-document-management-events.spec.ts`;
 - `10,000 concurrent users`.
 
+## Backend Phase 4S Supplier Document Admin Mutation UI Validation
+
+Run:
+
+```bash
+npm run test:admin-supplier-document-management-events-frontend
+npm run smoke:e2e:admin-supplier-document-management-events
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `runDocumentAction` maps `approve`/`reject` to the existing admin
+  `/decision` endpoint and `expire`/`delete` to the existing admin `/lifecycle`
+  endpoint.
+- Mutation requests carry `x-yorso-user-id` and `x-yorso-session-id` headers
+  from the self-hosted buyer session.
+- Review rows expose approve/reject/delete controls; approved rows expose
+  expire; destructive/status cleanup actions require an operator reason.
+- Successful actions refresh the bounded management event list instead of
+  applying an optimistic local mutation.
+- Browser-facing UI does not render storage-only fields or session identifiers.
+
+Required markers:
+
+- `Backend Phase 4S`;
+- `Supplier Document Admin Mutation UI`;
+- `runDocumentAction`;
+- `/v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`;
+- `/v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`;
+- `admin-document-management-events-approve`;
+- `admin-document-management-events-expire`;
+- `10,000 concurrent users`.
+
 ## Backend Phase 4P Supplier Document Admin Lifecycle Cleanup Validation
 
 Run:
