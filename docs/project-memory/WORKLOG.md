@@ -3589,3 +3589,65 @@ Keep this file factual and append-only.
   - existing React Router future flag / act warnings in the test suite.
 - Next scoped implementation: Backend Phase 4N admin approve/reject supplier
   document review flow.
+
+## 2026-05-31 Phase 4N Checkpoint
+
+- Latest implementation commit: `2d5a05ba` (`[codex] Backend Phase 4N supplier document admin decision`).
+- Scoped workstream: Backend Phase 4N Supplier Document Admin Decision.
+- Implemented the admin decision path only:
+  - `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`
+    approves or rejects a supplier document currently in `review`;
+  - no owner metadata update/delete route, admin expire/delete route or
+    frontend UI was added in this phase.
+- Implemented access and policy checks:
+  - route requires a self-hosted account session and admin role;
+  - missing sessions return 401;
+  - owner/buyer non-admin sessions return `admin_role_required`;
+  - `decideSupplierDocumentAsAdmin` applies Phase 4L policy for
+    `admin/approve` and `admin/reject`.
+- Implemented status, response and storage boundaries:
+  - `review -> approved` and `review -> on_request` are the only successful
+    transitions;
+  - stale/repeated decisions return `invalid_status_transition`;
+  - response uses `supplierDocumentManagementDecisionResponseSchema` and omits
+    `fileAssetId`, object keys, storage keys, download paths and storage URLs.
+- Implemented persistence/audit:
+  - PostgreSQL repository updates the supplier document status and inserts
+    `supplier_document.approve` or `supplier_document.reject` audit metadata in
+    one bounded CTE;
+  - memory repository mirrors the same status and audit behavior;
+  - admin route attempts emit `admin.supplier_document_management.decide`.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Scope | Реализовать только admin decision path, без owner update/delete и без UI. | Реализован approve/reject для документов в `review`. | Phase 4O: owner metadata update/delete для non-approved документов. |
+| Access | Пускать только self-hosted admin. | Missing session -> 401; buyer/owner non-admin -> `admin_role_required`. | Owner routes отдельно. |
+| Status transitions | Закрыть approve/reject без обхода policy. | `review -> approved`, `review -> on_request`; stale/repeated decision -> `invalid_status_transition`. | Replacement/re-review flow отдельно. |
+| Response boundary | Не раскрывать backend file identifiers. | Decision response sanitized, без `fileAssetId`, storage keys, `downloadPath` или direct URLs. | Сохранять для update/delete/expire. |
+| Persistence | Decision и audit должны быть atomic. | PostgreSQL CTE status update + `supplier_document.approve/reject` audit insert. | Event listing UI может читать существующую audit table. |
+| Smoke | Проверить owner create -> admin approve/reject. | `supplier_document_admin_decision_review=ok` в self-hosted account API smoke. | Добавить owner correction smoke в Phase 4O. |
+| Guards | Зафиксировать docs, tests, self-hosted и 10k-user guards. | Runtime script, self-hosted guard, production-scale guard обновлены. | Держать в release path. |
+
+- Validation passed:
+  - TDD red: admin decision API route test failed with 404 before
+    implementation;
+  - TDD green: admin decision API route test and PostgreSQL decision CTE test;
+  - `npm run contracts:build`;
+  - `npm run test:supplier-document-management-runtime`;
+  - `npm run test:supplier-document-management-policy`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:self-hosted-account-api:run`;
+  - `npm run test:api`;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run build`;
+  - `npm test` passed: 181 files, 1281 passed, 2 skipped;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Browserslist data stale;
+  - existing React Router future flag / act warnings in the test suite;
+  - existing analytics degradation stderr in analytics test.
+- Next scoped implementation: Backend Phase 4O supplier owner metadata
+  update/delete for non-approved supplier documents.

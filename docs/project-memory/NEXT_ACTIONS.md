@@ -2,50 +2,54 @@
 
 ## Current Next Action
 
-Backend Phase 4M is implemented and committed locally at `a6765b4f`.
+Backend Phase 4N is implemented and committed locally at `2d5a05ba`.
 
-Phase 4M closes the first supplier document management write path:
+Phase 4N closes the admin decision path for review supplier documents:
 
-- `POST /v1/suppliers/:supplierId/documents` creates a `review` document for
-  an authenticated supplier owner;
-- the file input is an existing self-hosted account file asset for the same
-  company, not browser-supplied object storage metadata;
-- the API applies Phase 4L owner/create policy and rejects duplicate file reuse,
-  file-name mismatch, wrong company, wrong account role and missing sessions;
+- `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision`
+  approves or rejects a document currently in `review`;
+- the route requires a self-hosted session and admin role;
+- the API applies Phase 4L admin/approve or admin/reject policy before status
+  mutation;
 - the browser response is sanitized through
-  `supplierDocumentManagementCreateResponseSchema`;
-- PostgreSQL appends the supplier document and inserts
-  `supplier_document.create` audit metadata in one bounded CTE;
-- migration `0037_supplier_document_management_events` owns durable management
-  audit records.
+  `supplierDocumentManagementDecisionResponseSchema`;
+- PostgreSQL updates the supplier document status and inserts
+  `supplier_document.approve` or `supplier_document.reject` audit metadata in
+  one bounded CTE;
+- the smoke marker `supplier_document_admin_decision_review=ok` verifies the
+  full owner-create -> admin-approve/reject flow.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Реализовать один первый write path, без admin approve/reject и без frontend UI. | Реализован supplier owner create review document. | Phase 4N: admin approve/reject review flow. |
-| Access | Пускать только self-hosted supplier owner. | Требуются session, account role `supplier`/`both`, company ownership. | Admin route отдельно, с admin session. |
-| File boundary | Не принимать storage internals из браузера. | Принимается только `fileUploadId`; asset проверяется по owner user/company. | Upload UX может использовать этот backend-owned file id. |
-| Response boundary | Не раскрывать backend file identifiers. | Response schema отдает sanitized document + audit, без `fileAssetId`/storage fields. | Сохранять такой контракт для update/approve. |
-| Persistence | Запись документа и audit должны быть atomic. | PostgreSQL CTE append+audit; migration `0037` для audit table. | Admin approve/reject должен писать в ту же audit table. |
-| Smoke | Проверить реальный account file -> supplier document create. | `supplier_document_owner_create_review=ok` в self-hosted account API smoke. | Добавить admin approve/reject smoke в Phase 4N. |
-| Guards | Зафиксировать docs, tests, self-hosted и 10k-user guards. | Runtime script, DB tests, self-hosted guard, production-scale guard обновлены. | Держать в release path. |
+| Scope | Реализовать только admin decision path, без owner update/delete и без UI. | Реализован approve/reject для документов в `review`. | Phase 4O: owner metadata update/delete для non-approved документов. |
+| Access | Пускать только self-hosted admin. | Missing session -> 401; buyer/owner non-admin -> `admin_role_required`. | Owner routes отдельно. |
+| Status transitions | Закрыть approve/reject без обхода policy. | `review -> approved`, `review -> on_request`; stale/repeated decision -> `invalid_status_transition`. | Replacement/re-review flow отдельно. |
+| Response boundary | Не раскрывать backend file identifiers. | Decision response sanitized, без `fileAssetId`, storage keys, `downloadPath` или direct URLs. | Сохранять для update/delete/expire. |
+| Persistence | Decision и audit должны быть atomic. | PostgreSQL CTE status update + `supplier_document.approve/reject` audit insert. | Event listing UI может читать существующую audit table. |
+| Smoke | Проверить owner create -> admin approve/reject. | `supplier_document_admin_decision_review=ok` в self-hosted account API smoke. | Добавить owner correction smoke в Phase 4O. |
+| Guards | Зафиксировать docs, tests, self-hosted и 10k-user guards. | Runtime script, self-hosted guard, production-scale guard обновлены. | Держать в release path. |
 
-## Next Implementation After Phase 4L
+## Next Implementation After Phase 4N
 
 Recommended next scoped implementation:
 
-Backend Phase 4N - admin approve/reject supplier document review flow.
+Backend Phase 4O - supplier owner metadata update/delete for non-approved
+supplier documents.
 
 Concrete scope:
 
-1. Add admin-only mutation route for review document decisions.
-2. Approve `review -> approved` and reject `review -> on_request` using the
-   Phase 4L policy matrix.
-3. Write `supplier_document.approve` / `supplier_document.reject` audit records
-   into `yorso_supplier_document_management_events`.
-4. Return sanitized document metadata only; no storage identifiers.
-5. Add focused API/repository tests, smoke marker, docs and production-scale
+1. Add supplier-owner mutation route for metadata update on documents with
+   status `review` or `on_request`.
+2. Add supplier-owner delete route for documents with status `review` or
+   `on_request`.
+3. Keep `approved` immutable and preserve Phase 4L policy decisions.
+4. Write `supplier_document.update_metadata` and `supplier_document.delete`
+   audit records into `yorso_supplier_document_management_events`.
+5. Return sanitized document metadata only; no storage identifiers or backend
+   file paths.
+6. Add focused API/repository tests, smoke marker, docs and production-scale
    guard updates.
 
 ## Guardrails To Preserve
