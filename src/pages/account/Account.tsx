@@ -363,13 +363,15 @@ const PersonalSection = ({
                 onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
               />
             </FormRow>
-            <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
-              <Input
-                maxLength={100}
-                value={draft.roleInCompany}
-                onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
-              />
-            </FormRow>
+            <div className="sm:col-span-2">
+              <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
+                <Input
+                  maxLength={100}
+                  value={draft.roleInCompany}
+                  onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
+                />
+              </FormRow>
+            </div>
             <FormRow
               label={t.account_personal_email}
               required
