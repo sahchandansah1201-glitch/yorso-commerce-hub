@@ -2,45 +2,54 @@
 
 ## Current Next Action
 
-Backend Phase 4K is implemented and committed locally at `3b74b498`.
+Backend Phase 4L is implemented and committed locally at `ff286919`.
 
-Phase 4K closes the admin/operator UI over supplier document audit listings:
+Phase 4L closes the supplier document management rules gate before runtime
+upload/edit/delete work:
 
-- `/admin/supplier-document-audit` is a read-only admin route.
-- It switches between existing endpoints:
-  `GET /v1/admin/supplier-documents/download-grants` and
-  `GET /v1/admin/supplier-documents/download-events`.
-- The frontend client requires `VITE_YORSO_API_URL` and self-hosted session
-  headers.
-- Missing sessions render a sign-in gate; buyer/non-admin sessions render
-  `admin_role_required`.
-- Browser-facing responses are rejected if they contain `fileAssetId`,
-  `downloadPath`, `objectKey` or `storage`.
-- UI renders audit metadata only: audit id, status, supplier id, document id,
-  buyer user id, grant id where available, reason, request id and timestamps.
+- shared contracts define management roles, actions, create/update payloads and
+  audit events;
+- `evaluateSupplierDocumentManagementPolicy` defines owner/admin status
+  transitions;
+- browser payload schemas reject `fileAssetId`, object/storage keys,
+  `downloadPath` and direct download URLs;
+- stable audit actions are fixed through
+  `supplierDocumentManagementAuditActionByAction`;
+- no browser route, API write route, migration, file write, queue or worker was
+  added.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Закрыть admin UI над audit listings Phase 4I/4J. | Реализован `/admin/supplier-document-audit`. | Owner/admin upload остается отдельной supplier operations phase. |
-| Admin UI | Дать оператору одну read-only точку для grants/downloads. | Есть kind switch, filters и sanitized rows. | Deep pagination/export только после отдельного operator requirement. |
-| API client | Использовать self-hosted API и session headers. | Реализован `createAdminSupplierDocumentAuditApiClient`; 401/403 маппятся в явные UI states. | Возможные admin-subroles позже. |
-| Payload boundary | Не раскрывать backend storage identifiers в браузере. | Client отвергает `fileAssetId`, `downloadPath`, `objectKey`, `storage`; UI не выводит эти поля. | Держать admin responses без storage identifiers. |
-| Tests/smoke | Зафиксировать page/client/hook и browser smoke. | Реализованы unit tests и `e2e/admin-supplier-document-audit.spec.ts`. | Держать в release path. |
-| Guards | Зафиксировать docs, self-hosted guard и 10k-user review. | Реализовано: Phase 4K doc, contract map, validation doc, production baseline, guard markers. | Держать в release path. |
+| Scope | Закрыть rules gate перед upload/edit/delete. | Реализованы contracts + API policy, без runtime writes. | Выбрать один первый write path. |
+| Roles | Зафиксировать `supplier_owner` и `admin`. | Роли закреплены в shared contract. | Привязать роли к real session/account claims. |
+| Status transitions | Не дать owner менять approved документы напрямую. | `approved_document_immutable` блокирует update/delete approved. | Replacement/re-review flow отдельно. |
+| Admin-only actions | Approval/rejection/expiry должны быть admin-only. | Owner получает `admin_role_required`. | Admin mutation route отдельно. |
+| Storage boundary | Browser не должен присылать storage internals. | Strict schemas reject `fileAssetId`, keys, `downloadPath`, URLs. | Upload runtime должен выдавать backend-owned upload id. |
+| Audit | Будущие writes должны иметь стабильные audit actions. | Зафиксированы `supplier_document.*` actions. | Runtime routes обязаны писать эти actions. |
+| Guards | Зафиксировать docs, tests, self-hosted и 10k-user guards. | `test:supplier-document-management-policy`, guards и docs обновлены. | Держать в release path. |
 
-## Next Implementation After Phase 4K
+## Next Implementation After Phase 4L
 
 Recommended next scoped decision:
 
-Supplier owner/admin document management decision:
+Backend Phase 4M - choose one first supplier document management write path.
 
-- define ownership model for company/supplier documents;
-- define upload/edit/delete validation;
-- define document lifecycle and audit events;
-- keep buyer profile downloads grant-bound and storage-id-free;
-- do not implement upload/edit/delete until those rules are explicit.
+Do not implement owner upload/create and admin approve/reject in the same batch.
+Pick one:
+
+1. Supplier owner create/upload review document:
+   - authenticated supplier owner only;
+   - accepts safe metadata and backend-owned upload id;
+   - creates `review` document;
+   - writes `supplier_document.create` audit event;
+   - keeps approved buyer-facing document downloads unchanged.
+2. Admin approve/reject document:
+   - authenticated admin only;
+   - applies Phase 4L status transitions;
+   - writes `supplier_document.approve` or `supplier_document.reject`;
+   - keeps storage identifiers backend-only.
 
 ## Guardrails To Preserve
 
@@ -51,5 +60,7 @@ Supplier owner/admin document management decision:
 - Access gating: `anonymous_locked`, `registered_locked`, `qualified_unlocked`.
 - Supplier identity redaction.
 - Exact-price locks.
+- Supplier document download grants and file serving remain qualified-only and
+  audit-bound.
 - Self-contained production direction: do not add or expand hosted BaaS/Supabase
   dependency in production paths.

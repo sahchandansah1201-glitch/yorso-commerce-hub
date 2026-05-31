@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "3b74b498"
-  head_summary: "Backend Phase 4K supplier document audit admin UI; release validation passed."
+  head_commit: "ff286919"
+  head_summary: "Backend Phase 4L supplier document management rules gate; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4K implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4L implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,24 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4k_supplier_document_audit_admin_ui"
-  summary: "Admin users can inspect bounded supplier document grant/download audit records through a read-only UI without browser-facing file asset leakage."
+  id: "backend_phase_4l_supplier_document_management_rules"
+  summary: "Supplier document owner/admin management rules are defined in shared contracts and API policy before runtime upload/edit/delete writes."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4L implementation is recorded in docs/backend/phase-4l-supplier-document-management-rules.md."
+    - "packages/contracts/src/supplier-directory.ts defines supplierDocumentManagement role/action/create/update/audit schemas."
+    - "apps/api/src/modules/suppliers/document-management-policy.ts defines evaluateSupplierDocumentManagementPolicy and supplierDocumentManagementAuditActionByAction."
+    - "supplier_owner can create review documents, update review/on_request metadata, submit on_request documents for review and delete review/on_request documents."
+    - "admin can approve review documents, reject review documents to on_request, expire approved documents and update/delete non-approved document metadata."
+    - "approved_document_immutable blocks direct approved-document metadata update/delete; admin_role_required blocks owner approval/rejection/expiry."
+    - "Browser create/update schemas reject storage internals such as fileAssetId, objectKey, storageKey, downloadPath and downloadUrl."
+    - "Phase 4L adds no browser route, API write route, migration, file write, queue, scheduler or worker."
+    - "test:supplier-document-management-policy covers shared schemas, storage-boundary rejection, audit event shape and the owner/admin policy matrix."
+    - "Phase 4L release validation passed: TDD red/green contract/API policy tests; test:supplier-document-management-policy; check:self-hosted-api; check:production-scale-baseline; TypeScript build graph; lint; production build; full npm test; git diff --check."
+    - "Phase 4L is committed locally at ff286919."
+    - "Recommended next scoped workstream: choose and implement one write path only, either supplier owner upload/create review document or admin approve/reject route."
     - "Phase 4K implementation is recorded in docs/backend/phase-4k-supplier-document-audit-admin-ui.md."
     - "/admin/supplier-document-audit is a read-only admin route over the existing Phase 4I/4J supplier document audit endpoints."
     - "src/lib/admin-supplier-document-audit-api.ts uses self-hosted session headers, supports download_grants/download_events, and rejects storage-leaking responses containing fileAssetId, downloadPath, objectKey or storage."

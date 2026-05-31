@@ -16,18 +16,19 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4K Supplier Document Audit Admin UI is committed locally at
-`3b74b498`; release validation passed.
+Backend Phase 4L Supplier Document Management Rules Gate is committed locally
+at `ff286919`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Закрыть admin UI над audit listings Phase 4I/4J. | Реализован `/admin/supplier-document-audit`. | Owner/admin upload остается отдельной supplier operations phase. |
-| Admin UI | Дать bounded read-only view по grant/download audit. | Есть kind switch, filters и sanitized rows. | Deep pagination/export только после отдельного operator requirement. |
-| Role guard | Не отдавать audit buyer-сессиям. | Реализовано: API-disabled, session-required и `admin_role_required` states. | Возможные admin-subroles позже. |
-| Payload boundary | Не раскрывать backend storage identifiers. | Client отвергает `fileAssetId`, `downloadPath`, `objectKey`, `storage`; UI не выводит эти поля. | Держать admin responses без storage identifiers. |
-| Guards | Зафиксировать docs, tests, browser smoke и 10k-user review. | Реализовано: Phase 4K docs, guards, unit tests и e2e smoke. | Держать в release path. |
+| Scope | Закрыть rules gate перед upload/edit/delete. | Реализованы contracts + API policy, без runtime writes. | Выбрать один первый write path. |
+| Roles | Зафиксировать `supplier_owner` и `admin`. | Роли закреплены в shared contract. | Привязать роли к real session/account claims. |
+| Status transitions | Не дать owner менять approved documents напрямую. | `approved_document_immutable` блокирует update/delete approved. | Replacement/re-review flow отдельно. |
+| Admin-only actions | Approval/rejection/expiry должны быть admin-only. | Owner получает `admin_role_required`. | Admin mutation route отдельно. |
+| Storage boundary | Browser не должен присылать storage internals. | Strict schemas reject `fileAssetId`, keys, `downloadPath`, URLs. | Upload runtime должен выдавать backend-owned upload id. |
+| Guards | Зафиксировать docs, tests и 10k-user review. | Реализовано: Phase 4L docs, guards и focused tests. | Держать в release path. |
 
 ## Current Status
 
@@ -50,6 +51,23 @@ Backend Phase 4K Supplier Document Audit Admin UI is committed locally at
 - Backend Phase 4I is committed locally at `bd05bc60`; release validation passed.
 - Backend Phase 4J is committed locally at `b5469880`; release validation passed.
 - Backend Phase 4K is committed locally at `3b74b498`; release validation passed.
+- Backend Phase 4L is committed locally at `ff286919`; release validation passed.
+
+## Phase 4L Files
+
+- `docs/backend/phase-4l-supplier-document-management-rules.md`
+- `packages/contracts/src/supplier-directory.ts`
+- `apps/api/src/modules/suppliers/document-management-policy.ts`
+- `apps/api/src/modules/suppliers/document-management-policy.test.ts`
+- `src/test/supplier-document-management-contract.test.ts`
+- `package.json`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
 
 ## Phase 4K Files
 

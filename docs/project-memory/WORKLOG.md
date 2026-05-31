@@ -3486,3 +3486,46 @@ Keep this file factual and append-only.
   - existing React Router future flag / act warnings in the test suite.
 - Next scoped decision: supplier owner/admin document management ownership,
   upload/edit/delete validation and audit rules.
+
+## 2026-05-31 Phase 4L Checkpoint
+
+- Latest implementation commit: `ff286919` (`[codex] Backend Phase 4L supplier document management rules`).
+- Scoped workstream: Backend Phase 4L Supplier Document Management Rules Gate.
+- Implemented contract/policy gate before runtime document management writes:
+  - `packages/contracts/src/supplier-directory.ts` defines management roles,
+    actions, create/update payload schemas and audit event schema;
+  - `apps/api/src/modules/suppliers/document-management-policy.ts` defines
+    `evaluateSupplierDocumentManagementPolicy` and
+    `supplierDocumentManagementAuditActionByAction`;
+  - strict create/update schemas reject browser-supplied `fileAssetId`,
+    `objectKey`, `storageKey`, `downloadPath` and direct download URLs;
+  - no browser route, API write route, migration, file write, queue, scheduler
+    or worker was added.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Scope | Закрыть rules gate перед upload/edit/delete. | Реализованы contracts + API policy, без runtime writes. | Выбрать один первый write path. |
+| Roles | Зафиксировать `supplier_owner` и `admin`. | Роли закреплены в shared contract. | Привязать роли к real session/account claims. |
+| Status transitions | Не дать owner менять approved documents напрямую. | `approved_document_immutable` блокирует update/delete approved. | Replacement/re-review flow отдельно. |
+| Admin-only actions | Approval/rejection/expiry должны быть admin-only. | Owner получает `admin_role_required`. | Admin mutation route отдельно. |
+| Storage boundary | Browser не должен присылать storage internals. | Strict schemas reject `fileAssetId`, keys, `downloadPath`, URLs. | Upload runtime должен выдавать backend-owned upload id. |
+| Audit | Будущие writes должны иметь стабильные audit actions. | Зафиксированы `supplier_document.*` actions. | Runtime routes обязаны писать эти actions. |
+| Guards | Зафиксировать docs, tests, self-hosted и 10k-user guards. | `test:supplier-document-management-policy`, guards и docs обновлены. | Держать в release path. |
+
+- Validation passed:
+  - TDD red: contract test failed before schemas existed; API policy test
+    failed before the policy module existed;
+  - TDD green: `npm run test:supplier-document-management-policy`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run build`;
+  - `npm test` passed: 181 files, 1278 passed, 2 skipped;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Browserslist data stale;
+  - existing React Router future flag / act warnings in the test suite.
+- Next scoped decision: choose one first write path, either supplier owner
+  upload/create review document or admin approve/reject route.

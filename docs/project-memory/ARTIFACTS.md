@@ -171,6 +171,34 @@
   `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
   validation and plan updates.
 
+## Backend Phase 4L Supplier Document Management Rules Gate
+
+- `docs/backend/phase-4l-supplier-document-management-rules.md`: Phase 4L
+  implementation note, Russian plan/fact table, owner/admin decision matrix and
+  10,000 concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: management roles, actions,
+  create/update request schemas and audit event schema.
+- `apps/api/src/modules/suppliers/document-management-policy.ts`: pure policy
+  evaluator for owner/admin supplier document status transitions and stable
+  audit action mapping.
+- `apps/api/src/modules/suppliers/document-management-policy.test.ts`: API
+  policy matrix coverage for owner create/update, admin approve/reject, approved
+  document immutability and audit action map stability.
+- `src/test/supplier-document-management-contract.test.ts`: shared contract
+  coverage for safe metadata payloads, storage-internal rejection and audit
+  event shape.
+- `package.json`: `test:supplier-document-management-policy` script and
+  `ci:core` wiring.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/self-hosted-validation.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/yorso-backend-implementation-plan.md` and
+  `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
+  validation and plan updates.
+- `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: guards for Phase 4L docs,
+  contract schemas, API policy module and focused tests.
+
 ## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
 
 - `docs/backend/phase-4b-supplier-profile-dossier-completeness.md`: Phase 4B

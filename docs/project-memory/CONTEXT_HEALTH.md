@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-31"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "3b74b498_phase_4k_supplier_document_audit_admin_ui"
+head_commit: "ff286919_phase_4l_supplier_document_management_rules"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4k_supplier_document_audit_admin_ui"
+active_workstream: "backend_phase_4l_supplier_document_management_rules"
 pull_request: null
-recommended_action: "define supplier owner/admin document management ownership, validation and audit rules"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4K are documented, committed and validated."
+recommended_action: "choose one first supplier document management write path: supplier owner create/upload review document or admin approve/reject route"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4L are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4k_supplier_document_audit_admin_ui.
-Current HEAD baseline: Backend Phase 4K supplier document audit admin UI implementation commit 3b74b498 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4l_supplier_document_management_rules.
+Current HEAD baseline: Backend Phase 4L supplier document management rules implementation commit ff286919 is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,12 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: define supplier owner/admin document management ownership, validation and audit rules.
+Current recommended action: choose one first supplier document management write path: supplier owner create/upload review document or admin approve/reject route.
+Phase 4L implemented and committed locally at ff286919: supplier document management rules are defined in shared contracts and API policy before runtime upload/edit/delete work.
+Phase 4L policy boundary: supplier_owner can create review documents, update review/on_request metadata, submit on_request documents for review and delete review/on_request documents; admin can approve/reject/expire and update/delete non-approved documents.
+Phase 4L immutable boundary: approved_document_immutable blocks direct approved-document metadata update/delete; admin_role_required blocks owner approval/rejection/expiry.
+Phase 4L storage boundary: browser create/update schemas reject fileAssetId, objectKey, storageKey, downloadPath and direct download URLs.
+Phase 4L validation passed: TDD red/green contract/API policy tests; test:supplier-document-management-policy; check:self-hosted-api; check:production-scale-baseline; npx tsc -b --noEmit; npm run lint; npm run build; npm test; git diff --check.
 Phase 4K implemented and committed locally at 3b74b498: /admin/supplier-document-audit provides a read-only admin UI over the existing download grant and download event audit listings.
 Phase 4K access boundary: the frontend client requires VITE_YORSO_API_URL and self-hosted session headers; missing sessions render a sign-in gate and non-admin sessions render admin_role_required.
 Phase 4K payload boundary: the frontend client rejects responses containing fileAssetId, downloadPath, objectKey or storage, and the UI renders only audit metadata.
