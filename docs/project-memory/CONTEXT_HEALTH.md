@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-31"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "84954e9d_phase_4p_supplier_document_admin_lifecycle"
+head_commit: "b2473ede_phase_4q_supplier_document_management_events"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4p_supplier_document_admin_lifecycle"
+active_workstream: "backend_phase_4q_supplier_document_management_events"
 pull_request: null
-recommended_action: "Backend Phase 4Q supplier document management event listing/export"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4P are documented, committed and validated."
+recommended_action: "Backend Phase 4R admin UI over supplier document management events"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4Q are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4p_supplier_document_admin_lifecycle.
-Current HEAD baseline: Backend Phase 4P supplier document admin lifecycle implementation commit 84954e9d is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4q_supplier_document_management_events.
+Current HEAD baseline: Backend Phase 4Q supplier document management event listing/export implementation commit b2473ede is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,14 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: Backend Phase 4Q supplier document management event listing/export, unless product priority shifts to automated expiry scheduler.
+Current recommended action: Backend Phase 4R admin UI over supplier document management events, unless product priority shifts to automated approved-document expiry scheduler.
+Phase 4Q implemented and committed locally at b2473ede: GET /v1/admin/supplier-documents/management-events lets authenticated admins list supplier document management audit events, and GET /v1/admin/supplier-documents/management-events/export exports the same bounded event set as JSON or CSV.
+Phase 4Q access boundary: both routes require a self-hosted account session and admin role; missing sessions return 401 and non-admin sessions return admin_role_required.
+Phase 4Q query boundary: action, supplierId, documentId, actorUserId, limit and offset filters are bounded through shared contracts; export additionally supports format=json|csv.
+Phase 4Q payload boundary: list/export responses are sanitized and never expose fileAssetId, object keys, storage keys, downloadPath or direct storage URLs.
+Phase 4Q persistence: apps/api/src/modules/suppliers/postgres-repository.ts reads yorso_supplier_document_management_events with bounded filters and order created_at desc, id desc; no new migration was added.
+Phase 4Q observability: admin route attempts emit admin.supplier_document_management_events.read and admin.supplier_document_management_events.export audit actions; smoke marker supplier_document_management_events_export=ok verifies list plus JSON/CSV export.
+Phase 4Q validation passed: TDD red/green API route test; supplier repository management-event listing test; contract query/redaction tests; test:supplier-document-management-runtime; test:supplier-document-management-policy; check:self-hosted-api; check:production-scale-baseline; npx tsc -b --noEmit; npm run api:build; npm run smoke:self-hosted-account-api:run; npm run test:api; npm run lint; npm run build; npm test; git diff --check.
 Phase 4P implemented and committed locally at 84954e9d: POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle lets authenticated admins expire approved supplier documents or delete review/on_request/expired supplier documents.
 Phase 4P access boundary: the route requires a self-hosted account session and admin role; missing sessions return 401 and non-admin sessions return admin_role_required.
 Phase 4P policy boundary: apps/api/src/modules/suppliers/service.ts applies Phase 4L admin/expire and admin/delete policy before mutation.

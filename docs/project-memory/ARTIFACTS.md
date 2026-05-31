@@ -348,6 +348,39 @@
   `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
   validation, smoke and plan updates.
 
+## Backend Phase 4Q Supplier Document Management Event Listing/Export
+
+- `docs/backend/phase-4q-supplier-document-management-events.md`: Phase 4Q
+  implementation note, Russian plan/fact table, runtime contract and 10,000
+  concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: bounded admin query/export
+  schemas plus sanitized management event list response schema.
+- `apps/api/src/modules/suppliers/admin-routes.ts`: admin-only
+  `GET /v1/admin/supplier-documents/management-events` and
+  `/management-events/export` route wiring with route-level audit actions.
+- `apps/api/src/modules/suppliers/service.ts`: management event list/export
+  logic and sanitized JSON/CSV response shaping.
+- `apps/api/src/modules/suppliers/repository.ts` and
+  `apps/api/src/modules/suppliers/postgres-repository.ts`: memory and
+  PostgreSQL management event reads with bounded filters over the existing
+  management event ledger.
+- `apps/api/src/server.test.ts`,
+  `apps/api/src/modules/suppliers/__tests__/repository.test.ts` and
+  `src/test/supplier-document-management-contract.test.ts`: route, repository
+  and contract coverage for listing/export and storage-boundary redaction.
+- `scripts/smoke-self-hosted-account-api.mjs`: runtime smoke marker
+  `supplier_document_management_events_export=ok`.
+- `package.json`, `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: release gate wiring for the
+  Phase 4Q listing/export path.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/self-hosted-validation.md`,
+  `docs/backend/self-hosted-account-api-smoke.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/yorso-backend-implementation-plan.md` and
+  `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
+  validation, smoke and plan updates.
+
 ## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
 
 - `docs/backend/phase-4b-supplier-profile-dossier-completeness.md`: Phase 4B

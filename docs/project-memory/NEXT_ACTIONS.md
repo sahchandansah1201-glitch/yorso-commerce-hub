@@ -2,62 +2,62 @@
 
 ## Current Next Action
 
-Backend Phase 4P is implemented and committed locally at `84954e9d`.
+Backend Phase 4Q is implemented and committed locally at `b2473ede`.
 
-Phase 4P closes the admin lifecycle cleanup path for supplier documents:
+Phase 4Q closes the backend audit visibility path for supplier document
+management events:
 
-- `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`
-  accepts `action: "expire"` or `action: "delete"`;
-- the route requires a self-hosted account session and admin role;
-- `expire` is allowed only for `approved` documents and transitions them to
-  `expired`;
-- `delete` is allowed for `review`, `on_request` and `expired` documents;
-- direct delete of `approved` documents returns `approved_document_immutable`;
-- the API applies Phase 4L `admin/expire` or `admin/delete` policy before
-  mutation;
-- responses are sanitized through existing supplier document management update
-  and delete schemas;
-- PostgreSQL writes the lifecycle mutation and
-  `supplier_document.expire` / `supplier_document.delete` audit metadata in
-  bounded CTEs;
-- the smoke marker `supplier_document_admin_lifecycle_cleanup=ok` verifies the
-  create -> approve -> expire -> delete cleanup path.
+- `GET /v1/admin/supplier-documents/management-events`
+  returns a bounded admin-only list of supplier document management events;
+- `GET /v1/admin/supplier-documents/management-events/export`
+  exports the same bounded event set as JSON or CSV;
+- both routes require a self-hosted account session and admin role;
+- filters cover `action`, `supplierId`, `documentId`, `actorUserId`, `limit`
+  and `offset`;
+- listing and exports are sanitized and do not expose `fileAssetId`, object
+  keys, storage keys, `downloadPath` or direct storage URLs;
+- route-level audit actions are
+  `admin.supplier_document_management_events.read` and
+  `admin.supplier_document_management_events.export`;
+- the smoke marker `supplier_document_management_events_export=ok` verifies
+  listing plus JSON/CSV export.
 
-## Plan / Fact
+## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Реализовать admin lifecycle cleanup, без UI, scheduler и file replacement. | Реализован lifecycle endpoint с `expire`/`delete`. | Phase 4Q: listing/export management events или scheduler decision. |
-| Access | Пускать только self-hosted admin. | Missing session -> 401; non-admin -> `admin_role_required`. | Owner bypass не расширять. |
-| Status transitions | `expire` только для `approved`; `delete` не должен удалять `approved`. | `approved -> expired`; `review`/`on_request`/`expired` можно delete; approved delete -> `approved_document_immutable`. | Replacement/re-review flow отдельно. |
-| Response boundary | Не раскрывать backend file identifiers. | Responses sanitized, без `fileAssetId`, storage keys, `downloadPath` или direct URLs. | Сохранять для event listing/export. |
-| Persistence | Mutation и audit должны быть atomic. | PostgreSQL CTE expire/delete + management audit insert. | Event listing может читать `yorso_supplier_document_management_events`. |
-| Smoke | Проверить owner create -> admin approve -> expire -> delete. | `supplier_document_admin_lifecycle_cleanup=ok` в self-hosted account API smoke. | Добавить listing/export smoke в Phase 4Q, если выбран этот scope. |
-| Guards | Зафиксировать docs, tests, self-hosted и 10k-user guards. | Runtime script, self-hosted guard, production-scale guard обновлены. | Держать в release path. |
+| Scope | Дать admin-only audit visibility по management events без UI и без новой миграции. | Реализованы list/export routes поверх существующей `yorso_supplier_document_management_events`. | Phase 4R: admin UI поверх этих endpoints или scheduler expiry decision. |
+| Access | Пускать только self-hosted admin. | Missing session -> 401; non-admin -> `admin_role_required`. | Сохранять owner/admin разделение. |
+| Filters | Дать bounded фильтры по action/supplier/document/actor. | Поддержаны `action`, `supplierId`, `documentId`, `actorUserId`, `limit`, `offset`; export добавляет `format`. | UI сможет переиспользовать тот же контракт. |
+| Export | Нужен operator handoff без storage leakage. | JSON и CSV export используют тот же sanitized event shape. | Добавить frontend download controls в Phase 4R, если выбран UI scope. |
+| Response boundary | Не раскрывать backend file identifiers. | Нет `fileAssetId`, storage keys, `downloadPath` или direct URLs в list/export. | Держать этот guard во всех admin audit clients. |
+| Persistence | Не создавать новую таблицу, читать существующий audit ledger. | PostgreSQL читает `yorso_supplier_document_management_events` с bounded where/order. | При росте объема добавить cursor pagination только отдельным scope. |
+| Smoke/guards | Закрепить docs, tests, runtime smoke и 10k-user review. | Runtime script, self-hosted guard, production-scale guard и release checks зелёные. | Поддерживать в release path. |
 
-## Next Implementation After Phase 4P
+## Next Implementation After Phase 4Q
 
 Recommended next scoped implementation:
 
-Backend Phase 4Q - supplier document management event listing/export.
+Backend Phase 4R - admin UI over supplier document management events.
 
 Concrete scope:
 
-1. Add admin-only bounded listing endpoint over
-   `yorso_supplier_document_management_events`.
-2. Support filters by action, supplierId, actorUserId, documentId and bounded
-   pagination.
-3. Return sanitized management event metadata only, with no file asset,
-   storage key, download path or direct URL fields.
-4. Add optional JSON/CSV export if it fits the same bounded read path.
-5. Add focused API/repository tests, smoke marker, docs and production-scale
-   guard updates.
+1. Add a read-only admin page, likely
+   `/admin/supplier-document-management-events`, using the Phase 4Q list/export
+   endpoints.
+2. Show action, actor role/user, supplier, document, status transition, reason
+   and request id without backend storage identifiers.
+3. Add filters for action, supplier id, document id and actor user id, using
+   bounded pagination.
+4. Add JSON/CSV export controls that call the Phase 4Q export endpoint.
+5. Add frontend API client/hook tests, page tests, e2e smoke, route/nav wiring,
+   docs and production-scale guards.
 
 Alternative next scoped implementation:
 
-Backend Phase 4Q - supplier document automated expiry scheduler decision,
-only if the product priority is automatic cleanup instead of operator audit
-visibility.
+Backend Phase 4R - automated approved-document expiry scheduler decision,
+only if product priority shifts from operator audit visibility to automatic
+document lifecycle cleanup.
 
 ## Guardrails To Preserve
 

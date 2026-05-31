@@ -3780,3 +3780,70 @@ Keep this file factual and append-only.
 - Next scoped implementation: Backend Phase 4Q supplier document management
   event listing/export, unless product priority shifts to automated expiry
   scheduler.
+
+## 2026-05-31 Phase 4Q Checkpoint
+
+- Latest implementation commit: `b2473ede` (`[codex] Backend Phase 4Q supplier document management events`).
+- Scoped workstream: Backend Phase 4Q Supplier Document Management Event
+  Listing/Export.
+- Implemented admin audit visibility only:
+  - `GET /v1/admin/supplier-documents/management-events`;
+  - `GET /v1/admin/supplier-documents/management-events/export`;
+  - no frontend UI, scheduler, new migration, lifecycle mutation or file-serving
+    change was added in this phase.
+- Implemented access, query and export boundaries:
+  - both routes require a self-hosted account session and admin role;
+  - missing sessions return 401;
+  - non-admin sessions return `admin_role_required`;
+  - filters cover `action`, `supplierId`, `documentId`, `actorUserId`,
+    `limit` and `offset`;
+  - export supports `format=json|csv`.
+- Implemented response and storage boundaries:
+  - list/export responses use sanitized management event metadata;
+  - responses omit `fileAssetId`, object keys, storage keys, download paths and
+    direct storage URLs;
+  - CSV export uses the same sanitized field set as JSON.
+- Implemented persistence/audit:
+  - PostgreSQL repository reads existing
+    `yorso_supplier_document_management_events` with bounded indexed filters;
+  - memory repository records management event ids/actor ids and supports the
+    same list filters;
+  - admin route attempts emit
+    `admin.supplier_document_management_events.read` and
+    `admin.supplier_document_management_events.export`.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Scope | Дать admin-only audit visibility по management events без UI и новой миграции. | Реализованы list/export routes поверх существующей audit table. | Phase 4R: admin UI over management events или scheduler expiry decision. |
+| Access | Пускать только self-hosted admin. | Missing session -> 401; non-admin -> `admin_role_required`. | Owner bypass не расширять. |
+| Filters | Дать bounded фильтры по action/supplier/document/actor. | Поддержаны `action`, `supplierId`, `documentId`, `actorUserId`, `limit`, `offset`; export добавляет `format`. | UI сможет переиспользовать контракт. |
+| Export | Нужен operator handoff без storage leakage. | JSON и CSV export используют sanitized event shape. | Добавить frontend export controls в Phase 4R, если выбран UI scope. |
+| Response boundary | Не раскрывать backend file identifiers. | List/export sanitized, без `fileAssetId`, storage keys, `downloadPath` или direct URLs. | Сохранять для admin audit clients. |
+| Persistence | Читать существующий audit ledger. | PostgreSQL читает `yorso_supplier_document_management_events` с bounded filters. | Cursor pagination отдельно при росте объема. |
+| Smoke | Проверить list + JSON/CSV export. | `supplier_document_management_events_export=ok` в self-hosted account API smoke. | Держать в release path. |
+
+- Validation passed:
+  - TDD red: admin management-events API route test failed with 404 before
+    implementation;
+  - TDD green: admin list/export API route test and PostgreSQL listing test;
+  - `npm run contracts:build`;
+  - `npm run test:supplier-document-management-runtime`;
+  - `npm run test:supplier-document-management-policy`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run api:build`;
+  - `npm run smoke:self-hosted-account-api:run`;
+  - `npm run test:api`;
+  - `npm run lint`;
+  - `npm run build`;
+  - `npm test` passed: 181 files, 1284 passed, 2 skipped;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Browserslist data stale;
+  - existing React Router future flag / act warnings in the test suite;
+  - existing analytics degradation stderr in analytics test.
+- Next scoped implementation: Backend Phase 4R admin UI over supplier document
+  management events, unless product priority shifts to automated approved
+  document expiry scheduler.
