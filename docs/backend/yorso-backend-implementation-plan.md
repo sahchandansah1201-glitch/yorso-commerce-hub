@@ -833,3 +833,27 @@ Implemented:
 Next scoped backend direction after Phase 4J: either add an admin UI for the
 download/grant audit listings or start supplier owner/admin document management
 after defining ownership, validation and audit rules.
+
+## Backend Phase 4K Checkpoint - Supplier Document Audit Admin UI
+
+Status: implemented.
+
+Phase 4K chooses the admin UI path after Phase 4J and keeps supplier
+owner/admin document management out of scope.
+
+Implemented:
+
+- `/admin/supplier-document-audit` as a read-only admin route;
+- frontend client `createAdminSupplierDocumentAuditApiClient` over
+  `/v1/admin/supplier-documents/download-grants` and
+  `/v1/admin/supplier-documents/download-events`;
+- hook `useAdminSupplierDocumentAudit` with disabled, session-required,
+  forbidden, loading, ready and error states;
+- filters for audit kind, status, supplier id and buyer user id;
+- browser response guard against `fileAssetId`, `downloadPath`, object keys and
+  storage-only fields;
+- unit tests and API-backed Playwright smoke.
+
+Next scoped backend direction after Phase 4K: define supplier owner/admin
+document management ownership, validation and audit rules before implementing
+upload/edit/delete.

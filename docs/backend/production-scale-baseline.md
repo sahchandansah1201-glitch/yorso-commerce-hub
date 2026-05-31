@@ -5980,6 +5980,89 @@ Marker: fileAssetId.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4K - Supplier Document Audit Admin UI
+
+Status: implemented.
+
+Phase 4K adds a read-only admin route over the existing Phase 4I/4J supplier
+document audit endpoints:
+
+- `/admin/supplier-document-audit`;
+- `GET /v1/admin/supplier-documents/download-grants`;
+- `GET /v1/admin/supplier-documents/download-events`.
+
+Plan / Fact:
+
+| Plan | Fact | Follow-up |
+|---|---|---|
+| Add one operator view for document grants and downloads. | `AdminSupplierDocumentAudit.tsx` renders a kind switch, bounded filters and audit rows. | Owner/admin document upload remains out of scope. |
+| Reuse existing self-hosted backend endpoints. | No new backend endpoint, migration, scheduler or export is introduced. | Cursor pagination/export only after a separate requirement. |
+| Preserve storage boundary. | Frontend client rejects responses containing `fileAssetId`, `downloadPath`, `objectKey` or `storage`; UI renders audit metadata only. | Backend file forensics remain repository/internal only. |
+| Keep tests and browser smoke. | Added API client, hook, page tests and `e2e/admin-supplier-document-audit.spec.ts`. | Include in release validation for admin UI changes. |
+
+Expected read/write profile:
+
+- One bounded read on page load.
+- Filter changes issue bounded reads with `limit=25`, `offset=0`.
+- No writes, file reads, export, timers, polling or queues are added.
+
+Cache, queue and backpressure strategy:
+
+- No shared frontend cache for operator audit data.
+- No queue/scheduler.
+- Backend admin auth, request guardrails, timeout and lifecycle drain remain the
+  production backpressure boundary.
+- UI fails closed on API disabled, missing session, admin-role rejection and
+  storage-leaking invalid responses.
+
+Database indexing and pagination strategy:
+
+- UI relies on existing Phase 4I/4J endpoint indexes:
+  - grants by buyer, supplier and status recent reads;
+  - download events by buyer, supplier, status and grant recent reads.
+- UI sends `limit=25`, below backend `limit <= 100`.
+- Offset remains fixed at 0 in this first view; deeper pagination can be added
+  after operator workflow confirms it is needed.
+
+Failure mode and graceful degradation:
+
+- Empty result renders an explicit empty state.
+- API-disabled deployments render a self-hosted API disabled state.
+- Missing self-hosted session renders a sign-in gate.
+- Non-admin sessions render the admin role guard.
+- Invalid payloads render an error state and are not displayed.
+
+Observability and load-test plan:
+
+- Backend reads continue to emit:
+  - `admin.supplier_document_download_grants.read`;
+  - `admin.supplier_document_download_events.read`.
+- Browser smoke verifies session headers, page route, admin role guard and
+  absence of storage-only field names in visible UI.
+- Load tests should cover grant list, event list, status filter, supplier
+  filter, buyer filter, empty result and forbidden sessions at the 10,000
+  concurrent-user target.
+
+Validation:
+
+- `npm run test:admin-supplier-document-audit-frontend`.
+- `npm run smoke:e2e:admin-supplier-document-audit:run`.
+- `npm run check:self-hosted-api`.
+- `npm run check:production-scale-baseline`.
+
+Marker: Backend Phase 4K Supplier Document Audit Admin UI.
+Marker: /admin/supplier-document-audit.
+Marker: createAdminSupplierDocumentAuditApiClient.
+Marker: useAdminSupplierDocumentAudit.
+Marker: admin-document-audit-page.
+Marker: admin-supplier-document-audit.spec.ts.
+Marker: /v1/admin/supplier-documents/download-events.
+Marker: /v1/admin/supplier-documents/download-grants.
+Marker: fileAssetId.
+Marker: downloadPath.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

@@ -75,6 +75,7 @@ mistaken for production data surfaces.
 | `/v1/suppliers/:supplierId/documents/:documentId/download?grantId=...` | Supplier document serving API | self-hosted API only; no direct storage URL or API-disabled local serving | supplier document grant, supplier access grant, file asset metadata, object storage, document download audit | Phase 4G supplier document file serving |
 | `/v1/admin/supplier-documents/download-events` | Admin supplier document download audit API | self-hosted API only; authenticated admin session; no API-disabled preview | bounded read over `yorso_supplier_document_download_events`; no `fileAssetId`, storage key, direct file URL or `downloadPath` in response | Phase 4I supplier document download audit listing |
 | `/v1/admin/supplier-documents/download-grants` | Admin supplier document grant audit API | self-hosted API only; authenticated admin session; no API-disabled preview | bounded read over `yorso_supplier_document_download_grants`; no `fileAssetId`, storage key, direct file URL or `downloadPath` in response | Phase 4J supplier document grant audit listing |
+| `/admin/supplier-document-audit` | Admin supplier document audit UI | self-hosted admin document audit adapter; authenticated admin session; API-disabled and session-required states are explicit | read-only frontend over `/v1/admin/supplier-documents/download-events` and `/download-grants`; no `fileAssetId`, storage key, direct file URL or `downloadPath` rendered | Phase 4K supplier document audit admin UI |
 | `/about` | Public company/trust page | static info page content, route-owned SEO | CMS-ready static page or local content source with route SEO | P3 |
 | `/contact` | Public contact/trust page | static info page content, route-owned SEO | CMS-ready contact content, support/contact routing later | P3 |
 | `/terms` | Legal page | static legal copy, route-owned SEO | versioned legal document source | P3 |
@@ -461,6 +462,9 @@ Acceptance:
   `GET /v1/admin/supplier-documents/download-grants`, requires an admin
   account session, uses bounded pagination and never returns `fileAssetId`,
   object keys, storage keys, direct file URLs or `downloadPath`;
+- `/admin/supplier-document-audit` is a read-only admin UI over the download
+  event and grant audit APIs and rejects browser-facing payloads that leak
+  `fileAssetId`, object keys, storage keys, direct file URLs or `downloadPath`;
 - access request panel uses backend statuses;
 - canonical and SEO rules are defined before public indexing.
 

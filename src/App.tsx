@@ -52,6 +52,7 @@ const AdminAccessRequests = lazy(() => import("./pages/admin/AdminAccessRequests
 const AdminAccessGrants = lazy(() => import("./pages/admin/AdminAccessGrants.tsx"));
 const AdminOperations = lazy(() => import("./pages/admin/AdminOperations.tsx"));
 const AdminAuditEvents = lazy(() => import("./pages/admin/AdminAuditEvents.tsx"));
+const AdminSupplierDocumentAudit = lazy(() => import("./pages/admin/AdminSupplierDocumentAudit.tsx"));
 const AdminIncidents = lazy(() => import("./pages/admin/AdminIncidents.tsx"));
 const AdminIncidentDetail = lazy(() => import("./pages/admin/AdminIncidentDetail.tsx"));
 const AdminIncidentExecutionQueue = lazy(() => import("./pages/admin/AdminIncidentExecutionQueue.tsx"));
@@ -129,6 +130,7 @@ const App = () => (
                     <Route path="/admin/access-grants" element={<AdminAccessGrants />} />
                     <Route path="/admin/runtime" element={<AdminRuntimeStatus />} />
                     <Route path="/admin/audit" element={<AdminAuditEvents />} />
+                    <Route path="/admin/supplier-document-audit" element={<AdminSupplierDocumentAudit />} />
                     <Route path="/admin/incidents" element={<AdminIncidents />} />
                     <Route path="/admin/incidents/:incidentId" element={<AdminIncidentDetail />} />
                     <Route path="/admin/incident-execution" element={<AdminIncidentExecutionQueue />} />

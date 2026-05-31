@@ -98,6 +98,13 @@ const requiredFiles = [
   "src/pages/admin/AdminAuditEvents.tsx",
   "src/pages/admin/AdminAuditEvents.test.tsx",
   "e2e/admin-audit-events.spec.ts",
+  "src/lib/admin-supplier-document-audit-api.ts",
+  "src/lib/admin-supplier-document-audit-api.test.ts",
+  "src/lib/use-admin-supplier-document-audit.ts",
+  "src/lib/use-admin-supplier-document-audit.test.tsx",
+  "src/pages/admin/AdminSupplierDocumentAudit.tsx",
+  "src/pages/admin/AdminSupplierDocumentAudit.test.tsx",
+  "e2e/admin-supplier-document-audit.spec.ts",
   "apps/api/src/modules/access/factory.ts",
   "apps/api/src/modules/access/postgres-repository.ts",
   "apps/api/src/modules/access/repository.ts",
@@ -267,6 +274,7 @@ const requiredFiles = [
   "docs/backend/phase-4h-supplier-document-download-ui.md",
   "docs/backend/phase-4i-supplier-document-download-audit-listing.md",
   "docs/backend/phase-4j-supplier-document-grant-audit-listing.md",
+  "docs/backend/phase-4k-supplier-document-audit-admin-ui.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -410,6 +418,13 @@ const useAdminAuditEventsTest = read("src/lib/use-admin-audit-events.test.tsx");
 const adminAuditEventsPage = read("src/pages/admin/AdminAuditEvents.tsx");
 const adminAuditEventsPageTest = read("src/pages/admin/AdminAuditEvents.test.tsx");
 const adminAuditEventsE2E = read("e2e/admin-audit-events.spec.ts");
+const adminSupplierDocumentAuditApi = read("src/lib/admin-supplier-document-audit-api.ts");
+const adminSupplierDocumentAuditApiTest = read("src/lib/admin-supplier-document-audit-api.test.ts");
+const useAdminSupplierDocumentAudit = read("src/lib/use-admin-supplier-document-audit.ts");
+const useAdminSupplierDocumentAuditTest = read("src/lib/use-admin-supplier-document-audit.test.tsx");
+const adminSupplierDocumentAuditPage = read("src/pages/admin/AdminSupplierDocumentAudit.tsx");
+const adminSupplierDocumentAuditPageTest = read("src/pages/admin/AdminSupplierDocumentAudit.test.tsx");
+const adminSupplierDocumentAuditE2E = read("e2e/admin-supplier-document-audit.spec.ts");
 const accessFactory = read("apps/api/src/modules/access/factory.ts");
 const accessPostgresRepository = read("apps/api/src/modules/access/postgres-repository.ts");
 const accessRepository = read("apps/api/src/modules/access/repository.ts");
@@ -515,6 +530,7 @@ const phase4gSupplierDocumentDownloadServing = read("docs/backend/phase-4g-suppl
 const phase4hSupplierDocumentDownloadUi = read("docs/backend/phase-4h-supplier-document-download-ui.md");
 const phase4iSupplierDocumentDownloadAuditListing = read("docs/backend/phase-4i-supplier-document-download-audit-listing.md");
 const phase4jSupplierDocumentGrantAuditListing = read("docs/backend/phase-4j-supplier-document-grant-audit-listing.md");
+const phase4kSupplierDocumentAuditAdminUi = read("docs/backend/phase-4k-supplier-document-audit-admin-ui.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -816,6 +832,12 @@ if (pkg.scripts["test:admin-audit-frontend"] !== "vitest run src/lib/admin-audit
 if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-audit-frontend")) {
   failures.push("package.json: ci:core must run the admin audit frontend tests");
 }
+if (pkg.scripts["test:admin-supplier-document-audit-frontend"] !== "vitest run src/lib/admin-supplier-document-audit-api.test.ts src/lib/use-admin-supplier-document-audit.test.tsx src/pages/admin/AdminSupplierDocumentAudit.test.tsx") {
+  failures.push("package.json: test:admin-supplier-document-audit-frontend must cover supplier document audit adapter, hook and page");
+}
+if (!pkg.scripts["ci:core"]?.includes("npm run test:admin-supplier-document-audit-frontend")) {
+  failures.push("package.json: ci:core must run the supplier document audit frontend tests");
+}
 if (pkg.scripts["smoke:e2e:admin-runtime-status"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-runtime-status:run") {
   failures.push("package.json: smoke:e2e:admin-runtime-status must build with the self-hosted admin runtime adapter enabled");
 }
@@ -934,6 +956,17 @@ if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-audit-events")) {
 }
 requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin audit events browser smoke");
 requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-audit-events");
+if (pkg.scripts["smoke:e2e:admin-supplier-document-audit"] !== "VITE_YORSO_API_URL=http://127.0.0.1:4173/__e2e-api npm run build && npm run smoke:e2e:admin-supplier-document-audit:run") {
+  failures.push("package.json: smoke:e2e:admin-supplier-document-audit must build with the self-hosted supplier document audit adapter enabled");
+}
+if (pkg.scripts["smoke:e2e:admin-supplier-document-audit:run"] !== "E2E_USE_WEB_SERVER=1 playwright test e2e/admin-supplier-document-audit.spec.ts --project=chromium") {
+  failures.push("package.json: smoke:e2e:admin-supplier-document-audit:run must execute e2e/admin-supplier-document-audit.spec.ts");
+}
+if (!pkg.scripts["ci:full"]?.includes("npm run smoke:e2e:admin-supplier-document-audit")) {
+  failures.push("package.json: ci:full must include supplier document audit browser smoke");
+}
+requireText(".github/workflows/ci.yml", ciWorkflow, "Run admin supplier document audit browser smoke");
+requireText(".github/workflows/ci.yml", ciWorkflow, "npm run smoke:e2e:admin-supplier-document-audit");
 if (!pkg.scripts["ci:core"]?.includes("npm run smoke:self-hosted-auth-api:run")) {
   failures.push("package.json: ci:core must run the self-hosted auth API smoke");
 }
@@ -3087,6 +3120,18 @@ for (const marker of [
 ]) {
   requireText("docs/backend/phase-4j-supplier-document-grant-audit-listing.md", phase4jSupplierDocumentGrantAuditListing, marker);
 }
+for (const marker of [
+  "Backend Phase 4K",
+  "Supplier Document Audit Admin UI",
+  "/admin/supplier-document-audit",
+  "createAdminSupplierDocumentAuditApiClient",
+  "useAdminSupplierDocumentAudit",
+  "admin-supplier-document-audit.spec.ts",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4k-supplier-document-audit-admin-ui.md", phase4kSupplierDocumentAuditAdminUi, marker);
+}
 for (const [file, text, marker] of [
   ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "downloadSupplierDocument"],
   ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "requestDocumentDownloadGrant"],
@@ -3265,6 +3310,72 @@ for (const marker of [
   "10,000 concurrent users",
 ]) {
   requireText("docs/backend/self-hosted-admin-audit-events-page.md", adminAuditEventsPageDocs, marker);
+}
+for (const marker of [
+  "createAdminSupplierDocumentAuditApiClient",
+  "/v1/admin/supplier-documents/download-grants",
+  "/v1/admin/supplier-documents/download-events",
+  "ACCOUNT_USER_ID_HEADER",
+  "ACCOUNT_SESSION_ID_HEADER",
+  "admin_supplier_document_audit_api_disabled",
+  "admin_supplier_document_audit_session_required",
+  "admin_role_required",
+  "fileAssetId",
+  "downloadPath",
+]) {
+  requireText("src/lib/admin-supplier-document-audit-api.ts", adminSupplierDocumentAuditApi, marker);
+}
+for (const marker of [
+  "lists grant audit with filters",
+  "lists download event audit through the events endpoint",
+  "rejects storage-leaking responses",
+]) {
+  requireText("src/lib/admin-supplier-document-audit-api.test.ts", adminSupplierDocumentAuditApiTest, marker);
+}
+for (const marker of [
+  "useAdminSupplierDocumentAudit",
+  "status: \"disabled\"",
+  "status: \"session_required\"",
+  "status: \"forbidden\"",
+  "client.list",
+]) {
+  requireText("src/lib/use-admin-supplier-document-audit.ts", useAdminSupplierDocumentAudit, marker);
+}
+for (const marker of [
+  "returns disabled state without VITE_YORSO_API_URL",
+  "loads audit rows and supports refresh",
+  "maps 403 responses to forbidden state",
+]) {
+  requireText("src/lib/use-admin-supplier-document-audit.test.tsx", useAdminSupplierDocumentAuditTest, marker);
+}
+for (const marker of [
+  "admin-document-audit-page",
+  "admin-document-audit-rows",
+  "admin-document-audit-filters",
+  "admin-document-audit-disabled",
+  "admin-document-audit-session-required",
+  "admin-document-audit-forbidden",
+  "AdminOperatorNav",
+]) {
+  requireText("src/pages/admin/AdminSupplierDocumentAudit.tsx", adminSupplierDocumentAuditPage, marker);
+}
+for (const marker of [
+  "shows disabled and session-required states explicitly",
+  "renders grant audit rows without leaking storage fields",
+  "Нужна роль администратора",
+]) {
+  requireText("src/pages/admin/AdminSupplierDocumentAudit.test.tsx", adminSupplierDocumentAuditPageTest, marker);
+}
+for (const marker of [
+  "Phase 4K browser guard",
+  "/admin/supplier-document-audit",
+  "/v1/admin/supplier-documents/download-grants",
+  "x-yorso-user-id",
+  "x-yorso-session-id",
+  "admin-document-audit-page",
+  "admin-document-audit-forbidden",
+]) {
+  requireText("e2e/admin-supplier-document-audit.spec.ts", adminSupplierDocumentAuditE2E, marker);
 }
 for (const marker of [
   "createAdminRuntimeApiClient",

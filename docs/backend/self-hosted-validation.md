@@ -1804,3 +1804,37 @@ Required markers:
 - `supplierDocumentDownloadGrantAdminListResponseSchema`;
 - `admin.supplier_document_download_grants.read`;
 - `10,000 concurrent users`.
+
+## Backend Phase 4K Supplier Document Audit Admin UI Validation
+
+Run:
+
+```bash
+npm run test:admin-supplier-document-audit-frontend
+npm run smoke:e2e:admin-supplier-document-audit:run
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `/admin/supplier-document-audit` renders a read-only admin UI over grant
+  attempts and download events.
+- The frontend client sends self-hosted account session headers and requires a
+  configured `VITE_YORSO_API_URL`.
+- Missing sessions render a sign-in gate.
+- Non-admin sessions render `admin_role_required`.
+- UI responses are rejected if they contain `fileAssetId`, `downloadPath`,
+  object keys or storage-only fields.
+- Route code splitting stays intact through `React.lazy`.
+
+Required markers:
+
+- `Backend Phase 4K`;
+- `Supplier Document Audit Admin UI`;
+- `/admin/supplier-document-audit`;
+- `createAdminSupplierDocumentAuditApiClient`;
+- `useAdminSupplierDocumentAudit`;
+- `admin-document-audit-page`;
+- `admin-supplier-document-audit.spec.ts`;
+- `10,000 concurrent users`.

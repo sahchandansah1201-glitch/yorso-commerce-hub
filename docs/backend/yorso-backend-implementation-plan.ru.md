@@ -1042,3 +1042,27 @@ event listing. Owner/admin upload и редактирование докумен
 Следующий scoped backend direction после Phase 4J: либо admin UI для
 download/grant audit listings, либо supplier owner/admin document management
 после отдельного решения по ownership, validation и audit rules.
+
+## Backend Phase 4K Checkpoint - Admin UI audit документов поставщика
+
+Статус: реализовано.
+
+Phase 4K выбирает путь admin UI после Phase 4J и оставляет supplier owner/admin
+document management вне scope этого инкремента.
+
+Реализовано:
+
+- `/admin/supplier-document-audit` как read-only admin route;
+- frontend client `createAdminSupplierDocumentAuditApiClient` поверх
+  `/v1/admin/supplier-documents/download-grants` и
+  `/v1/admin/supplier-documents/download-events`;
+- hook `useAdminSupplierDocumentAudit` со статусами disabled,
+  session-required, forbidden, loading, ready и error;
+- фильтры audit kind, status, supplier id и buyer user id;
+- browser response guard против `fileAssetId`, `downloadPath`, object keys и
+  storage-only fields;
+- unit tests и API-backed Playwright smoke.
+
+Следующий scoped backend direction после Phase 4K: сначала определить
+ownership, validation и audit rules для supplier owner/admin document
+management, затем реализовывать upload/edit/delete.
