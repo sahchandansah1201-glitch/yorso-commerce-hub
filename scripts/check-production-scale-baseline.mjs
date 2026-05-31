@@ -20,6 +20,7 @@ const requiredFiles = [
   "docs/backend/phase-4e-supplier-profile-restricted-documents.md",
   "docs/backend/phase-4f-supplier-document-download-grants.md",
   "docs/backend/phase-4g-supplier-document-download-serving.md",
+  "docs/backend/phase-4h-supplier-document-download-ui.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -271,6 +272,7 @@ const phase4dSupplierProfileLegalDetails = read("docs/backend/phase-4d-supplier-
 const phase4eSupplierProfileRestrictedDocuments = read("docs/backend/phase-4e-supplier-profile-restricted-documents.md");
 const phase4fSupplierDocumentDownloadGrants = read("docs/backend/phase-4f-supplier-document-download-grants.md");
 const phase4gSupplierDocumentDownloadServing = read("docs/backend/phase-4g-supplier-document-download-serving.md");
+const phase4hSupplierDocumentDownloadUi = read("docs/backend/phase-4h-supplier-document-download-ui.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -629,6 +631,7 @@ for (const marker of [
   "Backend Phase 4E Supplier Profile Restricted Document Payload Boundary",
   "Backend Phase 4F Supplier Document Download Grant Endpoint",
   "Backend Phase 4G Supplier Document Grant Consumption / File Serving Endpoint",
+  "Backend Phase 4H Supplier Document Download UI Integration",
   "productionFacts",
   "logisticsFacts",
   "shipmentCases",
@@ -636,6 +639,8 @@ for (const marker of [
   "legalDetails",
   "supplierDocuments",
   "supplierDocumentDownloadGrant",
+  "downloadSupplierDocument",
+  "supplier-document-download",
   "supplier_document_download_events",
   "0031_supplier_profile_dossier_facts",
   "0032_supplier_profile_evidence_blocks",
@@ -761,6 +766,8 @@ for (const marker of [
   "supplier directory browser e2e",
   "supplier profile detail browser e2e",
   "API-backed offer catalog detail flow",
+  "Backend Phase 4H Supplier Document Download UI Validation",
+  "supplier-document-download",
 ]) {
   requireText("docs/backend/self-hosted-validation.md", validation, marker);
 }
@@ -3059,6 +3066,17 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-4g-supplier-document-download-serving.md", phase4gSupplierDocumentDownloadServing, marker);
+}
+for (const marker of [
+  "Backend Phase 4H",
+  "Supplier Document Download UI Integration",
+  "downloadSupplierDocument",
+  "supplier-document-download",
+  "Plan / Fact",
+  "fileAssetId",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4h-supplier-document-download-ui.md", phase4hSupplierDocumentDownloadUi, marker);
 }
 for (const marker of [
   "Backend Phase 4B",

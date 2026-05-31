@@ -263,6 +263,7 @@ const requiredFiles = [
   "docs/backend/phase-4e-supplier-profile-restricted-documents.md",
   "docs/backend/phase-4f-supplier-document-download-grants.md",
   "docs/backend/phase-4g-supplier-document-download-serving.md",
+  "docs/backend/phase-4h-supplier-document-download-ui.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -507,6 +508,7 @@ const phase4dSupplierProfileLegalDetails = read("docs/backend/phase-4d-supplier-
 const phase4eSupplierProfileRestrictedDocuments = read("docs/backend/phase-4e-supplier-profile-restricted-documents.md");
 const phase4fSupplierDocumentDownloadGrants = read("docs/backend/phase-4f-supplier-document-download-grants.md");
 const phase4gSupplierDocumentDownloadServing = read("docs/backend/phase-4g-supplier-document-download-serving.md");
+const phase4hSupplierDocumentDownloadUi = read("docs/backend/phase-4h-supplier-document-download-ui.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -3047,6 +3049,28 @@ for (const marker of [
   requireText("docs/backend/phase-4g-supplier-document-download-serving.md", phase4gSupplierDocumentDownloadServing, marker);
 }
 for (const marker of [
+  "Backend Phase 4H",
+  "Supplier Document Download UI Integration",
+  "downloadSupplierDocument",
+  "supplier-document-download",
+  "Plan / Fact",
+  "fileAssetId",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4h-supplier-document-download-ui.md", phase4hSupplierDocumentDownloadUi, marker);
+}
+for (const [file, text, marker] of [
+  ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "downloadSupplierDocument"],
+  ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "requestDocumentDownloadGrant"],
+  ["src/pages/SupplierProfile.tsx", supplierProfilePage, "supplier-document-download"],
+  ["src/pages/SupplierProfile.tsx", supplierProfilePage, "triggerSupplierDocumentDownload"],
+  ["src/lib/supplier-documents.ts", read("src/lib/supplier-documents.ts"), "redactSupplierDocumentFileAssets"],
+  ["e2e/supplier-directory-profile-api-flow.spec.ts", read("e2e/supplier-directory-profile-api-flow.spec.ts"), "documentDownloadRequests"],
+  ["e2e/supplier-directory-profile-api-flow.spec.ts", read("e2e/supplier-directory-profile-api-flow.spec.ts"), "supplier-document-download"],
+]) {
+  requireText(file, text, marker);
+}
+for (const marker of [
   "PasswordRecoveryDeliveryWorker",
   "leasePasswordRecoveryDeliveryJobs",
   "markPasswordRecoveryDeliverySent",
@@ -4080,7 +4104,7 @@ requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "current.
 requireText("src/lib/use-supplier-directory.ts", useSupplierDirectory, "localPreviewSupplierProductionFacts");
 requireText("src/lib/supplier-directory-view.ts", supplierDirectoryView, "productionFacts: item.productionFacts");
 requireText("src/lib/supplier-directory-view.ts", supplierDirectoryView, "logisticsFacts: item.logisticsFacts");
-requireText("src/lib/supplier-directory-view.ts", supplierDirectoryView, "supplierDocuments: unlocked ? item.supplierDocuments : null");
+requireText("src/lib/supplier-directory-view.ts", supplierDirectoryView, "supplierDocuments: unlocked ? redactSupplierDocumentFileAssets(item.supplierDocuments) : null");
 requireText("src/lib/supplier-dossier-facts.ts", supplierDossierFacts, "localPreviewSupplierProductionFacts");
 requireText("src/lib/supplier-dossier-facts.ts", supplierDossierFacts, "localPreviewSupplierLogisticsFacts");
 requireText("src/pages/SupplierProfile.tsx", supplierProfilePage, "supplier?.productionFacts");

@@ -1698,3 +1698,39 @@ Required markers:
 - `supplier_document_download_events`;
 - `0036_supplier_document_download_events`;
 - `grant_expired`.
+
+## Backend Phase 4H Supplier Document Download UI Validation
+
+Run:
+
+```bash
+npm test -- src/lib/supplier-directory-api.test.ts
+npm run test:supplier-directory-frontend
+npm run smoke:e2e:supplier-directory-profile-api-flow
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `downloadSupplierDocument` requests a self-hosted document grant before
+  fetching the returned API `downloadPath`.
+- The browser download fetch includes `x-yorso-user-id` and
+  `x-yorso-session-id`.
+- `SupplierProfile.tsx` renders `data-testid="supplier-document-download"` only
+  for approved qualified documents when the self-hosted API is configured.
+- Locked buyers keep non-downloadable document-readiness states.
+- `fileAssetId`, object keys, storage keys and direct file URLs are not present
+  in React-visible supplier document state, DOM, analytics or errors.
+- Expired/failed grants show localized retry copy.
+- The production passport keeps backend document rows visible even when
+  optional logistics facts are absent from the supplier payload.
+
+Required markers:
+
+- `Backend Phase 4H`;
+- `Supplier Document Download UI Integration`;
+- `downloadSupplierDocument`;
+- `supplier-document-download`;
+- `fileAssetId`;
+- `10,000 concurrent users`.

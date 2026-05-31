@@ -1359,6 +1359,12 @@ type TranslationKeys = {
   supplier_passport_docs_empty: string;
   supplier_passport_docs_issued: string;
   supplier_passport_docs_expires: string;
+  supplier_passport_docs_download: string;
+  supplier_passport_docs_downloading: string;
+  supplier_passport_docs_downloadFor: string;
+  supplier_passport_docs_downloadStarted: string;
+  supplier_passport_docs_downloadExpired: string;
+  supplier_passport_docs_downloadFailed: string;
   supplier_document_status_approved: string;
   supplier_document_status_review: string;
   supplier_document_status_expired: string;
@@ -3309,6 +3315,12 @@ const en: TranslationKeys = {
   supplier_passport_docs_empty: "Documents are available on request after buyer qualification.",
   supplier_passport_docs_issued: "Issued",
   supplier_passport_docs_expires: "Expires",
+  supplier_passport_docs_download: "Download",
+  supplier_passport_docs_downloading: "Preparing...",
+  supplier_passport_docs_downloadFor: "Download {title}",
+  supplier_passport_docs_downloadStarted: "Download started",
+  supplier_passport_docs_downloadExpired: "Document access expired. Try again.",
+  supplier_passport_docs_downloadFailed: "Could not start the download. Try again.",
   supplier_document_status_approved: "Approved",
   supplier_document_status_review: "In review",
   supplier_document_status_expired: "Expired",
@@ -5235,6 +5247,12 @@ const ru: TranslationKeys = {
   supplier_passport_docs_empty: "Документы доступны по запросу после квалификации покупателя.",
   supplier_passport_docs_issued: "Выдан",
   supplier_passport_docs_expires: "Действует до",
+  supplier_passport_docs_download: "Скачать",
+  supplier_passport_docs_downloading: "Готовим...",
+  supplier_passport_docs_downloadFor: "Скачать {title}",
+  supplier_passport_docs_downloadStarted: "Загрузка началась",
+  supplier_passport_docs_downloadExpired: "Доступ к документу истёк. Повторите попытку.",
+  supplier_passport_docs_downloadFailed: "Не удалось начать загрузку. Повторите попытку.",
   supplier_document_status_approved: "Подтверждён",
   supplier_document_status_review: "На проверке",
   supplier_document_status_expired: "Истёк",
@@ -7161,6 +7179,12 @@ const es: TranslationKeys = {
   supplier_passport_docs_empty: "Los documentos están disponibles bajo solicitud tras cualificar al comprador.",
   supplier_passport_docs_issued: "Emitido",
   supplier_passport_docs_expires: "Vence",
+  supplier_passport_docs_download: "Descargar",
+  supplier_passport_docs_downloading: "Preparando...",
+  supplier_passport_docs_downloadFor: "Descargar {title}",
+  supplier_passport_docs_downloadStarted: "Descarga iniciada",
+  supplier_passport_docs_downloadExpired: "El acceso al documento caducó. Inténtalo de nuevo.",
+  supplier_passport_docs_downloadFailed: "No se pudo iniciar la descarga. Inténtalo de nuevo.",
   supplier_document_status_approved: "Aprobado",
   supplier_document_status_review: "En revisión",
   supplier_document_status_expired: "Vencido",

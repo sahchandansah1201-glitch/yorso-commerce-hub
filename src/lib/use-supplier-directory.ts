@@ -11,7 +11,10 @@ import {
   localPreviewSupplierShipmentCases,
 } from "@/lib/supplier-evidence-blocks";
 import { localPreviewSupplierLegalDetails } from "@/lib/supplier-legal";
-import { localPreviewSupplierDocuments } from "@/lib/supplier-documents";
+import {
+  localPreviewSupplierDocuments,
+  redactSupplierDocumentFileAssets,
+} from "@/lib/supplier-documents";
 import {
   createSupplierDirectoryApiClient,
   type SupplierDirectoryAccessLevel,
@@ -95,7 +98,7 @@ const withSupplierAccessLevel = (
         ? supplier.legalDetails ?? localPreviewSupplierLegalDetails(supplier)
         : null,
       supplierDocuments: effectiveAccess === "qualified_unlocked"
-        ? supplier.supplierDocuments ?? localPreviewSupplierDocuments(supplier)
+        ? redactSupplierDocumentFileAssets(supplier.supplierDocuments ?? localPreviewSupplierDocuments(supplier))
         : null,
     },
     language,
@@ -113,7 +116,9 @@ const fallbackListState = (
       ...supplier,
       accessLevel: effectiveAccess,
       legalDetails: effectiveAccess === "qualified_unlocked" ? supplier.legalDetails : null,
-      supplierDocuments: effectiveAccess === "qualified_unlocked" ? supplier.supplierDocuments : null,
+      supplierDocuments: effectiveAccess === "qualified_unlocked"
+        ? redactSupplierDocumentFileAssets(supplier.supplierDocuments)
+        : null,
     };
   });
   return {

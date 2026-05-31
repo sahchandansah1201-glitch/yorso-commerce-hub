@@ -25,6 +25,8 @@ type SupplierAccessStatus = "none" | "sent" | "approved";
 
 interface ApiState {
   ackedNotifications: Set<string>;
+  documentDownloadRequests?: number;
+  documentGrantRequests?: number;
   requests: Record<string, SupplierAccessStatus>;
 }
 
@@ -119,6 +121,20 @@ const supplierItem = (status: SupplierAccessStatus) => {
       : null,
     deliveryCountriesTotal: unlocked ? 5 : null,
     totalProductsCount: unlocked ? 32 : null,
+    supplierDocuments: unlocked
+      ? [
+        {
+          id: "sup-no-001-health-certificate",
+          title: "Backend health certificate",
+          documentType: "health_certificate",
+          status: "approved",
+          issuedAt: "2026-02-10",
+          expiresAt: "2027-02-10",
+          fileName: "sup-no-001-health-certificate.pdf",
+          fileAssetId: "file_should_not_reach_browser_dom",
+        },
+      ]
+      : null,
     website: unlocked ? `https://${WEBSITE_HOST}` : null,
     whatsapp: unlocked ? `+${WHATSAPP_DIGITS}` : null,
     updatedAt: "2026-05-14T00:00:00.000Z",
@@ -185,6 +201,39 @@ const installSupplierApiMock = async (page: Page, state: ApiState) => {
         supplier: supplierItem(approved ? "approved" : "sent"),
         accessLevel: approved ? "qualified_unlocked" : "registered_locked",
         requestId: "e2e-supplier-directory-detail",
+      });
+      return;
+    }
+
+    if (path === `/v1/suppliers/${SUPPLIER_ID}/documents/sup-no-001-health-certificate/grant` && method === "POST") {
+      state.documentGrantRequests = (state.documentGrantRequests ?? 0) + 1;
+      await json(route, {
+        ok: true,
+        grant: {
+          id: "sdg_e2e_supplier_document",
+          supplierId: SUPPLIER_ID,
+          documentId: "sup-no-001-health-certificate",
+          fileName: "sup-no-001-health-certificate.pdf",
+          downloadPath: `/v1/suppliers/${SUPPLIER_ID}/documents/sup-no-001-health-certificate/download?grantId=sdg_e2e_supplier_document`,
+          grantedAt: nowIso(),
+          expiresAt: nowIso(),
+        },
+        requestId: "e2e-supplier-document-grant",
+      });
+      return;
+    }
+
+    if (path === `/v1/suppliers/${SUPPLIER_ID}/documents/sup-no-001-health-certificate/download` && method === "GET") {
+      expect(url.searchParams.get("grantId")).toBe("sdg_e2e_supplier_document");
+      expect(request.headers()["x-yorso-session-id"]).toBe("b_e2e_supplier_directory_profile_api_flow");
+      state.documentDownloadRequests = (state.documentDownloadRequests ?? 0) + 1;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/pdf",
+        headers: {
+          "content-disposition": 'attachment; filename="sup-no-001-health-certificate.pdf"',
+        },
+        body: "YORSO e2e supplier document bytes",
       });
       return;
     }
@@ -343,5 +392,26 @@ test.describe("/suppliers API-backed directory/profile approval bridge", () => {
     await expect(page.getByTestId("supplier-request-price-access")).toBeVisible();
     await expect(page.getByTestId("supplier-display-name").first()).toContainText(MASKED_NAME);
     await assertNoRestrictedSupplierValues(page);
+  });
+
+  test("qualified buyer downloads supplier document through grant-bound API flow", async ({ page }) => {
+    const state: ApiState = {
+      ackedNotifications: new Set(),
+      requests: { [SUPPLIER_ID]: "approved" },
+    };
+    await gotoRegisteredDirectory(page, state);
+
+    await nordfjordRow(page).getByTestId("supplier-row-title-link").click();
+    await expect(page.getByTestId("supplier-display-name").first()).toContainText(COMPANY_NAME);
+    await page.getByRole("tab", { name: "Production passport" }).click();
+    await expect(page.getByText("Backend health certificate")).toBeVisible();
+
+    await page.getByTestId("supplier-document-download").click();
+
+    await expect.poll(() => state.documentGrantRequests ?? 0).toBe(1);
+    await expect.poll(() => state.documentDownloadRequests ?? 0).toBe(1);
+    await expect(page.getByText("Download started")).toBeVisible();
+    expect(await bodyText(page)).not.toContain("file_should_not_reach_browser_dom");
+    expect(await bodyText(page)).not.toContain("objectKey");
   });
 });

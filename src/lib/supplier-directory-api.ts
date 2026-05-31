@@ -23,6 +23,7 @@ import {
 } from "@/lib/supplier-legal";
 import {
   localPreviewSupplierDocuments,
+  redactSupplierDocumentFileAssets,
   type SupplierDocumentPayload,
 } from "@/lib/supplier-documents";
 import { getApprovedSupplierAccessIds } from "@/lib/supplier-access-requests";
@@ -112,6 +113,11 @@ interface SupplierDocumentDownloadGrantResponse {
   requestId: string;
 }
 
+export interface SupplierDocumentDownloadFile {
+  blob: Blob;
+  fileName: string;
+}
+
 export interface SupplierDirectoryClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
@@ -142,6 +148,25 @@ const paramsFromQuery = (query: Partial<SupplierDirectoryQuery>) => {
     params.set(key, String(value));
   }
   return params;
+};
+
+const filenameFromContentDisposition = (value: string | null): string | null => {
+  if (!value) return null;
+  const utf8Match = value.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8Match?.[1]) return decodeURIComponent(utf8Match[1].replace(/^"|"$/g, ""));
+  const asciiMatch = value.match(/filename="?([^";]+)"?/i);
+  return asciiMatch?.[1] ?? null;
+};
+
+const errorCodeFromResponse = async (response: Response, fallback: string) => {
+  try {
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) return fallback;
+    const body = await response.json() as { error?: { code?: string } };
+    return body.error?.code ?? fallback;
+  } catch {
+    return fallback;
+  }
 };
 
 const shapeMockSupplier = (
@@ -190,7 +215,9 @@ const shapeMockSupplier = (
     ),
     faqItems: supplier.faqItems ?? localPreviewSupplierFaqItems(supplier.id),
     legalDetails: unlocked ? supplier.legalDetails ?? localPreviewSupplierLegalDetails(supplier) : null,
-    supplierDocuments: unlocked ? supplier.supplierDocuments ?? localPreviewSupplierDocuments(supplier) : null,
+    supplierDocuments: unlocked
+      ? redactSupplierDocumentFileAssets(supplier.supplierDocuments ?? localPreviewSupplierDocuments(supplier))
+      : null,
     website: unlocked ? supplier.website ?? null : null,
     whatsapp: unlocked ? supplier.whatsapp ?? null : null,
     updatedAt: "2026-05-14T00:00:00.000Z",
@@ -345,6 +372,26 @@ export function createSupplierDirectoryApiClient(options: SupplierDirectoryClien
         { method: "POST" },
       );
       return response.grant;
+    },
+    async downloadSupplierDocument(supplierId: string, documentId: string): Promise<SupplierDocumentDownloadFile> {
+      if (!enabled) {
+        throw new Error("supplier_document_grant_requires_api");
+      }
+
+      const grant = await this.requestDocumentDownloadGrant(supplierId, documentId);
+      const response = await fetchImpl(`${baseUrl}${grant.downloadPath}`, {
+        method: "GET",
+        headers: supplierDirectoryHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error(await errorCodeFromResponse(response, `supplier_document_download_${response.status}`));
+      }
+
+      return {
+        blob: await response.blob(),
+        fileName: filenameFromContentDisposition(response.headers.get("content-disposition")) ?? grant.fileName,
+      };
     },
   };
 }

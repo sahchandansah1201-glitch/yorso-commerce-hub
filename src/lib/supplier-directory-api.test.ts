@@ -6,6 +6,7 @@ describe("supplier directory API adapter", () => {
   afterEach(() => {
     localStorage.removeItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY);
     sessionStorage.removeItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY);
+    sessionStorage.removeItem("yorso_buyer_session");
   });
 
   it("uses local mock fallback without exposing locked supplier identity", async () => {
@@ -256,5 +257,63 @@ describe("supplier directory API adapter", () => {
     expect(fetchImpl.mock.calls[0][1]?.method).toBe("POST");
     expect((fetchImpl.mock.calls[0][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
     expect(JSON.stringify(grant)).not.toContain("fileAssetId");
+  });
+
+  it("downloads supplier documents through a grant-bound self-hosted API fetch", async () => {
+    const localClient = createSupplierDirectoryApiClient({ baseUrl: "" });
+    await expect(localClient.downloadSupplierDocument("sup-no-001", "doc-1")).rejects.toThrow(
+      "supplier_document_grant_requires_api",
+    );
+
+    sessionStorage.setItem("yorso_buyer_session", JSON.stringify({
+      id: "b_supplier_document_download_test",
+      identifier: "buyer@example.com",
+      method: "email",
+      signedInAt: "2026-05-31T08:00:00.000Z",
+      displayName: "buyer",
+      userId: "11111111-1111-4111-8111-111111111111",
+    }));
+
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.endsWith("/grant")) {
+        return new Response(JSON.stringify({
+          ok: true,
+          grant: {
+            id: "sdg_grant_1",
+            supplierId: "sup-no-001",
+            documentId: "sup-no-001-health-certificate",
+            fileName: "sup-no-001-health-certificate.pdf",
+            downloadPath: "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_grant_1",
+            grantedAt: "2026-05-31T08:00:00.000Z",
+            expiresAt: "2026-05-31T08:15:00.000Z",
+          },
+          requestId: "req-grant",
+        }), { status: 200, headers: { "content-type": "application/json" } });
+      }
+
+      expect(url).toBe(
+        "http://localhost:3000/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_grant_1",
+      );
+      expect(init?.method).toBe("GET");
+      expect((init?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
+      expect((init?.headers as Headers).get("x-yorso-session-id")).toBeTruthy();
+      return new Response(new Blob(["YORSO supplier document bytes"], { type: "application/pdf" }), {
+        status: 200,
+        headers: {
+          "content-type": "application/pdf",
+          "content-disposition": 'attachment; filename="sup-no-001-health-certificate.pdf"',
+        },
+      });
+    });
+
+    const client = createSupplierDirectoryApiClient({ baseUrl: "http://localhost:3000", fetchImpl: fetchImpl as unknown as typeof fetch });
+    const file = await client.downloadSupplierDocument("sup-no-001", "sup-no-001-health-certificate");
+
+    expect(file.fileName).toBe("sup-no-001-health-certificate.pdf");
+    expect(file.blob.type).toBe("application/pdf");
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(fetchImpl.mock.calls[0][0]).toBe("http://localhost:3000/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/grant");
+    expect(JSON.stringify(file)).not.toContain("fileAssetId");
+    expect(JSON.stringify(file)).not.toContain("objectKey");
   });
 });

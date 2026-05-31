@@ -70,7 +70,7 @@ mistaken for production data surfaces.
 | `/offers` | Procurement catalog workspace | self-hosted `catalog-api` when configured; API-disabled local fixture preview; local UI state | offer catalog API, public/qualified views, backend filters | Phase 3A catalog fallback removed |
 | `/offers/:id` | Offer decision page | self-hosted `catalog-api` when configured; API-disabled local fixture preview | offer detail API, documents, supplier trust, related offers | Phase 3A catalog fallback removed |
 | `/suppliers` | Supplier directory | self-hosted supplier directory API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; session shortlist | supplier directory API, public/qualified views, shortlist API | Phase 4A source-of-truth audit |
-| `/suppliers/:supplierId` | Supplier dossier | self-hosted supplier detail API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; local access request bridge; backend-owned `productionFacts` / `logisticsFacts`, `shipmentCases` / `faqItems`, and qualified-only `legalDetails` / `supplierDocuments` | supplier profile API, supplier offers API, backend-owned dossier/evidence/legal/document facts, access workflow | Phase 4E restricted documents |
+| `/suppliers/:supplierId` | Supplier dossier | self-hosted supplier detail API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; local access request bridge; backend-owned `productionFacts` / `logisticsFacts`, `shipmentCases` / `faqItems`, and qualified-only `legalDetails` / `supplierDocuments`; qualified document download UI uses grant-bound API path | supplier profile API, supplier offers API, backend-owned dossier/evidence/legal/document facts, access workflow, grant-bound supplier document downloads | Phase 4H document download UI |
 | `/v1/suppliers/:supplierId/documents/:documentId/grant` | Supplier document grant API | self-hosted API only; no API-disabled preview grant | supplier document metadata, supplier access grant, document grant audit | Phase 4F supplier document download grant |
 | `/v1/suppliers/:supplierId/documents/:documentId/download?grantId=...` | Supplier document serving API | self-hosted API only; no direct storage URL or API-disabled local serving | supplier document grant, supplier access grant, file asset metadata, object storage, document download audit | Phase 4G supplier document file serving |
 | `/about` | Public company/trust page | static info page content, route-owned SEO | CMS-ready static page or local content source with route SEO | P3 |
@@ -448,6 +448,9 @@ Acceptance:
   validates the grant, current supplier access and expiry, streams bytes through
   the self-hosted API and persists attempts in
   `yorso_supplier_document_download_events`;
+- qualified supplier profile document rows call `downloadSupplierDocument`,
+  fetch only the grant-owned relative API download path and never expose
+  `fileAssetId`, object keys, storage keys or direct storage URLs to the DOM;
 - access request panel uses backend statuses;
 - canonical and SEO rules are defined before public indexing.
 

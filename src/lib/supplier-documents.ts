@@ -23,6 +23,16 @@ export interface SupplierDocumentPayload {
   fileAssetId: string | null;
 }
 
+export const redactSupplierDocumentFileAssets = (
+  documents: SupplierDocumentPayload[] | null | undefined,
+): SupplierDocumentPayload[] | null => {
+  if (!documents) return null;
+  return documents.map((document) => ({
+    ...document,
+    fileAssetId: null,
+  }));
+};
+
 const doc = (
   supplierId: string,
   suffix: string,

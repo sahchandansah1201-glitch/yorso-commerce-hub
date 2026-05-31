@@ -762,6 +762,28 @@ The correct first backend is:
 7. workspaces;
 8. notifications and documents.
 
+## Backend Phase 4H Checkpoint - Supplier Document Download UI
+
+Status: implemented.
+
+Phase 4H closes the buyer-facing supplier document download path for qualified
+profiles:
+
+- `SupplierProfile.tsx` renders a download action for approved supplier
+  documents only when the self-hosted API is configured and the buyer is
+  `qualified_unlocked`.
+- `downloadSupplierDocument` requests a self-hosted grant, then fetches the
+  returned API download path with the current buyer session headers.
+- `fileAssetId`, object keys, storage keys and direct file URLs stay outside
+  React-visible state and DOM assertions.
+- Locked buyers keep document-readiness states without a download action.
+- The production passport keeps backend document rows visible even when
+  optional logistics facts are absent.
+
+Next scoped backend direction after Phase 4H: supplier owner/admin document
+management or bounded admin download-audit listing, depending on the product
+priority decision.
+
 This sequence matches the frontend already built and protects the central
 business rule of YORSO: exact price, supplier identity, contacts and commercial
 detail are valuable data and must be disclosed only through controlled access.

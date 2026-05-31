@@ -5781,6 +5781,69 @@ Marker: grant_expired.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4H Supplier Document Download UI Integration
+
+Phase 4H connects the qualified supplier profile document rows to the
+self-hosted Phase 4F grant endpoint and Phase 4G download endpoint. It does not
+add new backend tables, workers, polling loops or provider dependencies.
+
+Expected read/write profile:
+
+- One buyer click issues one grant POST and one file GET through the API.
+- Reads: current browser buyer session headers and the already-loaded supplier
+  profile payload.
+- Writes: no frontend-owned write; backend grant/download audit writes remain
+  owned by Phase 4F and Phase 4G.
+- Locked buyers do not trigger grant/download requests.
+
+Cache, queue and backpressure strategy:
+
+- The UI does not cache restricted document bytes.
+- The download button is disabled while the clicked row is pending.
+- Backend `cache-control: private, no-store`, grant TTL, request timeout and
+  document-serving guardrails remain the backpressure boundary.
+- No queue or runtime scheduler is introduced in the frontend.
+
+Database indexing and pagination strategy:
+
+- No new index is required in Phase 4H.
+- Existing grant and download-event indexes continue to cover backend audit
+  writes.
+- Supplier profile document rows remain bounded by the supplier profile payload;
+  a separate admin document listing must use pagination later.
+
+Failure mode and graceful degradation:
+
+- API-disabled preview shows no download action.
+- Expired grants show localized retry copy.
+- Failed download attempts show localized retry copy without `fileAssetId`,
+  object key, storage key or direct file URL exposure.
+- Backend document rows stay visible in the production passport even when
+  optional logistics facts are absent.
+
+Observability and load-test plan:
+
+- Release validation must include the supplier-directory API client test,
+  SupplierProfile access tests, API-backed profile e2e, self-hosted guards,
+  TypeScript, lint, production build and full test gates.
+- Load tests should combine Phase 4F/4G grant/download backend scenarios with
+  browser-level qualified profile clicks at the 10,000 concurrent-user target.
+- Track grant failure rate, download event failure rate, storage latency and
+  duplicate-click suppression.
+
+Validation:
+
+- `npm test -- src/lib/supplier-directory-api.test.ts`.
+- `npm run test:supplier-directory-frontend`.
+- `npm run smoke:e2e:supplier-directory-profile-api-flow`.
+
+Marker: Backend Phase 4H Supplier Document Download UI Integration.
+Marker: downloadSupplierDocument.
+Marker: supplier-document-download.
+Marker: fileAssetId.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

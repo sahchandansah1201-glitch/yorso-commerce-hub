@@ -21,6 +21,8 @@ import {
   Building2,
   FileBadge,
   Lock,
+  Download,
+  LoaderCircle,
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -61,6 +63,7 @@ import {
 import SupplierAccessRefreshBanner from "@/components/suppliers/SupplierAccessRefreshBanner";
 import { processSupplierAccessRequests } from "@/lib/supplier-access-approval";
 import { useSupplierDirectoryDetail } from "@/lib/use-supplier-directory";
+import { createSupplierDirectoryApiClient } from "@/lib/supplier-directory-api";
 
 const EMPTY_SHIPMENT_CASES: NonNullable<MockSupplier["shipmentCases"]> = [];
 const EMPTY_SUPPLIER_FAQ_ITEMS: NonNullable<MockSupplier["faqItems"]> = [];
@@ -427,14 +430,65 @@ const supplierDocumentStatusLabel = (
   return t.supplier_document_status_onRequest;
 };
 
+const triggerSupplierDocumentDownload = (blob: Blob, fileName: string) => {
+  if (typeof document === "undefined" || typeof URL === "undefined" || !URL.createObjectURL) return;
+  const href = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = fileName;
+  link.rel = "noopener";
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(href);
+};
+
+type SupplierDocumentDownloadNotice = {
+  documentId: string;
+  kind: "success" | "error";
+  message: string;
+};
+
 const SupplierDocumentsBlock = ({
   documents,
+  supplierId,
   unlocked,
 }: {
   documents: SupplierDocumentPayload[] | null | undefined;
+  supplierId: string;
   unlocked: boolean;
 }) => {
   const { t, lang } = useLanguage();
+  const client = useMemo(() => createSupplierDirectoryApiClient(), []);
+  const [downloadingDocumentId, setDownloadingDocumentId] = useState<string | null>(null);
+  const [downloadNotice, setDownloadNotice] = useState<SupplierDocumentDownloadNotice | null>(null);
+
+  const handleDownload = async (document: SupplierDocumentPayload) => {
+    if (!client.enabled || document.status !== "approved" || !document.fileName) return;
+    setDownloadingDocumentId(document.id);
+    setDownloadNotice(null);
+    try {
+      const file = await client.downloadSupplierDocument(supplierId, document.id);
+      triggerSupplierDocumentDownload(file.blob, file.fileName);
+      setDownloadNotice({
+        documentId: document.id,
+        kind: "success",
+        message: t.supplier_passport_docs_downloadStarted,
+      });
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "supplier_document_download_failed";
+      setDownloadNotice({
+        documentId: document.id,
+        kind: "error",
+        message: code === "supplier_document_grant_expired"
+          ? t.supplier_passport_docs_downloadExpired
+          : t.supplier_passport_docs_downloadFailed,
+      });
+    } finally {
+      setDownloadingDocumentId((current) => (current === document.id ? null : current));
+    }
+  };
 
   return (
     <div className="rounded-xl border border-border bg-card p-6">
@@ -473,6 +527,38 @@ const SupplierDocumentsBlock = ({
                   {supplierDocumentStatusLabel(document.status, t)}
                 </span>
               </div>
+              {client.enabled && document.status === "approved" && document.fileName && (
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="min-h-11 w-full justify-center gap-2 sm:w-auto"
+                    data-testid="supplier-document-download"
+                    data-supplier-profile-mobile-target="document-download"
+                    aria-label={interpolate(t.supplier_passport_docs_downloadFor, { title: document.title })}
+                    disabled={downloadingDocumentId === document.id}
+                    onClick={() => void handleDownload(document)}
+                  >
+                    {downloadingDocumentId === document.id ? (
+                      <LoaderCircle className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden />
+                    ) : (
+                      <Download className="h-4 w-4" aria-hidden />
+                    )}
+                    {downloadingDocumentId === document.id
+                      ? t.supplier_passport_docs_downloading
+                      : t.supplier_passport_docs_download}
+                  </Button>
+                </div>
+              )}
+              {downloadNotice?.documentId === document.id && (
+                <p
+                  className={`mt-2 text-xs ${downloadNotice.kind === "error" ? "text-destructive" : "text-muted-foreground"}`}
+                  role={downloadNotice.kind === "error" ? "alert" : "status"}
+                >
+                  {downloadNotice.message}
+                </p>
+              )}
               <dl className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                 {document.issuedAt && (
                   <div>
@@ -1748,7 +1834,7 @@ const SupplierProfile = () => {
 
                   {/* --- 3.3 Логистика и условия поставки --- */}
                   <section id="passport-logistics" className="scroll-mt-32">
-                    {logistics && (
+                    {logistics ? (
                       <div className="grid gap-6 lg:grid-cols-3">
                         <div className="space-y-6 lg:col-span-2">
                           <div className="rounded-xl border border-border bg-card p-6">
@@ -1798,6 +1884,7 @@ const SupplierProfile = () => {
 
                           <SupplierDocumentsBlock
                             documents={supplier.supplierDocuments}
+                            supplierId={supplier.id}
                             unlocked={isUnlocked}
                           />
                         </div>
@@ -1830,6 +1917,12 @@ const SupplierProfile = () => {
                           </div>
                         </aside>
                       </div>
+                    ) : (
+                      <SupplierDocumentsBlock
+                        documents={supplier.supplierDocuments}
+                        supplierId={supplier.id}
+                        unlocked={isUnlocked}
+                      />
                     )}
                   </section>
                 </div>

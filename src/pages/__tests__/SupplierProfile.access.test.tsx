@@ -54,6 +54,7 @@ const setSignedIn = () => {
       method: "email",
       signedInAt: new Date().toISOString(),
       displayName: "tester",
+      userId: "11111111-1111-4111-8111-111111111111",
     }),
   );
 };
@@ -395,6 +396,96 @@ describe("SupplierProfile · access gating", () => {
       expect(screen.getByText("backend-health-certificate-777.pdf")).toBeInTheDocument();
       expect(screen.getByText("Approved")).toBeInTheDocument();
       expect(document.body.textContent ?? "").not.toContain("Health Certificate");
+    });
+
+    it("qualified buyer downloads supplier document through grant-bound self-hosted file stream", async () => {
+      setSignedIn();
+      setQualified();
+      vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+      const createObjectURL = vi.fn(() => "blob:supplier-document");
+      const revokeObjectURL = vi.fn();
+      const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+      const OriginalURL = URL;
+      vi.stubGlobal("URL", Object.assign(
+        function TestURL(input: string | URL, base?: string | URL) {
+          return new OriginalURL(input, base);
+        },
+        OriginalURL,
+        { createObjectURL, revokeObjectURL },
+      ));
+
+      const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        if (url === "http://api.test/v1/suppliers/sup-remote-909?accessLevel=qualified_unlocked") {
+          return new Response(JSON.stringify({
+            ok: true,
+            supplier: {
+              ...remoteSupplierDetail,
+              companyName: "Remote Legal Supplier AS",
+              website: "https://remote-legal.example",
+              whatsapp: "+47 555 0777",
+              accessLevel: "qualified_unlocked",
+            },
+            accessLevel: "qualified_unlocked",
+            requestId: "remote-profile-documents-test",
+          }), {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          });
+        }
+
+        if (url === "http://api.test/v1/suppliers/sup-remote-909/documents/backend-doc-health-777/grant") {
+          expect(init?.method).toBe("POST");
+          return new Response(JSON.stringify({
+            ok: true,
+            grant: {
+              id: "sdg_ui_777",
+              supplierId: "sup-remote-909",
+              documentId: "backend-doc-health-777",
+              fileName: "backend-health-certificate-777.pdf",
+              downloadPath: "/v1/suppliers/sup-remote-909/documents/backend-doc-health-777/download?grantId=sdg_ui_777",
+              grantedAt: "2026-05-31T08:00:00.000Z",
+              expiresAt: "2026-05-31T08:15:00.000Z",
+            },
+            requestId: "remote-profile-document-grant",
+          }), {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          });
+        }
+
+        if (url === "http://api.test/v1/suppliers/sup-remote-909/documents/backend-doc-health-777/download?grantId=sdg_ui_777") {
+          expect(init?.method).toBe("GET");
+          expect((init?.headers as Headers).get("x-yorso-user-id")).toBe("11111111-1111-4111-8111-111111111111");
+          expect((init?.headers as Headers).get("x-yorso-session-id")).toBe("b_test");
+          return new Response(new Blob(["YORSO supplier document bytes"], { type: "application/pdf" }), {
+            status: 200,
+            headers: {
+              "content-type": "application/pdf",
+              "content-disposition": 'attachment; filename="backend-health-certificate-777.pdf"',
+            },
+          });
+        }
+
+        return new Response(JSON.stringify({ ok: false, error: { code: "unexpected_fetch", url } }), {
+          status: 500,
+          headers: { "content-type": "application/json" },
+        });
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      renderProfile(remoteSupplierDetail.id);
+
+      const download = await screen.findByRole("button", { name: /download backend health certificate/i });
+      fireEvent.click(download);
+
+      await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+      expect(createObjectURL).toHaveBeenCalled();
+      expect(clickSpy).toHaveBeenCalled();
+      expect(revokeObjectURL).toHaveBeenCalledWith("blob:supplier-document");
+      expect(await screen.findByText("Download started")).toBeInTheDocument();
+      expect(document.body.innerHTML).not.toContain("file_backend_health_777");
+      expect(document.body.innerHTML).not.toContain("objectKey");
     });
 
     it("при ошибке self-hosted API не подставляет локальный fallback-профиль", async () => {
