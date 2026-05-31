@@ -2,6 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { getDemoSupplierDocumentFileAssetId } from "../../../fixtures/supplier-document-assets.js";
 import { LocalObjectStorage, type ObjectStorage } from "../object-storage.js";
 import { PostgresFileRepository } from "../postgres-repository.js";
 import { MemoryFileRepository } from "../repository.js";
@@ -95,6 +96,24 @@ describe("self-hosted file storage service", () => {
       expiresAt: "2027-05-13",
     });
     await expect(service.listCompanyDocuments("11111111-1111-4111-8111-111111111111")).resolves.toHaveLength(1);
+  });
+
+  it("serves seeded supplier document files by internal backend asset id", async () => {
+    const service = new FileService(
+      new MemoryFileRepository(),
+      new LocalObjectStorage(await makeTempRoot()),
+      { maxUploadBytes: 1024, storageDriver: "local" },
+    );
+    const assetId = getDemoSupplierDocumentFileAssetId("sup-no-001-health-certificate");
+    if (!assetId) throw new Error("Expected demo supplier document asset id.");
+
+    const file = await service.getFileByAssetId(assetId);
+
+    expect(file.asset.originalFileName).toBe("sup-no-001-health-certificate.pdf");
+    expect(file.contentType).toBe("application/pdf");
+    expect(file.bytes.toString("utf8")).toContain("YORSO demo supplier document: sup-no-001-health-certificate.pdf");
+    expect(file.bytes.toString("utf8")).not.toContain("objectKey");
+    expect(file.bytes.toString("utf8")).not.toContain("fileAssetId");
   });
 
   it("removes stored object bytes when company document metadata creation fails", async () => {

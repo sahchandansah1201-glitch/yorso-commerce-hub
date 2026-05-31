@@ -153,6 +153,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
   const supplierService = new SupplierDirectoryService(
     options.supplierRepository ?? createSupplierRepository(config),
     supplierAccessRepository,
+    fileService,
   );
   const errorTelemetrySink = options.errorTelemetrySink ?? createErrorTelemetrySink(config);
   const requestTelemetrySink = options.requestTelemetrySink ?? createRequestTelemetrySink(config);

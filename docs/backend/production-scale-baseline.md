@@ -5716,6 +5716,71 @@ Marker: qualified-only.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4G Supplier Document Grant Consumption / File Serving Endpoint
+
+Phase 4G consumes Phase 4F document grants and streams restricted supplier
+document bytes through the self-hosted API. The route is:
+
+`GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=...`
+
+Expected read/write profile:
+
+- One authenticated GET per buyer document download.
+- Reads: session validation, grant lookup by primary key, supplier access
+  check, supplier document metadata read, file asset metadata read and object
+  storage read.
+- Writes: one append-only audit insert into
+  `yorso_supplier_document_download_events` per success/failure attempt.
+
+Cache, queue and backpressure strategy:
+
+- No queue is needed for synchronous serving.
+- `cache-control: private, no-store` prevents shared cache reuse of restricted
+  document bytes.
+- Existing API request timeout, header size guard, lifecycle drain handling and
+  supplier access checks remain the immediate backpressure layer.
+- Range requests and large-file streaming are deferred to a separate serving
+  performance phase.
+
+Database indexing and pagination strategy:
+
+- Grant lookup uses `yorso_supplier_document_download_grants.id`.
+- Migration `0036_supplier_document_download_events` creates the append-only
+  serving/consumption audit table.
+- Buyer recent, supplier recent, grant recent and status recent indexes support
+  bounded future admin review.
+
+Failure mode and graceful degradation:
+
+- Missing/invalid session fails before grant lookup.
+- Missing `grantId` returns `supplier_document_grant_required`.
+- Missing/non-granted grant returns `supplier_document_grant_not_found`.
+- Buyer/supplier/document mismatch returns `supplier_document_grant_denied`.
+- Expired grants return `supplier_document_grant_expired`.
+- Revoked supplier access returns `supplier_document_access_required`.
+- Missing file asset returns `supplier_document_file_unavailable`.
+- Audit persistence failure fails closed.
+
+Observability and load-test plan:
+
+- Release validation must include route tests, storage internal asset read tests,
+  supplier repository consumption-audit tests, DB migration/manifest tests,
+  runtime smoke markers, `check:self-hosted-api`,
+  `check:production-scale-baseline`, TypeScript, lint and production build.
+- Load tests should cover missing grant, expired grant, valid download and
+  repeated same-grant download attempts at concurrent load.
+
+Validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "supplier document download grants"`.
+
+Marker: Backend Phase 4G Supplier Document Grant Consumption / File Serving Endpoint.
+Marker: supplier_document_download_events.
+Marker: 0036_supplier_document_download_events.
+Marker: grant_expired.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

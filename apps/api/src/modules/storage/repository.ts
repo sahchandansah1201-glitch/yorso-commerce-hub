@@ -5,6 +5,7 @@ import type {
   CompanyDocument,
   CompanyDocumentCreate,
 } from "../../../../../packages/contracts/dist/index.js";
+import { demoSupplierDocumentFiles } from "../../fixtures/supplier-document-assets.js";
 
 export interface FileAssetCreateInput {
   ownerUserId: string;
@@ -38,6 +39,7 @@ export interface FileRepository {
   deleteFileAssetForUser(userId: string, assetId: string): Promise<AccountFileAsset | null>;
   getFileAssetForUser(userId: string, assetId: string): Promise<AccountFileAsset | null>;
   getFileAssetByObjectKeyForUser(userId: string, objectKey: string): Promise<AccountFileAsset | null>;
+  getFileAssetById(assetId: string): Promise<AccountFileAsset | null>;
   createCompanyDocument(input: CompanyDocumentCreateInput): Promise<CompanyDocument>;
   listCompanyDocuments(companyId: string): Promise<CompanyDocument[]>;
 }
@@ -45,6 +47,15 @@ export interface FileRepository {
 export class MemoryFileRepository implements FileRepository {
   private readonly assets = new Map<string, AccountFileAsset & { ownerUserId: string }>();
   private readonly documents = new Map<string, CompanyDocument>();
+
+  constructor() {
+    for (const file of demoSupplierDocumentFiles) {
+      this.assets.set(file.asset.id, {
+        ...file.asset,
+        ownerUserId: "00000000-0000-4000-8000-00000000f000",
+      });
+    }
+  }
 
   async createFileAsset(input: FileAssetCreateInput): Promise<AccountFileAsset> {
     const asset: AccountFileAsset & { ownerUserId: string } = {
@@ -97,6 +108,11 @@ export class MemoryFileRepository implements FileRepository {
     const asset = [...this.assets.values()].find(
       (item) => item.ownerUserId === userId && item.objectKey === objectKey,
     );
+    return asset ? stripOwner(asset) : null;
+  }
+
+  async getFileAssetById(assetId: string): Promise<AccountFileAsset | null> {
+    const asset = this.assets.get(assetId);
     return asset ? stripOwner(asset) : null;
   }
 

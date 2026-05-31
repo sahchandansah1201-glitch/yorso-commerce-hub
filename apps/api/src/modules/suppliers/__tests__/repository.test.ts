@@ -304,4 +304,88 @@ describe("supplier directory repositories", () => {
       "2026-05-31T08:15:00.000Z",
     ]);
   });
+
+  it("PostgreSQL repository reads grants and persists supplier document download events", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        if (sql.includes("from yorso_supplier_document_download_grants")) {
+          return {
+            rows: [
+              {
+                id: "sdg_grant_1",
+                buyerUserId: "00000000-0000-4000-8000-000000000001",
+                supplierId: "sup-no-001",
+                documentId: "sup-no-001-health-certificate",
+                fileAssetId: "00000000-0000-4000-8000-00000000f001",
+                status: "granted",
+                reason: "granted",
+                requestId: "req-1",
+                downloadPath: "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_grant_1",
+                grantedAt: "2026-05-31T08:00:00.000Z",
+                expiresAt: "2026-05-31T08:15:00.000Z",
+                createdAt: "2026-05-31T08:00:00.000Z",
+              },
+            ],
+          };
+        }
+        return {
+          rows: [
+            {
+              id: "sdde_event_1",
+              buyerUserId: "00000000-0000-4000-8000-000000000001",
+              supplierId: "sup-no-001",
+              documentId: "sup-no-001-health-certificate",
+              grantId: "sdg_grant_1",
+              fileAssetId: "00000000-0000-4000-8000-00000000f001",
+              status: "downloaded",
+              reason: "downloaded",
+              requestId: "req-download",
+              createdAt: "2026-05-31T08:01:00.000Z",
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+
+    const grant = await repository.getDocumentDownloadGrantById("sdg_grant_1");
+    const event = await repository.recordDocumentDownloadEvent({
+      id: "sdde_event_1",
+      buyerUserId: "00000000-0000-4000-8000-000000000001",
+      supplierId: "sup-no-001",
+      documentId: "sup-no-001-health-certificate",
+      grantId: "sdg_grant_1",
+      fileAssetId: "00000000-0000-4000-8000-00000000f001",
+      status: "downloaded",
+      reason: "downloaded",
+      requestId: "req-download",
+    });
+
+    expect(grant).toMatchObject({
+      id: "sdg_grant_1",
+      fileAssetId: "00000000-0000-4000-8000-00000000f001",
+    });
+    expect(event).toMatchObject({
+      id: "sdde_event_1",
+      status: "downloaded",
+      grantId: "sdg_grant_1",
+    });
+    expect(calls[0].sql).toContain("from yorso_supplier_document_download_grants");
+    expect(calls[0].params).toEqual(["sdg_grant_1"]);
+    expect(calls[1].sql).toContain("insert into yorso_supplier_document_download_events");
+    expect(calls[1].sql).toContain("file_asset_id");
+    expect(calls[1].params).toEqual([
+      "sdde_event_1",
+      "00000000-0000-4000-8000-000000000001",
+      "sup-no-001",
+      "sup-no-001-health-certificate",
+      "sdg_grant_1",
+      "00000000-0000-4000-8000-00000000f001",
+      "downloaded",
+      "downloaded",
+      "req-download",
+    ]);
+  });
 });

@@ -10,12 +10,18 @@ import {
   type SupplierDirectoryRecord,
 } from "../../../../../packages/contracts/dist/index.js";
 import type { SupplierAccessRepository } from "../access/repository.js";
-import type { SupplierDocumentDownloadGrantStatus, SupplierRepository } from "./repository.js";
+import type { FileService } from "../storage/service.js";
+import type {
+  SupplierDocumentDownloadEventStatus,
+  SupplierDocumentDownloadGrantStatus,
+  SupplierRepository,
+} from "./repository.js";
 
 export class SupplierDirectoryService {
   constructor(
     private readonly repository: SupplierRepository,
     private readonly accessRepository?: SupplierAccessRepository,
+    private readonly fileService?: FileService,
   ) {}
 
   async listSuppliers(
@@ -42,6 +48,126 @@ export class SupplierDirectoryService {
       offset: query.offset,
       requestId,
     });
+  }
+
+  async consumeSupplierDocumentDownloadGrant(
+    supplierId: string,
+    documentId: string,
+    grantId: string,
+    requestId: string,
+    viewer: { buyerUserId: string },
+  ) {
+    const grant = await this.repository.getDocumentDownloadGrantById(grantId);
+    if (!grant || grant.status !== "granted" || !grant.fileAssetId || !grant.expiresAt) {
+      await this.recordDocumentDownloadEvent({
+        buyerUserId: viewer.buyerUserId,
+        supplierId,
+        documentId,
+        grantId,
+        fileAssetId: null,
+        status: "grant_not_found",
+        reason: "supplier_document_grant_not_found",
+        requestId,
+      });
+      throw new Error("supplier_document_grant_not_found");
+    }
+
+    if (grant.buyerUserId !== viewer.buyerUserId || grant.supplierId !== supplierId || grant.documentId !== documentId) {
+      await this.recordDocumentDownloadEvent({
+        buyerUserId: viewer.buyerUserId,
+        supplierId,
+        documentId,
+        grantId,
+        fileAssetId: grant.fileAssetId,
+        status: "grant_denied",
+        reason: "supplier_document_grant_denied",
+        requestId,
+      });
+      throw new Error("supplier_document_grant_denied");
+    }
+
+    if (new Date(grant.expiresAt).getTime() <= Date.now()) {
+      await this.recordDocumentDownloadEvent({
+        buyerUserId: viewer.buyerUserId,
+        supplierId,
+        documentId,
+        grantId,
+        fileAssetId: grant.fileAssetId,
+        status: "grant_expired",
+        reason: "supplier_document_grant_expired",
+        requestId,
+      });
+      throw new Error("supplier_document_grant_expired");
+    }
+
+    const hasAccess = this.accessRepository
+      ? await this.accessRepository.hasSupplierAccess({ buyerUserId: viewer.buyerUserId, supplierId })
+      : false;
+    if (!hasAccess) {
+      await this.recordDocumentDownloadEvent({
+        buyerUserId: viewer.buyerUserId,
+        supplierId,
+        documentId,
+        grantId,
+        fileAssetId: grant.fileAssetId,
+        status: "access_denied",
+        reason: "supplier_access_required",
+        requestId,
+      });
+      throw new Error("supplier_document_access_required");
+    }
+
+    const supplier = await this.repository.getSupplierById(supplierId);
+    if (!supplier) throw new Error("supplier_not_found");
+    const document = supplier.supplierDocuments.find((item) => item.id === documentId);
+    if (!document?.fileAssetId || document.fileAssetId !== grant.fileAssetId || document.status !== "approved") {
+      await this.recordDocumentDownloadEvent({
+        buyerUserId: viewer.buyerUserId,
+        supplierId,
+        documentId,
+        grantId,
+        fileAssetId: grant.fileAssetId,
+        status: "document_unavailable",
+        reason: "supplier_document_unavailable",
+        requestId,
+      });
+      throw new Error("supplier_document_unavailable");
+    }
+
+    if (!this.fileService) throw new Error("supplier_document_file_unavailable");
+    let file: Awaited<ReturnType<FileService["getFileByAssetId"]>>;
+    try {
+      file = await this.fileService.getFileByAssetId(grant.fileAssetId);
+    } catch {
+      await this.recordDocumentDownloadEvent({
+        buyerUserId: viewer.buyerUserId,
+        supplierId,
+        documentId,
+        grantId,
+        fileAssetId: grant.fileAssetId,
+        status: "file_unavailable",
+        reason: "supplier_document_file_unavailable",
+        requestId,
+      });
+      throw new Error("supplier_document_file_unavailable");
+    }
+
+    await this.recordDocumentDownloadEvent({
+      buyerUserId: viewer.buyerUserId,
+      supplierId,
+      documentId,
+      grantId,
+      fileAssetId: grant.fileAssetId,
+      status: "downloaded",
+      reason: "downloaded",
+      requestId,
+    });
+
+    return {
+      bytes: file.bytes,
+      contentType: file.contentType,
+      fileName: document.fileName ?? file.asset.originalFileName,
+    };
   }
 
   async getSupplierById(
@@ -209,6 +335,22 @@ export class SupplierDirectoryService {
     await this.repository.recordDocumentDownloadGrant({
       id: id ?? `sdga_${randomUUID()}`,
       ...record,
+    });
+  }
+
+  private async recordDocumentDownloadEvent(input: {
+    buyerUserId: string;
+    supplierId: string;
+    documentId: string;
+    grantId: string | null;
+    fileAssetId: string | null;
+    status: SupplierDocumentDownloadEventStatus;
+    reason: string;
+    requestId: string;
+  }) {
+    await this.repository.recordDocumentDownloadEvent({
+      id: `sdde_${randomUUID()}`,
+      ...input,
     });
   }
 }

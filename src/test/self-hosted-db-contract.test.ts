@@ -51,6 +51,8 @@ const supplierProfileRestrictedDocumentsSql = () =>
   readFileSync("packages/db/migrations/0034_supplier_profile_restricted_documents.sql", "utf8");
 const supplierDocumentDownloadGrantsSql = () =>
   readFileSync("packages/db/migrations/0035_supplier_document_download_grants.sql", "utf8");
+const supplierDocumentDownloadEventsSql = () =>
+  readFileSync("packages/db/migrations/0036_supplier_document_download_events.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -182,6 +184,22 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("idx_yorso_supplier_document_grants_supplier_recent");
     expect(text).toContain("idx_yorso_supplier_document_grants_status_recent");
     expect(text).toContain("must never expose file_asset_id, storage keys or direct file URLs");
+  });
+
+  it("adds supplier document download serving audit records", () => {
+    const text = supplierDocumentDownloadEventsSql();
+
+    expect(text).toContain("Backend Phase 4G");
+    expect(text).toContain("create table if not exists yorso_supplier_document_download_events");
+    expect(text).toContain("yorso_supplier_document_download_status");
+    expect(text).toContain("buyer_user_id uuid not null references yorso_users");
+    expect(text).toContain("supplier_id text not null references yorso_suppliers_directory");
+    expect(text).toContain("grant_id text");
+    expect(text).toContain("file_asset_id text");
+    expect(text).toContain("yorso_supplier_document_download_events_success_shape");
+    expect(text).toContain("idx_yorso_supplier_document_download_events_buyer_recent");
+    expect(text).toContain("idx_yorso_supplier_document_download_events_grant_recent");
+    expect(text).toContain("never returned to browser clients");
   });
 
   it("declares offer catalog tables and search indexes owned by YORSO", () => {
@@ -512,7 +530,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
   });
 
   it("does not depend on hosted auth tables or RLS ownership", () => {
-    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}\n${adminIncidentTrendActionQueueSql()}\n${authPasswordRecoverySql()}\n${authPasswordRecoveryAbuseCleanupSql()}\n${supplierProfileDossierFactsSql()}\n${supplierProfileEvidenceBlocksSql()}\n${supplierProfileLegalDetailsSql()}\n${supplierProfileRestrictedDocumentsSql()}\n${supplierDocumentDownloadGrantsSql()}`.toLowerCase();
+    const text = `${registrySql()}\n${sql()}\n${workspaceSql()}\n${filesSql()}\n${supplierSql()}\n${supplierScalingSql()}\n${offerCatalogSql()}\n${supplierAccessSql()}\n${accessNotificationAckSql()}\n${supplierPaginationSortSql()}\n${offerPaginationSortSql()}\n${authSessionsSql()}\n${authSecurityEventsSql()}\n${apiAuditEventsSql()}\n${adminAuditAccessSql()}\n${adminAuditRetentionQueryHardeningSql()}\n${adminAuditRetentionRuntimeSql()}\n${supplierAccessReviewQueueSql()}\n${adminAccessGrantsConsoleSql()}\n${adminIncidentAcknowledgementsSql()}\n${adminIncidentWorkflowSql()}\n${adminIncidentExecutionSql()}\n${adminIncidentWorkloadCorrelationSql()}\n${adminIncidentTrendAnalyticsSql()}\n${adminIncidentTrendActionsSql()}\n${adminIncidentTrendActionQueueSql()}\n${authPasswordRecoverySql()}\n${authPasswordRecoveryAbuseCleanupSql()}\n${supplierProfileDossierFactsSql()}\n${supplierProfileEvidenceBlocksSql()}\n${supplierProfileLegalDetailsSql()}\n${supplierProfileRestrictedDocumentsSql()}\n${supplierDocumentDownloadGrantsSql()}\n${supplierDocumentDownloadEventsSql()}`.toLowerCase();
 
     expect(text).not.toContain("auth.users");
     expect(text).not.toContain("supabase");
@@ -562,6 +580,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0033_supplier_profile_legal_details",
       "0034_supplier_profile_restricted_documents",
       "0035_supplier_document_download_grants",
+      "0036_supplier_document_download_events",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -744,6 +763,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0035_supplier_document_download_grants",
           ownedTables: ["yorso_supplier_document_download_grants"],
           dependsOn: ["0034_supplier_profile_restricted_documents"],
+        }),
+        expect.objectContaining({
+          id: "0036_supplier_document_download_events",
+          ownedTables: ["yorso_supplier_document_download_events"],
+          dependsOn: ["0035_supplier_document_download_grants"],
         }),
       ]),
     );

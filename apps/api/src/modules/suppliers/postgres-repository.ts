@@ -16,6 +16,8 @@ import type {
   SupplierType,
 } from "../../../../../packages/contracts/dist/index.js";
 import type {
+  SupplierDocumentDownloadEventInput,
+  SupplierDocumentDownloadEventRecord,
   SupplierDocumentDownloadGrantAuditInput,
   SupplierDocumentDownloadGrantAuditRecord,
   SupplierRepository,
@@ -70,6 +72,7 @@ interface SupplierRow extends Record<string, unknown> {
 }
 
 interface SupplierDocumentDownloadGrantAuditRow extends SupplierDocumentDownloadGrantAuditRecord, Record<string, unknown> {}
+interface SupplierDocumentDownloadEventRow extends SupplierDocumentDownloadEventRecord, Record<string, unknown> {}
 
 const ensureIso = (value: Date | string) => (value instanceof Date ? value.toISOString() : new Date(value).toISOString());
 const emptyProductionFacts = (): SupplierProductionFacts => ({
@@ -230,6 +233,32 @@ export class PostgresSupplierRepository implements SupplierRepository {
     return result.rows[0] ? mapSupplier(result.rows[0]) : null;
   }
 
+  async getDocumentDownloadGrantById(id: string) {
+    const result = await this.client.query<SupplierDocumentDownloadGrantAuditRow>(
+      `
+        select
+          id,
+          buyer_user_id as "buyerUserId",
+          supplier_id as "supplierId",
+          document_id as "documentId",
+          file_asset_id as "fileAssetId",
+          status,
+          reason,
+          request_id as "requestId",
+          download_path as "downloadPath",
+          granted_at as "grantedAt",
+          expires_at as "expiresAt",
+          created_at as "createdAt"
+        from yorso_supplier_document_download_grants
+        where id = $1
+        limit 1
+      `,
+      [id],
+    );
+
+    return result.rows[0] ?? null;
+  }
+
   async recordDocumentDownloadGrant(input: SupplierDocumentDownloadGrantAuditInput) {
     const result = await this.client.query<SupplierDocumentDownloadGrantAuditRow>(
       `
@@ -276,6 +305,50 @@ export class PostgresSupplierRepository implements SupplierRepository {
         input.downloadPath,
         input.grantedAt,
         input.expiresAt,
+      ],
+    );
+
+    return result.rows[0];
+  }
+
+  async recordDocumentDownloadEvent(input: SupplierDocumentDownloadEventInput) {
+    const result = await this.client.query<SupplierDocumentDownloadEventRow>(
+      `
+        insert into yorso_supplier_document_download_events (
+          id,
+          buyer_user_id,
+          supplier_id,
+          document_id,
+          grant_id,
+          file_asset_id,
+          status,
+          reason,
+          request_id
+        ) values (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9
+        )
+        returning
+          id,
+          buyer_user_id as "buyerUserId",
+          supplier_id as "supplierId",
+          document_id as "documentId",
+          grant_id as "grantId",
+          file_asset_id as "fileAssetId",
+          status,
+          reason,
+          request_id as "requestId",
+          created_at as "createdAt"
+      `,
+      [
+        input.id,
+        input.buyerUserId,
+        input.supplierId,
+        input.documentId,
+        input.grantId,
+        input.fileAssetId,
+        input.status,
+        input.reason,
+        input.requestId,
       ],
     );
 

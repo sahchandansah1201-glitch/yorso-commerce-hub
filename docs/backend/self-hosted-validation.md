@@ -1659,3 +1659,42 @@ Required markers:
 - `supplier_document_download_grants`;
 - `qualified-only`;
 - `must never expose file_asset_id, storage keys or direct file URLs`.
+
+## Backend Phase 4G Supplier Document Download Serving Validation
+
+Run:
+
+```bash
+npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "supplier document download grants"
+npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts
+npm run test:db-migrations
+npm run test:db-contract
+npm run smoke:self-hosted-account-api:run
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=...`
+  requires an authenticated account session.
+- The route validates grant id, buyer user, supplier id, document id, expiry,
+  granted status and current supplier access before reading a file asset.
+- Successful responses stream bytes with `content-disposition: attachment` and
+  `cache-control: private, no-store`.
+- Error responses do not include `fileAssetId`, object keys, storage keys or
+  direct file URLs.
+- `FileService.getFileByAssetId` is internal backend code and is not exposed as
+  a browser-facing asset endpoint.
+- `MemorySupplierRepository` and `PostgresSupplierRepository` persist download
+  consumption attempts in `yorso_supplier_document_download_events`.
+- Migration `0036_supplier_document_download_events` exists and is guarded.
+
+Required markers:
+
+- `Backend Phase 4G`;
+- `Supplier Document Grant Consumption / File Serving Endpoint`;
+- `GET /v1/suppliers/:supplierId/documents/:documentId/download`;
+- `supplier_document_download_events`;
+- `0036_supplier_document_download_events`;
+- `grant_expired`.

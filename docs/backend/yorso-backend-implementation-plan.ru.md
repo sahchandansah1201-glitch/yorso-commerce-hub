@@ -673,6 +673,8 @@ Exit criteria:
 - qualified users видят approved data;
 - document download grant выдаётся только после повторной проверки supplier
   access и не раскрывает `fileAssetId`, storage keys или прямые file URLs;
+- document download serving валидирует grant id, buyer, supplier, document,
+  expiry и current access перед чтением backend-only file asset;
 - supplier owner видит свой полный профиль;
 - browser и DOM leak tests проходят.
 

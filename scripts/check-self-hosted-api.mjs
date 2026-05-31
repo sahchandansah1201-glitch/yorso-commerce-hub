@@ -262,6 +262,7 @@ const requiredFiles = [
   "docs/backend/phase-4d-supplier-profile-legal-details.md",
   "docs/backend/phase-4e-supplier-profile-restricted-documents.md",
   "docs/backend/phase-4f-supplier-document-download-grants.md",
+  "docs/backend/phase-4g-supplier-document-download-serving.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -280,6 +281,7 @@ const requiredFiles = [
   "packages/db/migrations/0033_supplier_profile_legal_details.sql",
   "packages/db/migrations/0034_supplier_profile_restricted_documents.sql",
   "packages/db/migrations/0035_supplier_document_download_grants.sql",
+  "packages/db/migrations/0036_supplier_document_download_events.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
@@ -475,6 +477,7 @@ const supplierProfileEvidenceBlocksMigration = read("packages/db/migrations/0032
 const supplierProfileLegalDetailsMigration = read("packages/db/migrations/0033_supplier_profile_legal_details.sql");
 const supplierProfileRestrictedDocumentsMigration = read("packages/db/migrations/0034_supplier_profile_restricted_documents.sql");
 const supplierDocumentDownloadGrantsMigration = read("packages/db/migrations/0035_supplier_document_download_grants.sql");
+const supplierDocumentDownloadEventsMigration = read("packages/db/migrations/0036_supplier_document_download_events.sql");
 const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
@@ -503,6 +506,7 @@ const phase4cSupplierProfileEvidenceBlocks = read("docs/backend/phase-4c-supplie
 const phase4dSupplierProfileLegalDetails = read("docs/backend/phase-4d-supplier-profile-legal-details.md");
 const phase4eSupplierProfileRestrictedDocuments = read("docs/backend/phase-4e-supplier-profile-restricted-documents.md");
 const phase4fSupplierDocumentDownloadGrants = read("docs/backend/phase-4f-supplier-document-download-grants.md");
+const phase4gSupplierDocumentDownloadServing = read("docs/backend/phase-4g-supplier-document-download-serving.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -2858,6 +2862,15 @@ for (const marker of [
   requireText("packages/db/migrations/0035_supplier_document_download_grants.sql", supplierDocumentDownloadGrantsMigration, marker);
 }
 for (const marker of [
+  "Backend Phase 4G",
+  "yorso_supplier_document_download_events",
+  "yorso_supplier_document_download_status",
+  "idx_yorso_supplier_document_download_events_buyer_recent",
+  "never returned to browser clients",
+]) {
+  requireText("packages/db/migrations/0036_supplier_document_download_events.sql", supplierDocumentDownloadEventsMigration, marker);
+}
+for (const marker of [
   "PasswordRecoveryTokenIssuer",
   "createPasswordRecoveryTokenCodec",
   "hashPasswordRecoveryToken",
@@ -3021,6 +3034,17 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-4f-supplier-document-download-grants.md", phase4fSupplierDocumentDownloadGrants, marker);
+}
+for (const marker of [
+  "Backend Phase 4G",
+  "Supplier Document Grant Consumption / File Serving Endpoint",
+  "GET /v1/suppliers/:supplierId/documents/:documentId/download",
+  "supplier_document_download_events",
+  "Plan / Fact",
+  "grant_expired",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4g-supplier-document-download-serving.md", phase4gSupplierDocumentDownloadServing, marker);
 }
 for (const marker of [
   "PasswordRecoveryDeliveryWorker",
@@ -3685,9 +3709,11 @@ requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgr
 requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "insert into yorso_file_assets");
 requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "insert into yorso_company_documents");
 requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "getFileAssetByObjectKeyForUser");
+requireText("apps/api/src/modules/storage/postgres-repository.ts", storagePostgresRepository, "getFileAssetById");
 requireText("apps/api/src/modules/storage/repository.ts", storageRepository, "interface FileRepository");
 requireText("apps/api/src/modules/storage/repository.ts", storageRepository, "class MemoryFileRepository");
 requireText("apps/api/src/modules/storage/repository.ts", storageRepository, "getFileAssetByObjectKeyForUser");
+requireText("apps/api/src/modules/storage/repository.ts", storageRepository, "getFileAssetById");
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/company/media/logo");
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/company/media/cover");
 requireText("apps/api/src/modules/storage/routes.ts", storageRoutes, "/v1/account/documents");
@@ -3699,6 +3725,7 @@ requireText("apps/api/src/modules/storage/service.ts", storageService, "class Fi
 requireText("apps/api/src/modules/storage/service.ts", storageService, "checksumSha256");
 requireText("apps/api/src/modules/storage/service.ts", storageService, "contentBase64");
 requireText("apps/api/src/modules/storage/service.ts", storageService, "getFileByObjectKeyForUser");
+requireText("apps/api/src/modules/storage/service.ts", storageService, "getFileByAssetId");
 requireText("apps/api/src/modules/offers/factory.ts", offerFactory, "createOfferCatalogRepository");
 requireText("apps/api/src/modules/offers/factory.ts", offerFactory, "MemoryOfferCatalogRepository");
 requireText("apps/api/src/modules/offers/factory.ts", offerFactory, "PostgresOfferCatalogRepository");
@@ -3735,11 +3762,13 @@ requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPos
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "production_facts");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "logistics_facts");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "yorso_supplier_document_download_grants");
+requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "yorso_supplier_document_download_events");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "interface SupplierRepository");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "class MemorySupplierRepository");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "productionFacts(");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "logisticsFacts(");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "recordDocumentDownloadGrant");
+requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "recordDocumentDownloadEvent");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers/");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "documents");
@@ -3747,8 +3776,11 @@ requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolve
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "supplier_not_found");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "supplier_document_access_required");
+requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "supplier_document_grant_expired");
+requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "sendSupplierDocumentFile");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDirectoryQuerySchema.parse");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "createSupplierDocumentDownloadGrant");
+requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "consumeSupplierDocumentDownloadGrant");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentDownloadGrantResponseSchema");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocuments: unlocked ? supplier.supplierDocuments : null");
 requireText("apps/api/src/modules/suppliers/service.ts", supplierService, "hasSupplierAccess");
@@ -3918,9 +3950,11 @@ requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "suppl
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_sort_pagination=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_document_grant_requires_access=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_document_download_missing_grant=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_private_search_requires_grant=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_unlocked=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_document_grant_unlocked=ok");
+requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_document_download_stream=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_granted_private_search=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_directory_ungranted_private_search_guard=ok");
 requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "offer_catalog_locked=ok");

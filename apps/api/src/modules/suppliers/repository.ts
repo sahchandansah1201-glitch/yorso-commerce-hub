@@ -15,6 +15,7 @@ import type {
   SupplierShipmentCase,
   SupplierType,
 } from "../../../../../packages/contracts/dist/index.js";
+import { getDemoSupplierDocumentFileAssetId } from "../../fixtures/supplier-document-assets.js";
 
 export interface SupplierRepository {
   listSuppliers(
@@ -22,7 +23,9 @@ export interface SupplierRepository {
     options?: SupplierRepositoryListOptions,
   ): Promise<{ suppliers: SupplierDirectoryRecord[]; total: number }>;
   getSupplierById(id: string): Promise<SupplierDirectoryRecord | null>;
+  getDocumentDownloadGrantById(id: string): Promise<SupplierDocumentDownloadGrantAuditRecord | null>;
   recordDocumentDownloadGrant(input: SupplierDocumentDownloadGrantAuditInput): Promise<SupplierDocumentDownloadGrantAuditRecord>;
+  recordDocumentDownloadEvent(input: SupplierDocumentDownloadEventInput): Promise<SupplierDocumentDownloadEventRecord>;
 }
 
 export interface SupplierRepositoryListOptions {
@@ -34,6 +37,15 @@ export type SupplierDocumentDownloadGrantStatus =
   | "access_denied"
   | "document_not_found"
   | "document_unavailable";
+
+export type SupplierDocumentDownloadEventStatus =
+  | "downloaded"
+  | "grant_not_found"
+  | "grant_denied"
+  | "grant_expired"
+  | "access_denied"
+  | "document_unavailable"
+  | "file_unavailable";
 
 export interface SupplierDocumentDownloadGrantAuditInput {
   id: string;
@@ -50,6 +62,22 @@ export interface SupplierDocumentDownloadGrantAuditInput {
 }
 
 export interface SupplierDocumentDownloadGrantAuditRecord extends SupplierDocumentDownloadGrantAuditInput {
+  createdAt: string;
+}
+
+export interface SupplierDocumentDownloadEventInput {
+  id: string;
+  buyerUserId: string;
+  supplierId: string;
+  documentId: string;
+  grantId: string | null;
+  fileAssetId: string | null;
+  status: SupplierDocumentDownloadEventStatus;
+  reason: string;
+  requestId: string;
+}
+
+export interface SupplierDocumentDownloadEventRecord extends SupplierDocumentDownloadEventInput {
   createdAt: string;
 }
 
@@ -146,7 +174,7 @@ const supplierDocument = (
   issuedAt,
   expiresAt,
   fileName,
-  fileAssetId: fileName ? `file_${id}` : null,
+  fileAssetId: fileName ? getDemoSupplierDocumentFileAssetId(id) : null,
 });
 const supplierDocuments = (prefix: string): SupplierDocumentPayload[] => [
   supplierDocument(
@@ -484,6 +512,7 @@ function compareSuppliers(
 
 export class MemorySupplierRepository implements SupplierRepository {
   private readonly documentGrantAudit: SupplierDocumentDownloadGrantAuditRecord[] = [];
+  private readonly documentDownloadEvents: SupplierDocumentDownloadEventRecord[] = [];
 
   constructor(private readonly suppliers = demoSupplierRecords) {}
 
@@ -503,6 +532,11 @@ export class MemorySupplierRepository implements SupplierRepository {
     return supplier ? { ...supplier } : null;
   }
 
+  async getDocumentDownloadGrantById(id: string) {
+    const grant = this.documentGrantAudit.find((item) => item.id === id);
+    return grant ? structuredClone(grant) : null;
+  }
+
   async recordDocumentDownloadGrant(input: SupplierDocumentDownloadGrantAuditInput) {
     const record: SupplierDocumentDownloadGrantAuditRecord = {
       ...input,
@@ -512,9 +546,27 @@ export class MemorySupplierRepository implements SupplierRepository {
     return structuredClone(record);
   }
 
+  async recordDocumentDownloadEvent(input: SupplierDocumentDownloadEventInput) {
+    const record: SupplierDocumentDownloadEventRecord = {
+      ...input,
+      createdAt: new Date().toISOString(),
+    };
+    this.documentDownloadEvents.push(record);
+    return structuredClone(record);
+  }
+
   async listDocumentDownloadGrantAudit(input: { limit: number; offset: number }) {
     return structuredClone(
       this.documentGrantAudit
+        .slice()
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id))
+        .slice(input.offset, input.offset + input.limit),
+    );
+  }
+
+  async listDocumentDownloadEvents(input: { limit: number; offset: number }) {
+    return structuredClone(
+      this.documentDownloadEvents
         .slice()
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id))
         .slice(input.offset, input.offset + input.limit),

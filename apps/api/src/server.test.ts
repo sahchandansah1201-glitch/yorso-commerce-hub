@@ -6,6 +6,7 @@ import { MemoryErrorTelemetrySink } from "./error-observability.js";
 import { ApiLifecycle } from "./lifecycle.js";
 import { InMemoryPrometheusMetricsRegistry } from "./metrics.js";
 import { MemoryAdminAuditRepository } from "./modules/admin-audit/repository.js";
+import { MemorySupplierRepository } from "./modules/suppliers/repository.js";
 import { createApiServer, type ApiServerOptions } from "./server.js";
 import type { ReadinessProbe } from "./routes/health.js";
 
@@ -1658,6 +1659,95 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(JSON.stringify(grantedBody)).not.toContain("file_sup-no-001-health-certificate");
     expect(JSON.stringify(grantedBody)).not.toContain("objectKey");
     expect(JSON.stringify(grantedBody)).not.toContain("storage");
+  });
+
+  it("streams supplier document files only through valid document download grants", async () => {
+    const fetchApi = await startTestServer();
+    const grantPath = "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/grant";
+
+    const accessRequest = await fetchApi("/v1/access/suppliers/sup-no-001/request", {
+      method: "POST",
+      body: JSON.stringify({ message: "" }),
+    });
+    const accessRequestBody = (await accessRequest.json()) as JsonBody;
+    const requestId = (accessRequestBody.request as { id: string }).id;
+
+    const decision = await fetchApi(`/v1/access/supplier-requests/${requestId}/decision`, {
+      method: "POST",
+      body: JSON.stringify({ status: "approved" }),
+    });
+    expect(decision.status).toBe(200);
+
+    const granted = await fetchApi(grantPath, { method: "POST" });
+    const grantedBody = (await granted.json()) as JsonBody;
+    const downloadPath = String((grantedBody.grant as JsonBody).downloadPath);
+
+    const downloaded = await fetchApi(downloadPath);
+    const bytes = await downloaded.arrayBuffer();
+
+    expect(downloaded.status).toBe(200);
+    expect(downloaded.headers.get("content-type")).toBe("application/pdf");
+    expect(downloaded.headers.get("content-disposition")).toContain("attachment;");
+    expect(downloaded.headers.get("content-disposition")).toContain("sup-no-001-health-certificate.pdf");
+    expect(Buffer.from(bytes).toString("utf8")).toContain("YORSO demo supplier document: sup-no-001-health-certificate.pdf");
+    expect(Buffer.from(bytes).toString("utf8")).not.toContain("objectKey");
+    expect(Buffer.from(bytes).toString("utf8")).not.toContain("fileAssetId");
+  });
+
+  it("rejects missing and expired supplier document download grants before file serving", async () => {
+    const supplierRepository = new MemorySupplierRepository();
+    const fetchApi = await startRawTestServer({ supplierRepository });
+    const buyerHeaders = await signIn(fetchApi, "buyer@example.com");
+    const downloadPath = "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download";
+
+    const missingGrant = await fetchApi(`${downloadPath}?grantId=sdg_missing`, { headers: buyerHeaders });
+    const missingGrantBody = (await missingGrant.json()) as JsonBody;
+    expect(missingGrant.status).toBe(404);
+    expect(missingGrantBody).toMatchObject({
+      ok: false,
+      error: { code: "supplier_document_grant_not_found" },
+    });
+
+    const accessRequest = await fetchApi("/v1/access/suppliers/sup-no-001/request", {
+      method: "POST",
+      headers: buyerHeaders,
+      body: JSON.stringify({ message: "" }),
+    });
+    const accessRequestBody = (await accessRequest.json()) as JsonBody;
+    const requestId = (accessRequestBody.request as { id: string }).id;
+    const decision = await fetchApi(`/v1/access/supplier-requests/${requestId}/decision`, {
+      method: "POST",
+      headers: buyerHeaders,
+      body: JSON.stringify({ status: "approved" }),
+    });
+    expect(decision.status).toBe(200);
+
+    const supplier = await supplierRepository.getSupplierById("sup-no-001");
+    const document = supplier?.supplierDocuments.find((item) => item.id === "sup-no-001-health-certificate");
+    if (!document?.fileAssetId) throw new Error("Expected supplier document file asset id.");
+
+    await supplierRepository.recordDocumentDownloadGrant({
+      id: "sdg_expired",
+      buyerUserId: testAccountUserId,
+      supplierId: "sup-no-001",
+      documentId: "sup-no-001-health-certificate",
+      fileAssetId: document.fileAssetId,
+      status: "granted",
+      reason: "granted",
+      requestId: "req-expired",
+      downloadPath: `${downloadPath}?grantId=sdg_expired`,
+      grantedAt: "2020-01-01T08:00:00.000Z",
+      expiresAt: "2020-01-01T08:01:00.000Z",
+    });
+
+    const expiredGrant = await fetchApi(`${downloadPath}?grantId=sdg_expired`, { headers: buyerHeaders });
+    const expiredGrantBody = (await expiredGrant.json()) as JsonBody;
+    expect(expiredGrant.status).toBe(410);
+    expect(expiredGrantBody).toMatchObject({
+      ok: false,
+      error: { code: "supplier_document_grant_expired" },
+    });
+    expect(JSON.stringify(expiredGrantBody)).not.toContain(document.fileAssetId);
   });
 
   it("validates supplier directory query params and returns 404 for missing supplier", async () => {

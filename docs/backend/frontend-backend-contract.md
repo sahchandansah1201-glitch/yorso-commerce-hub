@@ -72,6 +72,7 @@ mistaken for production data surfaces.
 | `/suppliers` | Supplier directory | self-hosted supplier directory API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; session shortlist | supplier directory API, public/qualified views, shortlist API | Phase 4A source-of-truth audit |
 | `/suppliers/:supplierId` | Supplier dossier | self-hosted supplier detail API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; local access request bridge; backend-owned `productionFacts` / `logisticsFacts`, `shipmentCases` / `faqItems`, and qualified-only `legalDetails` / `supplierDocuments` | supplier profile API, supplier offers API, backend-owned dossier/evidence/legal/document facts, access workflow | Phase 4E restricted documents |
 | `/v1/suppliers/:supplierId/documents/:documentId/grant` | Supplier document grant API | self-hosted API only; no API-disabled preview grant | supplier document metadata, supplier access grant, document grant audit | Phase 4F supplier document download grant |
+| `/v1/suppliers/:supplierId/documents/:documentId/download?grantId=...` | Supplier document serving API | self-hosted API only; no direct storage URL or API-disabled local serving | supplier document grant, supplier access grant, file asset metadata, object storage, document download audit | Phase 4G supplier document file serving |
 | `/about` | Public company/trust page | static info page content, route-owned SEO | CMS-ready static page or local content source with route SEO | P3 |
 | `/contact` | Public contact/trust page | static info page content, route-owned SEO | CMS-ready contact content, support/contact routing later | P3 |
 | `/terms` | Legal page | static legal copy, route-owned SEO | versioned legal document source | P3 |
@@ -442,6 +443,11 @@ Acceptance:
   `POST /v1/suppliers/:supplierId/documents/:documentId/grant`, re-check
   `qualified_unlocked` supplier access and persist audit attempts in
   `yorso_supplier_document_download_grants`;
+- document file serving is performed through
+  `GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=...`,
+  validates the grant, current supplier access and expiry, streams bytes through
+  the self-hosted API and persists attempts in
+  `yorso_supplier_document_download_events`;
 - access request panel uses backend statuses;
 - canonical and SEO rules are defined before public indexing.
 

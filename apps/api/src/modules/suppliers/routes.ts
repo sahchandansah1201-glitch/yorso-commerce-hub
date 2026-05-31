@@ -21,6 +21,32 @@ export async function handleSupplierDirectoryRoute(
   url: URL,
 ) {
   try {
+    const documentDownloadMatch = url.pathname.match(/^\/v1\/suppliers\/([^/]+)\/documents\/([^/]+)\/download$/);
+    if (documentDownloadMatch) {
+      if (request.method !== "GET") {
+        methodNotAllowed(response, context, "GET");
+        return true;
+      }
+
+      const supplierId = decodeURIComponent(documentDownloadMatch[1]);
+      const documentId = decodeURIComponent(documentDownloadMatch[2]);
+      const grantId = url.searchParams.get("grantId")?.trim();
+      if (!grantId) {
+        sendError(response, 400, "supplier_document_grant_required", "Supplier document grant id is required.", context);
+        return true;
+      }
+
+      const session = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      sendSupplierDocumentFile(
+        response,
+        context.requestId,
+        await service.consumeSupplierDocumentDownloadGrant(supplierId, documentId, grantId, context.requestId, {
+          buyerUserId: session.userId,
+        }),
+      );
+      return true;
+    }
+
     const documentGrantMatch = url.pathname.match(/^\/v1\/suppliers\/([^/]+)\/documents\/([^/]+)\/grant$/);
     if (documentGrantMatch) {
       if (request.method !== "POST") {
@@ -99,8 +125,45 @@ export async function handleSupplierDirectoryRoute(
       return true;
     }
 
+    if (error instanceof Error && error.message === "supplier_document_grant_not_found") {
+      sendError(response, 404, error.message, "Supplier document grant was not found.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "supplier_document_grant_denied") {
+      sendError(response, 403, error.message, "Supplier document grant does not match this request.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "supplier_document_grant_expired") {
+      sendError(response, 410, error.message, "Supplier document grant has expired.", context);
+      return true;
+    }
+
+    if (error instanceof Error && error.message === "supplier_document_file_unavailable") {
+      sendError(response, 409, error.message, "Supplier document file is not available.", context);
+      return true;
+    }
+
     throw error;
   }
 
   return false;
 }
+
+const sanitizeHeaderFileName = (value: string) => value.replace(/["\\\r\n]/g, "_");
+
+const sendSupplierDocumentFile = (
+  response: ServerResponse,
+  requestId: string,
+  file: Awaited<ReturnType<SupplierDirectoryService["consumeSupplierDocumentDownloadGrant"]>>,
+) => {
+  response.writeHead(200, {
+    "content-type": file.contentType,
+    "content-length": String(file.bytes.byteLength),
+    "content-disposition": `attachment; filename="${sanitizeHeaderFileName(file.fileName)}"`,
+    "cache-control": "private, no-store",
+    "x-request-id": requestId,
+  });
+  response.end(file.bytes);
+};

@@ -415,6 +415,17 @@
       "dependsOn": [
         "0034_supplier_profile_restricted_documents"
       ]
+    },
+    {
+      "id": "0036_supplier_document_download_events",
+      "file": "migrations/0036_supplier_document_download_events.sql",
+      "description": "Create supplier document download serving/consumption audit records.",
+      "ownedTables": [
+        "yorso_supplier_document_download_events"
+      ],
+      "dependsOn": [
+        "0035_supplier_document_download_grants"
+      ]
     }
   ]
 }

@@ -47,6 +47,7 @@ describe("self-hosted DB migration planner", () => {
       "0033_supplier_profile_legal_details",
       "0034_supplier_profile_restricted_documents",
       "0035_supplier_document_download_grants",
+      "0036_supplier_document_download_events",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -85,6 +86,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0033_supplier_profile_legal_details.sql",
       "migrations/0034_supplier_profile_restricted_documents.sql",
       "migrations/0035_supplier_document_download_grants.sql",
+      "migrations/0036_supplier_document_download_events.sql",
     ]);
   });
 
@@ -135,6 +137,7 @@ describe("self-hosted DB migration planner", () => {
     const supplierProfileLegalDetails = plan.migrations[33];
     const supplierProfileRestrictedDocuments = plan.migrations[34];
     const supplierDocumentDownloadGrants = plan.migrations[35];
+    const supplierDocumentDownloadEvents = plan.migrations[36];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -224,6 +227,9 @@ describe("self-hosted DB migration planner", () => {
     expect(supplierDocumentDownloadGrants.dependsOn).toEqual(["0034_supplier_profile_restricted_documents"]);
     expect(supplierDocumentDownloadGrants.sql).toContain("create table if not exists yorso_supplier_document_download_grants");
     expect(supplierDocumentDownloadGrants.sql).toContain("idx_yorso_supplier_document_grants_buyer_recent");
+    expect(supplierDocumentDownloadEvents.dependsOn).toEqual(["0035_supplier_document_download_grants"]);
+    expect(supplierDocumentDownloadEvents.sql).toContain("create table if not exists yorso_supplier_document_download_events");
+    expect(supplierDocumentDownloadEvents.sql).toContain("idx_yorso_supplier_document_download_events_buyer_recent");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

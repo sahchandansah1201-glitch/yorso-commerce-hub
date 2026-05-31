@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import type {
+  AccountFileAsset,
   AccountFilePurpose,
   AccountFileUploadPayload,
   CompanyDocumentCreate,
@@ -12,6 +13,7 @@ import {
   companyDocumentCreateSchema,
   companyMediaUploadSchema,
 } from "../../../../../packages/contracts/dist/index.js";
+import { getDemoSupplierDocumentFileByAssetId } from "../../fixtures/supplier-document-assets.js";
 import type { ObjectStorage } from "./object-storage.js";
 import type { FileRepository } from "./repository.js";
 
@@ -124,6 +126,31 @@ export class FileService {
       bytes: object.bytes,
       contentType: object.contentType || asset.contentType,
     };
+  }
+
+  async getFileByAssetId(assetId: string) {
+    const asset = await this.repository.getFileAssetById(assetId);
+    if (!asset) throw new Error("file_asset_not_found");
+    const object = await this.readObjectForAsset(asset);
+    return {
+      asset,
+      bytes: object.bytes,
+      contentType: object.contentType || asset.contentType,
+    };
+  }
+
+  private async readObjectForAsset(asset: AccountFileAsset) {
+    try {
+      return await this.objectStorage.getObject(asset.objectKey);
+    } catch (error) {
+      const demoSupplierDocument = getDemoSupplierDocumentFileByAssetId(asset.id);
+      if (!demoSupplierDocument || demoSupplierDocument.asset.objectKey !== asset.objectKey) throw error;
+
+      await this.objectStorage.putObject(asset.objectKey, demoSupplierDocument.bytes, {
+        contentType: demoSupplierDocument.asset.contentType,
+      });
+      return this.objectStorage.getObject(asset.objectKey);
+    }
   }
 
   private decodeBase64(upload: AccountFileUploadPayload) {

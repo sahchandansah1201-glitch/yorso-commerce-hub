@@ -262,6 +262,40 @@ async function runSmoke(baseUrl) {
   assertDoesNotContain(supplierDocumentGrant, "file_sup-no-001-health-certificate", "granted document grant asset id");
   console.log("supplier_document_grant_unlocked=ok");
 
+  const missingSupplierDocumentDownload = await fetch(
+    `${baseUrl}/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_missing`,
+    { headers: accountHeaders },
+  );
+  assertStatus(missingSupplierDocumentDownload, 404, "supplier document download missing grant");
+  const missingSupplierDocumentDownloadBody = await missingSupplierDocumentDownload.json();
+  assertEqual(
+    missingSupplierDocumentDownloadBody.error?.code,
+    "supplier_document_grant_not_found",
+    "supplier document download missing grant code",
+  );
+  assertDoesNotContain(missingSupplierDocumentDownloadBody, "file_sup-no-001-health-certificate", "missing grant asset id");
+  console.log("supplier_document_download_missing_grant=ok");
+
+  const supplierDocumentDownload = await fetch(`${baseUrl}${supplierDocumentGrant.grant.downloadPath}`, {
+    headers: accountHeaders,
+  });
+  assertStatus(supplierDocumentDownload, 200, "supplier document download stream");
+  assertEqual(supplierDocumentDownload.headers.get("content-type"), "application/pdf", "supplier document content type");
+  assertEqual(
+    supplierDocumentDownload.headers.get("content-disposition")?.includes("attachment;"),
+    true,
+    "supplier document attachment disposition",
+  );
+  const supplierDocumentDownloadText = await supplierDocumentDownload.text();
+  assertEqual(
+    supplierDocumentDownloadText.includes("YORSO demo supplier document: sup-no-001-health-certificate.pdf"),
+    true,
+    "supplier document stream body",
+  );
+  assertDoesNotContain(supplierDocumentDownloadText, "fileAssetId", "download body file asset label");
+  assertDoesNotContain(supplierDocumentDownloadText, "objectKey", "download body object key label");
+  console.log("supplier_document_download_stream=ok");
+
   const supplierPrivateSearchAfterGrant = await jsonRequest(
     baseUrl,
     "/v1/suppliers?q=Nordfjord&accessLevel=qualified_unlocked",
