@@ -1,4 +1,4 @@
-import { cloneElement, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useParams, Navigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { AccountShell, type AccountSectionKey } from "@/components/account/AccountShell";
@@ -7,6 +7,7 @@ import { EditableCard } from "@/components/account/EditableCard";
 import { CompanyMediaCard, type CompanyMediaDraft } from "@/components/account/CompanyMediaCard";
 import { CompanyDocumentsCard } from "@/components/account/CompanyDocumentsCard";
 import { SupplierProfilePreview } from "@/components/account/SupplierProfilePreview";
+import { Field, FormRow, PendingFeatureRow, fallback, splitList } from "@/components/account/fields";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,220 +54,10 @@ interface AccountUpdateOptions {
   syncRemote?: boolean;
 }
 
-const fallback = (v: string | undefined, nf: string) => (v && v.trim() ? v : nf);
+/* Field / FormRow / fallback / splitList / PendingFeatureRow
+   live in `@/components/account/fields` — imported above. */
 
-const Field = ({ label, value, badge }: { label: string; value: string; badge?: ReactNode }) => {
-  const { t } = useLanguage();
-  const isEmpty = !value || !value.trim();
-  return (
-    <div className="min-w-0">
-      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-        {label}
-      </dt>
-      <dd
-        className={
-          isEmpty
-            ? "mt-1 flex items-center text-[15px] italic text-muted-foreground"
-            : "mt-1 flex items-center text-[15px] font-medium text-foreground"
-        }
-        title={isEmpty ? undefined : value}
-      >
-        <span className="truncate">{fallback(value, t.account_value_notSpecified)}</span>
-        {badge}
-      </dd>
-    </div>
-  );
-};
 
-const FormRow = ({
-  label,
-  required,
-  error,
-  hint,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  error?: string;
-  hint?: string;
-  children: React.ReactElement;
-}) => {
-  const id = useId();
-  const hintId = `${id}-hint`;
-  const errorId = `${id}-error`;
-  const describedBy =
-    [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(" ") || undefined;
-  // Inject id + aria attributes into the single child input/select/textarea
-  const enhancedChild = (() => {
-    try {
-      const childProps = (children.props ?? {}) as Record<string, unknown>;
-      return cloneElement(children, {
-        id: (childProps.id as string | undefined) ?? id,
-        "aria-invalid": !!error || undefined,
-        "aria-describedby":
-          [
-            (childProps["aria-describedby"] as string | undefined) ?? "",
-            describedBy ?? "",
-          ]
-            .filter(Boolean)
-            .join(" ") || undefined,
-        className:
-          [
-            (childProps.className as string | undefined) ?? "",
-            error ? "border-destructive focus-visible:ring-destructive" : "",
-          ]
-            .filter(Boolean)
-            .join(" ")
-            .trim() || undefined,
-      } as Record<string, unknown>);
-    } catch {
-      return children;
-    }
-  })();
-  return (
-    <div className="space-y-1">
-      <Label htmlFor={id} className="text-xs">
-        {label}{" "}
-        {required ? (
-          <span aria-hidden className="text-destructive">
-            *
-          </span>
-        ) : null}
-      </Label>
-      {enhancedChild}
-      {error ? (
-        <p
-          id={errorId}
-          className="flex items-start gap-1 text-xs text-destructive"
-          role="alert"
-        >
-          <AlertCircle className="mt-[1px] h-3 w-3 shrink-0" aria-hidden />
-          <span>{error}</span>
-        </p>
-      ) : hint ? (
-        <p id={hintId} className="text-[11px] text-muted-foreground">
-          {hint}
-        </p>
-      ) : null}
-    </div>
-  );
-};
-
-const FOCUSABLE_SELECTOR =
-  'input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-const GroupHeading = ({
-  children,
-  onActivate,
-  onArrow,
-  groupId,
-}: {
-  children: ReactNode;
-  onActivate?: () => void;
-  onArrow?: (dir: "next" | "prev") => void;
-  groupId?: string;
-}) => (
-  <h4
-    id={groupId}
-    role="button"
-    tabIndex={0}
-    onClick={onActivate}
-    onKeyDown={(e) => {
-      if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
-        e.preventDefault();
-        onActivate?.();
-      } else if (e.key === "ArrowRight" || e.key === "PageDown") {
-        e.preventDefault();
-        onArrow?.("next");
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") {
-        e.preventDefault();
-        onArrow?.("prev");
-      }
-    }}
-    className="cursor-pointer rounded text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-    aria-label={typeof children === "string" ? `${children} — Enter переходит к первому полю, стрелки переключают группы` : undefined}
-  >
-    {children}
-  </h4>
-);
-
-const FieldGroup = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) => {
-  const groupRef = useRef<HTMLDivElement>(null);
-  const headingId = useId();
-
-  const focusFirstField = () => {
-    const el = groupRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
-    el?.focus();
-  };
-
-  const moveToSiblingGroup = (dir: "next" | "prev") => {
-    const root = groupRef.current?.closest<HTMLElement>("[data-field-group-root]");
-    if (!root) return;
-    const headings = Array.from(
-      root.querySelectorAll<HTMLElement>("[data-group-heading]"),
-    );
-    const current = groupRef.current?.querySelector<HTMLElement>("[data-group-heading]");
-    const idx = current ? headings.indexOf(current) : -1;
-    if (idx === -1) return;
-    const nextIdx = dir === "next" ? idx + 1 : idx - 1;
-    headings[(nextIdx + headings.length) % headings.length]?.focus();
-  };
-
-  const onContainerKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-    // Don't hijack typing keys inside text inputs
-    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
-    if (target.tagName === "TEXTAREA") return;
-    if (target.tagName === "SELECT") return; // native select uses arrows
-    if (
-      target.tagName === "INPUT" &&
-      !["checkbox", "radio", "button", "submit"].includes(
-        (target as HTMLInputElement).type,
-      )
-    ) {
-      // Allow arrow nav for text inputs only with Alt modifier to avoid conflict with caret
-      if (!e.altKey) return;
-    }
-    const fields = Array.from(
-      groupRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR) ?? [],
-    ).filter((el) => !el.hasAttribute("data-group-heading"));
-    if (fields.length === 0) return;
-    const idx = fields.indexOf(target);
-    if (idx === -1) return;
-    e.preventDefault();
-    const nextIdx = e.key === "ArrowDown" ? idx + 1 : idx - 1;
-    fields[(nextIdx + fields.length) % fields.length]?.focus();
-  };
-
-  return (
-    <div ref={groupRef} className="space-y-3" onKeyDown={onContainerKeyDown}>
-      <div data-group-heading>
-        <GroupHeading
-          groupId={headingId}
-          onActivate={focusFirstField}
-          onArrow={moveToSiblingGroup}
-        >
-          {title}
-        </GroupHeading>
-      </div>
-      <div role="group" aria-labelledby={headingId}>
-        {children}
-      </div>
-    </div>
-  );
-};
-
-const splitList = (s: string): string[] =>
-  s
-    .split(",")
-    .map((x) => x.trim())
-    .filter(Boolean);
 
 // ─── PERSONAL ──────────────────────────────────────────────────────
 
@@ -429,19 +220,13 @@ const PersonalSection = ({
         tabIndex={-1}
         aria-label={t.account_personal_security_title}
         className="scroll-mt-24 rounded-lg outline-none transition-shadow"
-        data-testid="account-card-personal-security"
       >
-        <div className="flex items-start gap-3 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3">
-          <Lock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground">
-              {t.account_personal_security_title}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {t.account_personal_security_placeholder}
-            </p>
-          </div>
-        </div>
+        <PendingFeatureRow
+          icon={<Lock className="h-4 w-4" />}
+          title={t.account_personal_security_title}
+          description={t.account_personal_security_placeholder}
+          testId="account-card-personal-security"
+        />
       </section>
       <section
         id="personal-membership"
@@ -574,88 +359,82 @@ const CompanySection = ({
         }}
         onSave={saveCompany}
         renderView={(v) => (
-          <div className="space-y-6" data-field-group-root>
-            <FieldGroup title={t.account_group_identity}>
-              <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label={t.account_company_legalName} value={v.legalName} />
-                <Field label={t.account_company_tradeName} value={v.tradeName} />
-                <Field label={t.account_company_role} value={accountRoleLabel(v.accountRole, t)} />
-                <Field label={t.account_company_website} value={v.website} />
-              </dl>
-            </FieldGroup>
-            <FieldGroup title={t.account_group_locale}>
-              <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label={t.account_company_country} value={v.country} />
-                <Field
-                  label={t.account_company_yearFounded}
-                  value={v.yearFounded ? String(v.yearFounded) : ""}
-                />
-              </dl>
-            </FieldGroup>
-          </div>
+          <dl
+            className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2"
+            data-field-group-root
+          >
+            <Field label={t.account_company_legalName} value={v.legalName} />
+            <Field label={t.account_company_tradeName} value={v.tradeName} />
+            <Field label={t.account_company_role} value={accountRoleLabel(v.accountRole, t)} />
+            <Field label={t.account_company_country} value={v.country} />
+            <div className="sm:col-span-2">
+              <Field label={t.account_company_website} value={v.website} />
+            </div>
+            <Field
+              label={t.account_company_yearFounded}
+              value={v.yearFounded ? String(v.yearFounded) : ""}
+            />
+          </dl>
         )}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div className="space-y-6" data-field-group-root>
-            <FieldGroup title={t.account_group_identity}>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <FormRow label={t.account_company_legalName} required error={errors.legalName}>
-                  <Input
-                    value={draft.legalName}
-                    onChange={(e) => setDraft({ ...draft, legalName: e.target.value })}
-                    data-testid="account-company-legal-name"
-                  />
-                </FormRow>
-                <FormRow label={t.account_company_tradeName} required error={errors.tradeName}>
-                  <Input
-                    value={draft.tradeName}
-                    onChange={(e) => setDraft({ ...draft, tradeName: e.target.value })}
-                    data-testid="account-company-trade-name"
-                  />
-                </FormRow>
-                <FormRow label={t.account_company_role}>
-                  <select
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    value={draft.accountRole}
-                    onChange={(e) =>
-                      setDraft({ ...draft, accountRole: e.target.value as CompanyProfile["accountRole"] })
-                    }
-                    data-testid="account-input-accountRole"
-                  >
-                    <option value="buyer">{t.account_company_role_buyer}</option>
-                    <option value="supplier">{t.account_company_role_supplier}</option>
-                    <option value="both">{t.account_company_role_both}</option>
-                  </select>
-                </FormRow>
-                <FormRow label={t.account_company_website} error={errors.website}>
-                  <Input
-                    value={draft.website}
-                    onChange={(e) => setDraft({ ...draft, website: e.target.value })}
-                    data-testid="account-company-website"
-                  />
-                </FormRow>
-              </div>
-            </FieldGroup>
-            <FieldGroup title={t.account_group_locale}>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <FormRow label={t.account_company_country} required error={errors.country}>
-                  <Input
-                    value={draft.country}
-                    onChange={(e) => setDraft({ ...draft, country: e.target.value })}
-                    data-testid="account-company-country"
-                  />
-                </FormRow>
-                <FormRow label={t.account_company_yearFounded} error={errors.yearFounded}>
-                  <Input
-                    type="number"
-                    value={draft.yearFounded || ""}
-                    onChange={(e) =>
-                      setDraft({ ...draft, yearFounded: Number(e.target.value) || 0 })
-                    }
-                    data-testid="account-company-year-founded"
-                  />
-                </FormRow>
-              </div>
-            </FieldGroup>
+          <div
+            className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2"
+            data-field-group-root
+          >
+            <FormRow label={t.account_company_legalName} required error={errors.legalName}>
+              <Input
+                value={draft.legalName}
+                onChange={(e) => setDraft({ ...draft, legalName: e.target.value })}
+                data-testid="account-company-legal-name"
+              />
+            </FormRow>
+            <FormRow label={t.account_company_tradeName} required error={errors.tradeName}>
+              <Input
+                value={draft.tradeName}
+                onChange={(e) => setDraft({ ...draft, tradeName: e.target.value })}
+                data-testid="account-company-trade-name"
+              />
+            </FormRow>
+            <FormRow label={t.account_company_role}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.accountRole}
+                onChange={(e) =>
+                  setDraft({ ...draft, accountRole: e.target.value as CompanyProfile["accountRole"] })
+                }
+                data-testid="account-input-accountRole"
+              >
+                <option value="buyer">{t.account_company_role_buyer}</option>
+                <option value="supplier">{t.account_company_role_supplier}</option>
+                <option value="both">{t.account_company_role_both}</option>
+              </select>
+            </FormRow>
+            <FormRow label={t.account_company_country} required error={errors.country}>
+              <Input
+                value={draft.country}
+                onChange={(e) => setDraft({ ...draft, country: e.target.value })}
+                data-testid="account-company-country"
+              />
+            </FormRow>
+            <div className="sm:col-span-2">
+              <FormRow label={t.account_company_website} error={errors.website}>
+                <Input
+                  value={draft.website}
+                  onChange={(e) => setDraft({ ...draft, website: e.target.value })}
+                  data-testid="account-company-website"
+                />
+              </FormRow>
+            </div>
+            <FormRow label={t.account_company_yearFounded} error={errors.yearFounded}>
+              <Input
+                type="number"
+                value={draft.yearFounded || ""}
+                onChange={(e) =>
+                  setDraft({ ...draft, yearFounded: Number(e.target.value) || 0 })
+                }
+                data-testid="account-company-year-founded"
+              />
+            </FormRow>
           </div>
         )}
       />
