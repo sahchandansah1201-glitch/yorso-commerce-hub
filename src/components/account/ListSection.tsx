@@ -73,8 +73,8 @@ export const ListEmpty = ({
   action?: { label: string; onClick: () => void; testId?: string };
   testId?: string;
 }) => (
-  <AccountSectionCard title={title} description={description} testId={testId}>
-    {description && action ? null : description ? (
+  <AccountSectionCard title={title} testId={testId}>
+    {description ? (
       <p className="text-sm text-muted-foreground">{description}</p>
     ) : null}
     {action ? (
@@ -83,9 +83,11 @@ export const ListEmpty = ({
         variant="outline"
         onClick={action.onClick}
         data-testid={action.testId}
+        className={description ? "mt-3" : undefined}
       >
         {action.label}
       </Button>
     ) : null}
   </AccountSectionCard>
 );
+
