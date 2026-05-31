@@ -8,6 +8,8 @@ import type {
   SupplierDirectorySortDirection,
   SupplierDocumentDownloadEventAdminQuery,
   SupplierDocumentDownloadEventStatus,
+  SupplierDocumentDownloadGrantAdminQuery,
+  SupplierDocumentDownloadGrantStatus,
   SupplierDocumentPayload,
   SupplierFaqItem,
   SupplierLegalDetails,
@@ -27,6 +29,7 @@ export interface SupplierRepository {
   getSupplierById(id: string): Promise<SupplierDirectoryRecord | null>;
   getDocumentDownloadGrantById(id: string): Promise<SupplierDocumentDownloadGrantAuditRecord | null>;
   recordDocumentDownloadGrant(input: SupplierDocumentDownloadGrantAuditInput): Promise<SupplierDocumentDownloadGrantAuditRecord>;
+  listDocumentDownloadGrants(input: SupplierDocumentDownloadGrantAdminQuery): Promise<SupplierDocumentDownloadGrantAuditRecord[]>;
   recordDocumentDownloadEvent(input: SupplierDocumentDownloadEventInput): Promise<SupplierDocumentDownloadEventRecord>;
   listDocumentDownloadEvents(input: SupplierDocumentDownloadEventAdminQuery): Promise<SupplierDocumentDownloadEventRecord[]>;
 }
@@ -34,12 +37,6 @@ export interface SupplierRepository {
 export interface SupplierRepositoryListOptions {
   privateSearchSupplierIds?: readonly string[];
 }
-
-export type SupplierDocumentDownloadGrantStatus =
-  | "granted"
-  | "access_denied"
-  | "document_not_found"
-  | "document_unavailable";
 
 export interface SupplierDocumentDownloadGrantAuditInput {
   id: string;
@@ -549,10 +546,13 @@ export class MemorySupplierRepository implements SupplierRepository {
     return structuredClone(record);
   }
 
-  async listDocumentDownloadGrantAudit(input: { limit: number; offset: number }) {
+  async listDocumentDownloadGrants(input: SupplierDocumentDownloadGrantAdminQuery) {
     return structuredClone(
       this.documentGrantAudit
         .slice()
+        .filter((grant) => !input.status || grant.status === input.status)
+        .filter((grant) => !input.supplierId || grant.supplierId === input.supplierId)
+        .filter((grant) => !input.buyerUserId || grant.buyerUserId === input.buyerUserId)
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id))
         .slice(input.offset, input.offset + input.limit),
     );

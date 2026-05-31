@@ -7,6 +7,7 @@ import type {
   SupplierDirectoryQuery,
   SupplierDirectoryRecord,
   SupplierDocumentDownloadEventAdminQuery,
+  SupplierDocumentDownloadGrantAdminQuery,
   SupplierDocumentPayload,
   SupplierFaqItem,
   SupplierLegalDetails,
@@ -205,6 +206,23 @@ function mapDocumentDownloadEvent(row: SupplierDocumentDownloadEventRow): Suppli
   };
 }
 
+function mapDocumentDownloadGrant(row: SupplierDocumentDownloadGrantAuditRow): SupplierDocumentDownloadGrantAuditRecord {
+  return {
+    id: row.id,
+    buyerUserId: row.buyerUserId,
+    supplierId: row.supplierId,
+    documentId: row.documentId,
+    fileAssetId: row.fileAssetId,
+    status: row.status,
+    reason: row.reason,
+    requestId: row.requestId,
+    downloadPath: row.downloadPath,
+    grantedAt: row.grantedAt ? ensureIso(row.grantedAt) : null,
+    expiresAt: row.expiresAt ? ensureIso(row.expiresAt) : null,
+    createdAt: ensureIso(row.createdAt),
+  };
+}
+
 export class PostgresSupplierRepository implements SupplierRepository {
   private readonly client: SupplierQueryClient;
 
@@ -272,7 +290,7 @@ export class PostgresSupplierRepository implements SupplierRepository {
       [id],
     );
 
-    return result.rows[0] ?? null;
+    return result.rows[0] ? mapDocumentDownloadGrant(result.rows[0]) : null;
   }
 
   async recordDocumentDownloadGrant(input: SupplierDocumentDownloadGrantAuditInput) {
@@ -324,7 +342,49 @@ export class PostgresSupplierRepository implements SupplierRepository {
       ],
     );
 
-    return result.rows[0];
+    return mapDocumentDownloadGrant(result.rows[0]);
+  }
+
+  async listDocumentDownloadGrants(input: SupplierDocumentDownloadGrantAdminQuery) {
+    const params: unknown[] = [];
+    const where: string[] = [];
+    const add = (value: unknown) => {
+      params.push(value);
+      return `$${params.length}`;
+    };
+
+    if (input.status) where.push(`status = ${add(input.status)}`);
+    if (input.supplierId) where.push(`supplier_id = ${add(input.supplierId)}`);
+    if (input.buyerUserId) where.push(`buyer_user_id = ${add(input.buyerUserId)}`);
+
+    const limitParam = add(input.limit);
+    const offsetParam = add(input.offset);
+    const whereSql = where.length ? `where ${where.join(" and ")}` : "";
+    const result = await this.client.query<SupplierDocumentDownloadGrantAuditRow>(
+      `
+        select
+          id,
+          buyer_user_id as "buyerUserId",
+          supplier_id as "supplierId",
+          document_id as "documentId",
+          file_asset_id as "fileAssetId",
+          status,
+          reason,
+          request_id as "requestId",
+          download_path as "downloadPath",
+          granted_at as "grantedAt",
+          expires_at as "expiresAt",
+          created_at as "createdAt"
+        from yorso_supplier_document_download_grants
+        ${whereSql}
+        order by created_at desc, id asc
+        limit ${limitParam}
+        offset ${offsetParam}
+      `,
+      params,
+    );
+
+    return result.rows.map(mapDocumentDownloadGrant);
   }
 
   async recordDocumentDownloadEvent(input: SupplierDocumentDownloadEventInput) {

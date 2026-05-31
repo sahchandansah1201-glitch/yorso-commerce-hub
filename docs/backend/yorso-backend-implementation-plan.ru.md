@@ -1016,6 +1016,29 @@ supplier documents. Owner/admin upload и редактирование доку�
 - audit action `admin.supplier_document_download_events.read`;
 - API route test и Postgres repository test.
 
-Следующий scoped backend direction после Phase 4I: либо admin UI для этого
-audit listing, либо adjacent grant-audit listing, либо supplier owner/admin
-document management после отдельного решения по ownership и validation rules.
+Следующий scoped backend direction после Phase 4I: adjacent grant-audit
+listing.
+
+## Backend Phase 4J Checkpoint - Admin grant-audit документов поставщика
+
+Статус: реализовано.
+
+Phase 4J добавляет bounded admin grant-audit listing рядом с Phase 4I download
+event listing. Owner/admin upload и редактирование документов остаются вне
+этого инкремента.
+
+Реализовано:
+
+- `GET /v1/admin/supplier-documents/download-grants` для authenticated admin
+  session;
+- bounded query contract с optional `status`, `supplierId`, `buyerUserId`,
+  `limit <= 100` и `offset <= 10 000`;
+- read path по `yorso_supplier_document_download_grants`;
+- response shaping без `fileAssetId`, object keys, storage keys, direct storage
+  URLs и `downloadPath`;
+- audit action `admin.supplier_document_download_grants.read`;
+- API route test и PostgreSQL repository test.
+
+Следующий scoped backend direction после Phase 4J: либо admin UI для
+download/grant audit listings, либо supplier owner/admin document management
+после отдельного решения по ownership, validation и audit rules.

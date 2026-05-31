@@ -266,6 +266,7 @@ const requiredFiles = [
   "docs/backend/phase-4g-supplier-document-download-serving.md",
   "docs/backend/phase-4h-supplier-document-download-ui.md",
   "docs/backend/phase-4i-supplier-document-download-audit-listing.md",
+  "docs/backend/phase-4j-supplier-document-grant-audit-listing.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -513,6 +514,7 @@ const phase4fSupplierDocumentDownloadGrants = read("docs/backend/phase-4f-suppli
 const phase4gSupplierDocumentDownloadServing = read("docs/backend/phase-4g-supplier-document-download-serving.md");
 const phase4hSupplierDocumentDownloadUi = read("docs/backend/phase-4h-supplier-document-download-ui.md");
 const phase4iSupplierDocumentDownloadAuditListing = read("docs/backend/phase-4i-supplier-document-download-audit-listing.md");
+const phase4jSupplierDocumentGrantAuditListing = read("docs/backend/phase-4j-supplier-document-grant-audit-listing.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -3074,6 +3076,17 @@ for (const marker of [
 ]) {
   requireText("docs/backend/phase-4i-supplier-document-download-audit-listing.md", phase4iSupplierDocumentDownloadAuditListing, marker);
 }
+for (const marker of [
+  "Backend Phase 4J",
+  "Supplier Document Grant Audit Listing",
+  "/v1/admin/supplier-documents/download-grants",
+  "supplierDocumentDownloadGrantAdminListResponseSchema",
+  "admin.supplier_document_download_grants.read",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4j-supplier-document-grant-audit-listing.md", phase4jSupplierDocumentGrantAuditListing, marker);
+}
 for (const [file, text, marker] of [
   ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "downloadSupplierDocument"],
   ["src/lib/supplier-directory-api.ts", supplierDirectoryApi, "requestDocumentDownloadGrant"],
@@ -3802,6 +3815,7 @@ requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPos
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "logistics_facts");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "yorso_supplier_document_download_grants");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "yorso_supplier_document_download_events");
+requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "listDocumentDownloadGrants");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "listDocumentDownloadEvents");
 requireText("apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "order by created_at desc, id asc");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "interface SupplierRepository");
@@ -3810,9 +3824,12 @@ requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, 
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "logisticsFacts(");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "recordDocumentDownloadGrant");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "recordDocumentDownloadEvent");
+requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "listDocumentDownloadGrants");
 requireText("apps/api/src/modules/suppliers/repository.ts", supplierRepository, "listDocumentDownloadEvents");
 requireText("apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/v1/admin/supplier-documents/download-events");
 requireText("apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_download_events.read");
+requireText("apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/v1/admin/supplier-documents/download-grants");
+requireText("apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_download_grants.read");
 requireText("apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin_role_required");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers");
 requireText("apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/v1/suppliers/");

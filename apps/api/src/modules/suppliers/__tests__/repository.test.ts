@@ -389,6 +389,67 @@ describe("supplier directory repositories", () => {
     ]);
   });
 
+  it("PostgreSQL repository lists supplier document grants with bounded indexed filters", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        return {
+          rows: [
+            {
+              id: "sdg_grant_1",
+              buyerUserId: "00000000-0000-4000-8000-000000000001",
+              supplierId: "sup-no-001",
+              documentId: "sup-no-001-health-certificate",
+              fileAssetId: "00000000-0000-4000-8000-00000000f001",
+              status: "granted",
+              reason: "granted",
+              requestId: "req-1",
+              downloadPath: "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_grant_1",
+              grantedAt: new Date("2026-05-31T08:00:00.000Z"),
+              expiresAt: new Date("2026-05-31T08:15:00.000Z"),
+              createdAt: new Date("2026-05-31T08:00:00.000Z"),
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+
+    const grants = await repository.listDocumentDownloadGrants({
+      status: "granted",
+      supplierId: "sup-no-001",
+      buyerUserId: "00000000-0000-4000-8000-000000000001",
+      limit: 25,
+      offset: 50,
+    });
+
+    expect(grants).toEqual([
+      expect.objectContaining({
+        id: "sdg_grant_1",
+        fileAssetId: "00000000-0000-4000-8000-00000000f001",
+        downloadPath: "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/download?grantId=sdg_grant_1",
+        grantedAt: "2026-05-31T08:00:00.000Z",
+        expiresAt: "2026-05-31T08:15:00.000Z",
+        createdAt: "2026-05-31T08:00:00.000Z",
+      }),
+    ]);
+    expect(calls[0].sql).toContain("from yorso_supplier_document_download_grants");
+    expect(calls[0].sql).toContain("status = $1");
+    expect(calls[0].sql).toContain("supplier_id = $2");
+    expect(calls[0].sql).toContain("buyer_user_id = $3");
+    expect(calls[0].sql).toContain("order by created_at desc, id asc");
+    expect(calls[0].sql).toContain("limit $4");
+    expect(calls[0].sql).toContain("offset $5");
+    expect(calls[0].params).toEqual([
+      "granted",
+      "sup-no-001",
+      "00000000-0000-4000-8000-000000000001",
+      25,
+      50,
+    ]);
+  });
+
   it("PostgreSQL repository lists supplier document download events with bounded indexed filters", async () => {
     const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
     const client: SupplierQueryClient = {

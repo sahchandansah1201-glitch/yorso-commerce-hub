@@ -5912,6 +5912,74 @@ Marker: fileAssetId.
 Marker: self-hosted backend.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4J Supplier Document Grant Audit Listing
+
+Phase 4J adds a bounded admin read endpoint for supplier document grant audit
+records. It does not add owner upload/editing, exports, schedulers or new
+database tables.
+
+Expected read/write profile:
+
+- One admin request reads at most 100 rows from
+  `yorso_supplier_document_download_grants`.
+- Optional filters: `status`, `supplierId`, `buyerUserId`.
+- Writes: none in Phase 4J.
+- Existing grant writes remain owned by Phase 4F.
+
+Cache, queue and backpressure strategy:
+
+- No queue, worker or scheduler is introduced.
+- Existing API auth, admin role guard, request timeout, lifecycle drain and
+  JSON response limits are the backpressure boundary.
+- Operator audit data is not shared-cacheable.
+- The endpoint fails closed for missing sessions, non-admin sessions and invalid
+  query params.
+
+Database indexing and pagination strategy:
+
+- Existing migration `0035_supplier_document_download_grants` provides indexes
+  for buyer, supplier and status recent reads:
+  - `idx_yorso_supplier_document_grants_buyer_recent`;
+  - `idx_yorso_supplier_document_grants_supplier_recent`;
+  - `idx_yorso_supplier_document_grants_status_recent`.
+- Query order is `created_at desc, id asc`.
+- Pagination is bounded by `limit <= 100` and `offset <= 10 000`.
+- No unbounded export is introduced in this phase.
+
+Failure mode and graceful degradation:
+
+- Missing or invalid account session returns 401.
+- Buyer/non-admin session returns `admin_role_required`.
+- Invalid query params return `validation_error`.
+- Empty result returns `ok: true` with `items: []`.
+- Response shaping strips `fileAssetId`, object keys, storage keys, direct file
+  URLs and `downloadPath`.
+
+Observability and load-test plan:
+
+- Reads emit audit action
+  `admin.supplier_document_download_grants.read`.
+- Release validation must include the admin route test, supplier repository
+  test, self-hosted API guard, production-scale guard, TypeScript, lint, build
+  and full test suite.
+- Load tests should cover unfiltered reads, `status=granted`,
+  `status=access_denied`, `supplierId`, `buyerUserId`, empty-result reads and
+  blocked non-admin reads at the 10,000 concurrent-user target.
+
+Validation:
+
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "serves admin supplier document grant audit without file asset leakage"`.
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`.
+
+Marker: Backend Phase 4J Supplier Document Grant Audit Listing.
+Marker: /v1/admin/supplier-documents/download-grants.
+Marker: supplierDocumentDownloadGrantAdminListResponseSchema.
+Marker: admin.supplier_document_download_grants.read.
+Marker: yorso_supplier_document_download_grants.
+Marker: fileAssetId.
+Marker: self-hosted backend.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

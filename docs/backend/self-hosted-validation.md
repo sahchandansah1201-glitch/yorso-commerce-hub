@@ -1769,3 +1769,38 @@ Required markers:
 - `supplierDocumentDownloadEventAdminListResponseSchema`;
 - `admin.supplier_document_download_events.read`;
 - `10,000 concurrent users`.
+
+## Backend Phase 4J Supplier Document Grant Audit Listing Validation
+
+Run:
+
+```bash
+npm run contracts:build
+npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "serves admin supplier document grant audit without file asset leakage"
+npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts
+npm run test:api
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `GET /v1/admin/supplier-documents/download-grants` requires an authenticated
+  admin session.
+- Buyer sessions receive `admin_role_required`.
+- Query params are bounded by contract: `limit <= 100`, `offset <= 10 000`,
+  optional `status`, `supplierId`, `buyerUserId`.
+- The route reads `yorso_supplier_document_download_grants` and orders by
+  `created_at desc, id asc`.
+- The browser-facing admin JSON response does not include `fileAssetId`, object
+  keys, storage keys, direct file URLs or `downloadPath`.
+- Reads emit audit action `admin.supplier_document_download_grants.read`.
+
+Required markers:
+
+- `Backend Phase 4J`;
+- `Supplier Document Grant Audit Listing`;
+- `/v1/admin/supplier-documents/download-grants`;
+- `supplierDocumentDownloadGrantAdminListResponseSchema`;
+- `admin.supplier_document_download_grants.read`;
+- `10,000 concurrent users`.

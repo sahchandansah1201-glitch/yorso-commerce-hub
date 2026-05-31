@@ -808,6 +808,28 @@ Implemented:
 - audit action `admin.supplier_document_download_events.read`;
 - API route and Postgres repository tests.
 
-Next scoped backend direction after Phase 4I: either add an admin UI for this
-audit listing, add adjacent grant-audit listing, or start supplier owner/admin
-document management after defining ownership and validation rules.
+Next scoped backend direction after Phase 4I: adjacent grant-audit listing.
+
+## Backend Phase 4J Checkpoint - Supplier Document Grant Audit Listing
+
+Status: implemented.
+
+Phase 4J adds bounded admin grant-audit listing beside the Phase 4I download
+event listing. Owner/admin document upload and editing remain outside this
+increment.
+
+Implemented:
+
+- `GET /v1/admin/supplier-documents/download-grants` for authenticated admin
+  sessions;
+- bounded query contract with optional `status`, `supplierId`, `buyerUserId`,
+  `limit <= 100` and `offset <= 10 000`;
+- read path over `yorso_supplier_document_download_grants`;
+- response shaping without `fileAssetId`, object keys, storage keys, direct
+  storage URLs or `downloadPath`;
+- audit action `admin.supplier_document_download_grants.read`;
+- API route and PostgreSQL repository tests.
+
+Next scoped backend direction after Phase 4J: either add an admin UI for the
+download/grant audit listings or start supplier owner/admin document management
+after defining ownership, validation and audit rules.

@@ -22,6 +22,7 @@ const requiredFiles = [
   "docs/backend/phase-4g-supplier-document-download-serving.md",
   "docs/backend/phase-4h-supplier-document-download-ui.md",
   "docs/backend/phase-4i-supplier-document-download-audit-listing.md",
+  "docs/backend/phase-4j-supplier-document-grant-audit-listing.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -275,6 +276,7 @@ const phase4fSupplierDocumentDownloadGrants = read("docs/backend/phase-4f-suppli
 const phase4gSupplierDocumentDownloadServing = read("docs/backend/phase-4g-supplier-document-download-serving.md");
 const phase4hSupplierDocumentDownloadUi = read("docs/backend/phase-4h-supplier-document-download-ui.md");
 const phase4iSupplierDocumentDownloadAuditListing = read("docs/backend/phase-4i-supplier-document-download-audit-listing.md");
+const phase4jSupplierDocumentGrantAuditListing = read("docs/backend/phase-4j-supplier-document-grant-audit-listing.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -3095,6 +3097,17 @@ for (const marker of [
   requireText("docs/backend/phase-4i-supplier-document-download-audit-listing.md", phase4iSupplierDocumentDownloadAuditListing, marker);
 }
 for (const marker of [
+  "Backend Phase 4J",
+  "Supplier Document Grant Audit Listing",
+  "/v1/admin/supplier-documents/download-grants",
+  "supplierDocumentDownloadGrantAdminListResponseSchema",
+  "admin.supplier_document_download_grants.read",
+  "Plan / Fact",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4j-supplier-document-grant-audit-listing.md", phase4jSupplierDocumentGrantAuditListing, marker);
+}
+for (const marker of [
   "Backend Phase 4B",
   "production_facts jsonb not null",
   "logistics_facts jsonb not null",
@@ -3883,6 +3896,8 @@ for (const [file, text, marker] of [
   ["apps/api/src/modules/offers/routes.ts", offerRoutes, "resolveOptionalAuthenticatedAccountSession"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/v1/admin/supplier-documents/download-events"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_download_events.read"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/v1/admin/supplier-documents/download-grants"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_download_grants.read"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin_role_required"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession"],
 ]) {

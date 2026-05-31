@@ -19,6 +19,7 @@ import {
   supplierDirectoryRecordSchema,
   supplierAccessNotificationsAckResponseSchema,
   supplierAccessNotificationsAckSchema,
+  supplierDocumentDownloadGrantAdminListResponseSchema,
   supplierDocumentDownloadGrantResponseSchema,
   userProfileSchema,
 } from "../../packages/contracts/src";
@@ -463,6 +464,35 @@ describe("self-hosted account/company contracts", () => {
     expect(parsed.grant.downloadPath).toContain("/v1/suppliers/sup-contract-1/documents/contract-doc-health-1/download");
     expect(JSON.stringify(parsed)).not.toContain("fileAssetId");
     expect(JSON.stringify(parsed)).not.toContain("objectKey");
+  });
+
+  it("accepts supplier document grant admin audit lists without asset leakage", () => {
+    const parsed = supplierDocumentDownloadGrantAdminListResponseSchema.parse({
+      ok: true,
+      items: [
+        {
+          id: "sdg_11111111-1111-4111-8111-111111111111",
+          buyerUserId: "00000000-0000-4000-8000-000000000001",
+          supplierId: "sup-contract-1",
+          documentId: "contract-doc-health-1",
+          status: "granted",
+          reason: "granted",
+          requestId: "req_1",
+          grantedAt: "2026-05-31T08:00:00.000Z",
+          expiresAt: "2026-05-31T08:15:00.000Z",
+          createdAt: "2026-05-31T08:00:00.000Z",
+        },
+      ],
+      limit: 50,
+      offset: 0,
+      requestId: "req_api",
+    });
+
+    const serialized = JSON.stringify(parsed);
+    expect(parsed.items[0].status).toBe("granted");
+    expect(serialized).not.toContain("fileAssetId");
+    expect(serialized).not.toContain("downloadPath");
+    expect(serialized).not.toContain("objectKey");
   });
 
   it("accepts bounded supplier access notification acknowledgement payloads", () => {
