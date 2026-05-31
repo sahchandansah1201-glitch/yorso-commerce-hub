@@ -1,11 +1,12 @@
 /**
  * E2E · API-backed admin supplier document management events page.
  *
- * Phase 4R/4S browser guard:
+ * Phase 4R/4S/4T browser guard:
  * - /admin/supplier-document-management-events renders bounded management events from self-hosted API;
  * - requests carry x-yorso-user-id and x-yorso-session-id;
  * - JSON/CSV export controls call the Phase 4Q export endpoint;
  * - admin mutation controls call the existing decision/lifecycle endpoints with bounded payloads;
+ * - destructive admin mutations require an explicit confirmation dialog;
  * - browser-facing UI does not render file asset or storage-only fields.
  */
 import { expect, test, type Page, type Route } from "@playwright/test";
@@ -169,7 +170,7 @@ test.describe("Admin supplier document management events", () => {
     expect(horizontalOverflow).toBe(false);
   });
 
-  test("runs status-aware admin document actions without exposing storage fields", async ({ page }) => {
+  test("runs confirmed status-aware admin document actions without exposing storage fields", async ({ page }) => {
     const decisionRequests: Array<{ body: unknown; headers: Record<string, string>; url: string }> = [];
     const lifecycleRequests: Array<{ body: unknown; headers: Record<string, string>; url: string }> = [];
     let listRequests = 0;
@@ -214,6 +215,12 @@ test.describe("Admin supplier document management events", () => {
       .getByTestId("admin-document-management-events-reason-sdme_e2e_approved")
       .fill("Certificate validity passed");
     await expireButton.click();
+
+    await expect(page.getByTestId("admin-document-management-events-confirmation")).toContainText(
+      "Confirm document action",
+    );
+    expect(lifecycleRequests).toHaveLength(0);
+    await page.getByTestId("admin-document-management-events-confirm-submit").click();
 
     await expect.poll(() => lifecycleRequests.length).toBe(1);
     expect(lifecycleRequests[0].url).toContain("/v1/admin/supplier-documents/sup-no-001/documents/sup-no-001-health-certificate/lifecycle");

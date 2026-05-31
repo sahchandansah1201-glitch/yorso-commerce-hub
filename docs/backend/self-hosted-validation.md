@@ -2082,6 +2082,37 @@ Required markers:
 - `admin-document-management-events-expire`;
 - `10,000 concurrent users`.
 
+## Backend Phase 4T Supplier Document Admin Confirmation UI Validation
+
+Run:
+
+```bash
+npm run test:admin-supplier-document-management-events-frontend
+npm run smoke:e2e:admin-supplier-document-management-events
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `reject`, `expire` and `delete` require a filled reason and then open a
+  confirmation dialog before calling the existing decision/lifecycle endpoints.
+- Cancel closes the confirmation dialog without a backend write.
+- Confirm sends the same bounded Phase 4S action payload and refreshes the
+  management event list on success.
+- `approve` remains an immediate action.
+- Browser-facing UI does not render storage-only fields or session identifiers.
+
+Required markers:
+
+- `Backend Phase 4T`;
+- `Supplier Document Admin Confirmation UI`;
+- `admin-document-management-events-confirmation`;
+- `admin-document-management-events-confirm-submit`;
+- `admin-document-management-events-confirm-cancel`;
+- `Confirm document action`;
+- `10,000 concurrent users`.
+
 ## Backend Phase 4P Supplier Document Admin Lifecycle Cleanup Validation
 
 Run:

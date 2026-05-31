@@ -190,7 +190,7 @@ describe("AdminSupplierDocumentManagementEvents page", () => {
     expect(bodyText).not.toContain("admin@yorso.test");
   });
 
-  it("runs status-aware approve and expire actions then refreshes the event list", async () => {
+  it("runs status-aware approve and confirmed expire actions then refreshes the event list", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "https://api.yorso.test");
     const fetchImpl = vi.fn<typeof fetch>(async (input) => {
       const url = String(input);
@@ -226,6 +226,18 @@ describe("AdminSupplierDocumentManagementEvents page", () => {
       target: { value: "Certificate validity passed" },
     });
     fireEvent.click(screen.getByTestId("admin-document-management-events-expire-sdme_page_approved"));
+
+    expect(screen.getByTestId("admin-document-management-events-confirmation")).toHaveTextContent(
+      "Confirm document action",
+    );
+    expect(fetchImpl.mock.calls.find((call) => String(call[0]).endsWith("/lifecycle"))).toBeUndefined();
+    fireEvent.click(screen.getByTestId("admin-document-management-events-confirm-cancel"));
+    await waitFor(() =>
+      expect(screen.queryByTestId("admin-document-management-events-confirmation")).not.toBeInTheDocument(),
+    );
+
+    fireEvent.click(screen.getByTestId("admin-document-management-events-expire-sdme_page_approved"));
+    fireEvent.click(screen.getByTestId("admin-document-management-events-confirm-submit"));
 
     await waitFor(() => {
       const lifecycleCall = fetchImpl.mock.calls.find((call) => String(call[0]).endsWith("/lifecycle"));

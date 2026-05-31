@@ -1152,3 +1152,36 @@ Next scoped backend direction after Phase 4S: either add a confirmation/undo
 UX around destructive admin document mutations, or move to the separate
 approved-document expiry scheduler decision. Keep scheduler work separate from
 admin UI refinement.
+
+## Backend Phase 4T Checkpoint - Supplier Document Admin Confirmation UI
+
+Status: implemented.
+
+Phase 4T adds a client-side confirmation step before risky supplier document
+admin mutations on the existing `/admin/supplier-document-management-events`
+surface. It does not add backend endpoints, migrations, storage behavior,
+schedulers, queues, Supabase paths or new lifecycle policy.
+
+Implemented:
+
+- `reject`, `expire` and `delete` open an `AlertDialog` confirmation before
+  calling the existing Phase 4S action path;
+- cancel closes the dialog without a backend request;
+- confirm calls the same bounded `runDocumentAction` payload and refreshes the
+  management event list on success;
+- `approve` remains an immediate action;
+- confirmation shows action, supplier id, document id and reason without
+  exposing storage internals.
+
+Plan / Fact:
+
+| Plan | Done | Will be implemented |
+|---|---|---|
+| Add confirmation before risky mutations. | Reject/expire/delete require confirmation. | Undo/audit taxonomy remains separate. |
+| Keep approve immediate. | Approve still calls `/decision` directly. | Add confirm only if compliance requires it. |
+| Cancel without backend write. | Unit/e2e assert lifecycle is not called before confirm. | Preserve in future dialog refactors. |
+| Preserve redaction boundary. | Storage/session fields remain guarded in tests. | Keep for future admin surfaces. |
+
+Next scoped backend direction after Phase 4T: automated approved-document expiry
+scheduler decision, or a separate structured reason taxonomy for document
+management actions. Do not mix scheduler and admin UI taxonomy work.

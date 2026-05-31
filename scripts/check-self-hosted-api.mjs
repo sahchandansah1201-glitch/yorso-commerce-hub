@@ -286,6 +286,7 @@ const requiredFiles = [
   "docs/backend/phase-4k-supplier-document-audit-admin-ui.md",
   "docs/backend/phase-4r-supplier-document-management-events-admin-ui.md",
   "docs/backend/phase-4s-supplier-document-admin-mutation-ui.md",
+  "docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md",
   "docs/backend/phase-4l-supplier-document-management-rules.md",
   "docs/backend/phase-4m-supplier-document-owner-create.md",
   "docs/backend/phase-4n-supplier-document-admin-decision.md",
@@ -564,6 +565,7 @@ const phase4jSupplierDocumentGrantAuditListing = read("docs/backend/phase-4j-sup
 const phase4kSupplierDocumentAuditAdminUi = read("docs/backend/phase-4k-supplier-document-audit-admin-ui.md");
 const phase4rSupplierDocumentManagementEventsAdminUi = read("docs/backend/phase-4r-supplier-document-management-events-admin-ui.md");
 const phase4sSupplierDocumentAdminMutationUi = read("docs/backend/phase-4s-supplier-document-admin-mutation-ui.md");
+const phase4tSupplierDocumentAdminConfirmationUi = read("docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md");
 const phase4lSupplierDocumentManagementRules = read("docs/backend/phase-4l-supplier-document-management-rules.md");
 const phase4mSupplierDocumentOwnerCreate = read("docs/backend/phase-4m-supplier-document-owner-create.md");
 const phase4nSupplierDocumentAdminDecision = read("docs/backend/phase-4n-supplier-document-admin-decision.md");
@@ -3331,6 +3333,18 @@ for (const marker of [
 ]) {
   requireText("docs/backend/phase-4s-supplier-document-admin-mutation-ui.md", phase4sSupplierDocumentAdminMutationUi, marker);
 }
+for (const marker of [
+  "Backend Phase 4T",
+  "Supplier Document Admin Confirmation UI",
+  "admin-document-management-events-confirmation",
+  "admin-document-management-events-confirm-submit",
+  "admin-document-management-events-confirm-cancel",
+  "Confirm document action",
+  "План / факт",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md", phase4tSupplierDocumentAdminConfirmationUi, marker);
+}
 for (const [file, text, marker] of [
   ["packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementCreateResponseSchema"],
   ["packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementDecisionResponseSchema"],
@@ -3418,15 +3432,20 @@ for (const [file, text, marker] of [
   ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "DocumentActionControls"],
   ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-approve"],
   ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-expire"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-confirmation"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-confirm-submit"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-confirm-cancel"],
   ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "events.refresh()"],
   ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "AdminOperatorNav"],
   ["src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx", adminSupplierDocumentManagementEventsPageTest, "renders sanitized management event rows and exports JSON/CSV"],
-  ["src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx", adminSupplierDocumentManagementEventsPageTest, "runs status-aware approve and expire actions then refreshes the event list"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx", adminSupplierDocumentManagementEventsPageTest, "runs status-aware approve and confirmed expire actions then refreshes the event list"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx", adminSupplierDocumentManagementEventsPageTest, "admin-document-management-events-confirm-cancel"],
   ["src/components/admin/AdminOperatorNav.tsx", adminOperatorNav, "/admin/supplier-document-management-events"],
   ["src/App.tsx", appSource, "/admin/supplier-document-management-events"],
   ["src/test/app-route-code-splitting.test.ts", read("src/test/app-route-code-splitting.test.ts"), "AdminSupplierDocumentManagementEvents"],
-  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "Phase 4R/4S browser guard"],
-  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "runs status-aware admin document actions without exposing storage fields"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "Phase 4R/4S/4T browser guard"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "runs confirmed status-aware admin document actions without exposing storage fields"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "admin-document-management-events-confirm-submit"],
   ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "/decision"],
   ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "/lifecycle"],
   ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "x-yorso-user-id"],
@@ -4976,6 +4995,7 @@ console.log("- Supplier owner document correction updates/deletes non-approved d
 console.log("- Supplier document admin lifecycle cleanup expires/deletes documents through self-hosted admin, policy and audit boundaries.");
 console.log("- Supplier document management events list/export through bounded self-hosted admin audit reads.");
 console.log("- Supplier document admin mutation UI reuses self-hosted decision/lifecycle endpoints without storage leakage.");
+console.log("- Supplier document admin confirmation UI gates risky mutations before backend writes.");
 console.log("- Offer catalog API exposes access-shaped offer discovery without Supabase production coupling.");
 console.log("- Supplier access API exposes request, decision, grant and notification flow without Supabase production coupling.");
 console.log("- Supplier access UX consumes self-hosted request status and approval notifications with local fallback.");

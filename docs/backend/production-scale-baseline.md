@@ -6685,6 +6685,70 @@ Marker: admin-document-management-events-approve.
 Marker: admin-document-management-events-expire.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4T - Supplier Document Admin Confirmation UI
+
+Status: implemented.
+
+Phase 4T adds a client-side confirmation step before risky supplier document
+admin mutations on `/admin/supplier-document-management-events`. It does not
+add backend endpoints, migrations, schedulers, queues, storage behavior,
+Supabase paths or new lifecycle policy.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Add confirmation before risky actions. | `reject`, `expire` and `delete` open an AlertDialog before backend write. | Undo/audit taxonomy remains separate. |
+| Keep approve fast. | `approve` remains immediate. | Add approve confirmation only if compliance requires it. |
+| Cancel without side effects. | Cancel closes the dialog and does not call `/decision` or `/lifecycle`. | Preserve in dialog refactors. |
+| Preserve action context. | Dialog shows action, supplier, document and reason. | Add safe document title only if backend returns it. |
+| Preserve redaction boundary. | Unit/e2e keep storage/session internals out of DOM. | Keep with future admin UI expansions. |
+
+Expected read/write profile:
+
+- No extra backend reads or writes when opening/canceling confirmation.
+- One existing mutation write only after explicit confirm.
+- One bounded list refresh after successful mutation.
+
+Cache, queue and backpressure strategy:
+
+- No cache, queue, polling or scheduler is introduced.
+- Backend role checks, document-management policy and request limits remain the
+  write backpressure/fail-closed boundary.
+
+Database indexing and pagination strategy:
+
+- No new database query, index or migration.
+- Reads and writes stay on Phase 4Q/4N/4P bounded paths.
+
+Failure mode and graceful degradation:
+
+- Cancel closes the dialog without side effects.
+- Failed confirmed mutation surfaces the existing bounded action error.
+- Disabled/session-required/forbidden states remain unchanged.
+
+Observability and load-test plan:
+
+- Confirmed mutations continue through existing API route observability and
+  durable management audit writes.
+- Browser smoke verifies that lifecycle writes do not fire before confirmation.
+- No new load-test traffic class is needed because this is client-side gating
+  over existing low-volume admin writes.
+
+Validation:
+
+- `npm run test:admin-supplier-document-management-events-frontend`;
+- `npm run smoke:e2e:admin-supplier-document-management-events`;
+- `npm run check:self-hosted-api`;
+- `npm run check:production-scale-baseline`.
+
+Marker: Backend Phase 4T Supplier Document Admin Confirmation UI.
+Marker: admin-document-management-events-confirmation.
+Marker: admin-document-management-events-confirm-submit.
+Marker: admin-document-management-events-confirm-cancel.
+Marker: Confirm document action.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

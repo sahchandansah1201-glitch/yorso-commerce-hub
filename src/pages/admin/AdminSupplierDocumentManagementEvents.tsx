@@ -4,6 +4,16 @@ import { useMemo, useState } from "react";
 import { AdminOperatorNav } from "@/components/admin/AdminOperatorNav";
 import Header from "@/components/landing/Header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +32,7 @@ import {
 import { useAdminSupplierDocumentManagementEvents } from "@/lib/use-admin-supplier-document-management-events";
 
 type ManagementEventActionFilter = AdminSupplierDocumentManagementEventAction | "all";
+type DocumentUiAction = "approve" | "reject" | "expire" | "delete";
 
 type ManagementEventsCopy = {
   action: string;
@@ -31,6 +42,10 @@ type ManagementEventsCopy = {
   approve: string;
   actionComplete: string;
   actionReason: string;
+  confirmCancel: string;
+  confirmDescription: string;
+  confirmSubmit: string;
+  confirmTitle: string;
   createdAt: string;
   delete: string;
   disabledBody: string;
@@ -70,6 +85,10 @@ const COPY: Record<Language, ManagementEventsCopy> = {
     approve: "Approve",
     actionComplete: "Document action completed",
     actionReason: "Action reason",
+    confirmCancel: "Cancel",
+    confirmDescription: "This action writes a durable admin audit event and refreshes the management event list. Review the reason before continuing.",
+    confirmSubmit: "Confirm action",
+    confirmTitle: "Confirm document action",
     createdAt: "Created",
     delete: "Delete",
     disabledBody: "Set VITE_YORSO_API_URL to inspect supplier document management events through the self-hosted API.",
@@ -107,6 +126,10 @@ const COPY: Record<Language, ManagementEventsCopy> = {
     approve: "Одобрить",
     actionComplete: "Действие с документом выполнено",
     actionReason: "Причина действия",
+    confirmCancel: "Отмена",
+    confirmDescription: "Это действие запишет durable admin audit event и обновит список событий управления. Проверьте причину перед продолжением.",
+    confirmSubmit: "Подтвердить действие",
+    confirmTitle: "Подтвердите действие с документом",
     createdAt: "Создано",
     delete: "Удалить",
     disabledBody: "Укажите VITE_YORSO_API_URL, чтобы проверить события управления документами поставщика через self-hosted API.",
@@ -144,6 +167,10 @@ const COPY: Record<Language, ManagementEventsCopy> = {
     approve: "Aprobar",
     actionComplete: "Acción del documento completada",
     actionReason: "Motivo de la acción",
+    confirmCancel: "Cancelar",
+    confirmDescription: "Esta acción escribe un evento durable de auditoría admin y actualiza la lista de eventos de gestión. Revisa el motivo antes de continuar.",
+    confirmSubmit: "Confirmar acción",
+    confirmTitle: "Confirmar acción del documento",
     createdAt: "Creado",
     delete: "Eliminar",
     disabledBody: "Define VITE_YORSO_API_URL para revisar eventos de gestión de documentos de proveedor mediante la API self-hosted.",
@@ -216,7 +243,7 @@ export default function AdminSupplierDocumentManagementEvents() {
 
   const runDocumentAction = async (
     item: AdminSupplierDocumentManagementEventItem,
-    action: "approve" | "reject" | "expire" | "delete",
+    action: DocumentUiAction,
     reason?: string,
   ) => {
     const actionKey = `${item.id}:${action}`;
@@ -449,7 +476,7 @@ function ManagementEventRows({
   items: AdminSupplierDocumentManagementEventItem[];
   onRunAction: (
     item: AdminSupplierDocumentManagementEventItem,
-    action: "approve" | "reject" | "expire" | "delete",
+    action: DocumentUiAction,
     reason?: string,
   ) => Promise<void>;
   savingAction: string | null;
@@ -521,17 +548,30 @@ function DocumentActionControls({
   item: AdminSupplierDocumentManagementEventItem;
   onRunAction: (
     item: AdminSupplierDocumentManagementEventItem,
-    action: "approve" | "reject" | "expire" | "delete",
+    action: DocumentUiAction,
     reason?: string,
   ) => Promise<void>;
   savingAction: string | null;
 }) {
   const [reason, setReason] = useState("");
+  const [pendingAction, setPendingAction] = useState<DocumentUiAction | null>(null);
   const actions = allowedActions(item);
   if (actions.length === 0) return null;
 
-  const run = (action: "approve" | "reject" | "expire" | "delete") => {
+  const run = (action: DocumentUiAction) => {
     void onRunAction(item, action, reason.trim() || undefined);
+  };
+  const requestAction = (action: DocumentUiAction) => {
+    if (action === "approve") {
+      run(action);
+      return;
+    }
+    setPendingAction(action);
+  };
+  const confirmPendingAction = () => {
+    if (!pendingAction) return;
+    run(pendingAction);
+    setPendingAction(null);
   };
 
   return (
@@ -552,7 +592,7 @@ function DocumentActionControls({
           <Button
             data-testid={`admin-document-management-events-approve-${item.id}`}
             disabled={savingAction === `${item.id}:approve`}
-            onClick={() => run("approve")}
+            onClick={() => requestAction("approve")}
             size="sm"
           >
             <Check className="mr-2 h-4 w-4" />
@@ -563,7 +603,7 @@ function DocumentActionControls({
           <Button
             data-testid={`admin-document-management-events-reject-${item.id}`}
             disabled={!reason.trim() || savingAction === `${item.id}:reject`}
-            onClick={() => run("reject")}
+            onClick={() => requestAction("reject")}
             size="sm"
             variant="outline"
           >
@@ -575,7 +615,7 @@ function DocumentActionControls({
           <Button
             data-testid={`admin-document-management-events-expire-${item.id}`}
             disabled={!reason.trim() || savingAction === `${item.id}:expire`}
-            onClick={() => run("expire")}
+            onClick={() => requestAction("expire")}
             size="sm"
             variant="outline"
           >
@@ -587,7 +627,7 @@ function DocumentActionControls({
           <Button
             data-testid={`admin-document-management-events-delete-${item.id}`}
             disabled={!reason.trim() || savingAction === `${item.id}:delete`}
-            onClick={() => run("delete")}
+            onClick={() => requestAction("delete")}
             size="sm"
             variant="destructive"
           >
@@ -596,11 +636,36 @@ function DocumentActionControls({
           </Button>
         )}
       </div>
+      <AlertDialog open={Boolean(pendingAction)} onOpenChange={(open) => !open && setPendingAction(null)}>
+        <AlertDialogContent data-testid="admin-document-management-events-confirmation">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{copy.confirmTitle}</AlertDialogTitle>
+            <AlertDialogDescription>{copy.confirmDescription}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <dl className="grid gap-2 rounded-xl bg-muted/40 p-3 text-sm">
+            <Meta label={copy.action} value={pendingAction ?? ""} />
+            <Meta label={copy.supplierId} value={item.supplierId} />
+            <Meta label={copy.documentId} value={item.documentId} />
+            <Meta label={copy.reason} value={reason.trim()} />
+          </dl>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="admin-document-management-events-confirm-cancel">
+              {copy.confirmCancel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              data-testid="admin-document-management-events-confirm-submit"
+              onClick={confirmPendingAction}
+            >
+              {copy.confirmSubmit}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
 
-const allowedActions = (item: AdminSupplierDocumentManagementEventItem): Array<"approve" | "reject" | "expire" | "delete"> => {
+const allowedActions = (item: AdminSupplierDocumentManagementEventItem): DocumentUiAction[] => {
   if (item.nextStatus === "review") return ["approve", "reject", "delete"];
   if (item.nextStatus === "approved") return ["expire"];
   if (item.nextStatus === "on_request" || item.nextStatus === "expired") return ["delete"];

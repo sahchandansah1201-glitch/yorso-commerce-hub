@@ -32,6 +32,7 @@ const requiredFiles = [
   "docs/backend/phase-4q-supplier-document-management-events.md",
   "docs/backend/phase-4r-supplier-document-management-events-admin-ui.md",
   "docs/backend/phase-4s-supplier-document-admin-mutation-ui.md",
+  "docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -314,6 +315,7 @@ const phase4pSupplierDocumentAdminLifecycle = read("docs/backend/phase-4p-suppli
 const phase4qSupplierDocumentManagementEvents = read("docs/backend/phase-4q-supplier-document-management-events.md");
 const phase4rSupplierDocumentManagementEventsAdminUi = read("docs/backend/phase-4r-supplier-document-management-events-admin-ui.md");
 const phase4sSupplierDocumentAdminMutationUi = read("docs/backend/phase-4s-supplier-document-admin-mutation-ui.md");
+const phase4tSupplierDocumentAdminConfirmationUi = read("docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -4302,16 +4304,39 @@ for (const marker of [
 ]) {
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
+for (const marker of [
+  "Backend Phase 4T",
+  "Supplier Document Admin Confirmation UI",
+  "admin-document-management-events-confirmation",
+  "admin-document-management-events-confirm-submit",
+  "admin-document-management-events-confirm-cancel",
+  "Confirm document action",
+  "План / факт",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md", phase4tSupplierDocumentAdminConfirmationUi, marker);
+}
+for (const marker of [
+  "Backend Phase 4T",
+  "No extra backend reads or writes when opening/canceling confirmation",
+  "lifecycle writes do not fire before confirmation",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
 for (const [file, text, marker] of [
   ["src/lib/admin-supplier-document-management-events-api.ts", adminSupplierDocumentManagementEventsApi, "runDocumentAction"],
   ["src/lib/admin-supplier-document-management-events-api.ts", adminSupplierDocumentManagementEventsApi, "actionEndpoint"],
-  ["src/lib/admin-supplier-document-management-events-api.test.ts", adminSupplierDocumentManagementEventsApiTest, "posts admin decision and lifecycle actions with sanitized responses"],
   ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "DocumentActionControls"],
   ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-approve"],
   ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-expire"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-confirmation"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "admin-document-management-events-confirm-submit"],
+  ["src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx", adminSupplierDocumentManagementEventsPageTest, "runs status-aware approve and confirmed expire actions then refreshes the event list"],
   ["src/pages/admin/AdminSupplierDocumentManagementEvents.tsx", adminSupplierDocumentManagementEventsPage, "events.refresh()"],
-  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "Phase 4R/4S browser guard"],
-  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "runs status-aware admin document actions without exposing storage fields"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "Phase 4R/4S/4T browser guard"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "runs confirmed status-aware admin document actions without exposing storage fields"],
+  ["e2e/admin-supplier-document-management-events.spec.ts", adminSupplierDocumentManagementEventsE2E, "admin-document-management-events-confirm-submit"],
 ]) {
   requireText(file, text, marker);
 }
@@ -4327,4 +4352,5 @@ console.log("- 10,000 concurrent-user target is documented.");
 console.log("- supplier, offer and access-flow paths have scaling guardrails.");
 console.log("- supplier document management event listing/export has bounded admin read guardrails.");
 console.log("- supplier document admin mutation UI has low-volume write and redaction guardrails.");
+console.log("- supplier document admin confirmation UI adds no new backend traffic before confirm.");
 console.log("- ci:core enforces the baseline check.");
