@@ -365,88 +365,82 @@ const CompanySection = ({
         }}
         onSave={saveCompany}
         renderView={(v) => (
-          <div className="space-y-6" data-field-group-root>
-            <FieldGroup title={t.account_group_identity}>
-              <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label={t.account_company_legalName} value={v.legalName} />
-                <Field label={t.account_company_tradeName} value={v.tradeName} />
-                <Field label={t.account_company_role} value={accountRoleLabel(v.accountRole, t)} />
-                <Field label={t.account_company_website} value={v.website} />
-              </dl>
-            </FieldGroup>
-            <FieldGroup title={t.account_group_locale}>
-              <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field label={t.account_company_country} value={v.country} />
-                <Field
-                  label={t.account_company_yearFounded}
-                  value={v.yearFounded ? String(v.yearFounded) : ""}
-                />
-              </dl>
-            </FieldGroup>
-          </div>
+          <dl
+            className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2"
+            data-field-group-root
+          >
+            <Field label={t.account_company_legalName} value={v.legalName} />
+            <Field label={t.account_company_tradeName} value={v.tradeName} />
+            <Field label={t.account_company_role} value={accountRoleLabel(v.accountRole, t)} />
+            <Field label={t.account_company_country} value={v.country} />
+            <div className="sm:col-span-2">
+              <Field label={t.account_company_website} value={v.website} />
+            </div>
+            <Field
+              label={t.account_company_yearFounded}
+              value={v.yearFounded ? String(v.yearFounded) : ""}
+            />
+          </dl>
         )}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div className="space-y-6" data-field-group-root>
-            <FieldGroup title={t.account_group_identity}>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <FormRow label={t.account_company_legalName} required error={errors.legalName}>
-                  <Input
-                    value={draft.legalName}
-                    onChange={(e) => setDraft({ ...draft, legalName: e.target.value })}
-                    data-testid="account-company-legal-name"
-                  />
-                </FormRow>
-                <FormRow label={t.account_company_tradeName} required error={errors.tradeName}>
-                  <Input
-                    value={draft.tradeName}
-                    onChange={(e) => setDraft({ ...draft, tradeName: e.target.value })}
-                    data-testid="account-company-trade-name"
-                  />
-                </FormRow>
-                <FormRow label={t.account_company_role}>
-                  <select
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    value={draft.accountRole}
-                    onChange={(e) =>
-                      setDraft({ ...draft, accountRole: e.target.value as CompanyProfile["accountRole"] })
-                    }
-                    data-testid="account-input-accountRole"
-                  >
-                    <option value="buyer">{t.account_company_role_buyer}</option>
-                    <option value="supplier">{t.account_company_role_supplier}</option>
-                    <option value="both">{t.account_company_role_both}</option>
-                  </select>
-                </FormRow>
-                <FormRow label={t.account_company_website} error={errors.website}>
-                  <Input
-                    value={draft.website}
-                    onChange={(e) => setDraft({ ...draft, website: e.target.value })}
-                    data-testid="account-company-website"
-                  />
-                </FormRow>
-              </div>
-            </FieldGroup>
-            <FieldGroup title={t.account_group_locale}>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <FormRow label={t.account_company_country} required error={errors.country}>
-                  <Input
-                    value={draft.country}
-                    onChange={(e) => setDraft({ ...draft, country: e.target.value })}
-                    data-testid="account-company-country"
-                  />
-                </FormRow>
-                <FormRow label={t.account_company_yearFounded} error={errors.yearFounded}>
-                  <Input
-                    type="number"
-                    value={draft.yearFounded || ""}
-                    onChange={(e) =>
-                      setDraft({ ...draft, yearFounded: Number(e.target.value) || 0 })
-                    }
-                    data-testid="account-company-year-founded"
-                  />
-                </FormRow>
-              </div>
-            </FieldGroup>
+          <div
+            className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2"
+            data-field-group-root
+          >
+            <FormRow label={t.account_company_legalName} required error={errors.legalName}>
+              <Input
+                value={draft.legalName}
+                onChange={(e) => setDraft({ ...draft, legalName: e.target.value })}
+                data-testid="account-company-legal-name"
+              />
+            </FormRow>
+            <FormRow label={t.account_company_tradeName} required error={errors.tradeName}>
+              <Input
+                value={draft.tradeName}
+                onChange={(e) => setDraft({ ...draft, tradeName: e.target.value })}
+                data-testid="account-company-trade-name"
+              />
+            </FormRow>
+            <FormRow label={t.account_company_role}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.accountRole}
+                onChange={(e) =>
+                  setDraft({ ...draft, accountRole: e.target.value as CompanyProfile["accountRole"] })
+                }
+                data-testid="account-input-accountRole"
+              >
+                <option value="buyer">{t.account_company_role_buyer}</option>
+                <option value="supplier">{t.account_company_role_supplier}</option>
+                <option value="both">{t.account_company_role_both}</option>
+              </select>
+            </FormRow>
+            <FormRow label={t.account_company_country} required error={errors.country}>
+              <Input
+                value={draft.country}
+                onChange={(e) => setDraft({ ...draft, country: e.target.value })}
+                data-testid="account-company-country"
+              />
+            </FormRow>
+            <div className="sm:col-span-2">
+              <FormRow label={t.account_company_website} error={errors.website}>
+                <Input
+                  value={draft.website}
+                  onChange={(e) => setDraft({ ...draft, website: e.target.value })}
+                  data-testid="account-company-website"
+                />
+              </FormRow>
+            </div>
+            <FormRow label={t.account_company_yearFounded} error={errors.yearFounded}>
+              <Input
+                type="number"
+                value={draft.yearFounded || ""}
+                onChange={(e) =>
+                  setDraft({ ...draft, yearFounded: Number(e.target.value) || 0 })
+                }
+                data-testid="account-company-year-founded"
+              />
+            </FormRow>
           </div>
         )}
       />
