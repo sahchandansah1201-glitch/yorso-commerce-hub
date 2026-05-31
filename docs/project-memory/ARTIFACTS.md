@@ -1465,3 +1465,15 @@
 - `apps/api/src/server.test.ts`, `apps/api/src/modules/suppliers/__tests__/repository.test.ts`, `src/lib/supplier-directory-api.test.ts`, `src/test/self-hosted-contracts.test.ts`, `src/test/self-hosted-db-contract.test.ts`, `packages/db/src/migrator.test.ts` and `packages/db/src/cli.test.ts`: regression coverage for route behavior, repository audit persistence, browser payload shape and migration manifest.
 - `scripts/smoke-self-hosted-account-api.mjs`: runtime smoke markers `supplier_document_grant_requires_access=ok` and `supplier_document_grant_unlocked=ok`.
 - `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4F docs, migration, contract fields and production-scale baseline markers.
+
+## Backend Phase 4G Supplier Document Download Serving
+
+- `docs/backend/phase-4g-supplier-document-download-serving.md`: implementation note, Russian plan/fact table, runtime contract, remaining debt, validation and 10,000 concurrent-user review.
+- `apps/api/src/fixtures/supplier-document-assets.ts`: deterministic self-hosted demo supplier document file assets for memory/local runtime tests.
+- `apps/api/src/modules/suppliers/routes.ts` and `apps/api/src/modules/suppliers/service.ts`: `GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=...` validates grant, buyer, supplier, document, expiry, granted status and current access before streaming the file through the API.
+- `apps/api/src/modules/suppliers/repository.ts` and `apps/api/src/modules/suppliers/postgres-repository.ts`: memory/PostgreSQL supplier repositories read document grants and persist download consumption events.
+- `apps/api/src/modules/storage/service.ts`, `apps/api/src/modules/storage/repository.ts` and `apps/api/src/modules/storage/postgres-repository.ts`: backend-only file lookup by asset id for the serving endpoint.
+- `packages/db/migrations/0036_supplier_document_download_events.sql` and `packages/db/migration-manifest.json`: self-hosted DB migration and manifest entry for `yorso_supplier_document_download_events`.
+- `apps/api/src/server.test.ts`, `apps/api/src/modules/suppliers/__tests__/repository.test.ts`, `apps/api/src/modules/storage/__tests__/storage.test.ts`, `src/test/self-hosted-db-contract.test.ts`, `packages/db/src/migrator.test.ts` and `packages/db/src/cli.test.ts`: regression coverage for serving route, repository/storage behavior and migration manifest.
+- `scripts/smoke-self-hosted-account-api.mjs`: runtime smoke markers `supplier_document_download_missing_grant=ok` and `supplier_document_download_stream=ok`.
+- `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4G route, migration, docs, event persistence and 10,000-user baseline markers.

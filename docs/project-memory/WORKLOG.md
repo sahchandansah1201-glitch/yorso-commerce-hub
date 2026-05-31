@@ -3231,3 +3231,59 @@ Keep this file factual and append-only.
   - Browserslist data stale.
 - Next scoped workstream: Backend Phase 4G Supplier Document Grant Consumption
   / File Serving Endpoint.
+
+## 2026-05-31 Phase 4G Checkpoint
+
+- Latest implementation commit: `37cae608` (`[codex] Backend Phase 4G supplier document serving`).
+- Scoped workstream: Backend Phase 4G Supplier Document Grant Consumption /
+  File Serving Endpoint.
+- Implemented self-hosted supplier document grant consumption:
+  - `GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=...`
+    requires an authenticated self-hosted account session;
+  - grant id, buyer user, supplier id, document id, expiry, granted status and
+    current supplier access are validated before file bytes are read;
+  - files are streamed through the API with attachment headers and
+    `cache-control: private, no-store`;
+  - browser responses do not expose `fileAssetId`, object keys, storage keys or
+    direct file URLs.
+- Added backend download audit persistence:
+  - migration `0036_supplier_document_download_events.sql` creates
+    `yorso_supplier_document_download_events`;
+  - statuses cover `downloaded`, `grant_not_found`, `grant_denied`,
+    `grant_expired`, `access_denied`, `document_unavailable` and
+    `file_unavailable`;
+  - indexes cover buyer recent, supplier recent, grant recent and status recent
+    access patterns.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Download route | Добавить self-hosted file serving endpoint. | Реализовано: GET download route with grantId. | Phase 4H UI integration. |
+| Validation | Проверить grant/buyer/supplier/document/expiry/access до чтения файла. | Реализовано: `consumeSupplierDocumentDownloadGrant`. | Cleanup/retention later. |
+| File boundary | Не раскрывать storage identifiers. | Реализовано: API streams bytes; asset id stays backend-only. | UI must preserve boundary. |
+| Audit | Записывать success/denied/expired attempts. | Реализовано: migration 0036 and repository event records. | Observability/retention later. |
+| Guards | Зафиксировать runtime and 10k-user checks. | Реализовано: tests, smoke, self-hosted and scale guards. | Keep in release path. |
+
+- Validation passed:
+  - TDD red: focused file-serving endpoint test failed with 404 before route
+    implementation;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "supplier document download grants"`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`;
+  - `npm run test:db-migrations`;
+  - `npm run test:db-contract`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run contracts:build`;
+  - `npm run api:build`;
+  - `npm run smoke:self-hosted-account-api:run`;
+  - `npm run test:api`;
+  - `npm run check:self-hosted-db`;
+  - `npm test` passed: 177 files, 1261 passed, 2 skipped;
+  - `npm run lint`;
+  - `npm run build`;
+  - `git diff --check`.
+- Known non-blocking warning preserved:
+  - Browserslist data stale.
+- Next scoped workstream: Backend Phase 4H Supplier Document Download UI
+  Integration.

@@ -16,18 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4F Supplier Document Download Grant Endpoint is committed
-locally at `75c42a60`; release validation passed.
+Backend Phase 4G Supplier Document Grant Consumption / File Serving Endpoint is
+committed locally at `37cae608`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Grant contract | Добавить typed response для short-lived document grant без storage details. | Реализовано: `supplierDocumentDownloadGrantSchema` / response schema. | Phase 4G: consumption/download endpoint. |
-| Access re-check | Выдать grant только после self-hosted session и supplier access re-check. | Реализовано: `POST /v1/suppliers/:supplierId/documents/:documentId/grant`; без access возвращает 403 до раскрытия file data. | Download route must re-validate grant. |
-| Audit persistence | Сохранять granted/denied/not-found/unavailable attempts. | Реализовано: migration `0035_supplier_document_download_grants` и repository method `recordDocumentDownloadGrant`. | Добавить download consumption audit. |
-| Browser payload | Не отдавать `fileAssetId`, object key, storage key или direct URL. | Реализовано: grant response содержит только id, supplierId, documentId, fileName, downloadPath, grantedAt, expiresAt. | Serving endpoint должен сохранить тот же boundary. |
-| Guards | Зафиксировать grant behavior тестами и checks. | Реализовано: API, DB, contract, frontend API, smoke, self-hosted and scale checks pass. | Держать guards в `ci:core`. |
+| Download route | Добавить self-hosted endpoint для consumption grant-а и выдачи файла. | Реализовано: `GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=...`. | Phase 4H: UI download action. |
+| Access validation | Проверять grant, buyer, supplier, document, expiry, status и текущий access до чтения файла. | Реализовано: `consumeSupplierDocumentDownloadGrant`. | Добавить retention/cleanup policy later. |
+| Audit persistence | Сохранять successful/denied/expired/access-denied/unavailable attempts. | Реализовано: migration `0036_supplier_document_download_events` и `recordDocumentDownloadEvent`. | Наблюдаемость/retention позже. |
+| Browser payload | Не отдавать `fileAssetId`, object key, storage key или direct URL. | Реализовано: file bytes stream через API; storage identifiers остаются backend-only. | UI не должен сохранять storage identifiers. |
+| Guards | Зафиксировать download behavior тестами и checks. | Реализовано: API/storage/repository/DB tests, smoke, self-hosted and scale checks pass. | Держать guards в release path. |
 
 ## Current Status
 
@@ -45,6 +45,35 @@ locally at `75c42a60`; release validation passed.
 - Backend Phase 4D is committed locally at `84dd9588`; release validation passed.
 - Backend Phase 4E is committed locally at `7f566ca2`; release validation passed.
 - Backend Phase 4F is committed locally at `75c42a60`; release validation passed.
+- Backend Phase 4G is committed locally at `37cae608`; release validation passed.
+
+## Phase 4G Files
+
+- `docs/backend/phase-4g-supplier-document-download-serving.md`
+- `apps/api/src/fixtures/supplier-document-assets.ts`
+- `apps/api/src/modules/suppliers/routes.ts`
+- `apps/api/src/modules/suppliers/service.ts`
+- `apps/api/src/modules/suppliers/repository.ts`
+- `apps/api/src/modules/suppliers/postgres-repository.ts`
+- `apps/api/src/modules/storage/service.ts`
+- `apps/api/src/modules/storage/repository.ts`
+- `apps/api/src/modules/storage/postgres-repository.ts`
+- `packages/db/migrations/0036_supplier_document_download_events.sql`
+- `packages/db/migration-manifest.json`
+- `apps/api/src/server.test.ts`
+- `apps/api/src/modules/suppliers/__tests__/repository.test.ts`
+- `apps/api/src/modules/storage/__tests__/storage.test.ts`
+- `src/test/self-hosted-db-contract.test.ts`
+- `packages/db/src/migrator.test.ts`
+- `packages/db/src/cli.test.ts`
+- `scripts/smoke-self-hosted-account-api.mjs`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
 
 ## Phase 4F Files
 
@@ -223,6 +252,27 @@ Removed active provider surface:
 
 ## Validation
 
+Phase 4G release validation passed locally on 2026-05-31:
+
+- TDD red: focused file-serving endpoint test initially failed with 404 before
+  route implementation.
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "supplier document download grants"`
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts apps/api/src/modules/storage/__tests__/storage.test.ts`
+- `npm run test:db-migrations`
+- `npm run test:db-contract`
+- `npm run check:self-hosted-api`
+- `npm run check:production-scale-baseline`
+- `npx tsc -b --noEmit`
+- `npm run contracts:build`
+- `npm run api:build`
+- `npm run smoke:self-hosted-account-api:run`
+- `npm run test:api`
+- `npm run check:self-hosted-db`
+- `npm test`
+- `npm run lint`
+- `npm run build`
+- `git diff --check`
+
 Phase 4F release validation passed locally on 2026-05-31:
 
 - TDD red: `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "issues supplier document download grants"` initially failed with 405 before the route existed.
@@ -359,17 +409,16 @@ Known non-blocking warning:
 
 ## Next Recommended Workstream
 
-Backend Phase 4G: Supplier Document Grant Consumption / File Serving Endpoint.
+Backend Phase 4H: Supplier Document Download UI Integration.
 
 Concrete first scope:
 
-- add a `GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=...`
-  route;
-- validate grant id, buyer user, supplier id, document id, expiry and granted
-  status before reading the backend file asset;
-- stream through the self-hosted API without exposing object keys, storage keys
-  or direct file URLs;
-- persist/audit successful consumption plus denied/expired attempts.
+- wire qualified supplier profile document rows to request a backend document
+  grant and then open the returned API download path;
+- keep locked buyers in non-downloadable document-readiness states;
+- avoid exposing `fileAssetId`, object keys, storage keys or direct file URLs in
+  React state, DOM, analytics or errors;
+- add expired-grant retry/failure copy and frontend/e2e coverage.
 
 ## Preserve
 

@@ -34,6 +34,16 @@
   Impact: Slow admin reads or broad exports could affect support operations and buyer conversion.
   Mitigation: Existing batches use bounded pagination, capped exports, role guards, smoke/e2e secret checks and production-scale guard markers. Future changes must keep the 10000 concurrent users baseline fields explicit.
 
+- Risk: Supplier document file serving can become a bandwidth-heavy API path.
+  Impact: Large or repeated document downloads could compete with buyer-facing
+  catalog/profile reads if served without bounded access checks, audit indexes,
+  no-store cache policy and future retention/rate controls.
+  Mitigation: Phase 4G validates grants and current access before file reads,
+  streams only through the self-hosted API, records download events with recent
+  indexes and documents the 10,000-user profile. Future upload/download UI work
+  must avoid exposing storage identifiers and should add retention/rate policy
+  before broad production rollout.
+
 ## Resolved Risks
 
 - Risk: No project-memory black box existed.

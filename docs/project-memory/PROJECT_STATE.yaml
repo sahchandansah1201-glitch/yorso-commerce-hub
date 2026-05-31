@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "75c42a60"
-  head_summary: "Backend Phase 4F supplier document download grant endpoint; release validation passed."
+  head_commit: "37cae608"
+  head_summary: "Backend Phase 4G supplier document grant consumption and file serving endpoint; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4F implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4G implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,23 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4f_supplier_document_download_grants"
-  summary: "Supplier document download grants are issued by a self-hosted qualified-only endpoint after supplier access re-check and audited without browser-visible file asset leakage."
+  id: "backend_phase_4g_supplier_document_download_serving"
+  summary: "Supplier document grants are consumed by a self-hosted file serving endpoint that re-validates buyer access and streams backend-owned files without exposing storage identifiers."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4G implementation is recorded in docs/backend/phase-4g-supplier-document-download-serving.md."
+    - "GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=... requires an authenticated self-hosted account session and validates grant id, buyer user, supplier id, document id, expiry, granted status and current supplier access before reading backend file bytes."
+    - "apps/api/src/modules/suppliers/service.ts now owns consumeSupplierDocumentDownloadGrant and records successful, missing, denied, expired, access-denied, document-unavailable and file-unavailable attempts."
+    - "apps/api/src/modules/suppliers/routes.ts streams supplier document bytes through the API with attachment headers and cache-control private, no-store."
+    - "apps/api/src/modules/storage/service.ts exposes internal getFileByAssetId for backend-only file serving; browser responses still do not include fileAssetId, object keys, storage keys or direct file URLs."
+    - "packages/db/migrations/0036_supplier_document_download_events.sql adds yorso_supplier_document_download_events with buyer/supplier/grant/status recent indexes."
+    - "scripts/smoke-self-hosted-account-api.mjs verifies supplier_document_download_missing_grant=ok and supplier_document_download_stream=ok."
+    - "check:self-hosted-api and check:production-scale-baseline guard the Phase 4G route, migration, docs, repository/service/storage markers and smoke markers."
+    - "Phase 4G release validation passed: TDD red missing-route test, focused API route/repository/storage tests, DB migration/contract tests, self-hosted guards, TypeScript build graph, contracts build, API build, self-hosted account API smoke, full API tests, self-hosted DB check, full npm test, lint, production build and diff check."
+    - "Phase 4G is committed locally at 37cae608."
+    - "Recommended next scoped workstream: Backend Phase 4H Supplier Document Download UI Integration."
     - "Phase 4F implementation is recorded in docs/backend/phase-4f-supplier-document-download-grants.md."
     - "POST /v1/suppliers/:supplierId/documents/:documentId/grant requires an authenticated self-hosted account session and re-checks supplier access before issuing a grant."
     - "packages/contracts/src/supplier-directory.ts now includes supplierDocumentDownloadGrantSchema and supplierDocumentDownloadGrantResponseSchema."
@@ -1894,4 +1905,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 4F implementation question. Next scoped decision: Backend Phase 4G Supplier Document Grant Consumption / File Serving Endpoint."
+  - "No open Phase 4G implementation question. Next scoped decision: Backend Phase 4H Supplier Document Download UI Integration."
