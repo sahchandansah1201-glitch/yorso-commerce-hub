@@ -1,6 +1,6 @@
 # Backend Phase 4T - Supplier Document Admin Confirmation UI
 
-Status: implemented (local, uncommitted)
+Status: implemented (commit `609ff7d1`)
 
 ## Goal
 

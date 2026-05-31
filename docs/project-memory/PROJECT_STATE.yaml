@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "3796bd80"
-  head_summary: "Backend Phase 4S supplier document admin mutation UI; release validation passed."
+  head_commit: "609ff7d1"
+  head_summary: "Backend Phase 4T supplier document admin confirmation UI; release validation passed."
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4S implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4T implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,21 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4s_supplier_document_admin_mutation_ui"
-  summary: "Admins can run status-aware supplier document approve/reject/expire/delete actions from the management events UI through existing self-hosted decision/lifecycle endpoints."
+  id: "backend_phase_4t_supplier_document_admin_confirmation_ui"
+  summary: "Admins must explicitly confirm risky supplier document reject/expire/delete actions before existing self-hosted decision/lifecycle endpoints are called."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4T implementation is recorded in docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md."
+    - "/admin/supplier-document-management-events preserves Phase 4R list/export and Phase 4S mutation controls."
+    - "Approve remains immediate."
+    - "Reject, expire and delete open an AlertDialog confirmation before backend write."
+    - "Cancel closes the confirmation without calling /decision or /lifecycle."
+    - "Confirm calls the existing runDocumentAction path and refreshes the bounded management event list on success."
+    - "The confirmation shows action, supplier id, document id and reason without storage internals."
+    - "Phase 4T validation passed: test:admin-supplier-document-management-events-frontend; smoke:e2e:admin-supplier-document-management-events; check:self-hosted-api; check:production-scale-baseline; lint; TypeScript build graph; git diff --check."
+    - "Phase 4T implementation is committed locally at 609ff7d1."
     - "Phase 4S implementation is recorded in docs/backend/phase-4s-supplier-document-admin-mutation-ui.md."
     - "/admin/supplier-document-management-events preserves Phase 4R list/export and now adds status-aware document action controls."
     - "src/lib/admin-supplier-document-management-events-api.ts exposes runDocumentAction."
@@ -2045,4 +2054,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 4J implementation question. Next scoped decision: admin UI for document audit listings or supplier owner/admin document management."
+  - "No open Phase 4T implementation question. Next scoped decision: choose either automated approved-document expiry scheduler decision/design or structured reason taxonomy for supplier document management actions."

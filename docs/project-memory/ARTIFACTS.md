@@ -445,6 +445,31 @@
   `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4S
   docs, action client markers, UI markers and browser smoke markers.
 
+## Backend Phase 4T Supplier Document Admin Confirmation UI
+
+- `docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md`: Phase 4T
+  implementation note, Russian plan/fact table and 10,000 concurrent-user
+  review.
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.tsx`: confirmation
+  dialog for risky `reject`, `expire` and `delete` supplier document actions,
+  while `approve` remains immediate and all confirmed actions reuse the Phase
+  4S `runDocumentAction` path.
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx`: page
+  coverage for confirmation open/cancel/confirm behavior, no backend write
+  before confirm and storage/session redaction.
+- `e2e/admin-supplier-document-management-events.spec.ts`: browser smoke for
+  confirmed admin document actions, refresh behavior and no storage/session
+  leakage in the browser.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/self-hosted-validation.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/yorso-backend-implementation-plan.md` and
+  `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
+  validation, capacity and plan updates for Phase 4T.
+- `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4T
+  docs, confirmation UI markers and browser smoke markers.
+
 ## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
 
 - `docs/backend/phase-4b-supplier-profile-dossier-completeness.md`: Phase 4B

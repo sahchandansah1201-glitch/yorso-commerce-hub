@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-31"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "3796bd80_phase_4s_supplier_document_admin_mutation_ui"
+head_commit: "609ff7d1_phase_4t_supplier_document_admin_confirmation_ui"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4s_supplier_document_admin_mutation_ui"
+active_workstream: "backend_phase_4t_supplier_document_admin_confirmation_ui"
 pull_request: null
-recommended_action: "Choose the next scoped Phase 4T workstream."
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4S are documented, committed and validated."
+recommended_action: "Choose the next scoped Phase 4U workstream."
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4T are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4s_supplier_document_admin_mutation_ui.
-Current HEAD baseline: Backend Phase 4S supplier document admin mutation UI implementation commit 3796bd80 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4t_supplier_document_admin_confirmation_ui.
+Current HEAD baseline: Backend Phase 4T supplier document admin confirmation UI implementation commit 609ff7d1 is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,12 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: choose the next scoped Phase 4T workstream.
+Current recommended action: choose the next scoped Phase 4U workstream.
+Phase 4T implemented and committed locally at 609ff7d1: /admin/supplier-document-management-events now requires explicit confirmation before risky reject/expire/delete supplier document actions call existing backend mutation endpoints.
+Phase 4T behavior: approve remains immediate; reject, expire and delete require a reason and open an AlertDialog confirmation before backend write.
+Phase 4T cancel boundary: canceling confirmation closes the dialog without calling /decision or /lifecycle; confirming reuses the existing runDocumentAction path and refreshes the bounded management event list.
+Phase 4T browser boundary: confirmation context shows action, supplier id, document id and reason without rendering fileAssetId, object keys, storage keys, downloadPath, direct URLs or session ids.
+Phase 4T validation passed: npm run test:admin-supplier-document-management-events-frontend; npm run smoke:e2e:admin-supplier-document-management-events; npm run check:self-hosted-api; npm run check:production-scale-baseline; npm run lint; npx tsc -b --noEmit; git diff --check.
 Phase 4S implemented and committed locally at 3796bd80: /admin/supplier-document-management-events keeps Phase 4R list/export and now exposes status-aware approve/reject/expire/delete controls.
 Phase 4S frontend client: src/lib/admin-supplier-document-management-events-api.ts exposes runDocumentAction, mapping approve/reject to POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision and expire/delete to POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle.
 Phase 4S UI behavior: review rows expose approve/reject/delete; approved rows expose expire; on_request/expired rows expose delete; reject/expire/delete require a reason.

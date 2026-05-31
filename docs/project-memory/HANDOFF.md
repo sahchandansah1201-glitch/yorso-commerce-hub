@@ -16,21 +16,21 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4S Supplier Document Admin Mutation UI is committed locally at
-`3796bd80`; release validation passed. It extends `/admin/supplier-document-management-events` with
-status-aware approve/reject/expire/delete controls over existing self-hosted
-Phase 4N `/decision` and Phase 4P `/lifecycle` endpoints.
+Backend Phase 4T Supplier Document Admin Confirmation UI is committed locally
+at `609ff7d1`; release validation passed. It adds an explicit confirmation
+dialog before risky `reject`, `expire` and `delete` actions on
+`/admin/supplier-document-management-events`, while keeping `approve`
+immediate and reusing the existing Phase 4S action path.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Добавить admin mutation actions без новых backend endpoints. | UI вызывает existing `/decision` и `/lifecycle`. | Confirmation/undo UX или scheduler отдельно. |
-| Decision | Approve/reject должны идти через Phase 4N. | `runDocumentAction` отправляет `{ decision, reason? }`. | Backend policy остается source of truth. |
-| Lifecycle | Expire/delete должны идти через Phase 4P. | `runDocumentAction` отправляет `{ action, reason? }`. | Automated expiry scheduler отдельно. |
-| Reason guard | Рискованные действия требуют reason. | Reject/expire/delete disabled до заполнения reason. | Structured reason taxonomy отдельно. |
-| Refresh/redaction | После success перечитать список, не раскрывать storage/session internals. | `events.refresh()` + unit/e2e redaction guards. | Сохранять boundary. |
-| Guards | Зафиксировать tests, e2e, docs, 10k-user review. | Scoped checks зелёные: unit, e2e, guards, lint, TypeScript, diff-check; commit `3796bd80`. | Держать в release path. |
+| Scope | Добавить confirmation перед risky admin mutations без backend changes. | Reject/expire/delete открывают AlertDialog. | Scheduler или reason taxonomy отдельно. |
+| Safe action | Approve не должен получать лишний friction. | Approve остается immediate. | Confirm для approve только при compliance requirement. |
+| Cancel | Cancel не должен писать в backend. | Unit/e2e проверяют, что lifecycle не вызывается до confirm. | Сохранять при refactor dialog. |
+| Context/redaction | Confirmation должен показывать action context без secrets. | Dialog показывает action/supplier/document/reason; storage/session internals не рендерятся. | Добавить safe title только если backend отдаст его. |
+| Guards | Зафиксировать tests, e2e, docs, 10k-user review. | Scoped checks зелёные: unit, e2e, guards, lint, TypeScript, diff-check; commit `609ff7d1`. | Держать в release path. |
 
 ## Current Status
 
@@ -61,6 +61,21 @@ Phase 4N `/decision` and Phase 4P `/lifecycle` endpoints.
 - Backend Phase 4Q is committed locally at `b2473ede`; release validation passed.
 - Backend Phase 4R is committed locally at `474c290c`; release validation passed.
 - Backend Phase 4S is committed locally at `3796bd80`; release validation passed.
+- Backend Phase 4T is committed locally at `609ff7d1`; release validation passed.
+
+## Phase 4T Files
+
+- `docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md`
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.tsx`
+- `src/pages/admin/AdminSupplierDocumentManagementEvents.test.tsx`
+- `e2e/admin-supplier-document-management-events.spec.ts`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
 
 ## Phase 4S Files
 

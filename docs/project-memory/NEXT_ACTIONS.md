@@ -2,49 +2,41 @@
 
 ## Current Next Action
 
-Backend Phase 4S is committed locally at `3796bd80`; release validation passed.
+Backend Phase 4T is committed locally at `609ff7d1`; release validation passed.
 
-Phase 4S adds admin mutation actions to the existing supplier document
-management events surface:
+Phase 4T adds confirmation before risky admin document actions on the existing
+supplier document management events surface:
 
-- `/admin/supplier-document-management-events` now keeps list/export and adds
-  status-aware action controls;
-- `runDocumentAction` in `createAdminSupplierDocumentManagementEventsApiClient`
-  calls existing self-hosted Phase 4N `/decision` and Phase 4P `/lifecycle`
-  endpoints;
-- `approve` / `reject` post `{ decision, reason? }`;
-- `expire` / `delete` post `{ action, reason? }`;
-- review rows expose approve/reject/delete, approved rows expose expire, and
-  on_request/expired rows expose delete;
-- reject/expire/delete require a reason before submission;
-- successful actions refresh the bounded management event list;
-- adapter, unit and e2e guards keep `fileAssetId`, object keys, storage keys,
-  `downloadPath`, direct storage URLs and session identifiers out of browser
-  state.
+- `/admin/supplier-document-management-events` keeps Phase 4R list/export and
+  Phase 4S status-aware mutation controls;
+- `approve` remains immediate;
+- `reject`, `expire` and `delete` require reason plus explicit confirmation;
+- canceling the confirmation dialog does not call `/decision` or `/lifecycle`;
+- confirming calls the existing `runDocumentAction` path and refreshes the
+  bounded event list on success;
+- unit/e2e guards keep `fileAssetId`, object keys, storage keys, `downloadPath`,
+  direct storage URLs and session identifiers out of browser state.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Decision actions | Подключить approve/reject к existing `/decision`. | `runDocumentAction` маппит approve/reject в `{ decision, reason? }`. | Backend policy остается source of truth. |
-| Lifecycle actions | Подключить expire/delete к existing `/lifecycle`. | `runDocumentAction` маппит expire/delete в `{ action, reason? }`. | Scheduler expiry отдельно. |
-| UI controls | Сделать действия status-aware. | Review: approve/reject/delete; approved: expire; on_request/expired: delete. | Confirmation/undo UX отдельным scope. |
-| Reason guard | Не отправлять рискованные действия без причины. | Reject/expire/delete disabled, пока reason пустой. | Structured reason taxonomy отдельно. |
-| Refresh/redaction | После действия перечитать список и не раскрывать storage/session internals. | `events.refresh()` после success; guards ловят storage/session leakage. | Сохранять boundary при расширениях. |
-| Guards | Закрепить tests, e2e, docs, self-hosted/scale guards. | Unit/e2e, self-hosted/scale guards, lint, TypeScript и diff-check зелёные; implementation commit `3796bd80`. | Держать в release path. |
+| Confirmation gate | Добавить confirm перед risky actions. | Reject/expire/delete открывают confirmation dialog. | Undo/audit taxonomy отдельно. |
+| Safe immediate action | Не замедлять approve. | Approve остается immediate action. | Confirm для approve только при compliance requirement. |
+| Cancel behavior | Cancel не должен делать backend write. | Unit/e2e проверяют отсутствие `/lifecycle` до confirm. | Сохранять при dialog refactor. |
+| Operator context | Показать, что будет изменено. | Dialog показывает action/supplier/document/reason. | Добавить safe document title, если backend вернет его. |
+| Guards | Закрепить tests, e2e, docs, self-hosted/scale guards. | Unit/e2e, self-hosted/scale guards, lint, TypeScript и diff-check зелёные; implementation commit `609ff7d1`. | Держать в release path. |
 
-## Next Implementation After Phase 4S
+## Next Implementation After Phase 4T
 
 Recommended next scoped implementation:
 
-Backend Phase 4T - choose one small follow-up only:
+Backend Phase 4U - choose one small follow-up only:
 
-1. Admin confirmation/undo UX around destructive supplier document actions
-   (`reject`, `expire`, `delete`) on `/admin/supplier-document-management-events`;
-   or
-2. automated approved-document expiry scheduler decision and design.
+1. automated approved-document expiry scheduler decision/design; or
+2. structured reason taxonomy for supplier document management actions.
 
-Do not mix confirmation UX and scheduler work in one scope.
+Do not mix scheduler work and reason-taxonomy/admin UI work in one scope.
 
 ## Guardrails To Preserve
 

@@ -3946,3 +3946,47 @@ Keep this file factual and append-only.
 - Next scoped implementation after Phase 4S: choose one only - confirmation/undo
   UX for destructive admin document actions, or automated approved-document
   expiry scheduler decision.
+
+## 2026-05-31 Phase 4T Checkpoint
+
+- Latest implementation commit: `609ff7d1` (`[codex] Backend Phase 4T supplier document admin confirmation UI`).
+- Scoped workstream: Backend Phase 4T Supplier Document Admin Confirmation UI.
+- Implemented confirmation UI only; no new backend endpoint, migration,
+  scheduler, storage path, Supabase path or lifecycle policy was added.
+- Implemented risky-action confirmation:
+  - `/admin/supplier-document-management-events` preserves Phase 4R list/export
+    and Phase 4S status-aware mutation controls;
+  - `approve` remains an immediate action;
+  - `reject`, `expire` and `delete` require an operator reason and explicit
+    confirmation before calling `/decision` or `/lifecycle`;
+  - canceling the confirmation dialog performs no backend write;
+  - confirming reuses the existing `runDocumentAction` path and refreshes the
+    bounded management event list on success.
+- Implemented redaction/context boundary:
+  - the confirmation dialog shows action, supplier id, document id and reason;
+  - browser-facing UI continues to avoid `fileAssetId`, object keys, storage
+    keys, `downloadPath`, direct URLs and session ids.
+- План / факт:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Confirmation gate | Добавить confirm перед risky admin actions. | Reject/expire/delete открывают confirmation dialog перед backend write. | Undo или reason taxonomy отдельно. |
+| Safe immediate action | Не замедлять безопасный approve. | Approve остается immediate. | Добавлять confirm только при compliance requirement. |
+| Cancel behavior | Cancel не должен писать в backend. | Unit/e2e проверяют отсутствие `/lifecycle` до confirm. | Сохранять при dialog refactor. |
+| Operator context | Показать, что именно подтвердит оператор. | Dialog показывает action, supplier id, document id и reason без storage internals. | Добавить safe document title только если backend вернет его. |
+| Docs/guards | Обновить docs, tests, self-hosted и production-scale guards. | Phase 4T doc, frontend tests, browser smoke and guards зелёные. | Держать в release path. |
+
+- Validation passed:
+  - `npm run test:admin-supplier-document-management-events-frontend`;
+  - `npm run smoke:e2e:admin-supplier-document-management-events`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run lint`;
+  - `npx tsc -b --noEmit`;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Browserslist data stale during Vite build inside the e2e smoke;
+  - existing React Router future flag warnings in frontend tests.
+- Next scoped implementation after Phase 4T: choose one only - automated
+  approved-document expiry scheduler decision/design, or structured reason
+  taxonomy for supplier document management actions.
