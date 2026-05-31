@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "ff286919"
-  head_summary: "Backend Phase 4L supplier document management rules gate; release validation passed."
+  head_commit: "a6765b4f"
+  head_summary: "Backend Phase 4M supplier owner document create runtime; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4L implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4M implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,24 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4l_supplier_document_management_rules"
-  summary: "Supplier document owner/admin management rules are defined in shared contracts and API policy before runtime upload/edit/delete writes."
+  id: "backend_phase_4m_supplier_owner_document_create"
+  summary: "Supplier owners can create review supplier documents through the self-hosted API using existing account file assets, with sanitized browser responses and durable audit records."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4M implementation is recorded in docs/backend/phase-4m-supplier-document-owner-create.md."
+    - "POST /v1/suppliers/:supplierId/documents lets authenticated supplier owners create review supplier documents from existing account file assets."
+    - "The route requires a self-hosted account session, supplier/both account role, matching company ownership and an existing file asset owned by the same company."
+    - "Supplier document create responses use supplierDocumentManagementCreateResponseSchema and never expose fileAssetId, object keys, storage keys, download paths or storage URLs."
+    - "apps/api/src/modules/storage/service.ts exposes metadata-only getFileAssetForUser so the create path does not load file bytes."
+    - "apps/api/src/modules/suppliers/service.ts applies Phase 4L policy, validates allowed file purposes, detects duplicate file reuse and records supplier_document.create audit metadata."
+    - "apps/api/src/modules/suppliers/postgres-repository.ts writes the supplier document append and audit insert in one bounded CTE."
+    - "packages/db/migrations/0037_supplier_document_management_events.sql adds yorso_supplier_document_management_events with supplier, actor, action and document recent indexes."
+    - "scripts/smoke-self-hosted-account-api.mjs verifies supplier_document_owner_create_review=ok and response storage redaction."
+    - "Phase 4M release validation passed: TDD red/green API route test; supplier repository test; supplier document management runtime script; policy script; DB migration tests; API build; self-hosted account API smoke; API tests; TypeScript build graph; full npm test; lint; production build; self-hosted guard; production-scale guard; git diff --check."
+    - "Phase 4M is committed locally at a6765b4f."
+    - "Recommended next scoped workstream: Backend Phase 4N admin approve/reject supplier document review flow."
     - "Phase 4L implementation is recorded in docs/backend/phase-4l-supplier-document-management-rules.md."
     - "packages/contracts/src/supplier-directory.ts defines supplierDocumentManagement role/action/create/update/audit schemas."
     - "apps/api/src/modules/suppliers/document-management-policy.ts defines evaluateSupplierDocumentManagementPolicy and supplierDocumentManagementAuditActionByAction."

@@ -16,19 +16,19 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4L Supplier Document Management Rules Gate is committed locally
-at `ff286919`; release validation passed.
+Backend Phase 4M Supplier Owner Document Create is committed locally at
+`a6765b4f`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Закрыть rules gate перед upload/edit/delete. | Реализованы contracts + API policy, без runtime writes. | Выбрать один первый write path. |
-| Roles | Зафиксировать `supplier_owner` и `admin`. | Роли закреплены в shared contract. | Привязать роли к real session/account claims. |
-| Status transitions | Не дать owner менять approved documents напрямую. | `approved_document_immutable` блокирует update/delete approved. | Replacement/re-review flow отдельно. |
-| Admin-only actions | Approval/rejection/expiry должны быть admin-only. | Owner получает `admin_role_required`. | Admin mutation route отдельно. |
-| Storage boundary | Browser не должен присылать storage internals. | Strict schemas reject `fileAssetId`, keys, `downloadPath`, URLs. | Upload runtime должен выдавать backend-owned upload id. |
-| Guards | Зафиксировать docs, tests и 10k-user review. | Реализовано: Phase 4L docs, guards и focused tests. | Держать в release path. |
+| Scope | Реализовать один первый write path, без admin approve/reject и без frontend UI. | Реализован supplier owner create review document. | Phase 4N: admin approve/reject review flow. |
+| Access | Пускать только self-hosted supplier owner. | Требуются session, account role `supplier`/`both`, company ownership. | Admin route отдельно, с admin session. |
+| File boundary | Не принимать storage internals из браузера. | Принимается только `fileUploadId`; asset проверяется по owner user/company. | Upload UX может использовать этот backend-owned file id. |
+| Response boundary | Не раскрывать backend file identifiers. | Response schema отдает sanitized document + audit, без `fileAssetId`/storage fields. | Сохранять такой контракт для update/approve. |
+| Persistence | Запись документа и audit должны быть atomic. | PostgreSQL CTE append+audit; migration `0037` для audit table. | Admin approve/reject должен писать в ту же audit table. |
+| Guards | Зафиксировать docs, tests и 10k-user review. | Runtime script, smoke, DB tests, self-hosted guard и production-scale guard обновлены. | Держать в release path. |
 
 ## Current Status
 
@@ -52,6 +52,36 @@ at `ff286919`; release validation passed.
 - Backend Phase 4J is committed locally at `b5469880`; release validation passed.
 - Backend Phase 4K is committed locally at `3b74b498`; release validation passed.
 - Backend Phase 4L is committed locally at `ff286919`; release validation passed.
+- Backend Phase 4M is committed locally at `a6765b4f`; release validation passed.
+
+## Phase 4M Files
+
+- `docs/backend/phase-4m-supplier-document-owner-create.md`
+- `packages/contracts/src/supplier-directory.ts`
+- `apps/api/src/modules/storage/service.ts`
+- `apps/api/src/modules/suppliers/service.ts`
+- `apps/api/src/modules/suppliers/routes.ts`
+- `apps/api/src/modules/suppliers/repository.ts`
+- `apps/api/src/modules/suppliers/postgres-repository.ts`
+- `apps/api/src/server.ts`
+- `apps/api/src/server.test.ts`
+- `apps/api/src/modules/suppliers/__tests__/repository.test.ts`
+- `packages/db/migrations/0037_supplier_document_management_events.sql`
+- `packages/db/migration-manifest.json`
+- `packages/db/src/migrator.test.ts`
+- `packages/db/src/cli.test.ts`
+- `src/test/self-hosted-db-contract.test.ts`
+- `src/test/supplier-document-management-contract.test.ts`
+- `scripts/smoke-self-hosted-account-api.mjs`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/self-hosted-account-api-smoke.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
+- `package.json`
 
 ## Phase 4L Files
 

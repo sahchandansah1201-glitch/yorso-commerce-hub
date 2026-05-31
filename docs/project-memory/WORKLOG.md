@@ -3529,3 +3529,63 @@ Keep this file factual and append-only.
   - existing React Router future flag / act warnings in the test suite.
 - Next scoped decision: choose one first write path, either supplier owner
   upload/create review document or admin approve/reject route.
+
+## 2026-05-31 Phase 4M Checkpoint
+
+- Latest implementation commit: `a6765b4f` (`[codex] Backend Phase 4M supplier owner document create`).
+- Scoped workstream: Backend Phase 4M Supplier Owner Document Create.
+- Implemented one first write path only:
+  - `POST /v1/suppliers/:supplierId/documents` creates a `review` document for
+    an authenticated supplier owner;
+  - no admin approve/reject route, owner update/delete route or frontend UI was
+    added in this phase.
+- Implemented access and ownership checks:
+  - route requires a self-hosted session and account company profile;
+  - account role must be `supplier` or `both`;
+  - supplier company ownership must match the account company;
+  - uploaded file asset must belong to the same user/company;
+  - duplicate file reuse and file-name mismatch are rejected.
+- Implemented storage and response boundary:
+  - browser mutation input uses a backend-owned `fileUploadId`, not object
+    storage metadata;
+  - storage service metadata lookup avoids loading file bytes on create;
+  - response uses `supplierDocumentManagementCreateResponseSchema` and omits
+    `fileAssetId`, object keys, storage keys, download paths and storage URLs.
+- Implemented persistence/audit:
+  - migration `0037_supplier_document_management_events` adds
+    `yorso_supplier_document_management_events`;
+  - PostgreSQL repository appends the supplier document and inserts
+    `supplier_document.create` audit metadata in one bounded CTE;
+  - memory repository mirrors the same owner/company and audit behavior.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Scope | Реализовать один первый write path, без admin approve/reject и без frontend UI. | Реализован supplier owner create review document. | Phase 4N: admin approve/reject review flow. |
+| Access | Пускать только self-hosted supplier owner. | Требуются session, account role `supplier`/`both`, company ownership. | Admin route отдельно, с admin session. |
+| File boundary | Не принимать storage internals из браузера. | Принимается только `fileUploadId`; asset проверяется по owner user/company. | Upload UX может использовать этот backend-owned file id. |
+| Response boundary | Не раскрывать backend file identifiers. | Response schema отдает sanitized document + audit, без `fileAssetId`/storage fields. | Сохранять такой контракт для update/approve. |
+| Persistence | Запись документа и audit должны быть atomic. | PostgreSQL CTE append+audit; migration `0037` для audit table. | Admin approve/reject должен писать в ту же audit table. |
+| Smoke | Проверить real account file -> supplier document create. | `supplier_document_owner_create_review=ok` в self-hosted account API smoke. | Добавить admin approve/reject smoke в Phase 4N. |
+| Guards | Зафиксировать docs, tests, self-hosted и 10k-user guards. | Runtime script, DB tests, self-hosted guard, production-scale guard обновлены. | Держать в release path. |
+
+- Validation passed:
+  - TDD red: API route test failed with `405` before implementation;
+  - TDD green: `npm run test:supplier-document-management-runtime`;
+  - `npm run test:supplier-document-management-policy`;
+  - `npm run test:db-migrations`;
+  - `npm run api:build`;
+  - `npm run smoke:self-hosted-account-api:run`;
+  - `npm run test:api`;
+  - `npx tsc -b --noEmit`;
+  - `npm test` passed: 181 files, 1280 passed, 2 skipped;
+  - `npm run lint`;
+  - `npm run build`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Browserslist data stale;
+  - existing React Router future flag / act warnings in the test suite.
+- Next scoped implementation: Backend Phase 4N admin approve/reject supplier
+  document review flow.

@@ -199,6 +199,48 @@
   `scripts/check-production-scale-baseline.mjs`: guards for Phase 4L docs,
   contract schemas, API policy module and focused tests.
 
+## Backend Phase 4M Supplier Owner Document Create
+
+- `docs/backend/phase-4m-supplier-document-owner-create.md`: Phase 4M
+  implementation note, Russian plan/fact table, runtime contract and 10,000
+  concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: sanitized
+  `supplierDocumentManagementCreateResponseSchema` and item type that omit
+  backend file asset identifiers from browser mutation responses.
+- `apps/api/src/modules/storage/service.ts`: metadata-only file asset lookup
+  for owner document create validation.
+- `apps/api/src/modules/suppliers/service.ts`: supplier owner create logic,
+  Phase 4L policy application, company/file ownership checks, duplicate guard,
+  audit shaping and response redaction.
+- `apps/api/src/modules/suppliers/routes.ts` and `apps/api/src/server.ts`:
+  `POST /v1/suppliers/:supplierId/documents` route wiring with self-hosted
+  session/account resolution and JSON body limits.
+- `apps/api/src/modules/suppliers/repository.ts` and
+  `apps/api/src/modules/suppliers/postgres-repository.ts`: memory and
+  PostgreSQL supplier document create persistence; PostgreSQL uses one CTE for
+  document append plus audit insert.
+- `packages/db/migrations/0037_supplier_document_management_events.sql` and
+  `packages/db/migration-manifest.json`: durable self-hosted supplier document
+  management audit table and manifest entry.
+- `apps/api/src/server.test.ts`,
+  `apps/api/src/modules/suppliers/__tests__/repository.test.ts`,
+  `src/test/self-hosted-db-contract.test.ts`,
+  `src/test/supplier-document-management-contract.test.ts`,
+  `packages/db/src/migrator.test.ts` and `packages/db/src/cli.test.ts`:
+  route, repository, contract and migration coverage.
+- `scripts/smoke-self-hosted-account-api.mjs`: runtime smoke marker
+  `supplier_document_owner_create_review=ok`.
+- `package.json`, `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: release gate wiring for the
+  Phase 4M runtime path.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/self-hosted-validation.md`,
+  `docs/backend/self-hosted-account-api-smoke.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/yorso-backend-implementation-plan.md` and
+  `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
+  validation, smoke and plan updates.
+
 ## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
 
 - `docs/backend/phase-4b-supplier-profile-dossier-completeness.md`: Phase 4B

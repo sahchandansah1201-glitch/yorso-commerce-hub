@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-31"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "ff286919_phase_4l_supplier_document_management_rules"
+head_commit: "a6765b4f_phase_4m_supplier_owner_document_create"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4l_supplier_document_management_rules"
+active_workstream: "backend_phase_4m_supplier_owner_document_create"
 pull_request: null
-recommended_action: "choose one first supplier document management write path: supplier owner create/upload review document or admin approve/reject route"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4L are documented, committed and validated."
+recommended_action: "Backend Phase 4N admin approve/reject supplier document review flow"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4M are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4l_supplier_document_management_rules.
-Current HEAD baseline: Backend Phase 4L supplier document management rules implementation commit ff286919 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4m_supplier_owner_document_create.
+Current HEAD baseline: Backend Phase 4M supplier owner document create implementation commit a6765b4f is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,12 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: choose one first supplier document management write path: supplier owner create/upload review document or admin approve/reject route.
+Current recommended action: Backend Phase 4N admin approve/reject supplier document review flow.
+Phase 4M implemented and committed locally at a6765b4f: POST /v1/suppliers/:supplierId/documents lets authenticated supplier owners create review documents from existing self-hosted account file assets.
+Phase 4M ownership boundary: supplier owner must have supplier/both role, matching account company ownership and a same-company file asset; duplicate file reuse and file-name mismatch are rejected.
+Phase 4M payload boundary: browser mutation responses use supplierDocumentManagementCreateResponseSchema and never expose fileAssetId, object keys, storage keys, downloadPath or direct storage URLs.
+Phase 4M persistence: packages/db/migrations/0037_supplier_document_management_events.sql adds yorso_supplier_document_management_events; PostgreSQL supplier document append and audit insert use one bounded CTE.
+Phase 4M validation passed: TDD red/green API route test; supplier repository test; test:supplier-document-management-runtime; test:supplier-document-management-policy; DB migration tests; API build; self-hosted account API smoke; API tests; TypeScript build graph; npm test; lint; build; check:self-hosted-api; check:production-scale-baseline; git diff --check.
 Phase 4L implemented and committed locally at ff286919: supplier document management rules are defined in shared contracts and API policy before runtime upload/edit/delete work.
 Phase 4L policy boundary: supplier_owner can create review documents, update review/on_request metadata, submit on_request documents for review and delete review/on_request documents; admin can approve/reject/expire and update/delete non-approved documents.
 Phase 4L immutable boundary: approved_document_immutable blocks direct approved-document metadata update/delete; admin_role_required blocks owner approval/rejection/expiry.
