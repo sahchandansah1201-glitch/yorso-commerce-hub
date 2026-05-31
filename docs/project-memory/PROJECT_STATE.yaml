@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "4a9bbc2e"
-  head_summary: "Backend Phase 4O supplier document owner correction runtime; release validation passed."
+  head_commit: "84954e9d"
+  head_summary: "Backend Phase 4P supplier document admin lifecycle runtime; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4O implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4P implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,25 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4o_supplier_document_owner_correction"
-  summary: "Supplier owners can update metadata or delete non-approved supplier documents through the self-hosted API, with ownership checks, policy enforcement, sanitized responses and durable audit records."
+  id: "backend_phase_4p_supplier_document_admin_lifecycle"
+  summary: "Admins can expire approved supplier documents and delete review/on_request/expired supplier documents through the self-hosted API, with policy enforcement, sanitized responses and durable audit records."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4P implementation is recorded in docs/backend/phase-4p-supplier-document-admin-lifecycle.md."
+    - "POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle lets authenticated admins perform lifecycle cleanup actions."
+    - "The route accepts action=expire or action=delete through supplierDocumentManagementLifecycleRequestSchema."
+    - "The route requires a self-hosted account session and admin role; missing sessions return 401 and non-admin sessions return admin_role_required."
+    - "Expire is allowed only for approved supplier documents and transitions approved -> expired."
+    - "Delete is allowed only for review, on_request or expired supplier documents; approved delete attempts return approved_document_immutable."
+    - "apps/api/src/modules/suppliers/service.ts applies Phase 4L policy for admin/expire and admin/delete before mutation."
+    - "Lifecycle responses use existing sanitized update/delete schemas and never expose fileAssetId, object keys, storage keys, downloadPath or direct storage URLs."
+    - "apps/api/src/modules/suppliers/postgres-repository.ts expires or deletes supplier documents and inserts supplier_document.expire or supplier_document.delete audit metadata in bounded CTEs."
+    - "scripts/smoke-self-hosted-account-api.mjs verifies supplier_document_admin_lifecycle_cleanup=ok."
+    - "Phase 4P release validation passed: TDD red/green API route test; supplier repository expire/delete CTE tests; contract lifecycle schema tests; test:supplier-document-management-runtime; policy script; self-hosted API guard; production-scale guard; API build; self-hosted account API smoke; API tests; TypeScript build graph; lint; production build; full npm test; git diff --check."
+    - "Phase 4P is committed locally at 84954e9d."
+    - "Recommended next scoped workstream: Backend Phase 4Q supplier document management event listing/export, unless product priority shifts to automated expiry scheduler."
     - "Phase 4O implementation is recorded in docs/backend/phase-4o-supplier-document-owner-correction.md."
     - "PATCH /v1/suppliers/:supplierId/documents/:documentId lets authenticated supplier owners update metadata for documents in review or on_request."
     - "DELETE /v1/suppliers/:supplierId/documents/:documentId lets authenticated supplier owners delete documents in review or on_request."

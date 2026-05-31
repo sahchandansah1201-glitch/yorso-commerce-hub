@@ -16,18 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4O Supplier Document Owner Correction is committed locally at
-`4a9bbc2e`; release validation passed.
+Backend Phase 4P Supplier Document Admin Lifecycle is committed locally at
+`84954e9d`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Реализовать owner correction path, без admin expire/delete и без frontend UI. | Реализованы `PATCH`/`DELETE` для документов в `review` или `on_request`. | Phase 4P: admin expire/delete lifecycle cleanup. |
-| Access | Пускать только self-hosted supplier owner. | Требуются session, role `supplier`/`both` и matching supplier company ownership. | Admin lifecycle actions отдельно. |
-| Status transitions | Сохранить Phase 4L policy и immutable approved boundary. | `review`/`on_request` можно обновить или удалить; `approved` возвращает `approved_document_immutable`. | Replacement/re-review flow отдельно. |
-| Response boundary | Не раскрывать backend file identifiers. | Update/delete responses sanitized, без `fileAssetId`, storage keys, `downloadPath` или direct URLs. | Сохранять для admin lifecycle. |
-| Persistence | Mutation и audit должны быть atomic. | PostgreSQL CTE update/delete + `supplier_document.update_metadata/delete` audit insert. | Event listing UI может читать существующую audit table. |
+| Scope | Реализовать admin lifecycle cleanup, без frontend UI и без scheduler. | Реализован `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle` с `expire`/`delete`. | Phase 4Q: management event listing/export или scheduler decision. |
+| Access | Пускать только self-hosted admin. | Missing session -> 401; non-admin -> `admin_role_required`. | Не расширять owner bypass. |
+| Status transitions | `expire` только для `approved`; `delete` не должен удалять `approved`. | `approved -> expired`; `review`/`on_request`/`expired` можно delete; approved delete -> `approved_document_immutable`. | Replacement/re-review flow отдельно. |
+| Response boundary | Не раскрывать backend file identifiers. | Lifecycle responses sanitized, без `fileAssetId`, storage keys, `downloadPath` или direct URLs. | Сохранять для event listing/export. |
+| Persistence | Lifecycle mutation и audit должны быть atomic. | PostgreSQL CTE expire/delete + `supplier_document.expire/delete` audit insert. | Event listing может читать `yorso_supplier_document_management_events`. |
 | Guards | Зафиксировать docs, tests и 10k-user review. | Runtime script, smoke, self-hosted guard и production-scale guard обновлены. | Держать в release path. |
 
 ## Current Status
@@ -55,6 +55,30 @@ Backend Phase 4O Supplier Document Owner Correction is committed locally at
 - Backend Phase 4M is committed locally at `a6765b4f`; release validation passed.
 - Backend Phase 4N is committed locally at `2d5a05ba`; release validation passed.
 - Backend Phase 4O is committed locally at `4a9bbc2e`; release validation passed.
+- Backend Phase 4P is committed locally at `84954e9d`; release validation passed.
+
+## Phase 4P Files
+
+- `docs/backend/phase-4p-supplier-document-admin-lifecycle.md`
+- `packages/contracts/src/supplier-directory.ts`
+- `apps/api/src/modules/suppliers/admin-routes.ts`
+- `apps/api/src/modules/suppliers/service.ts`
+- `apps/api/src/modules/suppliers/repository.ts`
+- `apps/api/src/modules/suppliers/postgres-repository.ts`
+- `apps/api/src/server.test.ts`
+- `apps/api/src/modules/suppliers/__tests__/repository.test.ts`
+- `src/test/supplier-document-management-contract.test.ts`
+- `src/test/self-hosted-db-contract.test.ts`
+- `scripts/smoke-self-hosted-account-api.mjs`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/self-hosted-account-api-smoke.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
+- `package.json`
 
 ## Phase 4O Files
 

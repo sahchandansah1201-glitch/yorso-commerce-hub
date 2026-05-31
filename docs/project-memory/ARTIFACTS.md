@@ -313,6 +313,41 @@
   `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
   validation, smoke and plan updates.
 
+## Backend Phase 4P Supplier Document Admin Lifecycle
+
+- `docs/backend/phase-4p-supplier-document-admin-lifecycle.md`: Phase 4P
+  implementation note, Russian plan/fact table, runtime contract and 10,000
+  concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: bounded
+  `supplierDocumentManagementLifecycleRequestSchema` accepting only
+  `expire`/`delete`.
+- `apps/api/src/modules/suppliers/admin-routes.ts`: admin-only
+  `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`
+  route wiring with admin audit sink action.
+- `apps/api/src/modules/suppliers/service.ts`: admin lifecycle cleanup logic
+  using Phase 4L policy and sanitized response shaping.
+- `apps/api/src/modules/suppliers/repository.ts` and
+  `apps/api/src/modules/suppliers/postgres-repository.ts`: memory and
+  PostgreSQL admin expire/delete persistence; PostgreSQL uses bounded CTEs for
+  document status update/delete plus management audit insert.
+- `apps/api/src/server.test.ts`,
+  `apps/api/src/modules/suppliers/__tests__/repository.test.ts`,
+  `src/test/supplier-document-management-contract.test.ts` and
+  `src/test/self-hosted-db-contract.test.ts`: route, repository, lifecycle
+  schema and audit-action coverage.
+- `scripts/smoke-self-hosted-account-api.mjs`: runtime smoke marker
+  `supplier_document_admin_lifecycle_cleanup=ok`.
+- `package.json`, `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: release gate wiring for the
+  Phase 4P lifecycle path.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/self-hosted-validation.md`,
+  `docs/backend/self-hosted-account-api-smoke.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/yorso-backend-implementation-plan.md` and
+  `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
+  validation, smoke and plan updates.
+
 ## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
 
 - `docs/backend/phase-4b-supplier-profile-dossier-completeness.md`: Phase 4B

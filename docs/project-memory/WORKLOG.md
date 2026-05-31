@@ -3714,3 +3714,69 @@ Keep this file factual and append-only.
   - existing analytics degradation stderr in analytics test.
 - Next scoped implementation: Backend Phase 4P admin expire/delete supplier
   document lifecycle cleanup.
+
+## 2026-05-31 Phase 4P Checkpoint
+
+- Latest implementation commit: `84954e9d` (`[codex] Backend Phase 4P supplier document admin lifecycle`).
+- Scoped workstream: Backend Phase 4P Supplier Document Admin Lifecycle.
+- Implemented the admin lifecycle cleanup path only:
+  - `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`
+    accepts `action: "expire"` or `action: "delete"`;
+  - no frontend UI, automated scheduler, file replacement route or event
+    listing/export endpoint was added in this phase.
+- Implemented access and policy checks:
+  - route requires a self-hosted account session and admin role;
+  - missing sessions return 401;
+  - owner/buyer non-admin sessions return `admin_role_required`;
+  - `manageSupplierDocumentLifecycleAsAdmin` applies Phase 4L policy before
+    mutation.
+- Implemented status, response and storage boundaries:
+  - `expire` is allowed only for `approved` documents and transitions them to
+    `expired`;
+  - `delete` is allowed for `review`, `on_request` and `expired` documents;
+  - direct delete of `approved` documents returns `approved_document_immutable`;
+  - lifecycle responses use sanitized schemas and omit `fileAssetId`, object
+    keys, storage keys, download paths and storage URLs.
+- Implemented persistence/audit:
+  - PostgreSQL repository expires or deletes the supplier document and inserts
+    `supplier_document.expire` or `supplier_document.delete` audit metadata in
+    bounded CTEs;
+  - memory repository mirrors the same status and audit behavior;
+  - admin route attempts emit `admin.supplier_document_management.lifecycle`.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Scope | Реализовать admin lifecycle cleanup, без UI, scheduler и file replacement. | Реализован lifecycle endpoint с `expire`/`delete`. | Phase 4Q: listing/export management events или scheduler decision. |
+| Access | Пускать только self-hosted admin. | Missing session -> 401; non-admin -> `admin_role_required`. | Owner bypass не расширять. |
+| Status transitions | `expire` только для `approved`; `delete` не должен удалять `approved`. | `approved -> expired`; `review`/`on_request`/`expired` можно delete; approved delete -> `approved_document_immutable`. | Replacement/re-review flow отдельно. |
+| Response boundary | Не раскрывать backend file identifiers. | Lifecycle responses sanitized, без `fileAssetId`, storage keys, `downloadPath` или direct URLs. | Сохранять для event listing/export. |
+| Persistence | Mutation и audit должны быть atomic. | PostgreSQL CTE expire/delete + `supplier_document.expire/delete` audit insert. | Event listing может читать существующую audit table. |
+| Smoke | Проверить owner create -> admin approve -> expire -> delete. | `supplier_document_admin_lifecycle_cleanup=ok` в self-hosted account API smoke. | Добавить listing/export smoke в Phase 4Q, если выбран этот scope. |
+| Guards | Зафиксировать docs, tests, self-hosted и 10k-user guards. | Runtime script, self-hosted guard, production-scale guard обновлены. | Держать в release path. |
+
+- Validation passed:
+  - TDD red: admin lifecycle API route test failed with 404 before
+    implementation;
+  - TDD green: admin lifecycle API route test and PostgreSQL expire/delete CTE
+    tests;
+  - `npm run contracts:build`;
+  - `npm run test:supplier-document-management-runtime`;
+  - `npm run test:supplier-document-management-policy`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run api:build`;
+  - `npm run smoke:self-hosted-account-api:run`;
+  - `npm run test:api`;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run build`;
+  - `npm test` passed: 181 files, 1283 passed, 2 skipped;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Browserslist data stale;
+  - existing React Router future flag / act warnings in the test suite;
+  - existing analytics degradation stderr in analytics test.
+- Next scoped implementation: Backend Phase 4Q supplier document management
+  event listing/export, unless product priority shifts to automated expiry
+  scheduler.
