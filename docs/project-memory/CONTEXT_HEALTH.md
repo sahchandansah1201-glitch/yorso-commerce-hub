@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-31"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "b5469880_phase_4j_supplier_document_grant_audit_listing"
+head_commit: "3b74b498_phase_4k_supplier_document_audit_admin_ui"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4j_supplier_document_grant_audit_listing"
+active_workstream: "backend_phase_4k_supplier_document_audit_admin_ui"
 pull_request: null
-recommended_action: "decide between admin UI for document audit listings and supplier owner/admin document management"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4J are documented, committed and validated."
+recommended_action: "define supplier owner/admin document management ownership, validation and audit rules"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4K are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4j_supplier_document_grant_audit_listing.
-Current HEAD baseline: Backend Phase 4J supplier document grant audit listing implementation commit b5469880 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4k_supplier_document_audit_admin_ui.
+Current HEAD baseline: Backend Phase 4K supplier document audit admin UI implementation commit 3b74b498 is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,11 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: decide between admin UI for document audit listings and supplier owner/admin document management.
+Current recommended action: define supplier owner/admin document management ownership, validation and audit rules.
+Phase 4K implemented and committed locally at 3b74b498: /admin/supplier-document-audit provides a read-only admin UI over the existing download grant and download event audit listings.
+Phase 4K access boundary: the frontend client requires VITE_YORSO_API_URL and self-hosted session headers; missing sessions render a sign-in gate and non-admin sessions render admin_role_required.
+Phase 4K payload boundary: the frontend client rejects responses containing fileAssetId, downloadPath, objectKey or storage, and the UI renders only audit metadata.
+Phase 4K validation passed: TDD red/green client/hook/page tests; test:admin-supplier-document-audit-frontend; check:self-hosted-api; check:production-scale-baseline; smoke:e2e:admin-supplier-document-audit; npx tsc -b --noEmit; npm run lint; npm run build; npm test; git diff --check.
 Phase 4J implemented and committed locally at b5469880: GET /v1/admin/supplier-documents/download-grants provides bounded admin reads over supplier document grant audit records.
 Phase 4J access boundary: the route requires an authenticated self-hosted admin session; missing sessions return 401 and buyer/non-admin sessions return 403 admin_role_required.
 Phase 4J payload boundary: admin JSON responses include grant audit metadata, grantedAt, expiresAt and createdAt but exclude fileAssetId, object keys, storage keys, direct storage URLs and downloadPath.

@@ -16,19 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4J Supplier Document Grant Audit Listing is committed locally
-at `b5469880`; release validation passed.
+Backend Phase 4K Supplier Document Audit Admin UI is committed locally at
+`3b74b498`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Закрыть adjacent grant-audit gap после Phase 4I. | Реализован admin listing по `yorso_supplier_document_download_grants`. | Owner/admin upload остается отдельной supplier operations phase. |
-| Admin endpoint | Дать bounded admin read по grant attempts. | Реализовано: `GET /v1/admin/supplier-documents/download-grants`. | Решить, нужен ли admin UI над grant/download audit listings. |
-| Role guard | Не отдавать audit buyer-сессиям. | Реализовано: 401 без сессии, 403 `admin_role_required` для buyer. | Возможные admin-subroles позже. |
-| Payload boundary | Не раскрывать backend storage identifiers. | Реализовано: в admin JSON нет `fileAssetId`, `downloadPath`, object keys, storage keys и direct file URLs. | Держать admin responses без storage identifiers. |
-| Пагинация и индексы | Сделать bounded pagination и indexed filters. | Реализовано: `status`, `supplierId`, `buyerUserId`, `limit<=100`, `offset<=10000`; Postgres использует существующие recent indexes. | Cursor pagination только если объем audit этого потребует. |
-| Guards | Зафиксировать docs, self-hosted guard и 10k-user review. | Реализовано: Phase 4J docs, guards и validation. | Держать в release path. |
+| Scope | Закрыть admin UI над audit listings Phase 4I/4J. | Реализован `/admin/supplier-document-audit`. | Owner/admin upload остается отдельной supplier operations phase. |
+| Admin UI | Дать bounded read-only view по grant/download audit. | Есть kind switch, filters и sanitized rows. | Deep pagination/export только после отдельного operator requirement. |
+| Role guard | Не отдавать audit buyer-сессиям. | Реализовано: API-disabled, session-required и `admin_role_required` states. | Возможные admin-subroles позже. |
+| Payload boundary | Не раскрывать backend storage identifiers. | Client отвергает `fileAssetId`, `downloadPath`, `objectKey`, `storage`; UI не выводит эти поля. | Держать admin responses без storage identifiers. |
+| Guards | Зафиксировать docs, tests, browser smoke и 10k-user review. | Реализовано: Phase 4K docs, guards, unit tests и e2e smoke. | Держать в release path. |
 
 ## Current Status
 
@@ -50,6 +49,30 @@ at `b5469880`; release validation passed.
 - Backend Phase 4H is committed locally at `06ef6922`; release validation passed.
 - Backend Phase 4I is committed locally at `bd05bc60`; release validation passed.
 - Backend Phase 4J is committed locally at `b5469880`; release validation passed.
+- Backend Phase 4K is committed locally at `3b74b498`; release validation passed.
+
+## Phase 4K Files
+
+- `docs/backend/phase-4k-supplier-document-audit-admin-ui.md`
+- `src/lib/admin-supplier-document-audit-api.ts`
+- `src/lib/admin-supplier-document-audit-api.test.ts`
+- `src/lib/use-admin-supplier-document-audit.ts`
+- `src/lib/use-admin-supplier-document-audit.test.tsx`
+- `src/pages/admin/AdminSupplierDocumentAudit.tsx`
+- `src/pages/admin/AdminSupplierDocumentAudit.test.tsx`
+- `src/components/admin/AdminOperatorNav.tsx`
+- `src/App.tsx`
+- `src/test/app-route-code-splitting.test.ts`
+- `e2e/admin-supplier-document-audit.spec.ts`
+- `.github/workflows/ci.yml`
+- `package.json`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
 
 ## Phase 4J Files
 

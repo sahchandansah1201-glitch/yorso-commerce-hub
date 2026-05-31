@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "b5469880"
-  head_summary: "Backend Phase 4J supplier document grant audit listing; release validation passed."
+  head_commit: "3b74b498"
+  head_summary: "Backend Phase 4K supplier document audit admin UI; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4J implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4K implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,22 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4j_supplier_document_grant_audit_listing"
-  summary: "Admin users can read bounded supplier document grant audit records without browser-facing file asset leakage."
+  id: "backend_phase_4k_supplier_document_audit_admin_ui"
+  summary: "Admin users can inspect bounded supplier document grant/download audit records through a read-only UI without browser-facing file asset leakage."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4K implementation is recorded in docs/backend/phase-4k-supplier-document-audit-admin-ui.md."
+    - "/admin/supplier-document-audit is a read-only admin route over the existing Phase 4I/4J supplier document audit endpoints."
+    - "src/lib/admin-supplier-document-audit-api.ts uses self-hosted session headers, supports download_grants/download_events, and rejects storage-leaking responses containing fileAssetId, downloadPath, objectKey or storage."
+    - "src/lib/use-admin-supplier-document-audit.ts exposes disabled, session_required, forbidden, loading, ready and error states."
+    - "src/pages/admin/AdminSupplierDocumentAudit.tsx renders audit kind/status/supplier/buyer filters and sanitized audit rows."
+    - "src/App.tsx lazy-loads AdminSupplierDocumentAudit and routes /admin/supplier-document-audit through the existing RouteChunkErrorBoundary/Suspense shell."
+    - "e2e/admin-supplier-document-audit.spec.ts covers API-backed route rendering, session headers, storage-field redaction and localized admin-role guard."
+    - "Phase 4K release validation passed: TDD red/green client/hook/page tests; test:admin-supplier-document-audit-frontend; check:self-hosted-api; check:production-scale-baseline; smoke:e2e:admin-supplier-document-audit; TypeScript build graph; lint; production build; full npm test; git diff --check."
+    - "Phase 4K is committed locally at 3b74b498."
+    - "Recommended next scoped workstream: supplier owner/admin document management decision, defining ownership, upload/edit/delete validation and audit rules before implementation."
     - "Phase 4J implementation is recorded in docs/backend/phase-4j-supplier-document-grant-audit-listing.md."
     - "GET /v1/admin/supplier-documents/download-grants requires an authenticated admin session; missing sessions return 401 and buyer sessions return admin_role_required."
     - "packages/contracts/src/supplier-directory.ts defines supplierDocumentDownloadGrantAdminQuerySchema and supplierDocumentDownloadGrantAdminListResponseSchema with bounded limit<=100 and offset<=10000."

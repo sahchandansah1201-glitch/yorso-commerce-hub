@@ -2,50 +2,45 @@
 
 ## Current Next Action
 
-Backend Phase 4J is implemented and committed locally at `b5469880`.
+Backend Phase 4K is implemented and committed locally at `3b74b498`.
 
-Phase 4J closes the adjacent admin/operator read over supplier document grant
-records:
+Phase 4K closes the admin/operator UI over supplier document audit listings:
 
-- `GET /v1/admin/supplier-documents/download-grants` requires an authenticated
-  admin session.
-- Buyer/non-admin sessions receive `admin_role_required`.
-- Query params are bounded by contract: optional `status`, `supplierId`,
-  `buyerUserId`, `limit <= 100`, `offset <= 10 000`.
-- The route reads `yorso_supplier_document_download_grants` and orders by
-  `created_at desc, id asc`.
-- Admin JSON responses do not include `fileAssetId`, object keys, storage keys,
-  direct file URLs or `downloadPath`.
-- Reads emit audit action `admin.supplier_document_download_grants.read`.
+- `/admin/supplier-document-audit` is a read-only admin route.
+- It switches between existing endpoints:
+  `GET /v1/admin/supplier-documents/download-grants` and
+  `GET /v1/admin/supplier-documents/download-events`.
+- The frontend client requires `VITE_YORSO_API_URL` and self-hosted session
+  headers.
+- Missing sessions render a sign-in gate; buyer/non-admin sessions render
+  `admin_role_required`.
+- Browser-facing responses are rejected if they contain `fileAssetId`,
+  `downloadPath`, `objectKey` or `storage`.
+- UI renders audit metadata only: audit id, status, supplier id, document id,
+  buyer user id, grant id where available, reason, request id and timestamps.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Закрыть adjacent grant-audit gap после Phase 4I. | Реализован admin listing по `yorso_supplier_document_download_grants`. | Owner/admin upload остается отдельной supplier operations phase. |
-| Admin endpoint | Дать admin bounded read по grant attempts. | Реализовано: `/v1/admin/supplier-documents/download-grants`. | Решить, нужен ли admin UI над grant/download audit listings. |
-| Role guard | Не отдавать audit buyer-сессиям. | Реализовано: 401 без сессии, 403 `admin_role_required` для buyer. | Возможные subroles позже. |
-| Payload boundary | Не раскрывать backend storage identifiers. | Реализовано: service response убирает `fileAssetId` и `downloadPath`; тесты защищают от object/storage leakage. | Держать admin responses без storage identifiers. |
-| Пагинация и индексы | Сделать bounded pagination и indexed filters. | Реализовано: `status`, `supplierId`, `buyerUserId`, `limit<=100`, `offset<=10000`; Postgres query использует существующие recent indexes. | Cursor pagination только если объем audit этого потребует. |
-| Guards | Зафиксировать docs, self-hosted guard и 10k-user review. | Реализовано: Phase 4J doc, contract map, validation doc, production baseline, guard markers. | Держать в release path. |
+| Scope | Закрыть admin UI над audit listings Phase 4I/4J. | Реализован `/admin/supplier-document-audit`. | Owner/admin upload остается отдельной supplier operations phase. |
+| Admin UI | Дать оператору одну read-only точку для grants/downloads. | Есть kind switch, filters и sanitized rows. | Deep pagination/export только после отдельного operator requirement. |
+| API client | Использовать self-hosted API и session headers. | Реализован `createAdminSupplierDocumentAuditApiClient`; 401/403 маппятся в явные UI states. | Возможные admin-subroles позже. |
+| Payload boundary | Не раскрывать backend storage identifiers в браузере. | Client отвергает `fileAssetId`, `downloadPath`, `objectKey`, `storage`; UI не выводит эти поля. | Держать admin responses без storage identifiers. |
+| Tests/smoke | Зафиксировать page/client/hook и browser smoke. | Реализованы unit tests и `e2e/admin-supplier-document-audit.spec.ts`. | Держать в release path. |
+| Guards | Зафиксировать docs, self-hosted guard и 10k-user review. | Реализовано: Phase 4K doc, contract map, validation doc, production baseline, guard markers. | Держать в release path. |
 
-## Next Implementation After Phase 4J
+## Next Implementation After Phase 4K
 
 Recommended next scoped decision:
 
-Choose one of two concrete paths:
+Supplier owner/admin document management decision:
 
-1. Admin UI for supplier document audit listings:
-   - add a bounded admin console view over `/v1/admin/supplier-documents/download-events`;
-   - add a companion view over `/v1/admin/supplier-documents/download-grants`;
-   - preserve storage-id-free browser payloads and admin role guard.
-
-2. Supplier owner/admin document management:
-   - define ownership model, upload/edit/delete validation and audit events;
-   - define file ownership and restricted document lifecycle;
-   - keep buyer profile downloads grant-bound and storage-id-free.
-
-Do not start both in one batch.
+- define ownership model for company/supplier documents;
+- define upload/edit/delete validation;
+- define document lifecycle and audit events;
+- keep buyer profile downloads grant-bound and storage-id-free;
+- do not implement upload/edit/delete until those rules are explicit.
 
 ## Guardrails To Preserve
 

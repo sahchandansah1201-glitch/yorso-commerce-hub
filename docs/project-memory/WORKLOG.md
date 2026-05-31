@@ -3440,3 +3440,49 @@ Keep this file factual and append-only.
   - existing React Router future flag / act warnings in the test suite.
 - Next scoped decision: admin UI for document audit listings or supplier
   owner/admin document management.
+
+## 2026-05-31 Phase 4K Checkpoint
+
+- Latest implementation commit: `3b74b498` (`[codex] Backend Phase 4K supplier document audit admin UI`).
+- Scoped workstream: Backend Phase 4K Supplier Document Audit Admin UI.
+- Implemented read-only admin UI:
+  - `/admin/supplier-document-audit` routes to `AdminSupplierDocumentAudit`;
+  - `AdminOperatorNav` includes the Documents audit link;
+  - `React.lazy` route loading and `RouteChunkErrorBoundary` are preserved.
+- Implemented frontend API client and hook:
+  - `createAdminSupplierDocumentAuditApiClient` supports `download_grants` and
+    `download_events`;
+  - client sends `x-yorso-user-id` and `x-yorso-session-id`;
+  - missing sessions, API-disabled mode and `admin_role_required` are mapped
+    to explicit UI states;
+  - responses containing `fileAssetId`, `downloadPath`, `objectKey` or
+    `storage` are rejected.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Scope | Закрыть admin UI над audit listings Phase 4I/4J. | Реализован `/admin/supplier-document-audit`. | Owner/admin upload остается отдельной supplier operations phase. |
+| Admin UI | Дать bounded read-only view по grants/downloads. | Есть kind switch, status/supplier/buyer filters и sanitized rows. | Deep pagination/export только после отдельного operator requirement. |
+| API client | Использовать self-hosted API и session headers. | Реализован `createAdminSupplierDocumentAuditApiClient`; 401/403 маппятся в явные UI states. | Возможные admin-subroles позже. |
+| Payload boundary | Не раскрывать backend storage identifiers в браузере. | Client отвергает `fileAssetId`, `downloadPath`, `objectKey`, `storage`; UI не выводит эти поля. | Держать admin responses без storage identifiers. |
+| Tests/smoke | Зафиксировать page/client/hook и browser smoke. | Реализованы unit tests и `e2e/admin-supplier-document-audit.spec.ts`. | Держать в release path. |
+| Guards | Зафиксировать docs, self-hosted guard и 10k-user review. | Реализовано: Phase 4K doc, contract map, validation doc, production baseline, guard markers. | Держать в release path. |
+
+- Validation passed:
+  - TDD red: client/hook/page tests failed before implementation because the
+    files did not exist;
+  - TDD green: `npm test -- src/lib/admin-supplier-document-audit-api.test.ts src/lib/use-admin-supplier-document-audit.test.tsx src/pages/admin/AdminSupplierDocumentAudit.test.tsx src/test/app-route-code-splitting.test.ts`;
+  - `npm run test:admin-supplier-document-audit-frontend`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run smoke:e2e:admin-supplier-document-audit` passed, 2 browser tests;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run build` passed inside the e2e smoke;
+  - `npm test` passed: 180 files, 1275 passed, 2 skipped;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Browserslist data stale;
+  - existing React Router future flag / act warnings in the test suite.
+- Next scoped decision: supplier owner/admin document management ownership,
+  upload/edit/delete validation and audit rules.

@@ -139,6 +139,38 @@
   `scripts/check-production-scale-baseline.mjs`: guards for Phase 4A doc and
   configured supplier fail-closed hook markers.
 
+## Backend Phase 4K Supplier Document Audit Admin UI
+
+- `docs/backend/phase-4k-supplier-document-audit-admin-ui.md`: Phase 4K
+  implementation note, plan/fact table and 10,000 concurrent-user review.
+- `src/lib/admin-supplier-document-audit-api.ts`: self-hosted admin supplier
+  document audit API client over download grants/download events.
+- `src/lib/admin-supplier-document-audit-api.test.ts`: client coverage for
+  disabled mode, session headers, both endpoints, admin role errors and
+  storage-leak rejection.
+- `src/lib/use-admin-supplier-document-audit.ts`: hook for disabled,
+  session-required, forbidden, loading, ready and error states.
+- `src/lib/use-admin-supplier-document-audit.test.tsx`: hook coverage for
+  disabled, ready/refresh and forbidden states.
+- `src/pages/admin/AdminSupplierDocumentAudit.tsx`: read-only admin UI with
+  audit kind/status/supplier/buyer filters and sanitized rows.
+- `src/pages/admin/AdminSupplierDocumentAudit.test.tsx`: page coverage for
+  disabled/session/forbidden states and storage-field redaction.
+- `e2e/admin-supplier-document-audit.spec.ts`: API-backed browser smoke for
+  route rendering, session headers, sanitized rows and localized admin-role
+  guard.
+- `src/App.tsx`, `src/components/admin/AdminOperatorNav.tsx` and
+  `src/test/app-route-code-splitting.test.ts`: route/nav/lazy-loading wiring.
+- `.github/workflows/ci.yml`, `package.json`,
+  `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: release gate wiring.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/self-hosted-validation.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/yorso-backend-implementation-plan.md` and
+  `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
+  validation and plan updates.
+
 ## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
 
 - `docs/backend/phase-4b-supplier-profile-dossier-completeness.md`: Phase 4B
