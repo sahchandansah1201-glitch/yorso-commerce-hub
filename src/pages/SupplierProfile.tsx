@@ -38,7 +38,7 @@ import { getOffersForSupplier } from "@/data/mockOffers";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import CatalogOfferRow from "@/components/catalog/CatalogOfferRow";
 import MobileOfferCard from "@/components/catalog/MobileOfferCard";
-import { getSupplierLegalDetails } from "@/lib/supplier-legal";
+import type { SupplierLegalDetails } from "@/lib/supplier-legal";
 import {
   getLogoStatus,
   prefetchLogos,
@@ -330,12 +330,18 @@ const SupplierLogoCard = ({
   );
 };
 
-const LegalDetailsBlock = ({ supplier }: { supplier: MockSupplier }) => {
+const LegalDetailsBlock = ({
+  legal,
+  supplier,
+}: {
+  legal: SupplierLegalDetails;
+  supplier: MockSupplier;
+}) => {
   const { t, lang } = useLanguage();
-  const legal = getSupplierLegalDetails(supplier);
   const founded = formatLocalizedDate(legal.foundedDate, lang);
+  const foundedYear = Number.parseInt(legal.foundedDate.slice(0, 4), 10);
   const yearsOnMarket =
-    new Date().getFullYear() - supplier.inBusinessSinceYear;
+    new Date().getFullYear() - (Number.isFinite(foundedYear) ? foundedYear : supplier.inBusinessSinceYear);
 
   const yearsWord = pluralize(lang, yearsOnMarket, {
     one: t.supplier_yearsOnMarket_pluralOne,
@@ -1302,9 +1308,9 @@ const SupplierProfile = () => {
                   </div>
 
                   <aside className="space-y-6">
-                    {isUnlocked ? (
-                      <LegalDetailsBlock supplier={supplier} />
-                    ) : (
+                    {isUnlocked && supplier.legalDetails ? (
+                      <LegalDetailsBlock legal={supplier.legalDetails} supplier={supplier} />
+                    ) : !isUnlocked ? (
                       <div
                         className="rounded-xl border border-border bg-card p-6"
                         data-testid="supplier-legal-locked"
@@ -1327,7 +1333,7 @@ const SupplierProfile = () => {
                           </span>
                         </div>
                       </div>
-                    )}
+                    ) : null}
 
                     <div className="rounded-xl border border-border bg-card p-6">
                       <div className="flex items-center gap-2">

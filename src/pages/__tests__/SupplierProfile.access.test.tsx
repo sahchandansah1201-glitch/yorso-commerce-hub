@@ -169,6 +169,14 @@ const remoteSupplierDetail = {
       params: { n: 12 },
     },
   ],
+  legalDetails: {
+    registrationLabel: "Backend Registry",
+    registrationNumber: "BACKEND-REG-777",
+    vatNumber: "BACKEND-VAT-777",
+    eoriNumber: "BACKEND-EORI-777",
+    legalForm: "Backend Cooperative",
+    foundedDate: "2016-04-17",
+  },
   updatedAt: "2026-05-14T00:00:00.000Z",
   accessLevel: "anonymous_locked",
 };
@@ -314,6 +322,37 @@ describe("SupplierProfile · access gating", () => {
         const json = JSON.parse(faq?.textContent ?? "{}");
         expect(json.mainEntity?.[0]?.acceptedAnswer?.text).toMatch(/from 12 tons per SKU/i);
       });
+    });
+
+    it("рендерит legal/compliance details из self-hosted API для qualified buyer, а не пересчитывает их на клиенте", async () => {
+      setSignedIn();
+      setQualified();
+      vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+      vi.stubGlobal("fetch", vi.fn(async () =>
+        new Response(JSON.stringify({
+          ok: true,
+          supplier: {
+            ...remoteSupplierDetail,
+            companyName: "Remote Legal Supplier AS",
+            website: "https://remote-legal.example",
+            whatsapp: "+47 555 0777",
+            accessLevel: "qualified_unlocked",
+          },
+          accessLevel: "qualified_unlocked",
+          requestId: "remote-profile-legal-test",
+        }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      ));
+
+      renderProfile(remoteSupplierDetail.id);
+
+      expect(await screen.findByText("Backend Registry")).toBeInTheDocument();
+      expect(screen.getByText("BACKEND-REG-777")).toBeInTheDocument();
+      expect(screen.getByText("BACKEND-VAT-777")).toBeInTheDocument();
+      expect(screen.getByText("BACKEND-EORI-777")).toBeInTheDocument();
+      expect(screen.getByText("Backend Cooperative")).toBeInTheDocument();
     });
 
     it("при ошибке self-hosted API не подставляет локальный fallback-профиль", async () => {

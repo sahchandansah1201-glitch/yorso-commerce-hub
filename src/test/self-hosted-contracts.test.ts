@@ -342,6 +342,14 @@ describe("self-hosted account/company contracts", () => {
           params: { n: 2 },
         },
       ],
+      legalDetails: {
+        registrationLabel: "Org. nr",
+        registrationNumber: "999888777",
+        vatNumber: "NO999888777",
+        eoriNumber: "NO999888777000",
+        legalForm: "AS",
+        foundedDate: "2010-04-17",
+      },
       updatedAt: "2026-05-14T00:00:00.000Z",
     });
 
@@ -353,6 +361,10 @@ describe("self-hosted account/company contracts", () => {
       volumeTons: 24,
     });
     expect(record.faqItems[0].params).toEqual({ n: 2 });
+    expect(record.legalDetails).toMatchObject({
+      registrationNumber: "999888777",
+      legalForm: "AS",
+    });
     expect(
       supplierDirectoryItemSchema.parse({
         ...record,
@@ -361,6 +373,7 @@ describe("self-hosted account/company contracts", () => {
         activeOffersCount: null,
         deliveryCountriesTotal: null,
         totalProductsCount: null,
+        legalDetails: null,
         website: null,
         whatsapp: null,
         accessLevel: "anonymous_locked",
@@ -388,6 +401,7 @@ describe("self-hosted account/company contracts", () => {
           params: { n: 2 },
         },
       ],
+      legalDetails: null,
       accessLevel: "anonymous_locked",
     });
   });

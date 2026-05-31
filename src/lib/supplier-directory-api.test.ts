@@ -27,6 +27,7 @@ describe("supplier directory API adapter", () => {
       activeOffersCount: null,
       website: null,
       whatsapp: null,
+      legalDetails: null,
     });
 
     const verified = await client.listSuppliers({
@@ -62,11 +63,15 @@ describe("supplier directory API adapter", () => {
       id: "sup-no-001",
       companyName: null,
       website: null,
+      legalDetails: null,
     });
     await expect(client.getSupplierById("sup-no-001", "qualified_unlocked")).resolves.toMatchObject({
       id: "sup-no-001",
       companyName: "Nordfjord Sjømat AS",
       website: "https://example-nordfjord.no",
+      legalDetails: {
+        registrationNumber: expect.any(String),
+      },
     });
   });
 
@@ -180,6 +185,7 @@ describe("supplier directory API adapter", () => {
           },
           shipmentCases: [],
           faqItems: [],
+          legalDetails: null,
           website: null,
           whatsapp: null,
           updatedAt: "2026-05-14T00:00:00.000Z",

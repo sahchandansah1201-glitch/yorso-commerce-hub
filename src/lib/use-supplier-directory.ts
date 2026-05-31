@@ -10,6 +10,7 @@ import {
   localPreviewSupplierFaqItems,
   localPreviewSupplierShipmentCases,
 } from "@/lib/supplier-evidence-blocks";
+import { localPreviewSupplierLegalDetails } from "@/lib/supplier-legal";
 import {
   createSupplierDirectoryApiClient,
   type SupplierDirectoryAccessLevel,
@@ -76,30 +77,40 @@ const withSupplierAccessLevel = (
   language: Language,
   accessLevel: SupplierDirectoryAccessLevel,
   approvedSupplierIds: ReadonlySet<string>,
-) => localizeSupplier(
-  {
-    ...supplier,
-    accessLevel: supplierAccessLevel(supplier, accessLevel, approvedSupplierIds),
-    productionFacts: supplier.productionFacts ?? localPreviewSupplierProductionFacts(supplier.id),
-    logisticsFacts: supplier.logisticsFacts ?? localPreviewSupplierLogisticsFacts(supplier.id),
-    shipmentCases: supplier.shipmentCases ?? localPreviewSupplierShipmentCases(
-      supplier.id,
-      supplier.productFocus[0]?.species ?? "Seafood",
-    ),
-    faqItems: supplier.faqItems ?? localPreviewSupplierFaqItems(supplier.id),
-  },
-  language,
-);
+) => {
+  const effectiveAccess = supplierAccessLevel(supplier, accessLevel, approvedSupplierIds);
+  return localizeSupplier(
+    {
+      ...supplier,
+      accessLevel: effectiveAccess,
+      productionFacts: supplier.productionFacts ?? localPreviewSupplierProductionFacts(supplier.id),
+      logisticsFacts: supplier.logisticsFacts ?? localPreviewSupplierLogisticsFacts(supplier.id),
+      shipmentCases: supplier.shipmentCases ?? localPreviewSupplierShipmentCases(
+        supplier.id,
+        supplier.productFocus[0]?.species ?? "Seafood",
+      ),
+      faqItems: supplier.faqItems ?? localPreviewSupplierFaqItems(supplier.id),
+      legalDetails: effectiveAccess === "qualified_unlocked"
+        ? supplier.legalDetails ?? localPreviewSupplierLegalDetails(supplier)
+        : null,
+    },
+    language,
+  );
+};
 
 const fallbackListState = (
   language: Language,
   accessLevel: SupplierDirectoryAccessLevel,
 ): SupplierDirectoryListState => {
   const approvedSupplierIds = new Set(getApprovedSupplierAccessIds());
-  const suppliers = localizedMockSuppliers(language).map((supplier) => ({
-    ...supplier,
-    accessLevel: supplierAccessLevel(supplier, accessLevel, approvedSupplierIds),
-  }));
+  const suppliers = localizedMockSuppliers(language).map((supplier) => {
+    const effectiveAccess = supplierAccessLevel(supplier, accessLevel, approvedSupplierIds);
+    return {
+      ...supplier,
+      accessLevel: effectiveAccess,
+      legalDetails: effectiveAccess === "qualified_unlocked" ? supplier.legalDetails : null,
+    };
+  });
   return {
     error: null,
     serverFiltered: false,

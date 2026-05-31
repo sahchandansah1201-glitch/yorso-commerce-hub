@@ -382,6 +382,17 @@
       "dependsOn": [
         "0031_supplier_profile_dossier_facts"
       ]
+    },
+    {
+      "id": "0033_supplier_profile_legal_details",
+      "file": "migrations/0033_supplier_profile_legal_details.sql",
+      "description": "Move restricted supplier profile legal and compliance details into the self-hosted supplier directory record.",
+      "ownedTables": [
+        "yorso_suppliers_directory"
+      ],
+      "dependsOn": [
+        "0032_supplier_profile_evidence_blocks"
+      ]
     }
   ]
 }

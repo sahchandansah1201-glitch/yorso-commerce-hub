@@ -89,6 +89,15 @@ export const supplierFaqItemSchema = z.object({
   params: z.record(z.union([z.string().max(160), z.number()])).optional(),
 });
 
+export const supplierLegalDetailsSchema = z.object({
+  registrationLabel: z.string().min(1).max(120),
+  registrationNumber: z.string().min(1).max(120),
+  vatNumber: z.string().min(1).max(120).nullable(),
+  eoriNumber: z.string().min(1).max(120).nullable(),
+  legalForm: z.string().min(1).max(160),
+  foundedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
 export const supplierDirectoryRecordSchema = z.object({
   id: z.string().min(1).max(80),
   companyName: z.string().min(2).max(180),
@@ -117,6 +126,7 @@ export const supplierDirectoryRecordSchema = z.object({
   logisticsFacts: supplierLogisticsFactsSchema,
   shipmentCases: z.array(supplierShipmentCaseSchema).max(24),
   faqItems: z.array(supplierFaqItemSchema).max(24),
+  legalDetails: supplierLegalDetailsSchema.nullable(),
   website: z.string().url().nullable(),
   whatsapp: z.string().min(5).max(80).nullable(),
   updatedAt: z.string().datetime(),
@@ -138,6 +148,7 @@ export const supplierDirectoryItemSchema = supplierDirectoryRecordSchema
     activeOffersCount: z.number().int().min(0).max(100000).nullable(),
     deliveryCountriesTotal: z.number().int().min(0).max(1000).nullable(),
     totalProductsCount: z.number().int().min(0).max(100000).nullable(),
+    legalDetails: supplierLegalDetailsSchema.nullable(),
     website: z.string().url().nullable(),
     whatsapp: z.string().min(5).max(80).nullable(),
     accessLevel: supplierDirectoryAccessLevelSchema,
@@ -187,6 +198,7 @@ export type SupplierDirectorySortDirection = z.infer<typeof supplierDirectorySor
 export type SupplierDocumentReadiness = z.infer<typeof supplierDocumentReadinessSchema>;
 export type SupplierFaqItem = z.infer<typeof supplierFaqItemSchema>;
 export type SupplierLogisticsFacts = z.infer<typeof supplierLogisticsFactsSchema>;
+export type SupplierLegalDetails = z.infer<typeof supplierLegalDetailsSchema>;
 export type SupplierProductFocus = z.infer<typeof supplierProductFocusSchema>;
 export type SupplierProductionFacts = z.infer<typeof supplierProductionFactsSchema>;
 export type SupplierShipmentCase = z.infer<typeof supplierShipmentCaseSchema>;

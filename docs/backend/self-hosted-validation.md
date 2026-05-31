@@ -1518,3 +1518,71 @@ Required markers:
 - `No frontend hash-based production/logistics synthesis remains`;
 - `production_facts`;
 - `logistics_facts`.
+
+## Backend Phase 4C Supplier Profile Evidence Blocks Validation
+
+Run:
+
+```bash
+npm run test:supplier-directory-frontend
+npm run test:backend-contract
+npm run test:db-migrations
+npm run test:db-contract
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `shipmentCases` and `faqItems` are part of the typed supplier-directory
+  contract.
+- `MemorySupplierRepository` and `PostgresSupplierRepository` return those
+  fields from the self-hosted supplier record.
+- `SupplierProfile.tsx` renders shipment evidence and FAQ from
+  `supplier?.shipmentCases` and `supplier?.faqItems`.
+- API-disabled preview evidence is generated only by explicit local preview
+  helpers, not by page-level profile synthesis.
+- Migration `0032_supplier_profile_evidence_blocks` exists and is guarded.
+
+Required markers:
+
+- `Backend Phase 4C`;
+- `Supplier Profile Backend-Owned Evidence Blocks`;
+- `No frontend hash-based shipment/FAQ synthesis remains`;
+- `shipment_cases`;
+- `profile_faq_items`.
+
+## Backend Phase 4D Supplier Profile Legal Details Validation
+
+Run:
+
+```bash
+npm run test:supplier-directory-frontend
+npm run test:backend-contract
+npm run test:db-migrations
+npm run test:db-contract
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `legalDetails` is part of the typed supplier-directory contract.
+- `MemorySupplierRepository` and `PostgresSupplierRepository` return
+  `legalDetails` from the self-hosted supplier record.
+- `shapeSupplierForAccess` returns `legalDetails: null` for
+  `anonymous_locked` and `registered_locked`.
+- `SupplierProfile.tsx` renders legal/compliance details from
+  `supplier?.legalDetails` only for qualified buyers.
+- API-disabled preview legal details are generated only by explicit local
+  preview helper `localPreviewSupplierLegalDetails`.
+- Migration `0033_supplier_profile_legal_details` exists and is guarded.
+
+Required markers:
+
+- `Backend Phase 4D`;
+- `Supplier Profile Legal/Compliance Details Source Boundary`;
+- `No frontend hash-based legal/compliance synthesis remains`;
+- `legal_details`;
+- `qualified_unlocked`;
+- `not safe for locked buyer views`.

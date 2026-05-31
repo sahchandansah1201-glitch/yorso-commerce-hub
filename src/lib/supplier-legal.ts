@@ -1,11 +1,5 @@
 import type { MockSupplier } from "@/data/mockSuppliers";
 
-/**
- * Юридические реквизиты поставщика.
- * Mock-слой: значения детерминированно выводятся из id + countryCode,
- * чтобы один и тот же поставщик всегда показывал одни и те же номера.
- * При переходе на реальный API заменить на поля из бэкенда.
- */
 export interface SupplierLegalDetails {
   /** Национальный регистрационный номер (Org. number / ИНН / SIREN / UIC). */
   registrationLabel: string;
@@ -105,7 +99,7 @@ const EU_EEA = new Set([
   "LV", "LT", "LU", "MT", "CY",
 ]);
 
-export const getSupplierLegalDetails = (
+export const localPreviewSupplierLegalDetails = (
   supplier: MockSupplier,
 ): SupplierLegalDetails => {
   const seed = hash(`${supplier.id}:${supplier.countryCode}`);

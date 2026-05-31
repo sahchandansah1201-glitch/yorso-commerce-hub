@@ -78,6 +78,7 @@ const apiSupplier = (supplier = mockSuppliers[0]) => ({
     supplier.productFocus[0]?.species ?? "Seafood",
   ),
   faqItems: localPreviewSupplierFaqItems(supplier.id),
+  legalDetails: null,
   website: null,
   whatsapp: null,
   updatedAt: "2026-05-14T00:00:00.000Z",

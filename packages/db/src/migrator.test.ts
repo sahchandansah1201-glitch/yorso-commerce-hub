@@ -44,6 +44,7 @@ describe("self-hosted DB migration planner", () => {
       "0030_auth_password_recovery_abuse_cleanup",
       "0031_supplier_profile_dossier_facts",
       "0032_supplier_profile_evidence_blocks",
+      "0033_supplier_profile_legal_details",
     ]);
     expect(plan.migrations.map((migration) => migration.file)).toEqual([
       "migrations/0000_migration_registry.sql",
@@ -79,6 +80,7 @@ describe("self-hosted DB migration planner", () => {
       "migrations/0030_auth_password_recovery_abuse_cleanup.sql",
       "migrations/0031_supplier_profile_dossier_facts.sql",
       "migrations/0032_supplier_profile_evidence_blocks.sql",
+      "migrations/0033_supplier_profile_legal_details.sql",
     ]);
   });
 
@@ -126,6 +128,7 @@ describe("self-hosted DB migration planner", () => {
     const authPasswordRecoveryAbuseCleanup = plan.migrations[30];
     const supplierProfileDossierFacts = plan.migrations[31];
     const supplierProfileEvidenceBlocks = plan.migrations[32];
+    const supplierProfileLegalDetails = plan.migrations[33];
 
     expect(registry.ownedTables).toEqual(["_yorso_migrations"]);
     expect(account.dependsOn).toEqual(["0000_migration_registry"]);
@@ -206,6 +209,9 @@ describe("self-hosted DB migration planner", () => {
     expect(supplierProfileEvidenceBlocks.dependsOn).toEqual(["0031_supplier_profile_dossier_facts"]);
     expect(supplierProfileEvidenceBlocks.sql).toContain("shipment_cases jsonb not null");
     expect(supplierProfileEvidenceBlocks.sql).toContain("profile_faq_items jsonb not null");
+    expect(supplierProfileLegalDetails.dependsOn).toEqual(["0032_supplier_profile_evidence_blocks"]);
+    expect(supplierProfileLegalDetails.sql).toContain("legal_details jsonb");
+    expect(supplierProfileLegalDetails.sql).toContain("yorso_suppliers_legal_details_object_or_null");
   });
 
   it("keeps self-hosted SQL free of managed-backend coupling", () => {

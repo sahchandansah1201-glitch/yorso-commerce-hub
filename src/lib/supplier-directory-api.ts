@@ -17,6 +17,10 @@ import {
   type SupplierFaqItem,
   type SupplierShipmentCase,
 } from "@/lib/supplier-evidence-blocks";
+import {
+  localPreviewSupplierLegalDetails,
+  type SupplierLegalDetails,
+} from "@/lib/supplier-legal";
 import { getApprovedSupplierAccessIds } from "@/lib/supplier-access-requests";
 
 export type SupplierDirectoryAccessLevel = "anonymous_locked" | "registered_locked" | "qualified_unlocked";
@@ -49,6 +53,7 @@ export interface SupplierDirectoryItem {
   logisticsFacts: SupplierLogisticsFacts;
   shipmentCases: SupplierShipmentCase[];
   faqItems: SupplierFaqItem[];
+  legalDetails: SupplierLegalDetails | null;
   website: string | null;
   whatsapp: string | null;
   updatedAt: string;
@@ -163,6 +168,7 @@ const shapeMockSupplier = (
       supplier.productFocus[0]?.species ?? "Seafood",
     ),
     faqItems: supplier.faqItems ?? localPreviewSupplierFaqItems(supplier.id),
+    legalDetails: unlocked ? supplier.legalDetails ?? localPreviewSupplierLegalDetails(supplier) : null,
     website: unlocked ? supplier.website ?? null : null,
     whatsapp: unlocked ? supplier.whatsapp ?? null : null,
     updatedAt: "2026-05-14T00:00:00.000Z",

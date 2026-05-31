@@ -9,6 +9,7 @@ import {
   localPreviewSupplierFaqItems,
   localPreviewSupplierShipmentCases,
 } from "@/lib/supplier-evidence-blocks";
+import { localPreviewSupplierLegalDetails } from "@/lib/supplier-legal";
 import type { SupplierDirectoryItem } from "@/lib/supplier-directory-api";
 
 const currentYear = () => new Date().getFullYear();
@@ -55,6 +56,7 @@ export const supplierDirectoryItemToMockSupplier = (
     logisticsFacts: item.logisticsFacts,
     shipmentCases: item.shipmentCases,
     faqItems: item.faqItems,
+    legalDetails: unlocked ? item.legalDetails : null,
     ...(unlocked && item.website ? { website: item.website } : {}),
     ...(unlocked && item.whatsapp ? { whatsapp: item.whatsapp } : {}),
   };
@@ -76,5 +78,6 @@ export const localizedMockSuppliers = (language: Language) =>
         supplier.productFocus[0]?.species ?? "Seafood",
       ),
       faqItems: supplier.faqItems ?? localPreviewSupplierFaqItems(supplier.id),
+      legalDetails: supplier.legalDetails ?? localPreviewSupplierLegalDetails(supplier),
     }, language),
   );

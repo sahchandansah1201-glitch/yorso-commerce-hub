@@ -7,6 +7,7 @@ import type {
   SupplierDirectoryQuery,
   SupplierDirectoryRecord,
   SupplierFaqItem,
+  SupplierLegalDetails,
   SupplierLogisticsFacts,
   SupplierProductFocus,
   SupplierProductionFacts,
@@ -55,6 +56,7 @@ interface SupplierRow extends Record<string, unknown> {
   logistics_facts: SupplierLogisticsFacts | null;
   shipment_cases: SupplierShipmentCase[] | null;
   profile_faq_items: SupplierFaqItem[] | null;
+  legal_details: SupplierLegalDetails | null;
   website: string | null;
   whatsapp: string | null;
   updated_at: Date | string;
@@ -106,6 +108,7 @@ function mapSupplier(row: SupplierRow): SupplierDirectoryRecord {
     logisticsFacts: row.logistics_facts ?? emptyLogisticsFacts(),
     shipmentCases: row.shipment_cases ?? [],
     faqItems: row.profile_faq_items ?? [],
+    legalDetails: row.legal_details ?? null,
     website: row.website,
     whatsapp: row.whatsapp,
     updatedAt: ensureIso(row.updated_at),

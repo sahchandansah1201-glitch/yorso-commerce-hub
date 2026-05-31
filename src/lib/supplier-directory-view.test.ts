@@ -73,6 +73,7 @@ const lockedApiItem = (supplier = mockSuppliers[0]): SupplierDirectoryItem => ({
       params: { n: 2 },
     },
   ],
+  legalDetails: null,
   updatedAt: "2026-05-14T00:00:00.000Z",
   accessLevel: "anonymous_locked",
 });
@@ -98,6 +99,32 @@ describe("supplier directory API view shaping", () => {
       volumeTons: 44,
     });
     expect(supplier.faqItems?.[0].params).toEqual({ n: 2 });
+    expect(supplier.legalDetails).toBeNull();
+  });
+
+  it("maps unlocked API legal details without reconstructing them locally", () => {
+    const supplier = supplierDirectoryItemToMockSupplier({
+      ...lockedApiItem(),
+      accessLevel: "qualified_unlocked",
+      companyName: "Nordfjord Sjømat AS",
+      activeOffersCount: 14,
+      about: "Unlocked about text.",
+      deliveryCountriesTotal: 18,
+      totalProductsCount: 32,
+      legalDetails: {
+        registrationLabel: "Backend Registry",
+        registrationNumber: "BACKEND-REG-123",
+        vatNumber: "BACKEND-VAT-123",
+        eoriNumber: "BACKEND-EORI-123",
+        legalForm: "Backend AS",
+        foundedDate: "2002-04-17",
+      },
+    });
+
+    expect(supplier.legalDetails).toMatchObject({
+      registrationNumber: "BACKEND-REG-123",
+      legalForm: "Backend AS",
+    });
   });
 
   it("localizes API-shaped suppliers with the same i18n layer as local mocks", () => {

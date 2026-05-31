@@ -259,6 +259,7 @@ const requiredFiles = [
   "docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md",
   "docs/backend/phase-4b-supplier-profile-dossier-completeness.md",
   "docs/backend/phase-4c-supplier-profile-evidence-blocks.md",
+  "docs/backend/phase-4d-supplier-profile-legal-details.md",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
   "packages/db/migrations/0015_admin_audit_retention_query_hardening.sql",
@@ -274,6 +275,7 @@ const requiredFiles = [
   "packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql",
   "packages/db/migrations/0031_supplier_profile_dossier_facts.sql",
   "packages/db/migrations/0032_supplier_profile_evidence_blocks.sql",
+  "packages/db/migrations/0033_supplier_profile_legal_details.sql",
   "apps/api/src/modules/auth/password-recovery.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup.ts",
   "apps/api/src/modules/auth/password-recovery-cleanup-scheduler.ts",
@@ -466,6 +468,7 @@ const authPasswordRecoveryMigration = read("packages/db/migrations/0029_auth_pas
 const authPasswordRecoveryAbuseCleanupMigration = read("packages/db/migrations/0030_auth_password_recovery_abuse_cleanup.sql");
 const supplierProfileDossierFactsMigration = read("packages/db/migrations/0031_supplier_profile_dossier_facts.sql");
 const supplierProfileEvidenceBlocksMigration = read("packages/db/migrations/0032_supplier_profile_evidence_blocks.sql");
+const supplierProfileLegalDetailsMigration = read("packages/db/migrations/0033_supplier_profile_legal_details.sql");
 const authVerificationCode = read("apps/api/src/modules/auth/verification-code.ts");
 const authPasswordRecovery = read("apps/api/src/modules/auth/password-recovery.ts");
 const authPasswordRecoveryCleanup = read("apps/api/src/modules/auth/password-recovery-cleanup.ts");
@@ -490,6 +493,8 @@ const phase3aCatalogSupabaseFallbackRemoval = read("docs/backend/phase-3a-catalo
 const phase3bSupplierAccessSupabaseFallbackRemoval = read("docs/backend/phase-3b-supplier-access-supabase-fallback-removal.md");
 const phase4aSupplierDirectorySourceOfTruthAudit = read("docs/backend/phase-4a-supplier-directory-source-of-truth-audit.md");
 const phase4bSupplierProfileDossierCompleteness = read("docs/backend/phase-4b-supplier-profile-dossier-completeness.md");
+const phase4cSupplierProfileEvidenceBlocks = read("docs/backend/phase-4c-supplier-profile-evidence-blocks.md");
+const phase4dSupplierProfileLegalDetails = read("docs/backend/phase-4d-supplier-profile-legal-details.md");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
 const authObservabilitySmoke = read("scripts/smoke-self-hosted-auth-observability.mjs");
@@ -2818,6 +2823,15 @@ for (const marker of [
   requireText("packages/db/migrations/0032_supplier_profile_evidence_blocks.sql", supplierProfileEvidenceBlocksMigration, marker);
 }
 for (const marker of [
+  "Backend Phase 4D",
+  "legal_details jsonb",
+  "yorso_suppliers_legal_details_object_or_null",
+  "qualified_unlocked",
+  "not safe for locked buyer views",
+]) {
+  requireText("packages/db/migrations/0033_supplier_profile_legal_details.sql", supplierProfileLegalDetailsMigration, marker);
+}
+for (const marker of [
   "PasswordRecoveryTokenIssuer",
   "createPasswordRecoveryTokenCodec",
   "hashPasswordRecoveryToken",
@@ -2936,6 +2950,28 @@ for (const marker of [
   "10,000 Concurrent-User Review",
 ]) {
   requireText("docs/backend/phase-4b-supplier-profile-dossier-completeness.md", phase4bSupplierProfileDossierCompleteness, marker);
+}
+for (const marker of [
+  "Backend Phase 4C",
+  "Supplier Profile Backend-Owned Evidence Blocks",
+  "shipmentCases",
+  "faqItems",
+  "No frontend hash-based shipment/FAQ synthesis remains",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4c-supplier-profile-evidence-blocks.md", phase4cSupplierProfileEvidenceBlocks, marker);
+}
+for (const marker of [
+  "Backend Phase 4D",
+  "Supplier Profile Legal/Compliance Details Source Boundary",
+  "legalDetails",
+  "legal_details",
+  "qualified_unlocked",
+  "not safe for locked buyer views",
+  "No frontend hash-based legal/compliance synthesis remains",
+  "10,000 Concurrent-User Review",
+]) {
+  requireText("docs/backend/phase-4d-supplier-profile-legal-details.md", phase4dSupplierProfileLegalDetails, marker);
 }
 for (const marker of [
   "PasswordRecoveryDeliveryWorker",

@@ -23,6 +23,7 @@ import type {
   SupplierFaqItem,
   SupplierShipmentCase,
 } from "@/lib/supplier-evidence-blocks";
+import type { SupplierLegalDetails } from "@/lib/supplier-legal";
 
 export type SupplierType =
   | "producer"
@@ -109,6 +110,8 @@ export interface MockSupplier {
   shipmentCases?: SupplierShipmentCase[];
   /** Published profile FAQ blocks owned by supplier-directory API when configured. */
   faqItems?: SupplierFaqItem[];
+  /** Restricted legal/compliance details owned by supplier-directory API when configured. */
+  legalDetails?: SupplierLegalDetails | null;
 
   // ----- contact channels (gated by UI) -----
   website?: string;

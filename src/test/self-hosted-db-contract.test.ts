@@ -45,6 +45,8 @@ const supplierProfileDossierFactsSql = () =>
   readFileSync("packages/db/migrations/0031_supplier_profile_dossier_facts.sql", "utf8");
 const supplierProfileEvidenceBlocksSql = () =>
   readFileSync("packages/db/migrations/0032_supplier_profile_evidence_blocks.sql", "utf8");
+const supplierProfileLegalDetailsSql = () =>
+  readFileSync("packages/db/migrations/0033_supplier_profile_legal_details.sql", "utf8");
 const registrySql = () => readFileSync("packages/db/migrations/0000_migration_registry.sql", "utf8");
 const manifest = () => JSON.parse(readFileSync("packages/db/migration-manifest.json", "utf8"));
 
@@ -139,6 +141,16 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("yorso_suppliers_shipment_cases_array");
     expect(text).toContain("yorso_suppliers_profile_faq_items_array");
     expect(text).toContain("API-owned and safe for locked buyer views");
+  });
+
+  it("adds restricted backend-owned supplier legal details to the supplier directory record", () => {
+    const text = supplierProfileLegalDetailsSql();
+
+    expect(text).toContain("alter table yorso_suppliers_directory");
+    expect(text).toContain("legal_details jsonb");
+    expect(text).toContain("yorso_suppliers_legal_details_object_or_null");
+    expect(text).toContain("qualified_unlocked");
+    expect(text).toContain("not safe for locked buyer views");
   });
 
   it("declares offer catalog tables and search indexes owned by YORSO", () => {
@@ -516,6 +528,7 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
       "0030_auth_password_recovery_abuse_cleanup",
       "0031_supplier_profile_dossier_facts",
       "0032_supplier_profile_evidence_blocks",
+      "0033_supplier_profile_legal_details",
     ]);
     expect(data.migrations).toEqual(
       expect.arrayContaining([
@@ -683,6 +696,11 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
           id: "0032_supplier_profile_evidence_blocks",
           ownedTables: ["yorso_suppliers_directory"],
           dependsOn: ["0031_supplier_profile_dossier_facts"],
+        }),
+        expect.objectContaining({
+          id: "0033_supplier_profile_legal_details",
+          ownedTables: ["yorso_suppliers_directory"],
+          dependsOn: ["0032_supplier_profile_evidence_blocks"],
         }),
       ]),
     );

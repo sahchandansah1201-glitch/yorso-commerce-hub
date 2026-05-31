@@ -186,7 +186,7 @@ starts.
 | `/offers` | self-hosted catalog API when configured; API-disabled local fixture preview; no Supabase fallback | offer catalog API, public and qualified views | Phase 3A closed |
 | `/offers/:id` | self-hosted catalog API when configured; API-disabled local fixture preview; no Supabase fallback | offer detail API, documents, related offers | Phase 3A closed |
 | `/suppliers` | self-hosted supplier directory API when configured; API-disabled mock preview only | supplier directory public/qualified views | Phase 4A source-of-truth audit |
-| `/suppliers/:supplierId` | self-hosted supplier detail API when configured; API-disabled mock preview only; production/logistics dossier facts from backend-owned `productionFacts` / `logisticsFacts` | supplier profile public/qualified/owner views, backend-owned dossier facts | Phase 4B dossier facts |
+| `/suppliers/:supplierId` | self-hosted supplier detail API when configured; API-disabled mock preview only; backend-owned dossier/evidence/legal fields: `productionFacts`, `logisticsFacts`, `shipmentCases`, `faqItems`, qualified-only `legalDetails` | supplier profile public/qualified/owner views, owner/admin editing and restricted document payloads | Phase 4D legal details |
 | Supplier access panel | self-hosted access API when configured; API-disabled local preview; no Supabase fallback | access request workflow, grants, notifications and audit | Phase 3B closed |
 | Catalog request form | sessionStorage mock | RFQ request API | P1 |
 | Blog | static data files | content source, SEO metadata, sitemap/RSS | P2 |
@@ -707,8 +707,8 @@ Required tests:
 
 Current known quality risks from audit:
 
-- supplier legal/compliance details, shipment evidence and FAQ source still
-  need a backend-owned evidence pass;
+- supplier legal/compliance details, shipment evidence and FAQ source are now
+  backend-owned through Phase 4C/4D supplier directory fields;
 - supplier owner/admin editing is not implemented yet;
 - API-disabled `mockSuppliers` preview still exists for local/Lovable preview
   and should be retired only by a separate demo-mode decision.

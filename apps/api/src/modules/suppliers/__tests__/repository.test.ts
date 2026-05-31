@@ -135,6 +135,14 @@ describe("supplier directory repositories", () => {
                   params: { n: 2 },
                 },
               ],
+              legal_details: {
+                registrationLabel: "Backend Registry",
+                registrationNumber: "BACKEND-REG-999",
+                vatNumber: "BACKEND-VAT-999",
+                eoriNumber: "BACKEND-EORI-999",
+                legalForm: "Backend AS",
+                foundedDate: "2010-04-17",
+              },
               updated_at: new Date("2026-05-14T00:00:00.000Z"),
               total_count: 1,
             },
@@ -182,6 +190,10 @@ describe("supplier directory repositories", () => {
           params: { n: 2 },
         },
       ],
+      legalDetails: {
+        registrationNumber: "BACKEND-REG-999",
+        legalForm: "Backend AS",
+      },
     });
     expect(calls[0].sql).toContain("from yorso_suppliers_directory");
     expect(calls[0].sql).toContain("publication_status = 'published'");
