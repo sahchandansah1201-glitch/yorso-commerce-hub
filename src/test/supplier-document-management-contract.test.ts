@@ -6,6 +6,7 @@ import {
   supplierDocumentManagementDecisionRequestSchema,
   supplierDocumentManagementDecisionResponseSchema,
   supplierDocumentManagementDeleteResponseSchema,
+  supplierDocumentManagementLifecycleRequestSchema,
   supplierDocumentManagementUpdateRequestSchema,
   supplierDocumentManagementUpdateResponseSchema,
 } from "../../packages/contracts/src";
@@ -83,6 +84,30 @@ describe("supplier document management contracts", () => {
       action: "supplier_document.approve",
       nextStatus: "approved",
     });
+  });
+
+  it("accepts only admin lifecycle expire/delete actions", () => {
+    expect(
+      supplierDocumentManagementLifecycleRequestSchema.parse({
+        action: "expire",
+        reason: "certificate_expired",
+      }),
+    ).toEqual({
+      action: "expire",
+      reason: "certificate_expired",
+    });
+    expect(
+      supplierDocumentManagementLifecycleRequestSchema.parse({
+        action: "delete",
+      }),
+    ).toEqual({
+      action: "delete",
+    });
+    expect(() =>
+      supplierDocumentManagementLifecycleRequestSchema.parse({
+        action: "approve",
+      }),
+    ).toThrow();
   });
 
   it("returns sanitized owner create responses without backend file storage identifiers", () => {

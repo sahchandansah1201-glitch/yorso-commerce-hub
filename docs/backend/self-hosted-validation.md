@@ -1967,3 +1967,49 @@ Required markers:
 - `supplier_document.delete`;
 - `approved_document_immutable`;
 - `10,000 concurrent users`.
+
+## Backend Phase 4P Supplier Document Admin Lifecycle Cleanup Validation
+
+Run:
+
+```bash
+npm run test:supplier-document-management-runtime
+npm run test:supplier-document-management-policy
+npm run smoke:self-hosted-account-api:run
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`
+  requires an authenticated self-hosted admin session.
+- Buyer/supplier owner sessions receive `admin_role_required`; missing sessions
+  fail through the account session boundary.
+- The request body accepts only `action=expire|delete` and optional bounded
+  audit `reason`.
+- `manageSupplierDocumentLifecycleAsAdmin` applies the Phase 4L policy:
+  `approved -> expired` for `expire`; `review/on_request/expired -> null` for
+  `delete`.
+- Approved-document delete returns `approved_document_immutable`.
+- Invalid lifecycle status transitions return `invalid_status_transition`.
+- PostgreSQL expire/delete paths mutate the JSONB document array and insert
+  `yorso_supplier_document_management_events` audit metadata in one CTE.
+- The browser response is sanitized and contains no storage identifiers or
+  `downloadPath`.
+- Smoke output includes `supplier_document_admin_lifecycle_cleanup=ok`.
+
+Required markers:
+
+- `Backend Phase 4P`;
+- `Supplier Document Admin Lifecycle Cleanup`;
+- `/v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`;
+- `manageSupplierDocumentLifecycleAsAdmin`;
+- `expireSupplierDocumentAsAdmin`;
+- `deleteSupplierDocumentAsAdmin`;
+- `supplierDocumentManagementLifecycleRequestSchema`;
+- `supplier_document_admin_lifecycle_cleanup=ok`;
+- `supplier_document.expire`;
+- `supplier_document.delete`;
+- `approved_document_immutable`;
+- `10,000 concurrent users`.

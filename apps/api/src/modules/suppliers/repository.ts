@@ -36,6 +36,8 @@ export interface SupplierRepository {
   listDocumentDownloadEvents(input: SupplierDocumentDownloadEventAdminQuery): Promise<SupplierDocumentDownloadEventRecord[]>;
   createSupplierDocumentForOwner(input: SupplierDocumentManagementCreateInput): Promise<SupplierDocumentManagementCreateRecord | null>;
   decideSupplierDocumentAsAdmin(input: SupplierDocumentManagementDecisionInput): Promise<SupplierDocumentManagementCreateRecord | null>;
+  expireSupplierDocumentAsAdmin(input: SupplierDocumentManagementDecisionInput): Promise<SupplierDocumentManagementCreateRecord | null>;
+  deleteSupplierDocumentAsAdmin(input: SupplierDocumentManagementAdminDeleteInput): Promise<SupplierDocumentManagementCreateRecord | null>;
   updateSupplierDocumentForOwner(input: SupplierDocumentManagementUpdateInput): Promise<SupplierDocumentManagementCreateRecord | null>;
   deleteSupplierDocumentForOwner(input: SupplierDocumentManagementDeleteInput): Promise<SupplierDocumentManagementCreateRecord | null>;
 }
@@ -118,6 +120,14 @@ export interface SupplierDocumentManagementUpdateInput {
 export interface SupplierDocumentManagementDeleteInput {
   supplierId: string;
   ownerCompanyId: string;
+  documentId: string;
+  currentStatus: SupplierDocumentPayload["status"];
+  actorUserId: string;
+  auditEvent: SupplierDocumentManagementAuditEvent;
+}
+
+export interface SupplierDocumentManagementAdminDeleteInput {
+  supplierId: string;
   documentId: string;
   currentStatus: SupplierDocumentPayload["status"];
   actorUserId: string;
@@ -613,6 +623,27 @@ export class MemorySupplierRepository implements SupplierRepository {
     if (!document || document.status !== input.currentStatus) return null;
 
     document.status = input.nextStatus;
+    supplier.updatedAt = new Date().toISOString();
+    this.documentManagementAudit.push({ ...input.auditEvent });
+
+    return structuredClone({
+      document,
+      auditEvent: input.auditEvent,
+    });
+  }
+
+  async expireSupplierDocumentAsAdmin(input: SupplierDocumentManagementDecisionInput) {
+    return this.decideSupplierDocumentAsAdmin(input);
+  }
+
+  async deleteSupplierDocumentAsAdmin(input: SupplierDocumentManagementAdminDeleteInput) {
+    const supplier = this.suppliers.find((item) => item.id === input.supplierId);
+    if (!supplier) return null;
+    const documentIndex = supplier.supplierDocuments.findIndex((item) => item.id === input.documentId);
+    const document = supplier.supplierDocuments[documentIndex];
+    if (!document || document.status !== input.currentStatus) return null;
+
+    supplier.supplierDocuments.splice(documentIndex, 1);
     supplier.updatedAt = new Date().toISOString();
     this.documentManagementAudit.push({ ...input.auditEvent });
 

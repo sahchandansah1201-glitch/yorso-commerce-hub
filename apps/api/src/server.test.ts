@@ -1846,6 +1846,171 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(serialized).not.toContain("downloadPath");
   });
 
+  it("lets admins expire and delete supplier documents through lifecycle cleanup without leaking storage identifiers", async () => {
+    const fetchApi = await startRawTestServer({ supplierRepository: new MemorySupplierRepository() });
+    const ownerHeaders = await signIn(fetchApi, "buyer@example.com");
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+
+    const createReviewDocument = async (title: string, fileName: string) => {
+      const uploaded = await fetchApi("/v1/account/documents", {
+        method: "POST",
+        headers: ownerHeaders,
+        body: JSON.stringify({
+          title,
+          documentType: "other",
+          visibility: "buyer_qualified",
+          expiresAt: "2027-05-31",
+          file: filePayload(`${title} bytes`, fileName, "application/pdf"),
+        }),
+      });
+      const uploadedBody = (await uploaded.json()) as JsonBody;
+      expect(uploaded.status).toBe(201);
+
+      const created = await fetchApi("/v1/suppliers/sup-no-001/documents", {
+        method: "POST",
+        headers: ownerHeaders,
+        body: JSON.stringify({
+          title,
+          documentType: "audit_report",
+          issuedAt: "2026-05-31",
+          expiresAt: "2027-05-31",
+          fileUploadId: (uploadedBody.document as JsonBody).fileAssetId,
+          fileName,
+        }),
+      });
+      const createdBody = (await created.json()) as JsonBody;
+      expect(created.status).toBe(201);
+      return {
+        fileAssetId: String((uploadedBody.document as JsonBody).fileAssetId),
+        documentId: String((createdBody.document as JsonBody).id),
+      };
+    };
+
+    const expireTarget = await createReviewDocument("Lifecycle expire target", "lifecycle-expire.pdf");
+    const lifecyclePath = `/v1/admin/supplier-documents/sup-no-001/documents/${expireTarget.documentId}/lifecycle`;
+
+    const missingSession = await fetchApi(lifecyclePath, {
+      method: "POST",
+      body: JSON.stringify({ action: "expire" }),
+    });
+    expect(missingSession.status).toBe(401);
+
+    const nonAdmin = await fetchApi(lifecyclePath, {
+      method: "POST",
+      headers: ownerHeaders,
+      body: JSON.stringify({ action: "expire" }),
+    });
+    const nonAdminBody = (await nonAdmin.json()) as JsonBody;
+    expect(nonAdmin.status).toBe(403);
+    expect(nonAdminBody.error).toMatchObject({ code: "admin_role_required" });
+
+    const invalidExpire = await fetchApi(lifecyclePath, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ action: "expire" }),
+    });
+    const invalidExpireBody = (await invalidExpire.json()) as JsonBody;
+    expect(invalidExpire.status).toBe(409);
+    expect(invalidExpireBody.error).toMatchObject({ code: "invalid_status_transition" });
+
+    const approved = await fetchApi(`/v1/admin/supplier-documents/sup-no-001/documents/${expireTarget.documentId}/decision`, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ decision: "approve", reason: "verified_against_registry" }),
+    });
+    expect(approved.status).toBe(200);
+
+    const blockedApprovedDelete = await fetchApi(lifecyclePath, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ action: "delete", reason: "admin_cleanup_requested" }),
+    });
+    const blockedApprovedDeleteBody = (await blockedApprovedDelete.json()) as JsonBody;
+    expect(blockedApprovedDelete.status).toBe(409);
+    expect(blockedApprovedDeleteBody.error).toMatchObject({ code: "approved_document_immutable" });
+
+    const expired = await fetchApi(lifecyclePath, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ action: "expire", reason: "certificate_expired" }),
+    });
+    const expiredBody = (await expired.json()) as JsonBody;
+    expect(expired.status).toBe(200);
+    expect(expiredBody).toMatchObject({
+      ok: true,
+      document: {
+        id: expireTarget.documentId,
+        status: "expired",
+      },
+      audit: {
+        action: "supplier_document.expire",
+        actorRole: "admin",
+        supplierId: "sup-no-001",
+        documentId: expireTarget.documentId,
+        previousStatus: "approved",
+        nextStatus: "expired",
+        reason: "certificate_expired",
+      },
+    });
+
+    const deletedExpired = await fetchApi(lifecyclePath, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ action: "delete", reason: "expired_document_cleanup" }),
+    });
+    const deletedExpiredBody = (await deletedExpired.json()) as JsonBody;
+    expect(deletedExpired.status).toBe(200);
+    expect(deletedExpiredBody).toMatchObject({
+      ok: true,
+      document: {
+        id: expireTarget.documentId,
+        status: "expired",
+      },
+      audit: {
+        action: "supplier_document.delete",
+        actorRole: "admin",
+        supplierId: "sup-no-001",
+        documentId: expireTarget.documentId,
+        previousStatus: "expired",
+        nextStatus: null,
+        reason: "expired_document_cleanup",
+      },
+    });
+
+    const reviewDeleteTarget = await createReviewDocument("Lifecycle review delete target", "lifecycle-review-delete.pdf");
+    const deletedReview = await fetchApi(`/v1/admin/supplier-documents/sup-no-001/documents/${reviewDeleteTarget.documentId}/lifecycle`, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ action: "delete", reason: "duplicate_review_document" }),
+    });
+    const deletedReviewBody = (await deletedReview.json()) as JsonBody;
+    expect(deletedReview.status).toBe(200);
+    expect(deletedReviewBody).toMatchObject({
+      ok: true,
+      document: {
+        id: reviewDeleteTarget.documentId,
+        status: "review",
+      },
+      audit: {
+        action: "supplier_document.delete",
+        actorRole: "admin",
+        supplierId: "sup-no-001",
+        documentId: reviewDeleteTarget.documentId,
+        previousStatus: "review",
+        nextStatus: null,
+        reason: "duplicate_review_document",
+      },
+    });
+
+    const serialized = `${JSON.stringify(expiredBody)}\n${JSON.stringify(deletedExpiredBody)}\n${JSON.stringify(deletedReviewBody)}`;
+    expect(serialized).not.toContain(expireTarget.fileAssetId);
+    expect(serialized).not.toContain(reviewDeleteTarget.fileAssetId);
+    expect(serialized).not.toContain("fileAssetId");
+    expect(serialized).not.toContain("objectKey");
+    expect(serialized).not.toContain("storage");
+    expect(serialized).not.toContain("downloadPath");
+  });
+
   it("lets supplier owners update and delete non-approved documents without leaking backend file storage identifiers", async () => {
     const supplierRepository = new MemorySupplierRepository();
     const fetchApi = await startRawTestServer({ supplierRepository });

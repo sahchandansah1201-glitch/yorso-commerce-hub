@@ -10,6 +10,7 @@ import {
   supplierDocumentManagementDecisionRequestSchema,
   supplierDocumentManagementDecisionResponseSchema,
   supplierDocumentManagementDeleteResponseSchema,
+  supplierDocumentManagementLifecycleRequestSchema,
   supplierDirectoryDetailResponseSchema,
   supplierDirectoryItemSchema,
   supplierDirectoryListResponseSchema,
@@ -420,6 +421,77 @@ export class SupplierDirectoryService {
     if (!record) throw new Error("invalid_status_transition");
 
     return supplierDocumentManagementDecisionResponseSchema.parse({
+      ok: true,
+      document: redactSupplierDocumentManagementItem(record.document),
+      audit: record.auditEvent,
+      requestId,
+    });
+  }
+
+  async manageSupplierDocumentLifecycleAsAdmin(
+    supplierId: string,
+    documentId: string,
+    payload: unknown,
+    requestId: string,
+    admin: { userId: string },
+  ) {
+    const lifecycle = supplierDocumentManagementLifecycleRequestSchema.parse(payload);
+    const supplier = await this.repository.getSupplierById(supplierId);
+    if (!supplier) throw new Error("supplier_not_found");
+
+    const document = supplier.supplierDocuments.find((item) => item.id === documentId);
+    if (!document) throw new Error("supplier_document_not_found");
+
+    const policy = evaluateSupplierDocumentManagementPolicy({
+      actorRole: "admin",
+      action: lifecycle.action,
+      currentStatus: document.status,
+    });
+    if (!policy.allowed) throw new Error(policy.reason);
+
+    const now = new Date().toISOString();
+    const auditEvent = {
+      action: policy.auditAction,
+      actorRole: "admin" as const,
+      supplierId,
+      documentId,
+      previousStatus: document.status,
+      nextStatus: policy.nextStatus,
+      reason: lifecycle.reason ?? (lifecycle.action === "expire" ? "admin_expired_approved_document" : "admin_deleted_supplier_document"),
+      requestId,
+      createdAt: now,
+    };
+
+    if (lifecycle.action === "expire") {
+      if (!policy.nextStatus) throw new Error(policy.reason);
+      const record = await this.repository.expireSupplierDocumentAsAdmin({
+        supplierId,
+        documentId,
+        currentStatus: document.status,
+        nextStatus: policy.nextStatus,
+        actorUserId: admin.userId,
+        auditEvent,
+      });
+      if (!record) throw new Error("invalid_status_transition");
+
+      return supplierDocumentManagementUpdateResponseSchema.parse({
+        ok: true,
+        document: redactSupplierDocumentManagementItem(record.document),
+        audit: record.auditEvent,
+        requestId,
+      });
+    }
+
+    const record = await this.repository.deleteSupplierDocumentAsAdmin({
+      supplierId,
+      documentId,
+      currentStatus: document.status,
+      actorUserId: admin.userId,
+      auditEvent,
+    });
+    if (!record) throw new Error("invalid_status_transition");
+
+    return supplierDocumentManagementDeleteResponseSchema.parse({
       ok: true,
       document: redactSupplierDocumentManagementItem(record.document),
       audit: record.auditEvent,

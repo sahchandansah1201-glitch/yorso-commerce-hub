@@ -29,7 +29,7 @@ export async function handleSupplierDocumentAdminRoute(
   const routeConfig = resolveSupplierDocumentAdminRoute(url.pathname);
   if (!routeConfig) return false;
 
-  const expectedMethod = routeConfig.kind === "decision" ? "POST" : "GET";
+  const expectedMethod = routeConfig.kind === "decision" || routeConfig.kind === "lifecycle" ? "POST" : "GET";
   if (request.method !== expectedMethod) {
     methodNotAllowed(response, context, expectedMethod);
     return true;
@@ -51,6 +51,24 @@ export async function handleSupplierDocumentAdminRoute(
         return true;
       }
       const payload = await service.decideSupplierDocumentAsAdmin(
+        routeConfig.supplierId,
+        routeConfig.documentId,
+        await readJsonBody(request, jsonBodyOptions),
+        context.requestId,
+        { userId: session.userId },
+      );
+      auditSupplierDocumentAdminRead(auditSink, context, request, session, routeConfig, "success", null, 200);
+      sendJson(response, 200, payload);
+      return true;
+    }
+
+    if (routeConfig.kind === "lifecycle") {
+      if (!jsonBodyOptions) {
+        auditSupplierDocumentAdminRead(auditSink, context, request, session, routeConfig, "failure", "supplier_document_management_unavailable", 503);
+        sendError(response, 503, "supplier_document_management_unavailable", "Supplier document management is unavailable.", context);
+        return true;
+      }
+      const payload = await service.manageSupplierDocumentLifecycleAsAdmin(
         routeConfig.supplierId,
         routeConfig.documentId,
         await readJsonBody(request, jsonBodyOptions),
@@ -141,9 +159,19 @@ type SupplierDocumentAdminDecisionRouteConfig = {
   supplierId: string;
 };
 
+type SupplierDocumentAdminLifecycleRouteConfig = {
+  action: string;
+  documentId: string;
+  kind: "lifecycle";
+  resourceType: string;
+  route: string;
+  supplierId: string;
+};
+
 type SupplierDocumentAdminRouteConfig =
   | SupplierDocumentAdminReadRouteConfig
-  | SupplierDocumentAdminDecisionRouteConfig;
+  | SupplierDocumentAdminDecisionRouteConfig
+  | SupplierDocumentAdminLifecycleRouteConfig;
 
 function resolveSupplierDocumentAdminRoute(pathname: string): SupplierDocumentAdminRouteConfig | null {
   const decisionMatch = pathname.match(/^\/v1\/admin\/supplier-documents\/([^/]+)\/documents\/([^/]+)\/decision$/);
@@ -155,6 +183,18 @@ function resolveSupplierDocumentAdminRoute(pathname: string): SupplierDocumentAd
       resourceType: "supplier_document",
       route: "/v1/admin/supplier-documents/:supplierId/documents/:documentId/decision",
       supplierId: decodeURIComponent(decisionMatch[1]),
+    };
+  }
+
+  const lifecycleMatch = pathname.match(/^\/v1\/admin\/supplier-documents\/([^/]+)\/documents\/([^/]+)\/lifecycle$/);
+  if (lifecycleMatch) {
+    return {
+      action: "admin.supplier_document_management.lifecycle",
+      documentId: decodeURIComponent(lifecycleMatch[2]),
+      kind: "lifecycle",
+      resourceType: "supplier_document",
+      route: "/v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle",
+      supplierId: decodeURIComponent(lifecycleMatch[1]),
     };
   }
 

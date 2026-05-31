@@ -167,6 +167,11 @@ export const supplierDocumentManagementDecisionRequestSchema = z.object({
   reason: z.string().trim().min(1).max(160).optional(),
 }).strict();
 
+export const supplierDocumentManagementLifecycleRequestSchema = z.object({
+  action: z.enum(["expire", "delete"]),
+  reason: z.string().trim().min(1).max(160).optional(),
+}).strict();
+
 export const supplierDocumentManagementAuditEventSchema = z.object({
   action: supplierDocumentManagementAuditActionSchema,
   actorRole: supplierDocumentManagementRoleSchema,
@@ -416,6 +421,7 @@ export type SupplierDocumentManagementDecisionRequest = z.infer<typeof supplierD
 export type SupplierDocumentManagementDecisionResponse = z.infer<typeof supplierDocumentManagementDecisionResponseSchema>;
 export type SupplierDocumentManagementDeleteResponse = z.infer<typeof supplierDocumentManagementDeleteResponseSchema>;
 export type SupplierDocumentManagementItem = z.infer<typeof supplierDocumentManagementItemSchema>;
+export type SupplierDocumentManagementLifecycleRequest = z.infer<typeof supplierDocumentManagementLifecycleRequestSchema>;
 export type SupplierDocumentManagementRole = z.infer<typeof supplierDocumentManagementRoleSchema>;
 export type SupplierDocumentManagementUpdateRequest = z.infer<typeof supplierDocumentManagementUpdateRequestSchema>;
 export type SupplierDocumentManagementUpdateResponse = z.infer<typeof supplierDocumentManagementUpdateResponseSchema>;

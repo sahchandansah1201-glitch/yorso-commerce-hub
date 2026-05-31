@@ -480,6 +480,181 @@ describe("supplier directory repositories", () => {
     ]);
   });
 
+  it("PostgreSQL repository expires approved supplier documents as admin with one audited CTE", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const document = {
+      id: "sdoc_approved_1",
+      title: "Approved factory audit",
+      documentType: "audit_report" as const,
+      status: "expired" as const,
+      issuedAt: "2026-05-31",
+      expiresAt: "2027-05-31",
+      fileName: "factory-audit.pdf",
+      fileAssetId: "11111111-1111-4111-8111-111111111111",
+    };
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        return {
+          rows: [
+            {
+              document,
+              action: "supplier_document.expire",
+              actorRole: "admin",
+              supplierId: "sup-no-001",
+              documentId: "sdoc_approved_1",
+              previousStatus: "approved",
+              nextStatus: "expired",
+              reason: "certificate_expired",
+              requestId: "req-admin-expire",
+              createdAt: new Date("2026-05-31T11:10:00.000Z"),
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+
+    const expired = await repository.expireSupplierDocumentAsAdmin({
+      supplierId: "sup-no-001",
+      documentId: "sdoc_approved_1",
+      currentStatus: "approved",
+      nextStatus: "expired",
+      actorUserId: "00000000-0000-4000-8000-000000000090",
+      auditEvent: {
+        action: "supplier_document.expire",
+        actorRole: "admin",
+        supplierId: "sup-no-001",
+        documentId: "sdoc_approved_1",
+        previousStatus: "approved",
+        nextStatus: "expired",
+        reason: "certificate_expired",
+        requestId: "req-admin-expire",
+        createdAt: "2026-05-31T11:10:00.000Z",
+      },
+    });
+
+    expect(expired).toMatchObject({
+      document: {
+        id: "sdoc_approved_1",
+        status: "expired",
+      },
+      auditEvent: {
+        action: "supplier_document.expire",
+        actorRole: "admin",
+        previousStatus: "approved",
+        nextStatus: "expired",
+      },
+    });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].sql).toContain("with target_document as");
+    expect(calls[0].sql).toContain("update yorso_suppliers_directory");
+    expect(calls[0].sql).toContain("jsonb_set(");
+    expect(calls[0].sql).toContain("document.value->>'status' = $3");
+    expect(calls[0].sql).toContain("insert into yorso_supplier_document_management_events");
+    expect(calls[0].params).toEqual([
+      "sup-no-001",
+      "sdoc_approved_1",
+      "approved",
+      "expired",
+      "supplier_document.expire",
+      "admin",
+      "00000000-0000-4000-8000-000000000090",
+      "approved",
+      "expired",
+      "certificate_expired",
+      "req-admin-expire",
+      "2026-05-31T11:10:00.000Z",
+    ]);
+  });
+
+  it("PostgreSQL repository deletes supplier documents as admin with one audited CTE", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const document = {
+      id: "sdoc_expired_1",
+      title: "Expired factory audit",
+      documentType: "audit_report" as const,
+      status: "expired" as const,
+      issuedAt: "2026-05-31",
+      expiresAt: "2027-05-31",
+      fileName: "factory-audit.pdf",
+      fileAssetId: "11111111-1111-4111-8111-111111111111",
+    };
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        return {
+          rows: [
+            {
+              document,
+              action: "supplier_document.delete",
+              actorRole: "admin",
+              supplierId: "sup-no-001",
+              documentId: "sdoc_expired_1",
+              previousStatus: "expired",
+              nextStatus: null,
+              reason: "expired_document_cleanup",
+              requestId: "req-admin-delete",
+              createdAt: new Date("2026-05-31T11:15:00.000Z"),
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+
+    const deleted = await repository.deleteSupplierDocumentAsAdmin({
+      supplierId: "sup-no-001",
+      documentId: "sdoc_expired_1",
+      currentStatus: "expired",
+      actorUserId: "00000000-0000-4000-8000-000000000090",
+      auditEvent: {
+        action: "supplier_document.delete",
+        actorRole: "admin",
+        supplierId: "sup-no-001",
+        documentId: "sdoc_expired_1",
+        previousStatus: "expired",
+        nextStatus: null,
+        reason: "expired_document_cleanup",
+        requestId: "req-admin-delete",
+        createdAt: "2026-05-31T11:15:00.000Z",
+      },
+    });
+
+    expect(deleted).toMatchObject({
+      document: {
+        id: "sdoc_expired_1",
+        status: "expired",
+      },
+      auditEvent: {
+        action: "supplier_document.delete",
+        actorRole: "admin",
+        previousStatus: "expired",
+        nextStatus: null,
+      },
+    });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].sql).toContain("with target_document as");
+    expect(calls[0].sql).not.toContain("company_id = $2::uuid");
+    expect(calls[0].sql).toContain("jsonb_array_elements(supplier.supplier_documents)");
+    expect(calls[0].sql).toContain("jsonb_agg(remaining.value order by remaining.ordinality)");
+    expect(calls[0].sql).toContain("document.value->>'status' = $3");
+    expect(calls[0].sql).toContain("insert into yorso_supplier_document_management_events");
+    expect(calls[0].params).toEqual([
+      "sup-no-001",
+      "sdoc_expired_1",
+      "expired",
+      "supplier_document.delete",
+      "admin",
+      "00000000-0000-4000-8000-000000000090",
+      "expired",
+      null,
+      "expired_document_cleanup",
+      "req-admin-delete",
+      "2026-05-31T11:15:00.000Z",
+    ]);
+  });
+
   it("PostgreSQL repository updates supplier owner document metadata with one audited CTE", async () => {
     const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
     const document = {

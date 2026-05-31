@@ -6381,6 +6381,92 @@ Marker: supplier_document.delete.
 Marker: approved_document_immutable.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4P - Supplier Document Admin Lifecycle Cleanup
+
+Status: implemented.
+
+Phase 4P adds admin lifecycle cleanup for supplier documents: expire approved
+documents and delete review/on_request/expired documents through one
+self-hosted admin route. Frontend UI, automated expiry scheduling and file
+replacement remain outside this increment.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Add admin lifecycle route. | `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle` accepts `expire/delete`. | Admin UI and management-event listing remain future scopes. |
+| Expire approved documents. | `action=expire` changes `approved -> expired`. | Automated expiry scheduler remains future work. |
+| Delete cleanup documents. | `action=delete` removes `review/on_request/expired`; `approved` is immutable. | Replacement flow remains future work. |
+| Keep storage internals private. | Responses omit `fileAssetId`, object keys, storage keys, `downloadPath` and direct URLs. | Same boundary must hold for replacement/file lifecycle. |
+| Persist audit. | `supplier_document.expire` / admin `supplier_document.delete` are inserted into `yorso_supplier_document_management_events`. | Management-event listing/export remains future work. |
+
+Expected read/write profile:
+
+- This is low-volume admin operational mutation traffic.
+- A successful request performs one session resolution, one admin role check,
+  one supplier detail read, one supplier row JSONB update/delete and one audit
+  insert.
+- The endpoint stays uncached.
+
+Cache, queue and backpressure strategy:
+
+- Existing request-size, timeout, lifecycle and session fail-closed guardrails
+  apply.
+- No queue, scheduler, polling, worker or external provider is added.
+- Automated expiry and file scanning/replacement must use separate
+  outbox/worker phases.
+
+Database indexing and pagination strategy:
+
+- The mutation is a point write by supplier id, document id and current status.
+- The current status predicate prevents stale lifecycle races.
+- `yorso_supplier_document_management_events` already has supplier/recent,
+  actor/recent, action/recent and supplier/document/recent indexes.
+- Future management-event listing must use bounded `limit <= 100` or cursor
+  pagination.
+
+Failure mode and graceful degradation:
+
+- Missing/invalid session uses existing account session errors.
+- Non-admin accounts return `admin_role_required`.
+- Missing supplier returns `supplier_not_found`.
+- Missing document returns `supplier_document_not_found`.
+- Approved document delete returns `approved_document_immutable`.
+- Invalid lifecycle status transitions return `invalid_status_transition`.
+- Failed responses do not reveal storage internals.
+
+Observability and load-test plan:
+
+- Successful expiry persists `supplier_document.expire`.
+- Successful admin deletion persists `supplier_document.delete` with
+  `actorRole=admin`.
+- Admin route attempts emit `admin.supplier_document_management.lifecycle`.
+- Smoke output must include `supplier_document_admin_lifecycle_cleanup=ok`.
+- Load tests should cover concurrent expire/delete on the same document,
+  repeated lifecycle actions, malformed payloads, non-admin denial and
+  immutable approved-document delete at the 10,000 concurrent-user baseline.
+
+Validation:
+
+- `npm run test:supplier-document-management-runtime`;
+- `npm run test:supplier-document-management-policy`;
+- `npm run smoke:self-hosted-account-api:run`;
+- `npm run check:self-hosted-api`;
+- `npm run check:production-scale-baseline`.
+
+Marker: Backend Phase 4P Supplier Document Admin Lifecycle Cleanup.
+Marker: /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle.
+Marker: manageSupplierDocumentLifecycleAsAdmin.
+Marker: expireSupplierDocumentAsAdmin.
+Marker: deleteSupplierDocumentAsAdmin.
+Marker: supplierDocumentManagementLifecycleRequestSchema.
+Marker: yorso_supplier_document_management_events.
+Marker: supplier_document_admin_lifecycle_cleanup=ok.
+Marker: supplier_document.expire.
+Marker: supplier_document.delete.
+Marker: approved_document_immutable.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

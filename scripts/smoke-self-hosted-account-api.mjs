@@ -666,6 +666,38 @@ async function runSmoke(baseUrl) {
   assertDoesNotContain(supplierDocumentOwnerDelete, "fileAssetId", "supplier owner delete file asset field");
   console.log("supplier_document_owner_update_delete=ok");
 
+  const supplierDocumentAdminExpire = await jsonRequestAs(
+    baseUrl,
+    `/v1/admin/supplier-documents/sup-no-001/documents/${encodeURIComponent(supplierDocumentCreate.document.id)}/lifecycle`,
+    adminHeaders,
+    {
+      method: "POST",
+      body: { action: "expire", reason: "smoke_admin_expired_document" },
+    },
+  );
+  assertEqual(supplierDocumentAdminExpire.ok, true, "supplier admin expire ok");
+  assertEqual(supplierDocumentAdminExpire.document?.status, "expired", "supplier admin expired status");
+  assertEqual(supplierDocumentAdminExpire.audit?.action, "supplier_document.expire", "supplier admin expire audit action");
+  assertDoesNotContain(supplierDocumentAdminExpire, documentCreate.document.fileAssetId, "supplier admin expire file asset id");
+  assertDoesNotContain(supplierDocumentAdminExpire, "fileAssetId", "supplier admin expire file asset field");
+
+  const supplierDocumentAdminDelete = await jsonRequestAs(
+    baseUrl,
+    `/v1/admin/supplier-documents/sup-no-001/documents/${encodeURIComponent(supplierDocumentCreate.document.id)}/lifecycle`,
+    adminHeaders,
+    {
+      method: "POST",
+      body: { action: "delete", reason: "smoke_admin_deleted_expired_document" },
+    },
+  );
+  assertEqual(supplierDocumentAdminDelete.ok, true, "supplier admin delete ok");
+  assertEqual(supplierDocumentAdminDelete.audit?.action, "supplier_document.delete", "supplier admin delete audit action");
+  assertEqual(supplierDocumentAdminDelete.audit?.actorRole, "admin", "supplier admin delete actor role");
+  assertEqual(supplierDocumentAdminDelete.audit?.nextStatus, null, "supplier admin delete next status");
+  assertDoesNotContain(supplierDocumentAdminDelete, documentCreate.document.fileAssetId, "supplier admin delete file asset id");
+  assertDoesNotContain(supplierDocumentAdminDelete, "fileAssetId", "supplier admin delete file asset field");
+  console.log("supplier_document_admin_lifecycle_cleanup=ok");
+
   const documents = await jsonRequest(baseUrl, "/v1/account/documents");
   assertEqual(documents.ok, true, "documents ok");
   assertEqual(

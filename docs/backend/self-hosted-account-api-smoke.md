@@ -99,6 +99,9 @@ The smoke test protects the production direction:
 - supplier document owner correction must work through the self-hosted API:
   rejected `on_request` documents can be updated and deleted by the supplier
   owner without exposing backend file asset identifiers.
+- supplier document admin lifecycle cleanup must work through the self-hosted
+  API: approved documents can be expired, expired documents can be deleted by
+  admin, and browser responses do not expose backend file asset identifiers.
 
 ## Runtime Mode
 
@@ -142,6 +145,7 @@ document_upload=ok
 supplier_document_owner_create_review=ok
 supplier_document_admin_decision_review=ok
 supplier_document_owner_update_delete=ok
+supplier_document_admin_lifecycle_cleanup=ok
 documents_list=ok
 supplier_directory_locked=ok
 supplier_directory_verified_filter=ok

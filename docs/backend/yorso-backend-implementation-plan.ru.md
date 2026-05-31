@@ -1202,3 +1202,41 @@ replacement и frontend UI не входят в этот инкремент.
 Следующий scoped backend direction после Phase 4O: admin expire/delete для
 non-approved/approved lifecycle cleanup либо listing по supplier document
 management events. Не смешивать с frontend UI без отдельного scope.
+
+## Backend Phase 4P Checkpoint - Admin lifecycle cleanup документов поставщика
+
+Статус: реализовано.
+
+Phase 4P реализует admin lifecycle cleanup для документов поставщика. Admin
+может expire approved-документы и delete документы в статусах
+`review/on_request/expired`. Frontend UI, automated expiry scheduler, file
+replacement и management-event listing не входят в этот инкремент.
+
+Реализовано:
+
+- `POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle`
+  для authenticated self-hosted admin session;
+- lifecycle payload `action=expire|delete` + optional bounded audit reason;
+- Phase 4L policy enforcement через `evaluateSupplierDocumentManagementPolicy`;
+- transition `approved -> expired` для `expire`;
+- delete cleanup для `review`, `on_request` и `expired`;
+- `approved_document_immutable` для попыток delete approved documents;
+- sanitized response без `fileAssetId`, `objectKey`, storage keys,
+  `downloadPath` и direct download URLs;
+- atomic PostgreSQL CTE: expire/delete в supplier document JSONB + insert в
+  `yorso_supplier_document_management_events`;
+- smoke marker `supplier_document_admin_lifecycle_cleanup=ok`.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Взять только admin lifecycle cleanup. | Admin expire/delete через `/lifecycle` реализован. | Frontend UI и event listing отдельными scope. |
+| Требовать admin session. | Buyer/supplier sessions получают `admin_role_required`. | Admin subroles отдельно. |
+| Сохранить immutable approved delete. | Delete approved возвращает `approved_document_immutable`. | Approved replacement flow отдельно. |
+| Не раскрывать storage internals. | Response не содержит `fileAssetId`, `objectKey`, storage keys, `downloadPath`, direct URLs. | Сохранить для replacement/file lifecycle. |
+| Писать audit. | `supplier_document.expire` / admin `supplier_document.delete` пишутся в `yorso_supplier_document_management_events`. | Admin listing по management events отдельно. |
+
+Следующий scoped backend direction после Phase 4P: listing/export по supplier
+document management events либо automated approved-document expiry scheduler. Не
+смешивать с frontend UI без отдельного scope.

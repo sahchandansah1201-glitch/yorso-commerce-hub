@@ -28,6 +28,7 @@ const requiredFiles = [
   "docs/backend/phase-4m-supplier-document-owner-create.md",
   "docs/backend/phase-4n-supplier-document-admin-decision.md",
   "docs/backend/phase-4o-supplier-document-owner-correction.md",
+  "docs/backend/phase-4p-supplier-document-admin-lifecycle.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -299,6 +300,7 @@ const phase4lSupplierDocumentManagementRules = read("docs/backend/phase-4l-suppl
 const phase4mSupplierDocumentOwnerCreate = read("docs/backend/phase-4m-supplier-document-owner-create.md");
 const phase4nSupplierDocumentAdminDecision = read("docs/backend/phase-4n-supplier-document-admin-decision.md");
 const phase4oSupplierDocumentOwnerCorrection = read("docs/backend/phase-4o-supplier-document-owner-correction.md");
+const phase4pSupplierDocumentAdminLifecycle = read("docs/backend/phase-4p-supplier-document-admin-lifecycle.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -453,6 +455,7 @@ const offerRoutes = read("apps/api/src/modules/offers/routes.ts");
 const supplierAdminRoutes = read("apps/api/src/modules/suppliers/admin-routes.ts");
 const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
 const supplierService = read("apps/api/src/modules/suppliers/service.ts");
+const supplierRepository = read("apps/api/src/modules/suppliers/repository.ts");
 const supplierPostgresRepository = read("apps/api/src/modules/suppliers/postgres-repository.ts");
 const supplierDocumentManagementPolicy = read("apps/api/src/modules/suppliers/document-management-policy.ts");
 const supplierDocumentManagementPolicyTest = read("apps/api/src/modules/suppliers/document-management-policy.test.ts");
@@ -3305,9 +3308,28 @@ for (const marker of [
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
 for (const marker of [
+  "Backend Phase 4P",
+  "Supplier Document Admin Lifecycle Cleanup",
+  "/v1/admin/supplier-documents/:supplierId/documents/:documentId/lifecycle",
+  "manageSupplierDocumentLifecycleAsAdmin",
+  "expireSupplierDocumentAsAdmin",
+  "deleteSupplierDocumentAsAdmin",
+  "supplierDocumentManagementLifecycleRequestSchema",
+  "yorso_supplier_document_management_events",
+  "supplier_document_admin_lifecycle_cleanup=ok",
+  "supplier_document.expire",
+  "supplier_document.delete",
+  "approved_document_immutable",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4p-supplier-document-admin-lifecycle.md", phase4pSupplierDocumentAdminLifecycle, marker);
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
   "supplierDocumentManagementCreateRequestSchema",
   "supplierDocumentManagementUpdateRequestSchema",
   "supplierDocumentManagementDecisionRequestSchema",
+  "supplierDocumentManagementLifecycleRequestSchema",
   "supplierDocumentManagementAuditEventSchema",
   "supplierDocumentManagementCreateResponseSchema",
   "supplierDocumentManagementDecisionResponseSchema",
@@ -4146,13 +4168,19 @@ for (const [file, text, marker] of [
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_download_grants.read"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/^\\/v1\\/admin\\/supplier-documents\\/([^/]+)\\/documents\\/([^/]+)\\/decision$/"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_management.decide"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/^\\/v1\\/admin\\/supplier-documents\\/([^/]+)\\/documents\\/([^/]+)\\/lifecycle$/"],
+  ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_management.lifecycle"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin_role_required"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/^\\/v1\\/suppliers\\/([^/]+)\\/documents\\/([^/]+)$/"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "updateSupplierDocumentForOwner"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "deleteSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "manageSupplierDocumentLifecycleAsAdmin"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentManagementLifecycleRequestSchema"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "updateSupplierDocumentForOwner"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "deleteSupplierDocumentForOwner"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "hasSupplierOwnerCompany"],
+  ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "expireSupplierDocumentAsAdmin"],
+  ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "deleteSupplierDocumentAsAdmin"],
   ["apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "jsonb_agg(remaining.value order by remaining.ordinality)"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession"],
 ]) {
@@ -4162,6 +4190,7 @@ for (const marker of [
   "account_session_authority=ok",
   "account_session_invalid",
   "supplier_document_owner_update_delete=ok",
+  "supplier_document_admin_lifecycle_cleanup=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
 }
