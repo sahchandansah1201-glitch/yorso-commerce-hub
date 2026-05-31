@@ -280,53 +280,8 @@ const PersonalSection = ({
   const { t } = useLanguage();
   const u = profile.user;
 
-  const anchors = [
-    { id: "personal-basic", label: t.account_personal_basic_title },
-    { id: "personal-security", label: t.account_personal_security_title },
-    { id: "personal-membership", label: t.account_personal_membership_title },
-  ];
-
-  const jumpTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const reduceMotion =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    el.scrollIntoView({
-      behavior: reduceMotion ? "auto" : "smooth",
-      block: "start",
-    });
-    el.classList.add("ring-2", "ring-primary/50");
-    window.setTimeout(() => el.classList.remove("ring-2", "ring-primary/50"), 1200);
-    el.focus({ preventScroll: true });
-  };
-
   return (
     <div className="space-y-4" data-testid="account-section-personal">
-      <nav
-        aria-label={t.account_personal_jump_aria}
-        className="sticky top-2 z-10 -mx-1 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background/95 px-2 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85"
-        data-testid="account-personal-jumpbar"
-      >
-        <span
-          id="account-personal-jump-label"
-          className="pl-1 pr-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
-        >
-          {t.account_personal_jump_label}
-        </span>
-        {anchors.map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            onClick={() => jumpTo(a.id)}
-            className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-            aria-describedby="account-personal-jump-label"
-            data-testid={`account-personal-jump-${a.id}`}
-          >
-            {a.label}
-          </button>
-        ))}
-      </nav>
       <section
         id="personal-basic"
         tabIndex={-1}
@@ -359,126 +314,108 @@ const PersonalSection = ({
           const langLabel =
             v.language === "ru" ? "Русский" : v.language === "es" ? "Español" : "English";
           return (
-            <div className="space-y-6" data-field-group-root>
-              <FieldGroup title={t.account_group_identity}>
-                <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                  <Field label={t.account_personal_firstName} value={v.firstName} />
-                  <Field label={t.account_personal_lastName} value={v.lastName} />
-                  <Field label={t.account_personal_role} value={v.roleInCompany} />
-                </dl>
-              </FieldGroup>
-              <FieldGroup title={t.account_group_contacts}>
-                <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                  <Field label={t.account_personal_email} value={v.email} />
-                  <Field
-                    label={t.account_personal_phone}
-                    value={v.phone}
-                    badge={
-                      v.phone && v.phoneVerified ? (
-                        <span
-                          className="ml-2 inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300"
-                          aria-label={t.account_personal_phone_verified_aria}
-                          data-testid="account-personal-phone-verified-badge"
-                        >
-                          <CheckCircle2 className="h-3 w-3" aria-hidden />
-                          {t.account_personal_phone_verified}
-                        </span>
-                      ) : null
-                    }
-                  />
-                </dl>
-              </FieldGroup>
-              <FieldGroup title={t.account_group_locale}>
-                <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                  <Field label={t.account_personal_timezone} value={v.timezone} />
-                  <Field label={t.account_personal_language} value={langLabel} />
-                </dl>
-              </FieldGroup>
-            </div>
+            <dl
+              className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2"
+              data-field-group-root
+            >
+              <Field label={t.account_personal_firstName} value={v.firstName} />
+              <Field label={t.account_personal_lastName} value={v.lastName} />
+              <Field label={t.account_personal_role} value={v.roleInCompany} />
+              <Field label={t.account_personal_email} value={v.email} />
+              <Field
+                label={t.account_personal_phone}
+                value={v.phone}
+                badge={
+                  v.phone && v.phoneVerified ? (
+                    <span
+                      className="ml-2 inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300"
+                      aria-label={t.account_personal_phone_verified_aria}
+                      data-testid="account-personal-phone-verified-badge"
+                    >
+                      <CheckCircle2 className="h-3 w-3" aria-hidden />
+                      {t.account_personal_phone_verified}
+                    </span>
+                  ) : null
+                }
+              />
+              <Field label={t.account_personal_timezone} value={v.timezone} />
+              <Field label={t.account_personal_language} value={langLabel} />
+            </dl>
           );
         }}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div className="space-y-6" data-field-group-root>
-            <FieldGroup title={t.account_group_identity}>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
-                  <Input
-                    value={draft.firstName}
-                    onChange={(e) => setDraft({ ...draft, firstName: e.target.value })}
-                    data-testid="account-input-firstName"
-                  />
-                </FormRow>
-                <FormRow label={t.account_personal_lastName} required error={errors.lastName}>
-                  <Input
-                    value={draft.lastName}
-                    onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
-                  />
-                </FormRow>
-                <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
-                  <Input
-                    maxLength={100}
-                    value={draft.roleInCompany}
-                    onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
-                  />
-                </FormRow>
-              </div>
-            </FieldGroup>
-            <FieldGroup title={t.account_group_contacts}>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <FormRow
-                  label={t.account_personal_email}
-                  required
-                  error={errors.email}
-                  hint={t.account_hint_email}
-                >
-                  <Input
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    maxLength={254}
-                    value={draft.email}
-                    onChange={(e) => setDraft({ ...draft, email: e.target.value })}
-                  />
-                </FormRow>
-                <FormRow
-                  label={t.account_personal_phone}
-                  error={errors.phone}
-                  hint={t.account_hint_phone}
-                >
-                  <Input
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    maxLength={32}
-                    value={draft.phone}
-                    onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
-                  />
-                </FormRow>
-              </div>
-            </FieldGroup>
-            <FieldGroup title={t.account_group_locale}>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <FormRow label={t.account_personal_timezone}>
-                  <Input
-                    value={draft.timezone}
-                    onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
-                  />
-                </FormRow>
-                <FormRow label={t.account_personal_language} error={errors.language}>
-                  <select
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    value={draft.language}
-                    onChange={(e) =>
-                      setDraft({ ...draft, language: e.target.value as UserProfile["language"] })
-                    }
-                  >
-                    <option value="en">English</option>
-                    <option value="ru">Русский</option>
-                    <option value="es">Español</option>
-                  </select>
-                </FormRow>
-              </div>
-            </FieldGroup>
+          <div
+            className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2"
+            data-field-group-root
+          >
+            <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
+              <Input
+                value={draft.firstName}
+                onChange={(e) => setDraft({ ...draft, firstName: e.target.value })}
+                data-testid="account-input-firstName"
+              />
+            </FormRow>
+            <FormRow label={t.account_personal_lastName} required error={errors.lastName}>
+              <Input
+                value={draft.lastName}
+                onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_personal_role} error={errors.roleInCompany}>
+              <Input
+                maxLength={100}
+                value={draft.roleInCompany}
+                onChange={(e) => setDraft({ ...draft, roleInCompany: e.target.value })}
+              />
+            </FormRow>
+            <FormRow
+              label={t.account_personal_email}
+              required
+              error={errors.email}
+              hint={t.account_hint_email}
+            >
+              <Input
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                maxLength={254}
+                value={draft.email}
+                onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+              />
+            </FormRow>
+            <FormRow
+              label={t.account_personal_phone}
+              error={errors.phone}
+              hint={t.account_hint_phone}
+            >
+              <Input
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                maxLength={32}
+                value={draft.phone}
+                onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_personal_timezone}>
+              <Input
+                value={draft.timezone}
+                onChange={(e) => setDraft({ ...draft, timezone: e.target.value })}
+              />
+            </FormRow>
+            <FormRow label={t.account_personal_language} error={errors.language}>
+              <select
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={draft.language}
+                onChange={(e) =>
+                  setDraft({ ...draft, language: e.target.value as UserProfile["language"] })
+                }
+              >
+                <option value="en">English</option>
+                <option value="ru">Русский</option>
+                <option value="es">Español</option>
+              </select>
+            </FormRow>
           </div>
         )}
       />
