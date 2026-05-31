@@ -277,6 +277,42 @@
   `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
   validation, smoke and plan updates.
 
+## Backend Phase 4O Supplier Document Owner Correction
+
+- `docs/backend/phase-4o-supplier-document-owner-correction.md`: Phase 4O
+  implementation note, Russian plan/fact table, runtime contract and 10,000
+  concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: sanitized
+  `supplierDocumentManagementUpdateResponseSchema` and
+  `supplierDocumentManagementDeleteResponseSchema`.
+- `apps/api/src/modules/suppliers/routes.ts`: owner
+  `PATCH`/`DELETE /v1/suppliers/:supplierId/documents/:documentId` route
+  wiring with self-hosted session/account resolution.
+- `apps/api/src/modules/suppliers/service.ts`: supplier owner metadata update
+  and delete logic using Phase 4L policy, matching supplier company ownership
+  and sanitized response shaping.
+- `apps/api/src/modules/suppliers/repository.ts` and
+  `apps/api/src/modules/suppliers/postgres-repository.ts`: memory and
+  PostgreSQL owner correction persistence; PostgreSQL uses bounded CTEs for
+  document update/delete plus management audit insert.
+- `apps/api/src/server.test.ts`,
+  `apps/api/src/modules/suppliers/__tests__/repository.test.ts`,
+  `src/test/self-hosted-db-contract.test.ts` and
+  `src/test/supplier-document-management-contract.test.ts`: route,
+  repository, migration/action and contract redaction coverage.
+- `scripts/smoke-self-hosted-account-api.mjs`: runtime smoke marker
+  `supplier_document_owner_update_delete=ok`.
+- `package.json`, `scripts/check-self-hosted-api.mjs` and
+  `scripts/check-production-scale-baseline.mjs`: release gate wiring for the
+  Phase 4O owner correction path.
+- `docs/backend/frontend-backend-contract.md`,
+  `docs/backend/self-hosted-validation.md`,
+  `docs/backend/self-hosted-account-api-smoke.md`,
+  `docs/backend/production-scale-baseline.md`,
+  `docs/backend/yorso-backend-implementation-plan.md` and
+  `docs/backend/yorso-backend-implementation-plan.ru.md`: contract,
+  validation, smoke and plan updates.
+
 ## Backend Phase 4B Supplier Profile Backend-Owned Dossier Completeness
 
 - `docs/backend/phase-4b-supplier-profile-dossier-completeness.md`: Phase 4B

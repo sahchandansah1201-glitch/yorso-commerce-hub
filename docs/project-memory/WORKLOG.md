@@ -3651,3 +3651,66 @@ Keep this file factual and append-only.
   - existing analytics degradation stderr in analytics test.
 - Next scoped implementation: Backend Phase 4O supplier owner metadata
   update/delete for non-approved supplier documents.
+
+## 2026-05-31 Phase 4O Checkpoint
+
+- Latest implementation commit: `4a9bbc2e` (`[codex] Backend Phase 4O supplier document owner correction`).
+- Scoped workstream: Backend Phase 4O Supplier Document Owner Correction.
+- Implemented the supplier-owner correction path only:
+  - `PATCH /v1/suppliers/:supplierId/documents/:documentId` updates metadata
+    for supplier documents in `review` or `on_request`;
+  - `DELETE /v1/suppliers/:supplierId/documents/:documentId` deletes supplier
+    documents in `review` or `on_request`;
+  - no admin expire/delete route, file replacement route or frontend UI was
+    added in this phase.
+- Implemented access and policy checks:
+  - route requires a self-hosted account session;
+  - account role must be `supplier` or `both`;
+  - supplier company ownership must match the account company;
+  - `updateSupplierDocumentForOwner` and `deleteSupplierDocumentForOwner`
+    apply the Phase 4L policy before mutation.
+- Implemented status, response and storage boundaries:
+  - `review` and `on_request` documents can be updated or deleted;
+  - `approved` documents remain immutable and return
+    `approved_document_immutable`;
+  - update/delete responses use sanitized schemas and omit `fileAssetId`,
+    object keys, storage keys, download paths and storage URLs.
+- Implemented persistence/audit:
+  - PostgreSQL repository updates or deletes the supplier document and inserts
+    `supplier_document.update_metadata` or `supplier_document.delete` audit
+    metadata in bounded CTEs;
+  - memory repository mirrors the same owner/company and audit behavior.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Scope | Реализовать owner correction path, без admin expire/delete и без UI. | Реализованы owner `PATCH`/`DELETE` для non-approved документов. | Phase 4P: admin expire/delete lifecycle cleanup. |
+| Access | Пускать только self-hosted supplier owner. | Требуются session, role `supplier`/`both`, matching company ownership. | Admin lifecycle route отдельно. |
+| Status transitions | Сохранить Phase 4L policy и immutable approved boundary. | `review`/`on_request` можно update/delete; `approved` immutable. | Replacement/re-review flow отдельно. |
+| Response boundary | Не раскрывать backend file identifiers. | Update/delete responses sanitized, без `fileAssetId`, storage keys, `downloadPath` или direct URLs. | Сохранять для admin lifecycle. |
+| Persistence | Mutation и audit должны быть atomic. | PostgreSQL CTE update/delete + `supplier_document.update_metadata/delete` audit insert. | Event listing UI может читать существующую audit table. |
+| Smoke | Проверить owner create -> admin reject -> owner update/delete. | `supplier_document_owner_update_delete=ok` в self-hosted account API smoke. | Добавить admin lifecycle smoke в Phase 4P. |
+| Guards | Зафиксировать docs, tests, self-hosted и 10k-user guards. | Runtime script, self-hosted guard, production-scale guard обновлены. | Держать в release path. |
+
+- Validation passed:
+  - TDD red: owner update/delete API route test failed with `405` before
+    implementation;
+  - TDD green: owner update/delete API route test and PostgreSQL update/delete
+    CTE tests;
+  - `npm run test:supplier-document-management-runtime`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npm run api:build`;
+  - `npm run smoke:self-hosted-account-api:run`;
+  - `npm run test:api`;
+  - `npx tsc -b --noEmit`;
+  - `npm run lint`;
+  - `npm run build`;
+  - `npm test` passed: 181 files, 1282 passed, 2 skipped;
+  - `git diff --check`.
+- Known non-blocking warnings preserved:
+  - Browserslist data stale;
+  - existing React Router future flag / act warnings in the test suite;
+  - existing analytics degradation stderr in analytics test.
+- Next scoped implementation: Backend Phase 4P admin expire/delete supplier
+  document lifecycle cleanup.

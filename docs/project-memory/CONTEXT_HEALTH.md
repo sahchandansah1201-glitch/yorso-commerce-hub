@@ -10,12 +10,12 @@ last_checkpoint: "2026-05-31"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "2d5a05ba_phase_4n_supplier_document_admin_decision"
+head_commit: "4a9bbc2e_phase_4o_supplier_document_owner_correction"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4n_supplier_document_admin_decision"
+active_workstream: "backend_phase_4o_supplier_document_owner_correction"
 pull_request: null
-recommended_action: "Backend Phase 4O supplier owner metadata update/delete for non-approved supplier documents"
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4N are documented, committed and validated."
+recommended_action: "Backend Phase 4P admin expire/delete supplier document lifecycle cleanup"
+why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4O are documented, committed and validated."
 ```
 
 ## Risk Levels
@@ -51,8 +51,8 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4n_supplier_document_admin_decision.
-Current HEAD baseline: Backend Phase 4N supplier document admin decision implementation commit 2d5a05ba is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: backend_phase_4o_supplier_document_owner_correction.
+Current HEAD baseline: Backend Phase 4O supplier document owner correction implementation commit 4a9bbc2e is preserved; a documentation-only project-memory checkpoint may sit on top.
 Current PR: none.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
@@ -60,7 +60,14 @@ docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and map
 Phase 0 remediation resolved stale RU/i18n test contracts, sign-in locale test env leakage, registration funnel provider setup, qualified exact-price localization, catalog category label localization and bounded Supabase-backed public access smoke handling.
 Phase 1 discovery/audit is complete: docs/backend/phase-1-account-source-of-truth-discovery-audit.md.
 Phase 1A implementation doc: docs/backend/phase-1-account-session-authority-gate.md.
-Current recommended action: Backend Phase 4O supplier owner metadata update/delete for non-approved supplier documents.
+Current recommended action: Backend Phase 4P admin expire/delete supplier document lifecycle cleanup.
+Phase 4O implemented and committed locally at 4a9bbc2e: PATCH /v1/suppliers/:supplierId/documents/:documentId lets authenticated supplier owners update document metadata for review/on_request documents, and DELETE /v1/suppliers/:supplierId/documents/:documentId lets them delete review/on_request documents.
+Phase 4O access boundary: the route requires a self-hosted account session, supplier/both role and matching supplier company ownership.
+Phase 4O policy boundary: apps/api/src/modules/suppliers/service.ts applies Phase 4L supplier_owner/update_metadata and supplier_owner/delete policy before mutation.
+Phase 4O immutable boundary: approved documents remain immutable and return approved_document_immutable for owner update/delete attempts.
+Phase 4O payload boundary: owner update/delete responses use supplierDocumentManagementUpdateResponseSchema and supplierDocumentManagementDeleteResponseSchema and never expose fileAssetId, object keys, storage keys, downloadPath or direct storage URLs.
+Phase 4O persistence: apps/api/src/modules/suppliers/postgres-repository.ts updates/deletes supplier document rows and inserts supplier_document.update_metadata or supplier_document.delete audit metadata in bounded CTEs.
+Phase 4O validation passed: TDD red/green API route test; supplier repository update/delete CTE tests; contract redaction tests; test:supplier-document-management-runtime; check:self-hosted-api; check:production-scale-baseline; api:build; smoke:self-hosted-account-api:run; test:api; npx tsc -b --noEmit; npm run lint; npm run build; npm test; git diff --check.
 Phase 4N implemented and committed locally at 2d5a05ba: POST /v1/admin/supplier-documents/:supplierId/documents/:documentId/decision lets authenticated admins approve or reject supplier documents currently in review.
 Phase 4N access boundary: the route requires a self-hosted account session and admin role; missing sessions return 401 and non-admin sessions return admin_role_required.
 Phase 4N policy boundary: apps/api/src/modules/suppliers/service.ts applies Phase 4L policy for admin/approve and admin/reject before status mutation.
