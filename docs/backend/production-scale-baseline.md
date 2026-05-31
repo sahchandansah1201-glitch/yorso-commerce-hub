@@ -6298,6 +6298,89 @@ Marker: supplier_document.approve.
 Marker: supplier_document.reject.
 Marker: 10,000 concurrent users.
 
+## Backend Phase 4O - Supplier Document Owner Correction Runtime
+
+Status: implemented.
+
+Phase 4O adds supplier-owner metadata update and delete for non-approved
+supplier documents. Admin expire/delete, approved-document replacement and
+frontend document management UI remain outside this increment.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Add owner metadata update route. | `PATCH /v1/suppliers/:supplierId/documents/:documentId` updates `review/on_request` metadata. | File replacement and submit-for-review remain future scopes. |
+| Add owner delete route. | `DELETE /v1/suppliers/:supplierId/documents/:documentId` deletes `review/on_request` documents. | Admin expire/delete and approved replacement remain future scopes. |
+| Apply Phase 4L policy. | `updateSupplierDocumentForOwner` and `deleteSupplierDocumentForOwner` enforce owner mutability rules. | All future mutations must reuse the policy layer. |
+| Keep storage internals private. | Responses omit `fileAssetId`, object keys, storage keys, `downloadPath` and direct URLs. | Same boundary must hold for file replacement. |
+| Persist audit. | `supplier_document.update_metadata` / `supplier_document.delete` are inserted into `yorso_supplier_document_management_events`. | Admin management-event listing remains future work. |
+
+Expected read/write profile:
+
+- This is low-volume supplier-owner operational mutation traffic.
+- A successful request performs one session resolution, one company read, one
+  supplier detail read, one supplier/company ownership read, one supplier row
+  JSONB update/delete and one audit insert.
+- The endpoints stay uncached.
+
+Cache, queue and backpressure strategy:
+
+- Existing request-size, timeout, lifecycle and session fail-closed guardrails
+  apply.
+- No queue, scheduler, polling, worker or external provider is added.
+- File replacement/scanning must be a separate outbox/worker phase.
+
+Database indexing and pagination strategy:
+
+- The mutations are point writes by supplier id, owner company id and document
+  id.
+- `yorso_supplier_document_management_events` already has supplier/recent,
+  actor/recent, action/recent and supplier/document/recent indexes.
+- Future management-event listing must use bounded `limit <= 100` or cursor
+  pagination.
+
+Failure mode and graceful degradation:
+
+- Missing/invalid session uses existing account session errors.
+- Buyer-only account role or company mismatch returns
+  `supplier_document_owner_required`.
+- Missing supplier returns `supplier_not_found`.
+- Missing document returns `supplier_document_not_found`.
+- Approved document update/delete returns `approved_document_immutable`.
+- Stale status races return `invalid_status_transition`.
+- Failed responses do not reveal storage internals.
+
+Observability and load-test plan:
+
+- Successful mutations persist `supplier_document.update_metadata` or
+  `supplier_document.delete`.
+- Smoke output must include `supplier_document_owner_update_delete=ok`.
+- Load tests should cover concurrent owner update/delete on the same document,
+  wrong company ids, malformed metadata, immutable approved-document attempts
+  and stale status conflicts at the 10,000 concurrent-user baseline.
+
+Validation:
+
+- `npm run test:supplier-document-management-runtime`;
+- `npm run test:supplier-document-management-policy`;
+- `npm run smoke:self-hosted-account-api:run`;
+- `npm run check:self-hosted-api`;
+- `npm run check:production-scale-baseline`.
+
+Marker: Backend Phase 4O Supplier Document Owner Correction Runtime.
+Marker: /v1/suppliers/:supplierId/documents/:documentId.
+Marker: updateSupplierDocumentForOwner.
+Marker: deleteSupplierDocumentForOwner.
+Marker: supplierDocumentManagementUpdateResponseSchema.
+Marker: supplierDocumentManagementDeleteResponseSchema.
+Marker: yorso_supplier_document_management_events.
+Marker: supplier_document_owner_update_delete=ok.
+Marker: supplier_document.update_metadata.
+Marker: supplier_document.delete.
+Marker: approved_document_immutable.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

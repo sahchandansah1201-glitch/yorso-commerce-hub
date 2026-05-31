@@ -9,10 +9,13 @@ import {
   supplierDocumentManagementCreateResponseSchema,
   supplierDocumentManagementDecisionRequestSchema,
   supplierDocumentManagementDecisionResponseSchema,
+  supplierDocumentManagementDeleteResponseSchema,
   supplierDirectoryDetailResponseSchema,
   supplierDirectoryItemSchema,
   supplierDirectoryListResponseSchema,
   supplierDocumentPayloadSchema,
+  supplierDocumentManagementUpdateRequestSchema,
+  supplierDocumentManagementUpdateResponseSchema,
   supplierDirectoryQuerySchema,
   type AccountRole,
   type SupplierDocumentManagementAction,
@@ -417,6 +420,130 @@ export class SupplierDirectoryService {
     if (!record) throw new Error("invalid_status_transition");
 
     return supplierDocumentManagementDecisionResponseSchema.parse({
+      ok: true,
+      document: redactSupplierDocumentManagementItem(record.document),
+      audit: record.auditEvent,
+      requestId,
+    });
+  }
+
+  async updateSupplierDocumentForOwner(
+    supplierId: string,
+    documentId: string,
+    payload: unknown,
+    requestId: string,
+    owner: { userId: string; companyId: string; accountRole: AccountRole },
+  ) {
+    if (owner.accountRole !== "supplier" && owner.accountRole !== "both") {
+      throw new Error("supplier_document_owner_required");
+    }
+
+    const update = supplierDocumentManagementUpdateRequestSchema.parse(payload);
+    const supplier = await this.repository.getSupplierById(supplierId);
+    if (!supplier) throw new Error("supplier_not_found");
+    if (!(await this.repository.hasSupplierOwnerCompany({ supplierId, ownerCompanyId: owner.companyId }))) {
+      throw new Error("supplier_document_owner_required");
+    }
+
+    const document = supplier.supplierDocuments.find((item) => item.id === documentId);
+    if (!document) throw new Error("supplier_document_not_found");
+
+    const policy = evaluateSupplierDocumentManagementPolicy({
+      actorRole: "supplier_owner",
+      action: "update_metadata",
+      currentStatus: document.status,
+    });
+    if (!policy.allowed || !policy.nextStatus) throw new Error(policy.reason);
+
+    const nextDocument = supplierDocumentPayloadSchema.parse({
+      ...document,
+      ...update,
+      status: policy.nextStatus,
+      fileName: document.fileName,
+      fileAssetId: document.fileAssetId,
+    });
+    const now = new Date().toISOString();
+    const auditEvent = {
+      action: policy.auditAction,
+      actorRole: "supplier_owner" as const,
+      supplierId,
+      documentId,
+      previousStatus: document.status,
+      nextStatus: policy.nextStatus,
+      reason: "supplier_owner_updated_document_metadata",
+      requestId,
+      createdAt: now,
+    };
+
+    const record = await this.repository.updateSupplierDocumentForOwner({
+      supplierId,
+      ownerCompanyId: owner.companyId,
+      documentId,
+      currentStatus: document.status,
+      actorUserId: owner.userId,
+      document: nextDocument,
+      auditEvent,
+    });
+    if (!record) throw new Error("invalid_status_transition");
+
+    return supplierDocumentManagementUpdateResponseSchema.parse({
+      ok: true,
+      document: redactSupplierDocumentManagementItem(record.document),
+      audit: record.auditEvent,
+      requestId,
+    });
+  }
+
+  async deleteSupplierDocumentForOwner(
+    supplierId: string,
+    documentId: string,
+    requestId: string,
+    owner: { userId: string; companyId: string; accountRole: AccountRole },
+  ) {
+    if (owner.accountRole !== "supplier" && owner.accountRole !== "both") {
+      throw new Error("supplier_document_owner_required");
+    }
+
+    const supplier = await this.repository.getSupplierById(supplierId);
+    if (!supplier) throw new Error("supplier_not_found");
+    if (!(await this.repository.hasSupplierOwnerCompany({ supplierId, ownerCompanyId: owner.companyId }))) {
+      throw new Error("supplier_document_owner_required");
+    }
+
+    const document = supplier.supplierDocuments.find((item) => item.id === documentId);
+    if (!document) throw new Error("supplier_document_not_found");
+
+    const policy = evaluateSupplierDocumentManagementPolicy({
+      actorRole: "supplier_owner",
+      action: "delete",
+      currentStatus: document.status,
+    });
+    if (!policy.allowed) throw new Error(policy.reason);
+
+    const now = new Date().toISOString();
+    const auditEvent = {
+      action: policy.auditAction,
+      actorRole: "supplier_owner" as const,
+      supplierId,
+      documentId,
+      previousStatus: document.status,
+      nextStatus: policy.nextStatus,
+      reason: "supplier_owner_deleted_document",
+      requestId,
+      createdAt: now,
+    };
+
+    const record = await this.repository.deleteSupplierDocumentForOwner({
+      supplierId,
+      ownerCompanyId: owner.companyId,
+      documentId,
+      currentStatus: document.status,
+      actorUserId: owner.userId,
+      auditEvent,
+    });
+    if (!record) throw new Error("invalid_status_transition");
+
+    return supplierDocumentManagementDeleteResponseSchema.parse({
       ok: true,
       document: redactSupplierDocumentManagementItem(record.document),
       audit: record.auditEvent,

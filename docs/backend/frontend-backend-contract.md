@@ -72,6 +72,7 @@ mistaken for production data surfaces.
 | `/suppliers` | Supplier directory | self-hosted supplier directory API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; session shortlist | supplier directory API, public/qualified views, shortlist API | Phase 4A source-of-truth audit |
 | `/suppliers/:supplierId` | Supplier dossier | self-hosted supplier detail API when `VITE_YORSO_API_URL` is configured; API-disabled `mockSuppliers` preview; local access request bridge; backend-owned `productionFacts` / `logisticsFacts`, `shipmentCases` / `faqItems`, and qualified-only `legalDetails` / `supplierDocuments`; qualified document download UI uses grant-bound API path | supplier profile API, supplier offers API, backend-owned dossier/evidence/legal/document facts, access workflow, grant-bound supplier document downloads | Phase 4H document download UI |
 | `/v1/suppliers/:supplierId/documents` | Supplier owner document create API | self-hosted API only; authenticated supplier owner session; no browser storage internals in response | owner create review document from backend-owned upload id, supplier ownership check, management audit | Phase 4M supplier owner document create |
+| `/v1/suppliers/:supplierId/documents/:documentId` | Supplier owner document correction API | self-hosted API only; authenticated supplier owner session; no browser storage internals in response | owner metadata update/delete for `review` and `on_request` documents, approved immutable, management audit | Phase 4O supplier owner document correction |
 | `/v1/suppliers/:supplierId/documents/:documentId/grant` | Supplier document grant API | self-hosted API only; no API-disabled preview grant | supplier document metadata, supplier access grant, document grant audit | Phase 4F supplier document download grant |
 | `/v1/suppliers/:supplierId/documents/:documentId/download?grantId=...` | Supplier document serving API | self-hosted API only; no direct storage URL or API-disabled local serving | supplier document grant, supplier access grant, file asset metadata, object storage, document download audit | Phase 4G supplier document file serving |
 | `/v1/admin/supplier-documents/download-events` | Admin supplier document download audit API | self-hosted API only; authenticated admin session; no API-disabled preview | bounded read over `yorso_supplier_document_download_events`; no `fileAssetId`, storage key, direct file URL or `downloadPath` in response | Phase 4I supplier document download audit listing |
@@ -483,6 +484,15 @@ Acceptance:
   it requires a self-hosted admin session, applies Phase 4L approve/reject
   status transitions, writes `supplier_document.approve` or
   `supplier_document.reject` in `yorso_supplier_document_management_events`,
+  and returns sanitized metadata without `fileAssetId`, object keys, storage
+  keys, direct download URLs or `downloadPath`;
+- supplier owner document correction is implemented through
+  `PATCH /v1/suppliers/:supplierId/documents/:documentId` and
+  `DELETE /v1/suppliers/:supplierId/documents/:documentId`: it requires a
+  self-hosted supplier owner session, binds supplier ownership by `company_id`,
+  allows only `review/on_request` metadata updates or deletes, preserves
+  `approved_document_immutable`, writes `supplier_document.update_metadata` or
+  `supplier_document.delete` in `yorso_supplier_document_management_events`,
   and returns sanitized metadata without `fileAssetId`, object keys, storage
   keys, direct download URLs or `downloadPath`;
 - access request panel uses backend statuses;

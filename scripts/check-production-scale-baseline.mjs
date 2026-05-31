@@ -27,6 +27,7 @@ const requiredFiles = [
   "docs/backend/phase-4l-supplier-document-management-rules.md",
   "docs/backend/phase-4m-supplier-document-owner-create.md",
   "docs/backend/phase-4n-supplier-document-admin-decision.md",
+  "docs/backend/phase-4o-supplier-document-owner-correction.md",
   "docs/backend/self-hosted-production-policy.md",
   "docs/backend/self-hosted-production-deploy.md",
   "docs/backend/self-hosted-backend-architecture.md",
@@ -297,6 +298,7 @@ const phase4kSupplierDocumentAuditAdminUi = read("docs/backend/phase-4k-supplier
 const phase4lSupplierDocumentManagementRules = read("docs/backend/phase-4l-supplier-document-management-rules.md");
 const phase4mSupplierDocumentOwnerCreate = read("docs/backend/phase-4m-supplier-document-owner-create.md");
 const phase4nSupplierDocumentAdminDecision = read("docs/backend/phase-4n-supplier-document-admin-decision.md");
+const phase4oSupplierDocumentOwnerCorrection = read("docs/backend/phase-4o-supplier-document-owner-correction.md");
 const productionPolicy = read("docs/backend/self-hosted-production-policy.md");
 const productionDeploy = read("docs/backend/self-hosted-production-deploy.md");
 const productionEnv = read(".env.production.example");
@@ -450,6 +452,8 @@ const storageRoutes = read("apps/api/src/modules/storage/routes.ts");
 const offerRoutes = read("apps/api/src/modules/offers/routes.ts");
 const supplierAdminRoutes = read("apps/api/src/modules/suppliers/admin-routes.ts");
 const supplierRoutes = read("apps/api/src/modules/suppliers/routes.ts");
+const supplierService = read("apps/api/src/modules/suppliers/service.ts");
+const supplierPostgresRepository = read("apps/api/src/modules/suppliers/postgres-repository.ts");
 const supplierDocumentManagementPolicy = read("apps/api/src/modules/suppliers/document-management-policy.ts");
 const supplierDocumentManagementPolicyTest = read("apps/api/src/modules/suppliers/document-management-policy.test.ts");
 const supplierDocumentManagementContractTest = read("src/test/supplier-document-management-contract.test.ts");
@@ -3283,12 +3287,32 @@ for (const marker of [
   requireText("docs/backend/production-scale-baseline.md", baseline, marker);
 }
 for (const marker of [
+  "Backend Phase 4O",
+  "Supplier Document Owner Correction Runtime",
+  "/v1/suppliers/:supplierId/documents/:documentId",
+  "updateSupplierDocumentForOwner",
+  "deleteSupplierDocumentForOwner",
+  "supplierDocumentManagementUpdateResponseSchema",
+  "supplierDocumentManagementDeleteResponseSchema",
+  "yorso_supplier_document_management_events",
+  "supplier_document_owner_update_delete=ok",
+  "supplier_document.update_metadata",
+  "supplier_document.delete",
+  "approved_document_immutable",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4o-supplier-document-owner-correction.md", phase4oSupplierDocumentOwnerCorrection, marker);
+  requireText("docs/backend/production-scale-baseline.md", baseline, marker);
+}
+for (const marker of [
   "supplierDocumentManagementCreateRequestSchema",
   "supplierDocumentManagementUpdateRequestSchema",
   "supplierDocumentManagementDecisionRequestSchema",
   "supplierDocumentManagementAuditEventSchema",
   "supplierDocumentManagementCreateResponseSchema",
   "supplierDocumentManagementDecisionResponseSchema",
+  "supplierDocumentManagementUpdateResponseSchema",
+  "supplierDocumentManagementDeleteResponseSchema",
   "supplierDocumentStatusSchema",
 ]) {
   requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, marker);
@@ -3306,6 +3330,8 @@ for (const marker of [
   "downloadPath",
   "supplierDocumentManagementAuditEventSchema",
   "supplierDocumentManagementCreateResponseSchema",
+  "supplierDocumentManagementUpdateResponseSchema",
+  "supplierDocumentManagementDeleteResponseSchema",
 ]) {
   requireText("src/test/supplier-document-management-contract.test.ts", supplierDocumentManagementContractTest, marker);
 }
@@ -4121,6 +4147,13 @@ for (const [file, text, marker] of [
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/^\\/v1\\/admin\\/supplier-documents\\/([^/]+)\\/documents\\/([^/]+)\\/decision$/"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin.supplier_document_management.decide"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "admin_role_required"],
+  ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/^\\/v1\\/suppliers\\/([^/]+)\\/documents\\/([^/]+)$/"],
+  ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "updateSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "deleteSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "updateSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "deleteSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "hasSupplierOwnerCompany"],
+  ["apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "jsonb_agg(remaining.value order by remaining.ordinality)"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "resolveOptionalAuthenticatedAccountSession"],
 ]) {
   requireText(file, text, marker);
@@ -4128,6 +4161,7 @@ for (const [file, text, marker] of [
 for (const marker of [
   "account_session_authority=ok",
   "account_session_invalid",
+  "supplier_document_owner_update_delete=ok",
 ]) {
   requireText("scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, marker);
 }

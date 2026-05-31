@@ -55,6 +55,44 @@ export async function handleSupplierDirectoryRoute(
       return true;
     }
 
+    const documentManagementMatch = url.pathname.match(/^\/v1\/suppliers\/([^/]+)\/documents\/([^/]+)$/);
+    if (documentManagementMatch) {
+      if (request.method !== "PATCH" && request.method !== "DELETE") {
+        methodNotAllowed(response, context, "PATCH, DELETE");
+        return true;
+      }
+      if (!accountService || (request.method === "PATCH" && !jsonBodyOptions)) {
+        sendError(response, 503, "supplier_document_management_unavailable", "Supplier document management is unavailable.", context);
+        return true;
+      }
+
+      const supplierId = decodeURIComponent(documentManagementMatch[1]);
+      const documentId = decodeURIComponent(documentManagementMatch[2]);
+      const session = await resolveAuthenticatedAccountSession(request, sessionAuthority, context);
+      const company = await accountService.getCompanyProfile(session.userId);
+      const owner = {
+        userId: session.userId,
+        companyId: company.id,
+        accountRole: company.accountRole,
+      };
+      const payload = request.method === "PATCH"
+        ? await service.updateSupplierDocumentForOwner(
+          supplierId,
+          documentId,
+          await readJsonBody(request, jsonBodyOptions),
+          context.requestId,
+          owner,
+        )
+        : await service.deleteSupplierDocumentForOwner(
+          supplierId,
+          documentId,
+          context.requestId,
+          owner,
+        );
+      sendJson(response, 200, payload);
+      return true;
+    }
+
     const documentDownloadMatch = url.pathname.match(/^\/v1\/suppliers\/([^/]+)\/documents\/([^/]+)\/download$/);
     if (documentDownloadMatch) {
       if (request.method !== "GET") {
@@ -186,6 +224,15 @@ export async function handleSupplierDirectoryRoute(
 
     if (error instanceof Error && error.message === "supplier_document_conflict") {
       sendError(response, 409, error.message, "Supplier document already exists.", context);
+      return true;
+    }
+
+    if (error instanceof Error && (
+      error.message === "invalid_status_transition" ||
+      error.message === "current_status_required" ||
+      error.message === "approved_document_immutable"
+    )) {
+      sendError(response, 409, error.message, "Supplier document status transition is not allowed.", context);
       return true;
     }
 

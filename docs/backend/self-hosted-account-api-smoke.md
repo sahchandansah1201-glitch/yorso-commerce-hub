@@ -96,6 +96,9 @@ The smoke test protects the production direction:
 - protected account, storage and supplier-access calls must use a real
   self-hosted auth session from `/v1/auth/sign-in`; `x-yorso-user-id` alone is
   not authority.
+- supplier document owner correction must work through the self-hosted API:
+  rejected `on_request` documents can be updated and deleted by the supplier
+  owner without exposing backend file asset identifiers.
 
 ## Runtime Mode
 
@@ -138,6 +141,7 @@ logo_read_by_object_key=ok
 document_upload=ok
 supplier_document_owner_create_review=ok
 supplier_document_admin_decision_review=ok
+supplier_document_owner_update_delete=ok
 documents_list=ok
 supplier_directory_locked=ok
 supplier_directory_verified_filter=ok

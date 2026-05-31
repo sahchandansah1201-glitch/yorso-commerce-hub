@@ -631,6 +631,41 @@ async function runSmoke(baseUrl) {
   assertDoesNotContain(supplierDocumentReject, "fileAssetId", "supplier admin reject file asset field");
   console.log("supplier_document_admin_decision_review=ok");
 
+  const supplierDocumentOwnerUpdate = await jsonRequest(
+    baseUrl,
+    `/v1/suppliers/sup-no-001/documents/${encodeURIComponent(supplierDocumentRejectCreate.document.id)}`,
+    {
+      method: "PATCH",
+      body: {
+        title: "Smoke supplier correction target",
+        documentType: "analysis_certificate",
+        issuedAt: null,
+        expiresAt: "2027-06-30",
+      },
+    },
+  );
+  assertEqual(supplierDocumentOwnerUpdate.ok, true, "supplier owner update ok");
+  assertEqual(supplierDocumentOwnerUpdate.document?.status, "on_request", "supplier owner update keeps status");
+  assertEqual(
+    supplierDocumentOwnerUpdate.audit?.action,
+    "supplier_document.update_metadata",
+    "supplier owner update audit action",
+  );
+  assertDoesNotContain(supplierDocumentOwnerUpdate, rejectDocumentCreate.document.fileAssetId, "supplier owner update file asset id");
+  assertDoesNotContain(supplierDocumentOwnerUpdate, "fileAssetId", "supplier owner update file asset field");
+
+  const supplierDocumentOwnerDelete = await jsonRequest(
+    baseUrl,
+    `/v1/suppliers/sup-no-001/documents/${encodeURIComponent(supplierDocumentRejectCreate.document.id)}`,
+    { method: "DELETE" },
+  );
+  assertEqual(supplierDocumentOwnerDelete.ok, true, "supplier owner delete ok");
+  assertEqual(supplierDocumentOwnerDelete.audit?.action, "supplier_document.delete", "supplier owner delete audit action");
+  assertEqual(supplierDocumentOwnerDelete.audit?.nextStatus, null, "supplier owner delete next status");
+  assertDoesNotContain(supplierDocumentOwnerDelete, rejectDocumentCreate.document.fileAssetId, "supplier owner delete file asset id");
+  assertDoesNotContain(supplierDocumentOwnerDelete, "fileAssetId", "supplier owner delete file asset field");
+  console.log("supplier_document_owner_update_delete=ok");
+
   const documents = await jsonRequest(baseUrl, "/v1/account/documents");
   assertEqual(documents.ok, true, "documents ok");
   assertEqual(

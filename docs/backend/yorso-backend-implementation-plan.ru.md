@@ -1164,3 +1164,41 @@ frontend UI не входят в этот инкремент.
 Следующий scoped backend direction после Phase 4N: либо owner metadata
 update/delete для non-approved documents, либо admin expire/delete. Не смешивать
 оба направления, если batch становится слишком широким.
+
+## Backend Phase 4O Checkpoint - Owner correction документов поставщика
+
+Статус: реализовано.
+
+Phase 4O реализует owner metadata update/delete для non-approved документов
+поставщика. Admin expire/delete, replacement approved-документов, file
+replacement и frontend UI не входят в этот инкремент.
+
+Реализовано:
+
+- `PATCH /v1/suppliers/:supplierId/documents/:documentId` для authenticated
+  self-hosted supplier owner session;
+- `DELETE /v1/suppliers/:supplierId/documents/:documentId` для того же owner
+  boundary;
+- проверка supplier owner через company `accountRole=supplier|both` и
+  совпадение `supplier.company_id`;
+- Phase 4L policy enforcement через `evaluateSupplierDocumentManagementPolicy`;
+- metadata update/delete только для документов в `review` и `on_request`;
+- `approved_document_immutable` для попыток update/delete approved documents;
+- sanitized response без `fileAssetId`, `objectKey`, storage keys,
+  `downloadPath` и direct download URLs;
+- atomic PostgreSQL CTE: update/delete в supplier document JSONB + insert в
+  `yorso_supplier_document_management_events`;
+- smoke marker `supplier_document_owner_update_delete=ok`.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Взять только owner correction path. | Owner update/delete для `review/on_request` реализован. | Admin expire/delete и approved replacement отдельными scope. |
+| Связать owner с account/company. | Проверяется self-hosted session, company role и `supplier.company_id`. | Supplier staff roles отдельно. |
+| Не раскрывать storage internals. | Response не содержит `fileAssetId`, `objectKey`, storage keys, `downloadPath`, direct URLs. | File replacement отдельно. |
+| Писать audit. | `supplier_document.update_metadata` / `supplier_document.delete` пишутся в `yorso_supplier_document_management_events`. | Admin listing по management events отдельно. |
+
+Следующий scoped backend direction после Phase 4O: admin expire/delete для
+non-approved/approved lifecycle cleanup либо listing по supplier document
+management events. Не смешивать с frontend UI без отдельного scope.

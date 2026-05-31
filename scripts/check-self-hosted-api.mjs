@@ -280,6 +280,7 @@ const requiredFiles = [
   "docs/backend/phase-4l-supplier-document-management-rules.md",
   "docs/backend/phase-4m-supplier-document-owner-create.md",
   "docs/backend/phase-4n-supplier-document-admin-decision.md",
+  "docs/backend/phase-4o-supplier-document-owner-correction.md",
   "src/test/supplier-document-management-contract.test.ts",
   "packages/db/migrations/0013_api_audit_events.sql",
   "packages/db/migrations/0014_admin_audit_access.sql",
@@ -545,6 +546,7 @@ const phase4kSupplierDocumentAuditAdminUi = read("docs/backend/phase-4k-supplier
 const phase4lSupplierDocumentManagementRules = read("docs/backend/phase-4l-supplier-document-management-rules.md");
 const phase4mSupplierDocumentOwnerCreate = read("docs/backend/phase-4m-supplier-document-owner-create.md");
 const phase4nSupplierDocumentAdminDecision = read("docs/backend/phase-4n-supplier-document-admin-decision.md");
+const phase4oSupplierDocumentOwnerCorrection = read("docs/backend/phase-4o-supplier-document-owner-correction.md");
 const supplierDocumentManagementContractTest = read("src/test/supplier-document-management-contract.test.ts");
 const adminAuditRetentionCli = read("scripts/admin-audit-retention.mjs");
 const authApiSmoke = read("scripts/smoke-self-hosted-auth-api.mjs");
@@ -3208,26 +3210,60 @@ for (const marker of [
 ]) {
   requireText("docs/backend/phase-4n-supplier-document-admin-decision.md", phase4nSupplierDocumentAdminDecision, marker);
 }
+for (const marker of [
+  "Backend Phase 4O",
+  "Supplier Document Owner Correction Runtime",
+  "/v1/suppliers/:supplierId/documents/:documentId",
+  "updateSupplierDocumentForOwner",
+  "deleteSupplierDocumentForOwner",
+  "supplierDocumentManagementUpdateResponseSchema",
+  "supplierDocumentManagementDeleteResponseSchema",
+  "yorso_supplier_document_management_events",
+  "supplier_document_owner_update_delete=ok",
+  "supplier_document.update_metadata",
+  "supplier_document.delete",
+  "approved_document_immutable",
+  "План / факт",
+  "10,000 concurrent users",
+]) {
+  requireText("docs/backend/phase-4o-supplier-document-owner-correction.md", phase4oSupplierDocumentOwnerCorrection, marker);
+}
 for (const [file, text, marker] of [
   ["packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementCreateResponseSchema"],
   ["packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementDecisionResponseSchema"],
+  ["packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementUpdateResponseSchema"],
+  ["packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementDeleteResponseSchema"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "/^\\/v1\\/admin\\/supplier-documents\\/([^/]+)\\/documents\\/([^/]+)\\/decision$/"],
   ["apps/api/src/modules/suppliers/admin-routes.ts", supplierAdminRoutes, "decideSupplierDocumentAsAdmin"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/^\\/v1\\/suppliers\\/([^/]+)\\/documents$/"],
+  ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "/^\\/v1\\/suppliers\\/([^/]+)\\/documents\\/([^/]+)$/"],
   ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "createSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "updateSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/routes.ts", supplierRoutes, "deleteSupplierDocumentForOwner"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "createSupplierDocumentForOwner"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "decideSupplierDocumentAsAdmin"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "updateSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "deleteSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "hasSupplierOwnerCompany"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentManagementCreateResponseSchema"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentManagementDecisionResponseSchema"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentManagementUpdateResponseSchema"],
+  ["apps/api/src/modules/suppliers/service.ts", supplierService, "supplierDocumentManagementDeleteResponseSchema"],
   ["apps/api/src/modules/suppliers/service.ts", supplierService, "redactSupplierDocumentManagementItem"],
   ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "createSupplierDocumentForOwner"],
   ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "decideSupplierDocumentAsAdmin"],
+  ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "updateSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "deleteSupplierDocumentForOwner"],
+  ["apps/api/src/modules/suppliers/repository.ts", supplierRepository, "hasSupplierOwnerCompany"],
   ["apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "yorso_supplier_document_management_events"],
   ["apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "jsonb_set("],
+  ["apps/api/src/modules/suppliers/postgres-repository.ts", supplierPostgresRepository, "jsonb_agg(remaining.value order by remaining.ordinality)"],
   ["apps/api/src/server.test.ts", serverTest, "lets a supplier owner create a review document"],
   ["apps/api/src/server.test.ts", serverTest, "lets an admin approve and reject review supplier documents"],
+  ["apps/api/src/server.test.ts", serverTest, "lets supplier owners update and delete non-approved documents"],
   ["scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_document_owner_create_review=ok"],
   ["scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_document_admin_decision_review=ok"],
+  ["scripts/smoke-self-hosted-account-api.mjs", accountApiSmoke, "supplier_document_owner_update_delete=ok"],
   ["packages/db/migrations/0037_supplier_document_management_events.sql", supplierDocumentManagementEventsMigration, "yorso_supplier_document_management_events"],
 ]) {
   requireText(file, text, marker);
@@ -4150,6 +4186,8 @@ requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryCon
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementAuditEventSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementCreateResponseSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementDecisionResponseSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementUpdateResponseSchema");
+requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocumentManagementDeleteResponseSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "productionFacts: supplierProductionFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "logisticsFacts: supplierLogisticsFactsSchema");
 requireText("packages/contracts/src/supplier-directory.ts", supplierDirectoryContract, "supplierDocuments: z.array(supplierDocumentPayloadSchema)");
@@ -4169,6 +4207,8 @@ for (const marker of [
   "supplierDocumentManagementAuditEventSchema",
   "supplierDocumentManagementCreateResponseSchema",
   "supplierDocumentManagementDecisionResponseSchema",
+  "supplierDocumentManagementUpdateResponseSchema",
+  "supplierDocumentManagementDeleteResponseSchema",
 ]) {
   requireText("src/test/supplier-document-management-contract.test.ts", supplierDocumentManagementContractTest, marker);
 }
@@ -4766,6 +4806,7 @@ console.log("- Supplier directory API exposes access-shaped supplier discovery w
 console.log("- Supplier profile production and logistics dossier facts are backend-owned in the supplier directory contract.");
 console.log("- Supplier owner document create writes review documents through self-hosted ownership, file and audit boundaries.");
 console.log("- Supplier document admin decisions approve/reject review documents through self-hosted admin, policy and audit boundaries.");
+console.log("- Supplier owner document correction updates/deletes non-approved documents through self-hosted ownership, policy and audit boundaries.");
 console.log("- Offer catalog API exposes access-shaped offer discovery without Supabase production coupling.");
 console.log("- Supplier access API exposes request, decision, grant and notification flow without Supabase production coupling.");
 console.log("- Supplier access UX consumes self-hosted request status and approval notifications with local fallback.");

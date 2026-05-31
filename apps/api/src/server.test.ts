@@ -1846,6 +1846,155 @@ describe("YORSO self-hosted API skeleton", () => {
     expect(serialized).not.toContain("downloadPath");
   });
 
+  it("lets supplier owners update and delete non-approved documents without leaking backend file storage identifiers", async () => {
+    const supplierRepository = new MemorySupplierRepository();
+    const fetchApi = await startRawTestServer({ supplierRepository });
+    const ownerHeaders = await signIn(fetchApi, "buyer@example.com");
+    const adminHeaders = await signIn(fetchApi, "admin@example.com");
+
+    const createReviewDocument = async (title: string, fileName: string) => {
+      const uploaded = await fetchApi("/v1/account/documents", {
+        method: "POST",
+        headers: ownerHeaders,
+        body: JSON.stringify({
+          title,
+          documentType: "other",
+          visibility: "buyer_qualified",
+          expiresAt: "2027-05-31",
+          file: filePayload(`${title} bytes`, fileName, "application/pdf"),
+        }),
+      });
+      const uploadedBody = (await uploaded.json()) as JsonBody;
+      expect(uploaded.status).toBe(201);
+
+      const created = await fetchApi("/v1/suppliers/sup-no-001/documents", {
+        method: "POST",
+        headers: ownerHeaders,
+        body: JSON.stringify({
+          title,
+          documentType: "audit_report",
+          issuedAt: "2026-05-31",
+          expiresAt: "2027-05-31",
+          fileUploadId: (uploadedBody.document as JsonBody).fileAssetId,
+          fileName,
+        }),
+      });
+      const createdBody = (await created.json()) as JsonBody;
+      expect(created.status).toBe(201);
+      return {
+        fileAssetId: String((uploadedBody.document as JsonBody).fileAssetId),
+        documentId: String((createdBody.document as JsonBody).id),
+      };
+    };
+
+    const updateTarget = await createReviewDocument("Factory audit update target", "factory-audit-update.pdf");
+    const updatePath = `/v1/suppliers/sup-no-001/documents/${updateTarget.documentId}`;
+
+    const missingSession = await fetchApi(updatePath, {
+      method: "PATCH",
+      body: JSON.stringify({ title: "Updated factory audit report" }),
+    });
+    expect(missingSession.status).toBe(401);
+
+    const updated = await fetchApi(updatePath, {
+      method: "PATCH",
+      headers: ownerHeaders,
+      body: JSON.stringify({
+        title: "Updated factory audit report",
+        documentType: "analysis_certificate",
+        issuedAt: null,
+        expiresAt: "2027-06-30",
+      }),
+    });
+    const updatedBody = (await updated.json()) as JsonBody;
+    expect(updated.status).toBe(200);
+    expect(updatedBody).toMatchObject({
+      ok: true,
+      document: {
+        id: updateTarget.documentId,
+        title: "Updated factory audit report",
+        documentType: "analysis_certificate",
+        status: "review",
+        issuedAt: null,
+        expiresAt: "2027-06-30",
+        fileName: "factory-audit-update.pdf",
+      },
+      audit: {
+        action: "supplier_document.update_metadata",
+        actorRole: "supplier_owner",
+        supplierId: "sup-no-001",
+        documentId: updateTarget.documentId,
+        previousStatus: "review",
+        nextStatus: "review",
+        reason: "supplier_owner_updated_document_metadata",
+      },
+    });
+
+    const deleteTarget = await createReviewDocument("Factory audit delete target", "factory-audit-delete.pdf");
+    const rejected = await fetchApi(`/v1/admin/supplier-documents/sup-no-001/documents/${deleteTarget.documentId}/decision`, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ decision: "reject", reason: "needs_current_certificate" }),
+    });
+    expect(rejected.status).toBe(200);
+
+    const deleted = await fetchApi(`/v1/suppliers/sup-no-001/documents/${deleteTarget.documentId}`, {
+      method: "DELETE",
+      headers: ownerHeaders,
+    });
+    const deletedBody = (await deleted.json()) as JsonBody;
+    expect(deleted.status).toBe(200);
+    expect(deletedBody).toMatchObject({
+      ok: true,
+      document: {
+        id: deleteTarget.documentId,
+        status: "on_request",
+      },
+      audit: {
+        action: "supplier_document.delete",
+        actorRole: "supplier_owner",
+        supplierId: "sup-no-001",
+        documentId: deleteTarget.documentId,
+        previousStatus: "on_request",
+        nextStatus: null,
+        reason: "supplier_owner_deleted_document",
+      },
+    });
+
+    const approvedTarget = await createReviewDocument("Factory audit approved target", "factory-audit-approved.pdf");
+    const approved = await fetchApi(`/v1/admin/supplier-documents/sup-no-001/documents/${approvedTarget.documentId}/decision`, {
+      method: "POST",
+      headers: adminHeaders,
+      body: JSON.stringify({ decision: "approve", reason: "verified_against_registry" }),
+    });
+    expect(approved.status).toBe(200);
+
+    const blockedUpdate = await fetchApi(`/v1/suppliers/sup-no-001/documents/${approvedTarget.documentId}`, {
+      method: "PATCH",
+      headers: ownerHeaders,
+      body: JSON.stringify({ title: "Should not edit approved document" }),
+    });
+    const blockedUpdateBody = (await blockedUpdate.json()) as JsonBody;
+    expect(blockedUpdate.status).toBe(409);
+    expect(blockedUpdateBody.error).toMatchObject({ code: "approved_document_immutable" });
+
+    const blockedDelete = await fetchApi(`/v1/suppliers/sup-no-001/documents/${approvedTarget.documentId}`, {
+      method: "DELETE",
+      headers: ownerHeaders,
+    });
+    const blockedDeleteBody = (await blockedDelete.json()) as JsonBody;
+    expect(blockedDelete.status).toBe(409);
+    expect(blockedDeleteBody.error).toMatchObject({ code: "approved_document_immutable" });
+
+    const serialized = `${JSON.stringify(updatedBody)}\n${JSON.stringify(deletedBody)}`;
+    expect(serialized).not.toContain(updateTarget.fileAssetId);
+    expect(serialized).not.toContain(deleteTarget.fileAssetId);
+    expect(serialized).not.toContain("fileAssetId");
+    expect(serialized).not.toContain("objectKey");
+    expect(serialized).not.toContain("storage");
+    expect(serialized).not.toContain("downloadPath");
+  });
+
   it("streams supplier document files only through valid document download grants", async () => {
     const fetchApi = await startTestServer();
     const grantPath = "/v1/suppliers/sup-no-001/documents/sup-no-001-health-certificate/grant";

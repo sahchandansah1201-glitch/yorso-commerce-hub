@@ -213,6 +213,8 @@ describe("self-hosted PostgreSQL account/company baseline", () => {
     expect(text).toContain("supplier_document.create");
     expect(text).toContain("supplier_document.approve");
     expect(text).toContain("supplier_document.reject");
+    expect(text).toContain("supplier_document.update_metadata");
+    expect(text).toContain("supplier_document.delete");
     expect(text).toContain("actor_user_id uuid not null references yorso_users");
     expect(text).toContain("supplier_id text not null references yorso_suppliers_directory");
     expect(text).toContain("yorso_supplier_document_management_events_create_shape");

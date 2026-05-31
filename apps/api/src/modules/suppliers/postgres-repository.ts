@@ -23,7 +23,9 @@ import type {
   SupplierDocumentDownloadGrantAuditInput,
   SupplierDocumentDownloadGrantAuditRecord,
   SupplierDocumentManagementCreateInput,
+  SupplierDocumentManagementDeleteInput,
   SupplierDocumentManagementDecisionInput,
+  SupplierDocumentManagementUpdateInput,
   SupplierRepository,
   SupplierRepositoryListOptions,
 } from "./repository.js";
@@ -298,6 +300,23 @@ export class PostgresSupplierRepository implements SupplierRepository {
     return result.rows[0] ? mapSupplier(result.rows[0]) : null;
   }
 
+  async hasSupplierOwnerCompany(input: { supplierId: string; ownerCompanyId: string }) {
+    const result = await this.client.query<{ exists: boolean }>(
+      `
+        select exists (
+          select 1
+          from yorso_suppliers_directory
+          where id = $1
+            and company_id = $2::uuid
+            and publication_status in ('draft', 'published')
+        ) as "exists"
+      `,
+      [input.supplierId, input.ownerCompanyId],
+    );
+
+    return Boolean(result.rows[0]?.exists);
+  }
+
   async createSupplierDocumentForOwner(input: SupplierDocumentManagementCreateInput) {
     const result = await this.client.query<SupplierDocumentManagementCreateRow>(
       `
@@ -480,6 +499,205 @@ export class PostgresSupplierRepository implements SupplierRepository {
         input.documentId,
         input.currentStatus,
         input.nextStatus,
+        input.auditEvent.action,
+        input.auditEvent.actorRole,
+        input.actorUserId,
+        input.auditEvent.previousStatus,
+        input.auditEvent.nextStatus,
+        input.auditEvent.reason,
+        input.auditEvent.requestId,
+        input.auditEvent.createdAt,
+      ],
+    );
+
+    return result.rows[0] ? mapDocumentManagementCreate(result.rows[0]) : null;
+  }
+
+  async updateSupplierDocumentForOwner(input: SupplierDocumentManagementUpdateInput) {
+    const result = await this.client.query<SupplierDocumentManagementCreateRow>(
+      `
+        with target_document as (
+          select
+            supplier.id as supplier_id,
+            (document.ordinality - 1)::int as document_index
+          from yorso_suppliers_directory supplier
+          cross join lateral jsonb_array_elements(supplier.supplier_documents) with ordinality as document(value, ordinality)
+          where supplier.id = $1
+            and supplier.company_id = $2::uuid
+            and supplier.publication_status in ('draft', 'published')
+            and document.value->>'id' = $3
+            and document.value->>'status' = $4
+          limit 1
+        ),
+        updated_supplier as (
+          update yorso_suppliers_directory supplier
+          set
+            supplier_documents = jsonb_set(
+              supplier.supplier_documents,
+              array[target_document.document_index::text],
+              $5::jsonb,
+              false
+            ),
+            updated_at = now()
+          from target_document
+          where supplier.id = target_document.supplier_id
+          returning ($5::jsonb) as document
+        ),
+        inserted_audit as (
+          insert into yorso_supplier_document_management_events (
+            action,
+            actor_role,
+            actor_user_id,
+            supplier_id,
+            document_id,
+            previous_status,
+            next_status,
+            reason,
+            request_id,
+            created_at
+          )
+          select
+            $6,
+            $7,
+            $8::uuid,
+            $1,
+            $3,
+            $9,
+            $10,
+            $11,
+            $12,
+            $13::timestamptz
+          from updated_supplier
+          returning
+            action,
+            actor_role as "actorRole",
+            supplier_id as "supplierId",
+            document_id as "documentId",
+            previous_status as "previousStatus",
+            next_status as "nextStatus",
+            reason,
+            request_id as "requestId",
+            created_at as "createdAt"
+        )
+        select
+          updated_supplier.document as "document",
+          inserted_audit.action,
+          inserted_audit."actorRole",
+          inserted_audit."supplierId",
+          inserted_audit."documentId",
+          inserted_audit."previousStatus",
+          inserted_audit."nextStatus",
+          inserted_audit.reason,
+          inserted_audit."requestId",
+          inserted_audit."createdAt"
+        from updated_supplier
+        join inserted_audit on true
+      `,
+      [
+        input.supplierId,
+        input.ownerCompanyId,
+        input.documentId,
+        input.currentStatus,
+        JSON.stringify(input.document),
+        input.auditEvent.action,
+        input.auditEvent.actorRole,
+        input.actorUserId,
+        input.auditEvent.previousStatus,
+        input.auditEvent.nextStatus,
+        input.auditEvent.reason,
+        input.auditEvent.requestId,
+        input.auditEvent.createdAt,
+      ],
+    );
+
+    return result.rows[0] ? mapDocumentManagementCreate(result.rows[0]) : null;
+  }
+
+  async deleteSupplierDocumentForOwner(input: SupplierDocumentManagementDeleteInput) {
+    const result = await this.client.query<SupplierDocumentManagementCreateRow>(
+      `
+        with target_document as (
+          select
+            supplier.id as supplier_id,
+            (document.ordinality - 1)::int as document_index,
+            document.value as previous_document
+          from yorso_suppliers_directory supplier
+          cross join lateral jsonb_array_elements(supplier.supplier_documents) with ordinality as document(value, ordinality)
+          where supplier.id = $1
+            and supplier.company_id = $2::uuid
+            and supplier.publication_status in ('draft', 'published')
+            and document.value->>'id' = $3
+            and document.value->>'status' = $4
+          limit 1
+        ),
+        updated_supplier as (
+          update yorso_suppliers_directory supplier
+          set
+            supplier_documents = coalesce((
+              select jsonb_agg(remaining.value order by remaining.ordinality)
+              from jsonb_array_elements(supplier.supplier_documents) with ordinality as remaining(value, ordinality)
+              where remaining.ordinality <> target_document.document_index + 1
+            ), '[]'::jsonb),
+            updated_at = now()
+          from target_document
+          where supplier.id = target_document.supplier_id
+          returning target_document.previous_document as document
+        ),
+        inserted_audit as (
+          insert into yorso_supplier_document_management_events (
+            action,
+            actor_role,
+            actor_user_id,
+            supplier_id,
+            document_id,
+            previous_status,
+            next_status,
+            reason,
+            request_id,
+            created_at
+          )
+          select
+            $5,
+            $6,
+            $7::uuid,
+            $1,
+            $3,
+            $8,
+            $9,
+            $10,
+            $11,
+            $12::timestamptz
+          from updated_supplier
+          returning
+            action,
+            actor_role as "actorRole",
+            supplier_id as "supplierId",
+            document_id as "documentId",
+            previous_status as "previousStatus",
+            next_status as "nextStatus",
+            reason,
+            request_id as "requestId",
+            created_at as "createdAt"
+        )
+        select
+          updated_supplier.document as "document",
+          inserted_audit.action,
+          inserted_audit."actorRole",
+          inserted_audit."supplierId",
+          inserted_audit."documentId",
+          inserted_audit."previousStatus",
+          inserted_audit."nextStatus",
+          inserted_audit.reason,
+          inserted_audit."requestId",
+          inserted_audit."createdAt"
+        from updated_supplier
+        join inserted_audit on true
+      `,
+      [
+        input.supplierId,
+        input.ownerCompanyId,
+        input.documentId,
+        input.currentStatus,
         input.auditEvent.action,
         input.auditEvent.actorRole,
         input.actorUserId,

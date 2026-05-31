@@ -28,6 +28,7 @@ export interface SupplierRepository {
     options?: SupplierRepositoryListOptions,
   ): Promise<{ suppliers: SupplierDirectoryRecord[]; total: number }>;
   getSupplierById(id: string): Promise<SupplierDirectoryRecord | null>;
+  hasSupplierOwnerCompany(input: SupplierOwnerCompanyInput): Promise<boolean>;
   getDocumentDownloadGrantById(id: string): Promise<SupplierDocumentDownloadGrantAuditRecord | null>;
   recordDocumentDownloadGrant(input: SupplierDocumentDownloadGrantAuditInput): Promise<SupplierDocumentDownloadGrantAuditRecord>;
   listDocumentDownloadGrants(input: SupplierDocumentDownloadGrantAdminQuery): Promise<SupplierDocumentDownloadGrantAuditRecord[]>;
@@ -35,10 +36,17 @@ export interface SupplierRepository {
   listDocumentDownloadEvents(input: SupplierDocumentDownloadEventAdminQuery): Promise<SupplierDocumentDownloadEventRecord[]>;
   createSupplierDocumentForOwner(input: SupplierDocumentManagementCreateInput): Promise<SupplierDocumentManagementCreateRecord | null>;
   decideSupplierDocumentAsAdmin(input: SupplierDocumentManagementDecisionInput): Promise<SupplierDocumentManagementCreateRecord | null>;
+  updateSupplierDocumentForOwner(input: SupplierDocumentManagementUpdateInput): Promise<SupplierDocumentManagementCreateRecord | null>;
+  deleteSupplierDocumentForOwner(input: SupplierDocumentManagementDeleteInput): Promise<SupplierDocumentManagementCreateRecord | null>;
 }
 
 export interface SupplierRepositoryListOptions {
   privateSearchSupplierIds?: readonly string[];
+}
+
+export interface SupplierOwnerCompanyInput {
+  supplierId: string;
+  ownerCompanyId: string;
 }
 
 export interface SupplierDocumentDownloadGrantAuditInput {
@@ -93,6 +101,25 @@ export interface SupplierDocumentManagementDecisionInput {
   documentId: string;
   currentStatus: SupplierDocumentPayload["status"];
   nextStatus: SupplierDocumentPayload["status"];
+  actorUserId: string;
+  auditEvent: SupplierDocumentManagementAuditEvent;
+}
+
+export interface SupplierDocumentManagementUpdateInput {
+  supplierId: string;
+  ownerCompanyId: string;
+  documentId: string;
+  currentStatus: SupplierDocumentPayload["status"];
+  actorUserId: string;
+  document: SupplierDocumentPayload;
+  auditEvent: SupplierDocumentManagementAuditEvent;
+}
+
+export interface SupplierDocumentManagementDeleteInput {
+  supplierId: string;
+  ownerCompanyId: string;
+  documentId: string;
+  currentStatus: SupplierDocumentPayload["status"];
   actorUserId: string;
   auditEvent: SupplierDocumentManagementAuditEvent;
 }
@@ -556,6 +583,10 @@ export class MemorySupplierRepository implements SupplierRepository {
     return supplier ? { ...supplier } : null;
   }
 
+  async hasSupplierOwnerCompany(input: SupplierOwnerCompanyInput) {
+    return this.supplierOwnerCompanyIds.get(input.supplierId) === input.ownerCompanyId;
+  }
+
   async createSupplierDocumentForOwner(input: SupplierDocumentManagementCreateInput) {
     const supplier = this.suppliers.find((item) => item.id === input.supplierId);
     if (!supplier) return null;
@@ -582,6 +613,42 @@ export class MemorySupplierRepository implements SupplierRepository {
     if (!document || document.status !== input.currentStatus) return null;
 
     document.status = input.nextStatus;
+    supplier.updatedAt = new Date().toISOString();
+    this.documentManagementAudit.push({ ...input.auditEvent });
+
+    return structuredClone({
+      document,
+      auditEvent: input.auditEvent,
+    });
+  }
+
+  async updateSupplierDocumentForOwner(input: SupplierDocumentManagementUpdateInput) {
+    const supplier = this.suppliers.find((item) => item.id === input.supplierId);
+    if (!supplier) return null;
+    if (this.supplierOwnerCompanyIds.get(input.supplierId) !== input.ownerCompanyId) return null;
+    const documentIndex = supplier.supplierDocuments.findIndex((item) => item.id === input.documentId);
+    const document = supplier.supplierDocuments[documentIndex];
+    if (!document || document.status !== input.currentStatus) return null;
+
+    supplier.supplierDocuments[documentIndex] = { ...input.document };
+    supplier.updatedAt = new Date().toISOString();
+    this.documentManagementAudit.push({ ...input.auditEvent });
+
+    return structuredClone({
+      document: input.document,
+      auditEvent: input.auditEvent,
+    });
+  }
+
+  async deleteSupplierDocumentForOwner(input: SupplierDocumentManagementDeleteInput) {
+    const supplier = this.suppliers.find((item) => item.id === input.supplierId);
+    if (!supplier) return null;
+    if (this.supplierOwnerCompanyIds.get(input.supplierId) !== input.ownerCompanyId) return null;
+    const documentIndex = supplier.supplierDocuments.findIndex((item) => item.id === input.documentId);
+    const document = supplier.supplierDocuments[documentIndex];
+    if (!document || document.status !== input.currentStatus) return null;
+
+    supplier.supplierDocuments.splice(documentIndex, 1);
     supplier.updatedAt = new Date().toISOString();
     this.documentManagementAudit.push({ ...input.auditEvent });
 

@@ -197,6 +197,20 @@ export const supplierDocumentManagementDecisionResponseSchema = z.object({
   requestId: z.string(),
 });
 
+export const supplierDocumentManagementUpdateResponseSchema = z.object({
+  ok: z.literal(true),
+  document: supplierDocumentManagementItemSchema,
+  audit: supplierDocumentManagementAuditEventSchema,
+  requestId: z.string(),
+});
+
+export const supplierDocumentManagementDeleteResponseSchema = z.object({
+  ok: z.literal(true),
+  document: supplierDocumentManagementItemSchema,
+  audit: supplierDocumentManagementAuditEventSchema,
+  requestId: z.string(),
+});
+
 export const supplierDocumentDownloadGrantSchema = z.object({
   id: z.string().min(1).max(120),
   supplierId: z.string().min(1).max(80),
@@ -400,9 +414,11 @@ export type SupplierDocumentManagementCreateResponse = z.infer<typeof supplierDo
 export type SupplierDocumentManagementCreateRequest = z.infer<typeof supplierDocumentManagementCreateRequestSchema>;
 export type SupplierDocumentManagementDecisionRequest = z.infer<typeof supplierDocumentManagementDecisionRequestSchema>;
 export type SupplierDocumentManagementDecisionResponse = z.infer<typeof supplierDocumentManagementDecisionResponseSchema>;
+export type SupplierDocumentManagementDeleteResponse = z.infer<typeof supplierDocumentManagementDeleteResponseSchema>;
 export type SupplierDocumentManagementItem = z.infer<typeof supplierDocumentManagementItemSchema>;
 export type SupplierDocumentManagementRole = z.infer<typeof supplierDocumentManagementRoleSchema>;
 export type SupplierDocumentManagementUpdateRequest = z.infer<typeof supplierDocumentManagementUpdateRequestSchema>;
+export type SupplierDocumentManagementUpdateResponse = z.infer<typeof supplierDocumentManagementUpdateResponseSchema>;
 export type SupplierDocumentPayload = z.infer<typeof supplierDocumentPayloadSchema>;
 export type SupplierDocumentReadiness = z.infer<typeof supplierDocumentReadinessSchema>;
 export type SupplierDocumentStatus = z.infer<typeof supplierDocumentStatusSchema>;

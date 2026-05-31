@@ -480,6 +480,184 @@ describe("supplier directory repositories", () => {
     ]);
   });
 
+  it("PostgreSQL repository updates supplier owner document metadata with one audited CTE", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const document = {
+      id: "sdoc_review_1",
+      title: "Updated factory audit",
+      documentType: "analysis_certificate" as const,
+      status: "review" as const,
+      issuedAt: null,
+      expiresAt: "2027-06-30",
+      fileName: "factory-audit.pdf",
+      fileAssetId: "11111111-1111-4111-8111-111111111111",
+    };
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        return {
+          rows: [
+            {
+              document,
+              action: "supplier_document.update_metadata",
+              actorRole: "supplier_owner",
+              supplierId: "sup-no-001",
+              documentId: "sdoc_review_1",
+              previousStatus: "review",
+              nextStatus: "review",
+              reason: "supplier_owner_updated_document_metadata",
+              requestId: "req-owner-update",
+              createdAt: new Date("2026-05-31T11:00:00.000Z"),
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+
+    const updated = await repository.updateSupplierDocumentForOwner({
+      supplierId: "sup-no-001",
+      ownerCompanyId: "11111111-1111-4111-8111-111111111111",
+      documentId: "sdoc_review_1",
+      currentStatus: "review",
+      actorUserId: "00000000-0000-4000-8000-000000000001",
+      document,
+      auditEvent: {
+        action: "supplier_document.update_metadata",
+        actorRole: "supplier_owner",
+        supplierId: "sup-no-001",
+        documentId: "sdoc_review_1",
+        previousStatus: "review",
+        nextStatus: "review",
+        reason: "supplier_owner_updated_document_metadata",
+        requestId: "req-owner-update",
+        createdAt: "2026-05-31T11:00:00.000Z",
+      },
+    });
+
+    expect(updated).toMatchObject({
+      document: {
+        id: "sdoc_review_1",
+        title: "Updated factory audit",
+      },
+      auditEvent: {
+        action: "supplier_document.update_metadata",
+        actorRole: "supplier_owner",
+        nextStatus: "review",
+      },
+    });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].sql).toContain("with target_document as");
+    expect(calls[0].sql).toContain("company_id = $2::uuid");
+    expect(calls[0].sql).toContain("jsonb_set(");
+    expect(calls[0].sql).toContain("document.value->>'status' = $4");
+    expect(calls[0].sql).toContain("insert into yorso_supplier_document_management_events");
+    expect(calls[0].params).toEqual([
+      "sup-no-001",
+      "11111111-1111-4111-8111-111111111111",
+      "sdoc_review_1",
+      "review",
+      JSON.stringify(document),
+      "supplier_document.update_metadata",
+      "supplier_owner",
+      "00000000-0000-4000-8000-000000000001",
+      "review",
+      "review",
+      "supplier_owner_updated_document_metadata",
+      "req-owner-update",
+      "2026-05-31T11:00:00.000Z",
+    ]);
+  });
+
+  it("PostgreSQL repository deletes supplier owner non-approved documents with one audited CTE", async () => {
+    const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
+    const document = {
+      id: "sdoc_on_request_1",
+      title: "Rejected factory audit",
+      documentType: "audit_report" as const,
+      status: "on_request" as const,
+      issuedAt: "2026-05-31",
+      expiresAt: "2027-05-31",
+      fileName: "factory-audit.pdf",
+      fileAssetId: "11111111-1111-4111-8111-111111111111",
+    };
+    const client: SupplierQueryClient = {
+      async query(sql, params) {
+        calls.push({ sql, params });
+        return {
+          rows: [
+            {
+              document,
+              action: "supplier_document.delete",
+              actorRole: "supplier_owner",
+              supplierId: "sup-no-001",
+              documentId: "sdoc_on_request_1",
+              previousStatus: "on_request",
+              nextStatus: null,
+              reason: "supplier_owner_deleted_document",
+              requestId: "req-owner-delete",
+              createdAt: new Date("2026-05-31T11:05:00.000Z"),
+            },
+          ],
+        };
+      },
+    };
+    const repository = new PostgresSupplierRepository({ databaseUrl: "postgres://example" }, { client });
+
+    const deleted = await repository.deleteSupplierDocumentForOwner({
+      supplierId: "sup-no-001",
+      ownerCompanyId: "11111111-1111-4111-8111-111111111111",
+      documentId: "sdoc_on_request_1",
+      currentStatus: "on_request",
+      actorUserId: "00000000-0000-4000-8000-000000000001",
+      auditEvent: {
+        action: "supplier_document.delete",
+        actorRole: "supplier_owner",
+        supplierId: "sup-no-001",
+        documentId: "sdoc_on_request_1",
+        previousStatus: "on_request",
+        nextStatus: null,
+        reason: "supplier_owner_deleted_document",
+        requestId: "req-owner-delete",
+        createdAt: "2026-05-31T11:05:00.000Z",
+      },
+    });
+
+    expect(deleted).toMatchObject({
+      document: {
+        id: "sdoc_on_request_1",
+        status: "on_request",
+      },
+      auditEvent: {
+        action: "supplier_document.delete",
+        actorRole: "supplier_owner",
+        previousStatus: "on_request",
+        nextStatus: null,
+      },
+    });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].sql).toContain("with target_document as");
+    expect(calls[0].sql).toContain("company_id = $2::uuid");
+    expect(calls[0].sql).toContain("jsonb_array_elements(supplier.supplier_documents)");
+    expect(calls[0].sql).toContain("jsonb_agg(remaining.value order by remaining.ordinality)");
+    expect(calls[0].sql).toContain("document.value->>'status' = $4");
+    expect(calls[0].sql).toContain("insert into yorso_supplier_document_management_events");
+    expect(calls[0].params).toEqual([
+      "sup-no-001",
+      "11111111-1111-4111-8111-111111111111",
+      "sdoc_on_request_1",
+      "on_request",
+      "supplier_document.delete",
+      "supplier_owner",
+      "00000000-0000-4000-8000-000000000001",
+      "on_request",
+      null,
+      "supplier_owner_deleted_document",
+      "req-owner-delete",
+      "2026-05-31T11:05:00.000Z",
+    ]);
+  });
+
   it("PostgreSQL repository reads grants and persists supplier document download events", async () => {
     const calls: Array<{ sql: string; params?: readonly unknown[] }> = [];
     const client: SupplierQueryClient = {

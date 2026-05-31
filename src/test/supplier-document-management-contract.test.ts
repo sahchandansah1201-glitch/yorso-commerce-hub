@@ -5,7 +5,9 @@ import {
   supplierDocumentManagementCreateResponseSchema,
   supplierDocumentManagementDecisionRequestSchema,
   supplierDocumentManagementDecisionResponseSchema,
+  supplierDocumentManagementDeleteResponseSchema,
   supplierDocumentManagementUpdateRequestSchema,
+  supplierDocumentManagementUpdateResponseSchema,
 } from "../../packages/contracts/src";
 
 describe("supplier document management contracts", () => {
@@ -164,6 +166,85 @@ describe("supplier document management contracts", () => {
         document: {
           ...response.document,
           fileAssetId: "backend-file-asset",
+        },
+      }),
+    ).toThrow();
+  });
+
+  it("returns sanitized owner update and delete responses without backend file storage identifiers", () => {
+    const updated = supplierDocumentManagementUpdateResponseSchema.parse({
+      ok: true,
+      document: {
+        id: "sdoc_review_1",
+        title: "Updated factory audit",
+        documentType: "analysis_certificate",
+        status: "review",
+        issuedAt: null,
+        expiresAt: "2027-06-30",
+        fileName: "factory-audit.pdf",
+      },
+      audit: {
+        action: "supplier_document.update_metadata",
+        actorRole: "supplier_owner",
+        supplierId: "sup-no-001",
+        documentId: "sdoc_review_1",
+        previousStatus: "review",
+        nextStatus: "review",
+        reason: "supplier_owner_updated_document_metadata",
+        requestId: "req-owner-update",
+        createdAt: "2026-05-31T11:00:00.000Z",
+      },
+      requestId: "req-owner-update",
+    });
+    const deleted = supplierDocumentManagementDeleteResponseSchema.parse({
+      ok: true,
+      document: {
+        id: "sdoc_on_request_1",
+        title: "Rejected factory audit",
+        documentType: "audit_report",
+        status: "on_request",
+        issuedAt: "2026-05-31",
+        expiresAt: "2027-05-31",
+        fileName: "factory-audit.pdf",
+      },
+      audit: {
+        action: "supplier_document.delete",
+        actorRole: "supplier_owner",
+        supplierId: "sup-no-001",
+        documentId: "sdoc_on_request_1",
+        previousStatus: "on_request",
+        nextStatus: null,
+        reason: "supplier_owner_deleted_document",
+        requestId: "req-owner-delete",
+        createdAt: "2026-05-31T11:05:00.000Z",
+      },
+      requestId: "req-owner-delete",
+    });
+
+    expect(updated.document).toMatchObject({
+      id: "sdoc_review_1",
+      status: "review",
+    });
+    expect(deleted.audit).toMatchObject({
+      action: "supplier_document.delete",
+      nextStatus: null,
+    });
+    expect(`${JSON.stringify(updated)}\n${JSON.stringify(deleted)}`).not.toContain("fileAssetId");
+    expect(() =>
+      supplierDocumentManagementUpdateResponseSchema.parse({
+        ...updated,
+        document: {
+          ...updated.document,
+          fileAssetId: "backend-file-asset",
+        },
+      }),
+    ).toThrow();
+    expect(() =>
+      supplierDocumentManagementDeleteResponseSchema.parse({
+        ...deleted,
+        document: {
+          ...deleted.document,
+          downloadPath: "/internal/storage/path",
         },
       }),
     ).toThrow();

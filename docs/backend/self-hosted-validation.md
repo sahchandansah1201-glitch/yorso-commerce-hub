@@ -1921,3 +1921,49 @@ Required markers:
 - `supplier_document.approve`;
 - `supplier_document.reject`;
 - `10,000 concurrent users`.
+
+## Backend Phase 4O Supplier Document Owner Correction Runtime Validation
+
+Run:
+
+```bash
+npm run test:supplier-document-management-runtime
+npm run test:supplier-document-management-policy
+npm run smoke:self-hosted-account-api:run
+npm run check:self-hosted-api
+npm run check:production-scale-baseline
+```
+
+Expected coverage:
+
+- `PATCH /v1/suppliers/:supplierId/documents/:documentId` requires an
+  authenticated self-hosted supplier owner session.
+- `DELETE /v1/suppliers/:supplierId/documents/:documentId` requires the same
+  owner/session/company boundary.
+- Buyer-only sessions receive `supplier_document_owner_required`; missing
+  sessions fail through the account session boundary.
+- Metadata update accepts only bounded safe metadata and keeps storage
+  internals out of the browser payload.
+- `updateSupplierDocumentForOwner` and `deleteSupplierDocumentForOwner` apply
+  the Phase 4L policy: only `review` and `on_request` are mutable by owner.
+- Approved documents return `approved_document_immutable`.
+- PostgreSQL update/delete paths mutate the JSONB document array and insert
+  `yorso_supplier_document_management_events` audit metadata in one CTE.
+- The browser response is sanitized and contains no storage identifiers or
+  `downloadPath`.
+- Smoke output includes `supplier_document_owner_update_delete=ok`.
+
+Required markers:
+
+- `Backend Phase 4O`;
+- `Supplier Document Owner Correction Runtime`;
+- `/v1/suppliers/:supplierId/documents/:documentId`;
+- `updateSupplierDocumentForOwner`;
+- `deleteSupplierDocumentForOwner`;
+- `supplierDocumentManagementUpdateResponseSchema`;
+- `supplierDocumentManagementDeleteResponseSchema`;
+- `supplier_document_owner_update_delete=ok`;
+- `supplier_document.update_metadata`;
+- `supplier_document.delete`;
+- `approved_document_immutable`;
+- `10,000 concurrent users`.
