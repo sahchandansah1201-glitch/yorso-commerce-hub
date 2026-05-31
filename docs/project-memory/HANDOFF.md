@@ -16,18 +16,18 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4E Supplier Profile Restricted Document Payload Boundary is
-committed locally at `7f566ca2`; release validation passed.
+Backend Phase 4F Supplier Document Download Grant Endpoint is committed
+locally at `75c42a60`; release validation passed.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Document contract | Перенести restricted supplier document metadata в supplier API contract. | Реализовано: `supplierDocumentPayloadSchema` / `supplierDocuments` добавлены в contract, API repositories and frontend adapter. | Phase 4F: download grant endpoint. |
-| Persistence | Добавить self-hosted storage для restricted document metadata. | Реализовано: migration `0034_supplier_profile_restricted_documents` добавляет JSONB `supplier_documents`. | Backfill verified supplier document metadata later. |
-| Access boundary | Не раскрывать document metadata locked buyers. | Реализовано: `shapeSupplierForAccess` отдаёт `supplierDocuments: null` для `anonymous_locked` и `registered_locked`; URLs/assets/storage keys не входят в payload. | Grant download separately after access re-check. |
-| Supplier profile | Убрать static per-batch document names из production profile. | Реализовано: `SupplierProfile.tsx` читает `supplier?.supplierDocuments`; locked state показывает placeholder without file names. | Demo-mode retirement separate decision. |
-| Guards | Зафиксировать qualified-only supplierDocuments contract. | Реализовано: tests, DB guards, `check:self-hosted-api`, `check:production-scale-baseline` проходят. | Держать guards в `ci:core`. |
+| Grant contract | Добавить typed response для short-lived document grant без storage details. | Реализовано: `supplierDocumentDownloadGrantSchema` / response schema. | Phase 4G: consumption/download endpoint. |
+| Access re-check | Выдать grant только после self-hosted session и supplier access re-check. | Реализовано: `POST /v1/suppliers/:supplierId/documents/:documentId/grant`; без access возвращает 403 до раскрытия file data. | Download route must re-validate grant. |
+| Audit persistence | Сохранять granted/denied/not-found/unavailable attempts. | Реализовано: migration `0035_supplier_document_download_grants` и repository method `recordDocumentDownloadGrant`. | Добавить download consumption audit. |
+| Browser payload | Не отдавать `fileAssetId`, object key, storage key или direct URL. | Реализовано: grant response содержит только id, supplierId, documentId, fileName, downloadPath, grantedAt, expiresAt. | Serving endpoint должен сохранить тот же boundary. |
+| Guards | Зафиксировать grant behavior тестами и checks. | Реализовано: API, DB, contract, frontend API, smoke, self-hosted and scale checks pass. | Держать guards в `ci:core`. |
 
 ## Current Status
 
@@ -44,6 +44,34 @@ committed locally at `7f566ca2`; release validation passed.
 - Backend Phase 4C is committed locally at `d8988d50`; release validation passed.
 - Backend Phase 4D is committed locally at `84dd9588`; release validation passed.
 - Backend Phase 4E is committed locally at `7f566ca2`; release validation passed.
+- Backend Phase 4F is committed locally at `75c42a60`; release validation passed.
+
+## Phase 4F Files
+
+- `docs/backend/phase-4f-supplier-document-download-grants.md`
+- `packages/contracts/src/supplier-directory.ts`
+- `apps/api/src/modules/suppliers/routes.ts`
+- `apps/api/src/modules/suppliers/service.ts`
+- `apps/api/src/modules/suppliers/repository.ts`
+- `apps/api/src/modules/suppliers/postgres-repository.ts`
+- `packages/db/migrations/0035_supplier_document_download_grants.sql`
+- `packages/db/migration-manifest.json`
+- `src/lib/supplier-directory-api.ts`
+- `apps/api/src/server.test.ts`
+- `apps/api/src/modules/suppliers/__tests__/repository.test.ts`
+- `src/lib/supplier-directory-api.test.ts`
+- `src/test/self-hosted-contracts.test.ts`
+- `src/test/self-hosted-db-contract.test.ts`
+- `packages/db/src/migrator.test.ts`
+- `packages/db/src/cli.test.ts`
+- `scripts/smoke-self-hosted-account-api.mjs`
+- `scripts/check-self-hosted-api.mjs`
+- `scripts/check-production-scale-baseline.mjs`
+- `docs/backend/frontend-backend-contract.md`
+- `docs/backend/self-hosted-validation.md`
+- `docs/backend/production-scale-baseline.md`
+- `docs/backend/yorso-backend-implementation-plan.md`
+- `docs/backend/yorso-backend-implementation-plan.ru.md`
 
 ## Phase 4E Files
 
@@ -195,6 +223,26 @@ Removed active provider surface:
 
 ## Validation
 
+Phase 4F release validation passed locally on 2026-05-31:
+
+- TDD red: `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "issues supplier document download grants"` initially failed with 405 before the route existed.
+- `npm run contracts:build`
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "issues supplier document download grants"`
+- `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`
+- `npm test -- src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-api.test.ts`
+- `npm run test:db-migrations`
+- `npm run test:db-contract`
+- `npm run check:self-hosted-api`
+- `npm run check:production-scale-baseline`
+- `npx tsc -b --noEmit`
+- `npm run api:build`
+- `npm run smoke:self-hosted-account-api:run`
+- `npm test`
+- `npm run test:api`
+- `npm run build`
+- `npm run check:self-hosted-db`
+- `git diff --check`
+
 Phase 4E release validation passed locally on 2026-05-31:
 
 - `npm test -- src/pages/__tests__/SupplierProfile.access.test.tsx` initially
@@ -311,15 +359,17 @@ Known non-blocking warning:
 
 ## Next Recommended Workstream
 
-Backend Phase 4F: Supplier Document Download Grant Endpoint.
+Backend Phase 4G: Supplier Document Grant Consumption / File Serving Endpoint.
 
 Concrete first scope:
 
-- audit current document metadata payload and confirm no direct file URL exposure;
-- define a qualified-only download grant endpoint with supplier access
-  re-check, bounded response and audit event;
-- keep `/suppliers/:supplierId` payload metadata-only; no public file path,
-  storage key or raw asset id should be exposed in profile responses.
+- add a `GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=...`
+  route;
+- validate grant id, buyer user, supplier id, document id, expiry and granted
+  status before reading the backend file asset;
+- stream through the self-hosted API without exposing object keys, storage keys
+  or direct file URLs;
+- persist/audit successful consumption plus denied/expired attempts.
 
 ## Preserve
 

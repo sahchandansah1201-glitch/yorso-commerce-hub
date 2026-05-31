@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-05-31"
   active_branch: "main"
-  head_commit: "7f566ca2"
-  head_summary: "Backend Phase 4E supplier profile restricted document payload boundary; release validation passed."
+  head_commit: "75c42a60"
+  head_summary: "Backend Phase 4F supplier document download grant endpoint; release validation passed."
   dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4E implementation commit."
+    - "Project-memory checkpoint is being updated after the Phase 4F implementation commit."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +36,24 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4e_supplier_profile_restricted_documents"
-  summary: "Supplier profile restricted document metadata is backend-owned through the supplier directory contract/API/DB and qualified-only access boundary."
+  id: "backend_phase_4f_supplier_document_download_grants"
+  summary: "Supplier document download grants are issued by a self-hosted qualified-only endpoint after supplier access re-check and audited without browser-visible file asset leakage."
   status: "committed_validation_passed"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "Phase 4F implementation is recorded in docs/backend/phase-4f-supplier-document-download-grants.md."
+    - "POST /v1/suppliers/:supplierId/documents/:documentId/grant requires an authenticated self-hosted account session and re-checks supplier access before issuing a grant."
+    - "packages/contracts/src/supplier-directory.ts now includes supplierDocumentDownloadGrantSchema and supplierDocumentDownloadGrantResponseSchema."
+    - "apps/api/src/modules/suppliers/service.ts records denied, unavailable, not-found and granted attempts through recordDocumentDownloadGrant."
+    - "apps/api supplier memory and PostgreSQL repositories persist supplier document grant audit records, with fileAssetId kept backend-only."
+    - "packages/db/migrations/0035_supplier_document_download_grants.sql adds yorso_supplier_document_download_grants with buyer/supplier/status/recent and expiry indexes."
+    - "src/lib/supplier-directory-api.ts exposes requestDocumentDownloadGrant only when VITE_YORSO_API_URL is configured and does not create local fake grants."
+    - "scripts/smoke-self-hosted-account-api.mjs verifies supplier_document_grant_requires_access=ok and supplier_document_grant_unlocked=ok."
+    - "check:self-hosted-api and check:production-scale-baseline guard the Phase 4F contract, migration and docs."
+    - "Phase 4F release validation passed: TDD red grant endpoint test, contracts build, focused API route/repository/contract/frontend tests, DB migration/contract tests, self-hosted guards, TypeScript build graph, full npm test, lint, API build, production build, API tests, self-hosted account API smoke, self-hosted DB check and diff check."
+    - "Phase 4F is committed locally at 75c42a60."
+    - "Recommended next scoped workstream: Backend Phase 4G Supplier Document Grant Consumption / File Serving Endpoint."
     - "Phase 4E implementation is recorded in docs/backend/phase-4e-supplier-profile-restricted-documents.md."
     - "packages/contracts/src/supplier-directory.ts now includes supplierDocumentPayloadSchema and supplierDocuments."
     - "apps/api supplier repositories return supplierDocuments from memory records and yorso_suppliers_directory supplier_documents."
@@ -1882,4 +1894,4 @@ critical_files:
   - "docs/project-memory/RISKS.md"
 
 open_questions:
-  - "No open Phase 4E implementation question. Next scoped decision: Backend Phase 4F Supplier Document Download Grant Endpoint."
+  - "No open Phase 4F implementation question. Next scoped decision: Backend Phase 4G Supplier Document Grant Consumption / File Serving Endpoint."

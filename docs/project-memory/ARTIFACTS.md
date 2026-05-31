@@ -1453,3 +1453,15 @@
 - `src/i18n/translations.ts`: EN/RU/ES supplier document labels, empty/locked copy, issued/expires labels and document status labels.
 - `src/test/self-hosted-contracts.test.ts`, `src/test/self-hosted-db-contract.test.ts`, `apps/api/src/modules/suppliers/__tests__/repository.test.ts`, `src/lib/supplier-directory-api.test.ts`, `src/lib/supplier-directory-view.test.ts`, `src/lib/use-supplier-directory.test.tsx`, `src/pages/Suppliers.test.tsx` and `src/pages/__tests__/SupplierProfile.access.test.tsx`: regression coverage for typed contract, DB migration, repository mapping, local preview boundary, locked null payload and qualified-only profile rendering.
 - `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4E docs, migration, contract fields and production-scale baseline markers.
+
+## Backend Phase 4F Supplier Document Download Grants
+
+- `docs/backend/phase-4f-supplier-document-download-grants.md`: implementation note, Russian plan/fact table, access decision, runtime contract, remaining debt, validation and 10,000 concurrent-user review.
+- `packages/contracts/src/supplier-directory.ts`: supplier directory contract now owns `supplierDocumentDownloadGrantSchema` and `supplierDocumentDownloadGrantResponseSchema`.
+- `apps/api/src/modules/suppliers/routes.ts` and `apps/api/src/modules/suppliers/service.ts`: `POST /v1/suppliers/:supplierId/documents/:documentId/grant` requires authenticated self-hosted session, re-checks supplier access and returns a short-lived grant response.
+- `apps/api/src/modules/suppliers/repository.ts` and `apps/api/src/modules/suppliers/postgres-repository.ts`: memory/PostgreSQL supplier repositories persist grant audit attempts with backend-only `fileAssetId`.
+- `packages/db/migrations/0035_supplier_document_download_grants.sql` and `packages/db/migration-manifest.json`: self-hosted DB migration and manifest entry for `yorso_supplier_document_download_grants`.
+- `src/lib/supplier-directory-api.ts`: frontend supplier API adapter exposes `requestDocumentDownloadGrant` only for configured self-hosted API mode and does not create local fake grants.
+- `apps/api/src/server.test.ts`, `apps/api/src/modules/suppliers/__tests__/repository.test.ts`, `src/lib/supplier-directory-api.test.ts`, `src/test/self-hosted-contracts.test.ts`, `src/test/self-hosted-db-contract.test.ts`, `packages/db/src/migrator.test.ts` and `packages/db/src/cli.test.ts`: regression coverage for route behavior, repository audit persistence, browser payload shape and migration manifest.
+- `scripts/smoke-self-hosted-account-api.mjs`: runtime smoke markers `supplier_document_grant_requires_access=ok` and `supplier_document_grant_unlocked=ok`.
+- `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4F docs, migration, contract fields and production-scale baseline markers.

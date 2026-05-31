@@ -2,42 +2,42 @@
 
 ## Current Next Action
 
-Backend Phase 4E is implemented and committed locally at `7f566ca2`.
+Backend Phase 4F is implemented and committed locally at `75c42a60`.
 
-Phase 4E moves `/suppliers/:supplierId` restricted supplier document metadata
-to the self-hosted supplier directory contract. The supplier profile now renders
-`supplierDocuments` from the API-shaped supplier record only for
-`qualified_unlocked` buyers. Locked buyers receive `supplierDocuments: null`
-and keep the existing locked document placeholder without file names, URLs,
-asset ids or storage keys.
+Phase 4F adds a self-hosted, qualified-only supplier document download grant
+endpoint:
+
+`POST /v1/suppliers/:supplierId/documents/:documentId/grant`
+
+The endpoint requires an authenticated self-hosted account session, re-checks
+supplier access before document lookup, returns a short-lived grant response,
+and records every attempt in a backend audit table. Browser responses do not
+include `fileAssetId`, storage keys, object keys or direct file URLs.
 
 ## Plan / Fact
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Backend contract | Добавить restricted supplier document metadata в supplier-directory contract. | Реализовано: `supplierDocumentPayloadSchema` и `supplierDocuments`. | Phase 4F download grant endpoint. |
-| Persistence | Сохранить document metadata в self-hosted supplier table. | Реализовано: migration `0034_supplier_profile_restricted_documents` добавляет `supplier_documents` JSONB array. | Backfill verified supplier documents later. |
-| Access boundary | Не отдавать document metadata locked buyers. | Реализовано: `shapeSupplierForAccess` возвращает `supplierDocuments: null` для `anonymous_locked` и `registered_locked`; URLs/assets/storage keys не входят в payload. | Download grant must re-check access. |
-| Profile page | Убрать static document list из production profile. | Реализовано: `SupplierProfile.tsx` читает `supplier?.supplierDocuments`; locked state показывает placeholder без file names. | Demo-mode retirement separate decision. |
-| Guards | Зафиксировать contract/API/DB/UI boundary тестами и checks. | Реализовано: contracts, API, DB, supplier frontend tests, self-hosted checks and production-scale checks pass. | Держать guards в `ci:core`. |
+| Backend contract | Добавить typed download grant response без storage details. | Реализовано: `supplierDocumentDownloadGrantSchema` и response schema. | Phase 4G должен валидировать grant при фактической выдаче файла. |
+| Endpoint | Сделать qualified-only grant route после supplier access re-check. | Реализовано: `POST /v1/suppliers/:supplierId/documents/:documentId/grant`; без доступа возвращает 403 до раскрытия document/file данных. | Добавить `/download` consumption endpoint. |
+| Audit persistence | Записывать granted/denied/unavailable attempts. | Реализовано: migration `0035_supplier_document_download_grants` и repository method `recordDocumentDownloadGrant`. | Добавить consumption/download audit при Phase 4G. |
+| Frontend API | Не создавать local fake grants. | Реализовано: `requestDocumentDownloadGrant` работает только при configured API; API-disabled preview throws explicit error. | Подключить UI download action после serving endpoint. |
+| Runtime smoke and guards | Зафиксировать locked/unlocked grant behavior. | Реализовано: smoke markers `supplier_document_grant_requires_access=ok` и `supplier_document_grant_unlocked=ok`; self-hosted/scale guards обновлены. | Держать guards в release path. |
 
-## Next Implementation After Phase 4E
+## Next Implementation After Phase 4F
 
 Recommended next scoped workstream:
 
-Backend Phase 4F: Supplier Document Download Grant Endpoint.
+Backend Phase 4G: Supplier Document Grant Consumption / File Serving Endpoint.
 
 Concrete scope:
 
-- audit the current supplier document metadata payload and any document action
-  affordances in `SupplierProfile.tsx`;
-- define a self-hosted, qualified-only download grant route that re-checks
-  buyer access before returning a short-lived grant response;
-- keep the profile payload metadata-only: no direct file URLs, raw storage keys,
-  asset ids or provider-specific paths in `/suppliers/:supplierId`;
-- persist/audit grant attempts with bounded pagination and no PII/raw document
-  material in logs;
-- add tests, docs and 10,000 concurrent-user review for grant read/write load.
+- add a self-hosted `GET /v1/suppliers/:supplierId/documents/:documentId/download?grantId=...` route;
+- validate grant id, buyer user, supplier id, document id, expiry and granted status before reading the backend file asset;
+- stream the owned file payload through the API without exposing object keys or direct storage URLs;
+- persist/audit successful download consumption and denied/expired attempts;
+- add bounded cleanup or expiry policy for stale grants if needed;
+- add tests, smoke markers, docs and 10,000 concurrent-user review.
 
 ## Guardrails To Preserve
 

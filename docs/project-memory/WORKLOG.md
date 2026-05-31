@@ -3177,3 +3177,57 @@ Keep this file factual and append-only.
   - Browserslist data stale.
 - Next scoped workstream: Backend Phase 4F Supplier Document Download Grant
   Endpoint.
+
+## 2026-05-31 Phase 4F Checkpoint
+
+- Latest implementation commit: `75c42a60` (`[codex] Backend Phase 4F supplier document grants`).
+- Scoped workstream: Backend Phase 4F Supplier Document Download Grant Endpoint.
+- Implemented self-hosted supplier document download grants:
+  - `POST /v1/suppliers/:supplierId/documents/:documentId/grant` requires an
+    authenticated self-hosted account session;
+  - supplier access is re-checked before document lookup and grant issuance;
+  - locked buyers receive 403 `supplier_document_access_required` without
+    document file asset leakage;
+  - qualified buyers receive a short-lived grant response with `downloadPath`;
+  - grant response omits `fileAssetId`, object keys, storage keys and direct
+    file URLs.
+- Added backend audit persistence:
+  - migration `0035_supplier_document_download_grants.sql` creates
+    `yorso_supplier_document_download_grants`;
+  - audit statuses cover `granted`, `access_denied`, `document_not_found` and
+    `document_unavailable`;
+  - indexes cover buyer recent, supplier recent, status recent and expiry
+    cleanup/read patterns.
+- Plan/fact:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Contract | Добавить typed grant response без storage details. | Реализовано: `supplierDocumentDownloadGrantSchema` и response schema. | Phase 4G валидирует grant при выдаче файла. |
+| Endpoint | Выдавать grant только после access re-check. | Реализовано: POST grant route возвращает 403 без доступа и 200 после approved supplier access. | Добавить GET download route. |
+| Audit | Записывать все grant attempts. | Реализовано: memory/PostgreSQL repository audit и migration 0035. | Добавить consumption/download audit. |
+| Frontend API | Не создавать local fake grants. | Реализовано: только configured API; API-disabled preview возвращает явную ошибку. | Подключить UI action после serving endpoint. |
+| Guards | Зафиксировать self-hosted boundary. | Реализовано: tests, smoke, self-hosted and scale guards. | Keep in release path. |
+
+- Validation passed:
+  - TDD red: focused grant endpoint test failed with 405 before route
+    implementation;
+  - `npm run contracts:build`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/server.test.ts -t "issues supplier document download grants"`;
+  - `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/suppliers/__tests__/repository.test.ts`;
+  - `npm test -- src/test/self-hosted-contracts.test.ts src/lib/supplier-directory-api.test.ts`;
+  - `npm run test:db-migrations`;
+  - `npm run test:db-contract`;
+  - `npm run check:self-hosted-api`;
+  - `npm run check:production-scale-baseline`;
+  - `npx tsc -b --noEmit`;
+  - `npm run api:build`;
+  - `npm run smoke:self-hosted-account-api:run`;
+  - `npm test`;
+  - `npm run test:api`;
+  - `npm run build`;
+  - `npm run check:self-hosted-db`;
+  - `git diff --check`.
+- Known non-blocking warning preserved:
+  - Browserslist data stale.
+- Next scoped workstream: Backend Phase 4G Supplier Document Grant Consumption
+  / File Serving Endpoint.
