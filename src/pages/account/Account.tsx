@@ -874,25 +874,18 @@ const BranchesSection = ({
 
   return (
     <div className="space-y-4" data-testid="account-section-branches">
-      <AccountSectionCard
+      <ListSectionHeader
         title={t.account_branches_title}
         description={t.account_branches_desc}
-      >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <p className="text-sm text-muted-foreground" data-testid="account-branches-explainer">
-            {t.account_branches_deliveryBasisExplainer}
-          </p>
-          <Button
-            type="button"
-            onClick={startAdd}
-            className="shrink-0"
-            data-testid="account-branch-add"
-          >
-            <Plus className="mr-2 h-4 w-4" aria-hidden />
-            {t.account_branch_add}
-          </Button>
-        </div>
-      </AccountSectionCard>
+        explainer={t.account_branches_deliveryBasisExplainer}
+        explainerTestId="account-branches-explainer"
+        action={{
+          label: t.account_branch_add,
+          onClick: startAdd,
+          testId: "account-branch-add",
+        }}
+      />
+
       {profile.branches.length > 0 ? (
         <AccountSectionCard
           title={t.account_branch_search_title}
