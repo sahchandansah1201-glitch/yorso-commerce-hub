@@ -1074,58 +1074,60 @@ const BranchesSection = ({
         ) : (
           visibleBranches.map((b) => (
             <AccountSectionCard key={b.id} title={b.name} testId={`account-branch-${b.id}`}>
-              <div className="space-y-3">
-                <BranchTypeBadge type={b.type} />
-                <p className="text-sm">
-                  {[b.city, b.region, b.country].filter(Boolean).join(", ")}
+              <dl className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+                <Field
+                  label={t.account_branch_field_type}
+                  value={branchTypeLabel[b.type]}
+                />
+                <Field
+                  label={t.account_branch_field_city}
+                  value={[b.city, b.region, b.country].filter(Boolean).join(", ")}
+                />
+                <Field
+                  label={t.account_branch_field_address}
+                  value={b.addressLine}
+                  className="sm:col-span-2"
+                />
+                <Field label={t.account_branch_incoterms} value={b.defaultIncoterms} />
+                <Field label={t.account_branch_pickup} value={b.portOrPickupPoint} />
+              </dl>
+              {b.notes ? (
+                <p className="mt-3 rounded-md bg-muted/40 px-3 py-2 text-xs italic text-muted-foreground">
+                  {b.notes}
                 </p>
-                <p className="text-xs text-muted-foreground">{b.addressLine}</p>
-                <div className="flex flex-wrap gap-3 text-xs">
-                  <span>
-                    <span className="text-muted-foreground">{t.account_branch_incoterms}: </span>
-                    <span className="font-medium">{b.defaultIncoterms}</span>
-                  </span>
-                  <span>
-                    <span className="text-muted-foreground">{t.account_branch_pickup}: </span>
-                    <span className="font-medium">{b.portOrPickupPoint}</span>
-                  </span>
-                </div>
-                {b.notes ? (
-                  <p className="text-xs text-muted-foreground italic">{b.notes}</p>
-                ) : null}
-                <div className="flex justify-end gap-2 pt-1">
-                  <Button
-                    type="button"
-                    variant={selectedBranchId === b.id ? "secondary" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedBranchId((current) => (current === b.id ? null : b.id))}
-                    data-testid={`account-branch-open-${b.id}`}
-                  >
-                    {selectedBranchId === b.id
-                      ? t.account_branch_details_hide
-                      : t.account_branch_details_open}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => startEdit(b)}
-                    data-testid={`account-branch-edit-${b.id}`}
-                  >
-                    <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-                    {t.account_action_edit}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteBranch(b.id)}
-                    aria-label={`${t.account_branch_delete}: ${b.name}`}
-                    data-testid={`account-branch-delete-${b.id}`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                  </Button>
-                </div>
+              ) : null}
+              <div className="mt-4 flex justify-end gap-2 border-t border-border/60 pt-3">
+                <Button
+                  type="button"
+                  variant={selectedBranchId === b.id ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setSelectedBranchId((current) => (current === b.id ? null : b.id))}
+                  data-testid={`account-branch-open-${b.id}`}
+                >
+                  {selectedBranchId === b.id
+                    ? t.account_branch_details_hide
+                    : t.account_branch_details_open}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => startEdit(b)}
+                  data-testid={`account-branch-edit-${b.id}`}
+                >
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+                  {t.account_action_edit}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteBranch(b.id)}
+                  aria-label={`${t.account_branch_delete}: ${b.name}`}
+                  data-testid={`account-branch-delete-${b.id}`}
+                >
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                </Button>
               </div>
             </AccountSectionCard>
           ))
@@ -2392,54 +2394,66 @@ const MetaRegionsSection = ({
         ) : (
           profile.metaRegions.map((m) => (
             <AccountSectionCard key={m.id} title={m.name} testId={`account-meta-${m.id}`}>
-              <div className="space-y-3">
-                <div className="flex flex-wrap gap-1">
-                  {m.countries.map((c) => (
-                    <Badge key={c} variant="secondary" className="text-[11px]">
-                      {c}
-                    </Badge>
-                  ))}
+              <dl className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+                <Field
+                  label={t.account_metaRegion_reason}
+                  value={reasonLabel[m.logisticsReason]}
+                />
+                <Field
+                  label={t.account_metaRegion_field_currency}
+                  value={m.defaultCurrency}
+                />
+                <div className="min-w-0 sm:col-span-2">
+                  <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                    {t.account_metaRegion_field_countries}
+                  </dt>
+                  <dd className="mt-1 flex flex-wrap gap-1">
+                    {m.countries.map((c) => (
+                      <Badge key={c} variant="secondary" className="text-[11px]">
+                        {c}
+                      </Badge>
+                    ))}
+                  </dd>
                 </div>
-                <p className="text-xs">
-                  <span className="text-muted-foreground">{t.account_metaRegion_reason}: </span>
-                  <span className="font-medium">{reasonLabel[m.logisticsReason]}</span>
+                <div className="min-w-0 sm:col-span-2">
+                  <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                    {t.account_metaRegion_field_usedFor}
+                  </dt>
+                  <dd className="mt-1 flex flex-wrap gap-1">
+                    {m.usedFor.map((u) => (
+                      <Badge key={u} variant="outline" className="text-[10px]">
+                        {usedForLabel[u]}
+                      </Badge>
+                    ))}
+                  </dd>
+                </div>
+              </dl>
+              {m.notes ? (
+                <p className="mt-3 rounded-md bg-muted/40 px-3 py-2 text-xs italic text-muted-foreground">
+                  {m.notes}
                 </p>
-                <p className="text-xs">
-                  <span className="text-muted-foreground">
-                    {t.account_metaRegion_field_currency}:{" "}
-                  </span>
-                  <span className="font-medium">{m.defaultCurrency}</span>
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {m.usedFor.map((u) => (
-                    <Badge key={u} variant="outline" className="text-[10px]">
-                      {usedForLabel[u]}
-                    </Badge>
-                  ))}
-                </div>
-                {m.notes ? <p className="text-xs text-muted-foreground italic">{m.notes}</p> : null}
-                <div className="flex justify-end gap-2 pt-1">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => startEdit(m)}
-                    data-testid={`account-meta-edit-${m.id}`}
-                  >
-                    <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-                    {t.account_action_edit}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteRegion(m.id)}
-                    aria-label={`${t.account_metaRegion_delete}: ${m.name}`}
-                    data-testid={`account-meta-delete-${m.id}`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                  </Button>
-                </div>
+              ) : null}
+              <div className="mt-4 flex justify-end gap-2 border-t border-border/60 pt-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => startEdit(m)}
+                  data-testid={`account-meta-edit-${m.id}`}
+                >
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+                  {t.account_action_edit}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteRegion(m.id)}
+                  aria-label={`${t.account_metaRegion_delete}: ${m.name}`}
+                  data-testid={`account-meta-delete-${m.id}`}
+                >
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                </Button>
               </div>
             </AccountSectionCard>
           ))
@@ -2558,37 +2572,45 @@ const NotificationsSection = ({
             title={channelLabel[n.channel]}
             testId={`account-notif-${n.channel}`}
           >
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Badge variant={n.enabled ? "default" : "outline"}>
-                  {n.enabled ? t.account_notif_enabled : t.account_notif_disabled}
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {t.account_notif_freqLabel}: {freqLabel[n.frequency]}
-                </span>
-              </div>
-              <div>
-                <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            <dl className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+              <Field
+                label={t.account_notif_field_enabled}
+                value={n.enabled ? t.account_notif_enabled : t.account_notif_disabled}
+              />
+              <Field
+                label={t.account_notif_freqLabel}
+                value={freqLabel[n.frequency]}
+              />
+              <div className="min-w-0 sm:col-span-2">
+                <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
                   {t.account_notif_eventsLabel}
-                </p>
-                <ul className="mt-1 space-y-0.5 text-xs">
-                  {n.events.map((e) => (
-                    <li key={e}>• {eventLabel(e)}</li>
-                  ))}
-                </ul>
+                </dt>
+                <dd className="mt-1 flex flex-wrap gap-1">
+                  {n.events.length === 0 ? (
+                    <span className="text-[13px] italic text-muted-foreground">
+                      {t.account_value_notSpecified}
+                    </span>
+                  ) : (
+                    n.events.map((e) => (
+                      <Badge key={e} variant="outline" className="text-[10.5px]">
+                        {eventLabel(e)}
+                      </Badge>
+                    ))
+                  )}
+                </dd>
               </div>
-              <div className="flex justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => startEdit(n)}
-                  data-testid={`account-notif-edit-${n.channel}`}
-                >
-                  <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-                  {t.account_action_edit}
-                </Button>
-              </div>
+            </dl>
+            <div className="mt-4 flex justify-end border-t border-border/60 pt-3">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => startEdit(n)}
+                data-testid={`account-notif-edit-${n.channel}`}
+              >
+                <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+                {t.account_action_edit}
+              </Button>
             </div>
           </AccountSectionCard>
         ))}
