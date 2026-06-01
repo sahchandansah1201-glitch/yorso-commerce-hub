@@ -119,6 +119,8 @@
     "smoke:e2e:account-products:report:verify": "node scripts/check-report-artifacts.mjs account-products-save-flow",
     "account:reports:summary": "node scripts/summarize-report-artifacts.mjs",
     "account:reports:audit": "node scripts/audit-account-report-packs.mjs",
+    "account:ui:audit": "npm run build && npm run account:ui:audit:run",
+    "account:ui:audit:run": "E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4273 playwright test e2e/account-workspace-ui-audit.spec.ts --project=chromium",
     "supabase:access-preflight": "node scripts/supabase-access-preflight.mjs",
     "supabase:access-seed": "npx supabase db query --linked --file supabase/seeds/access-smoke-baseline.sql",
     "supabase:access-smoke": "node scripts/supabase-access-write-smoke.mjs",

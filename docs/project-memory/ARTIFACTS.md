@@ -24,6 +24,34 @@
 - `supabase/`: Supabase boundary/migration area.
 - `e2e/`: end-to-end tests.
 
+## Account Workspace UI Local Verification
+
+- `src/components/account/account-layout.ts`: shared account read/edit grid
+  class contracts for scanable label/value layouts.
+- `src/components/account/account-values.ts`: account value helpers shared
+  outside Fast Refresh component files.
+- `src/components/account/fields.tsx`: read-only and edit-mode field
+  primitives with stronger label/value separation.
+- `src/components/account/EditableCard.tsx`: account card header/action rhythm
+  for easier edit/save/cancel discovery.
+- `src/components/account/ListSection.tsx`: section header/add action and empty
+  state targets aligned with the account workspace style.
+- `src/pages/account/Account.tsx`: `/account/*` sections aligned to the
+  personal-tab scanable card/field pattern; product matrix rendered as
+  responsive product cards.
+- `e2e/account-workspace-ui-audit.spec.ts`: local desktop/mobile account UI
+  verification and screenshot capture.
+- `e2e/account-products-crud.spec.ts`: product deletion selector updated to the
+  stable product-card test ID contract.
+- `e2e/account-products-save-flow-report.spec.ts`: report-flow product deletion
+  selector updated to the same product-card test ID contract.
+- `docs/testing/local-ui-verification.md`: local interface verification guide,
+  account UI pattern, screenshot location and source-backed review basis.
+- `package.json`: `account:ui:audit` and `account:ui:audit:run` scripts.
+- `test-results/account-workspace-ui-audit/*.png`: generated local viewport
+  screenshots for account personal, company, branches, products, meta-regions
+  and notifications on desktop and mobile.
+
 ## Batch #141 Public Sheet Close Locale A11y
 
 - `src/components/ui/sheet.tsx`: shared `SheetContent` accepts optional

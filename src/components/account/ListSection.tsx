@@ -35,9 +35,9 @@ export const ListSectionHeader = ({
   };
 }) => (
   <AccountSectionCard title={title} description={description}>
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       {explainer ? (
-        <p className="text-sm text-muted-foreground" data-testid={explainerTestId}>
+        <p className="max-w-2xl text-sm leading-6 text-muted-foreground" data-testid={explainerTestId}>
           {explainer}
         </p>
       ) : (
@@ -47,7 +47,7 @@ export const ListSectionHeader = ({
         <Button
           type="button"
           onClick={action.onClick}
-          className="shrink-0"
+          className="min-h-11 shrink-0 px-5 sm:min-h-10"
           data-testid={action.testId}
         >
           {action.icon ?? <Plus className="mr-2 h-4 w-4" aria-hidden />}
@@ -90,4 +90,3 @@ export const ListEmpty = ({
     ) : null}
   </AccountSectionCard>
 );
-

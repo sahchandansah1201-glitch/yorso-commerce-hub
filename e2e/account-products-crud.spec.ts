@@ -510,7 +510,9 @@ test.describe("/account/products · editable product matrix", () => {
     await page.getByTestId("account-product-save").click();
     await expect(page.getByTestId("account-products-table")).toContainText("Trial Mackerel HGT");
 
-    const row = page.locator("tbody tr").filter({ hasText: "Trial Mackerel HGT" });
+    const row = page
+      .locator('[data-testid^="account-product-row-"]')
+      .filter({ hasText: "Trial Mackerel HGT" });
     await row.getByRole("button", { name: /delete product/i }).click();
 
     await expect(page.getByTestId("account-products-table")).not.toContainText("Trial Mackerel HGT");

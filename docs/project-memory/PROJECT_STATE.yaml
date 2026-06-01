@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-05-27"
+updated_at: "2026-06-01"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -9,14 +9,15 @@ source_policy:
   uncertainty_rule: "Mark unsupported claims as hypotheses."
 
 repository:
-  cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-05-27"
-  active_branch: "main"
-  head_commit: "main_after_batch_141_lovable_sync_record"
-  head_summary: "Batch #141 public sheet close locale a11y merged and Lovable sync confirmed clean"
+  cwd: "/tmp/yorso-commerce-hub-account-ui"
+  canonical_checkout: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
+  git_status_confirmed_at: "2026-06-01"
+  active_branch: "codex/account-ui-local-verification"
+  head_commit: "account_ui_branch_head"
+  head_summary: "Account workspace UI local verification PR opened and GitHub Core Type And Build Gate passed"
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Batch #141 Lovable sync report is being recorded in project memory before commit."
+    - "Account workspace UI implementation and local verification docs are being prepared for PR."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -37,32 +38,65 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "next_scoped_public_ux_ui_audit_batch"
-  summary: "Start the next scoped public UX/UI audit batch from current main."
-  status: "ready"
-  branch: "main"
-  pull_request: null
+  id: "account_workspace_ui_local_verification"
+  summary: "Align account tabs to the improved personal-tab scanable card pattern and add local desktop/mobile UI verification."
+  status: "open_pr_ci_passed"
+  branch: "codex/account-ui-local-verification"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/195"
   confirmed_scope:
-    - "Use buyer-first public UX/UI audit lens: trust, clarity, scanability, conversion, SEO structure, accessibility semantics and supplier evidence as a trust mechanism."
-    - "Start from current repository files and runtime surfaces, not old chat memory."
-    - "Preserve Batch #110-#141 public UX/a11y safeguards unless a new confirmed issue requires a scoped fix."
-    - "If production-facing frontend behavior changes, include the 10,000 concurrent-user baseline note and validation."
+    - "Use `/account/personal` as the visual baseline: light warm background, white cards, navy text, orange primary actions, muted uppercase labels and stronger values."
+    - "Make the other account tabs easier to scan without changing the local-storage prototype data model."
+    - "Add a local Playwright command for checking account page rendering, target sizes, overflow, nested controls and screenshots."
+    - "Keep existing account persistence/report behavior and public safeguards intact."
   confirmed_files:
-    - "src/components/landing/Header.tsx"
-    - "src/components/ui/sheet.tsx"
-    - "src/components/catalog/CompareTray.tsx"
-    - "src/components/catalog/IntelligenceRail.tsx"
-    - "src/components/catalog/SheetCloseLocale.test.tsx"
-    - "e2e/public-sheet-close-locale-a11y.spec.ts"
+    - "src/components/account/fields.tsx"
+    - "src/components/account/EditableCard.tsx"
+    - "src/components/account/ListSection.tsx"
+    - "src/components/account/account-layout.ts"
+    - "src/components/account/account-values.ts"
+    - "src/pages/account/Account.tsx"
+    - "e2e/account-workspace-ui-audit.spec.ts"
+    - "e2e/account-products-crud.spec.ts"
+    - "e2e/account-products-save-flow-report.spec.ts"
+    - "docs/testing/local-ui-verification.md"
     - "package.json"
-    - "docs/backend/production-scale-baseline.md"
     - "docs/project-memory/PROJECT_STATE.yaml"
     - "docs/project-memory/NEXT_ACTIONS.md"
     - "docs/project-memory/HANDOFF.md"
     - "docs/project-memory/WORKLOG.md"
     - "docs/project-memory/CONTEXT_HEALTH.md"
     - "docs/project-memory/ARTIFACTS.md"
-    - "docs/project-memory/PROMPTS/prompt-141-lovable-sync.md"
+
+active_account_ui_workstream:
+  id: "account_workspace_ui_local_verification"
+  summary: "Account tabs share the personal-tab scanable field/card rhythm and have a local UI audit command."
+  status: "open_pr_ci_passed"
+  branch: "codex/account-ui-local-verification"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/195"
+  confirmed_changes:
+    - "Account read-only fields use stronger muted uppercase labels and prominent values."
+    - "Account edit mode uses consistent labels above inputs and clearer card action clusters."
+    - "Company, branches, products, meta-regions and notifications tabs reuse the same card/field rhythm."
+    - "The products section uses responsive product cards instead of a horizontally scrolling account table."
+    - "`account:ui:audit` builds the app, checks all account sections at desktop/mobile and writes screenshots."
+  validation:
+    - "npm test -- --run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx, 28 tests."
+    - "Targeted npx eslint over changed account/e2e files."
+    - "npm run account:ui:audit, 12 Playwright checks."
+    - "npm run test:account-workspace, 45 tests."
+    - "E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4274 npx playwright test e2e/account-workspace-sections.spec.ts e2e/account-products-crud.spec.ts --project=chromium, 27 tests."
+    - "E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4275 npx playwright test e2e/account-products-save-flow-report.spec.ts --project=chromium, 1 test."
+    - "git diff --check."
+    - "GitHub Core Type And Build Gate passed on PR #195."
+  screenshots:
+    - "test-results/account-workspace-ui-audit/desktop-personal.png"
+    - "test-results/account-workspace-ui-audit/desktop-products.png"
+    - "test-results/account-workspace-ui-audit/mobile-products.png"
+    - "test-results/account-workspace-ui-audit/*.png for all account sections."
+  known_warnings:
+    - "Supabase generated types are out of sync in non-strict mode."
+    - "Browserslist data is stale."
+    - "Existing React Router future-flag and React act warnings remain in account unit tests."
 
 active_batch:
   id: 141

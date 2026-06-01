@@ -2,6 +2,52 @@
 
 Keep this file factual and append-only.
 
+## 2026-06-01
+
+- Started account workspace UI scanability pass on
+  `codex/account-ui-local-verification` in the clean worktree
+  `/tmp/yorso-commerce-hub-account-ui`.
+- Used the updated `/account/personal` "Личные данные" screen as the visual
+  baseline: warm background, white cards, navy text, orange primary actions,
+  muted uppercase labels and stronger values.
+- Added shared account layout/value helpers:
+  `src/components/account/account-layout.ts` and
+  `src/components/account/account-values.ts`.
+- Updated account field primitives so read-only labels/values and edit-mode
+  labels are easier to scan, with stronger label/value separation and
+  consistent spacing.
+- Updated `EditableCard` and `ListSection` action areas so edit/add/save/cancel
+  controls are easier to find and keep mobile-safe target heights.
+- Applied the same scanable field/card pattern to `/account/company`,
+  `/account/branches`, `/account/products`, `/account/meta-regions` and
+  `/account/notifications`.
+- Replaced the account product matrix table with responsive product cards to
+  remove horizontal scrolling from the account workspace while preserving the
+  existing product-row/action test IDs.
+- Added `e2e/account-workspace-ui-audit.spec.ts` and package scripts
+  `account:ui:audit` / `account:ui:audit:run` for local desktop/mobile
+  interface verification and viewport screenshot generation.
+- Added `docs/testing/local-ui-verification.md` with local review commands,
+  screenshot paths, account UI pattern rules and research references.
+- Updated `e2e/account-products-crud.spec.ts` and
+  `e2e/account-products-save-flow-report.spec.ts` so product deletion targets
+  the stable product-card test IDs instead of old table rows.
+- Confirmed focused checks:
+  - `npm test -- --run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx` passed, 28 tests.
+  - Targeted `npx eslint` over changed account/e2e files passed.
+  - `npm run account:ui:audit` passed, 12 Playwright checks and screenshots.
+  - `npm run test:account-workspace` passed, 45 tests.
+  - `E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4274 npx playwright test e2e/account-workspace-sections.spec.ts e2e/account-products-crud.spec.ts --project=chromium` passed, 27 tests.
+  - `E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4275 npx playwright test e2e/account-products-save-flow-report.spec.ts --project=chromium` passed, 1 test.
+  - `git diff --check` passed after project-memory update.
+- Created the branch commit `[codex] Account workspace UI local verification`
+  and opened PR #195:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/195`.
+- GitHub `Core Type And Build Gate` passed on PR #195 on 2026-06-01.
+- Known warnings preserved: Supabase generated types out of sync in non-strict
+  mode, Browserslist data stale, existing React Router future-flag and React
+  act warnings in account unit tests.
+
 ## 2026-05-17
 
 - Created project-memory black box for `yorso-commerce-hub`.

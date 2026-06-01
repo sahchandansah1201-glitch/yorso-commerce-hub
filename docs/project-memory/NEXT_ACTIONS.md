@@ -2,16 +2,64 @@
 
 ## Current Next Action
 
-1. Start the next scoped public UX/UI audit batch from current `main`.
+1. Review and merge PR #195, account workspace UI local verification:
+   `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/195`.
 
-2. Preserve current known contracts: public sheet close locale a11y, public
-   account menu a11y, public language selector a11y, public SEO, access gating,
-   supplier identity redaction, exact-price lock, buyer-first trust narrative,
-   Batch #112 code splitting, Batch #113 route chunk error boundary and
-   Batches #110-#141 public UX/a11y safeguards.
+2. Use `npm run account:ui:audit` for local desktop/mobile screenshots of all
+   account sections before accepting further Lovable/account UI changes.
 
-3. If a production-facing frontend behavior changes, include the 10,000
+3. Preserve current known contracts: account local-storage prototype behavior,
+   public sheet close locale a11y, public account menu a11y, public language
+   selector a11y, public SEO, access gating, supplier identity redaction,
+   exact-price lock, buyer-first trust narrative, Batch #112 code splitting,
+   Batch #113 route chunk error boundary and Batches #110-#141 public UX/a11y
+   safeguards.
+
+4. If a production-facing frontend behavior changes, include the 10,000
    concurrent-user baseline note and validation.
+
+## Account Workspace UI Local Verification
+
+- Branch: `codex/account-ui-local-verification`.
+- PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/195`.
+- GitHub validation: `Core Type And Build Gate` passed.
+- Scope:
+  - make `/account/*` sections use the same scanable label/value and card
+    rhythm as the improved `/account/personal` tab;
+  - remove horizontal product-table scanning from account workspace by using
+    responsive product cards;
+  - add a local Playwright verification command that captures desktop/mobile
+    screenshots and checks overflow, interactive nesting, target size, visible
+    labels, visible account nav and visible completion panel.
+- Main files:
+  - `src/components/account/fields.tsx`;
+  - `src/components/account/EditableCard.tsx`;
+  - `src/components/account/ListSection.tsx`;
+  - `src/components/account/account-layout.ts`;
+  - `src/components/account/account-values.ts`;
+  - `src/pages/account/Account.tsx`;
+  - `e2e/account-workspace-ui-audit.spec.ts`;
+  - `e2e/account-products-crud.spec.ts`;
+  - `e2e/account-products-save-flow-report.spec.ts`;
+  - `docs/testing/local-ui-verification.md`;
+  - `package.json`.
+- Local validation passed:
+  - `npm test -- --run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`, 28 tests;
+  - targeted `npx eslint` over changed account/e2e files;
+  - `npm run account:ui:audit`, 12 Playwright checks;
+  - `npm run test:account-workspace`, 45 tests;
+  - `E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4274 npx playwright test e2e/account-workspace-sections.spec.ts e2e/account-products-crud.spec.ts --project=chromium`, 27 tests;
+  - `E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4275 npx playwright test e2e/account-products-save-flow-report.spec.ts --project=chromium`, 1 test;
+  - `git diff --check`.
+- Next:
+  - merge PR #195 if Lovable/user review accepts the account workspace visual
+    direction.
+- Screenshot artifacts:
+  - `test-results/account-workspace-ui-audit/desktop-personal.png`;
+  - `test-results/account-workspace-ui-audit/desktop-products.png`;
+  - `test-results/account-workspace-ui-audit/mobile-products.png`;
+  - plus desktop/mobile screenshots for company, branches, meta-regions and
+    notifications.
 
 ## Batch #141 Lovable Sync Confirmed
 

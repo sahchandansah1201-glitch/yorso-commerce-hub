@@ -7,7 +7,12 @@ import { EditableCard } from "@/components/account/EditableCard";
 import { CompanyMediaCard, type CompanyMediaDraft } from "@/components/account/CompanyMediaCard";
 import { CompanyDocumentsCard } from "@/components/account/CompanyDocumentsCard";
 import { SupplierProfilePreview } from "@/components/account/SupplierProfilePreview";
-import { Field, FormRow, PendingFeatureRow, fallback, splitList } from "@/components/account/fields";
+import { Field, FormRow, PendingFeatureRow } from "@/components/account/fields";
+import {
+  accountCompactFieldGridClassName,
+  accountFieldGridClassName,
+} from "@/components/account/account-layout";
+import { fallback, splitList } from "@/components/account/account-values";
 import { ListSectionHeader, ListEmpty } from "@/components/account/ListSection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -106,10 +111,7 @@ const PersonalSection = ({
           const langLabel =
             v.language === "ru" ? "Русский" : v.language === "es" ? "Español" : "English";
           return (
-            <dl
-              className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2"
-              data-field-group-root
-            >
+            <dl className={accountFieldGridClassName} data-field-group-root>
               <Field label={t.account_personal_firstName} value={v.firstName} />
               <Field label={t.account_personal_lastName} value={v.lastName} />
               <div className="sm:col-span-2">
@@ -138,10 +140,7 @@ const PersonalSection = ({
           );
         }}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div
-            className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2"
-            data-field-group-root
-          >
+          <div className={accountCompactFieldGridClassName} data-field-group-root>
             <FormRow label={t.account_personal_firstName} required error={errors.firstName}>
               <Input
                 value={draft.firstName}
@@ -360,10 +359,7 @@ const CompanySection = ({
         }}
         onSave={saveCompany}
         renderView={(v) => (
-          <dl
-            className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2"
-            data-field-group-root
-          >
+          <dl className={accountFieldGridClassName} data-field-group-root>
             <Field label={t.account_company_legalName} value={v.legalName} />
             <Field label={t.account_company_tradeName} value={v.tradeName} />
             <Field label={t.account_company_role} value={accountRoleLabel(v.accountRole, t)} />
@@ -378,10 +374,7 @@ const CompanySection = ({
           </dl>
         )}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div
-            className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2"
-            data-field-group-root
-          >
+          <div className={accountCompactFieldGridClassName} data-field-group-root>
             <FormRow label={t.account_company_legalName} required error={errors.legalName}>
               <Input
                 value={draft.legalName}
@@ -456,14 +449,14 @@ const CompanySection = ({
         }}
         onSave={saveCompany}
         renderView={(v) => (
-          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <dl className={accountFieldGridClassName} data-field-group-root>
             <Field label={t.account_company_contactEmail} value={v.contactEmail} />
             <Field label={t.account_company_contactPhone} value={v.contactPhone} />
             <Field label={t.account_company_whatsapp} value={v.whatsapp} />
           </dl>
         )}
         renderEdit={({ draft, setDraft, errors }) => (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className={accountCompactFieldGridClassName} data-field-group-root>
             <FormRow
               label={t.account_company_contactEmail}
               required
@@ -1074,7 +1067,7 @@ const BranchesSection = ({
         ) : (
           visibleBranches.map((b) => (
             <AccountSectionCard key={b.id} title={b.name} testId={`account-branch-${b.id}`}>
-              <dl className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+              <dl className={accountCompactFieldGridClassName}>
                 <Field
                   label={t.account_branch_field_type}
                   value={branchTypeLabel[b.type]}
@@ -1096,7 +1089,7 @@ const BranchesSection = ({
                   {b.notes}
                 </p>
               ) : null}
-              <div className="mt-4 flex justify-end gap-2 border-t border-border/60 pt-3">
+              <div className="mt-4 flex flex-wrap justify-end gap-2 border-t border-border/60 pt-3">
                 <Button
                   type="button"
                   variant={selectedBranchId === b.id ? "secondary" : "ghost"}
@@ -1945,118 +1938,101 @@ const ProductsSection = ({
           </div>
         </AccountSectionCard>
       ) : null}
-      <div className="overflow-x-auto rounded-lg border border-border bg-card">
-        <table className="w-full text-sm" data-testid="account-products-table">
-          <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th className="px-3 py-2">{t.account_product_col_product}</th>
-              <th className="px-3 py-2">{t.account_product_col_latin}</th>
-              <th className="px-3 py-2">{t.account_product_col_state}</th>
-              <th className="px-3 py-2">{t.account_product_col_role}</th>
-              <th className="px-3 py-2">{t.account_product_col_volume}</th>
-              <th className="px-3 py-2">{t.account_product_col_certs}</th>
-              <th className="px-3 py-2">{t.account_product_col_targets}</th>
-              <th className="px-3 py-2 text-right">{t.account_product_col_actions}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {profile.products.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">
-                  {t.account_product_empty}
-                </td>
-              </tr>
-            ) : visibleProducts.length === 0 ? (
-              <tr data-testid="account-product-no-results">
-                <td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">
-                  <div className="mx-auto flex max-w-md flex-col items-center gap-3">
-                    <div>
-                      <p className="font-medium text-foreground">{t.account_product_noResults}</p>
-                      <p className="mt-1">{t.account_product_noResults_desc}</p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={resetFilters}
-                      data-testid="account-product-no-results-reset"
-                    >
-                      {t.account_product_clear_filters}
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              pagedProducts.map((p: CompanyProduct) => (
-                <tr
-                  key={p.id}
-                  className="border-t border-border align-top"
-                  data-testid={`account-product-row-${p.id}`}
-                >
-                  <td className="px-3 py-2">
-                    <div className="font-medium">{p.commercialName}</div>
-                    <div className="text-xs text-muted-foreground">{p.format}</div>
-                  </td>
-                  <td className="px-3 py-2 italic text-muted-foreground">{p.latinName}</td>
-                  <td className="px-3 py-2">{productStateLabel(p.state, t)}</td>
-                  <td className="px-3 py-2">
+      <div className="grid gap-3 sm:grid-cols-2" data-testid="account-products-table">
+        {profile.products.length === 0 ? (
+          <ListEmpty
+            title={t.account_product_empty}
+            testId="account-product-empty"
+          />
+        ) : visibleProducts.length === 0 ? (
+          <ListEmpty
+            title={t.account_product_noResults}
+            description={t.account_product_noResults_desc}
+            testId="account-product-no-results"
+            action={{
+              label: t.account_product_clear_filters,
+              onClick: resetFilters,
+              testId: "account-product-no-results-reset",
+            }}
+          />
+        ) : (
+          pagedProducts.map((p: CompanyProduct) => (
+            <AccountSectionCard
+              key={p.id}
+              title={p.commercialName}
+              description={p.format}
+              testId={`account-product-row-${p.id}`}
+            >
+              <dl className={accountCompactFieldGridClassName}>
+                <Field label={t.account_product_col_latin} value={p.latinName} />
+                <Field label={t.account_product_col_state} value={productStateLabel(p.state, t)} />
+                <div className="min-w-0">
+                  <dt className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                    {t.account_product_col_role}
+                  </dt>
+                  <dd className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
                     <ProductRoleBadge role={p.role} />
-                  </td>
-                  <td className="px-3 py-2">{p.monthlyVolume}</td>
-                  <td className="px-3 py-2">
-                    <div className="flex flex-wrap gap-1">
-                      {p.certificates.map((c) => (
+                  </dd>
+                </div>
+                <Field label={t.account_product_col_volume} value={p.monthlyVolume} />
+                <div className="min-w-0">
+                  <dt className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                    {t.account_product_col_certs}
+                  </dt>
+                  <dd className="mt-1 flex flex-wrap gap-1">
+                    {p.certificates.length === 0 ? (
+                      <span className="text-[13px] italic text-muted-foreground">
+                        {t.account_value_notSpecified}
+                      </span>
+                    ) : (
+                      p.certificates.map((c) => (
                         <Badge key={c} variant="outline" className="text-[10px]">
                           {c}
                         </Badge>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-3 py-2 text-xs text-muted-foreground">
-                    {p.targetCountries.join(", ")}
-                  </td>
-                  <td className="px-3 py-2">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        type="button"
-                        variant={selectedProductId === p.id ? "secondary" : "outline"}
-                        size="sm"
-                        onClick={() =>
-                          setSelectedProductId((current) => (current === p.id ? null : p.id))
-                        }
-                        data-testid={`account-product-open-${p.id}`}
-                      >
-                        {selectedProductId === p.id
-                          ? t.account_product_details_hide
-                          : t.account_product_details_open}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => startEdit(p)}
-                        data-testid={`account-product-edit-${p.id}`}
-                      >
-                        <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-                        {t.account_action_edit}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteProduct(p.id)}
-                        aria-label={`${t.account_product_delete}: ${p.commercialName}`}
-                        data-testid={`account-product-delete-${p.id}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                      ))
+                    )}
+                  </dd>
+                </div>
+                <Field label={t.account_product_col_targets} value={p.targetCountries.join(", ")} />
+              </dl>
+              <div className="mt-4 flex flex-wrap justify-end gap-2 border-t border-border/60 pt-3">
+                <Button
+                  type="button"
+                  variant={selectedProductId === p.id ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() =>
+                    setSelectedProductId((current) => (current === p.id ? null : p.id))
+                  }
+                  data-testid={`account-product-open-${p.id}`}
+                >
+                  {selectedProductId === p.id
+                    ? t.account_product_details_hide
+                    : t.account_product_details_open}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => startEdit(p)}
+                  data-testid={`account-product-edit-${p.id}`}
+                >
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+                  {t.account_action_edit}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteProduct(p.id)}
+                  aria-label={`${t.account_product_delete}: ${p.commercialName}`}
+                  data-testid={`account-product-delete-${p.id}`}
+                >
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                </Button>
+              </div>
+            </AccountSectionCard>
+          ))
+        )}
       </div>
       {visibleProducts.length > pageSize ? (
         <div
@@ -2100,7 +2076,7 @@ const ProductsSection = ({
           description={t.account_product_details_desc}
           testId={`account-product-detail-${selectedProduct.id}`}
         >
-          <div className="grid gap-3 md:grid-cols-2">
+          <dl className={accountFieldGridClassName}>
             <Field label={t.account_product_col_product} value={selectedProduct.commercialName} />
             <Field label={t.account_product_col_latin} value={selectedProduct.latinName} />
             <Field label={t.account_product_field_category} value={selectedProduct.category} />
@@ -2112,7 +2088,7 @@ const ProductsSection = ({
               label={t.account_product_col_targets}
               value={selectedProduct.targetCountries.join(", ")}
             />
-          </div>
+          </dl>
           {selectedProduct.certificates.length ? (
             <div className="mt-4 flex flex-wrap gap-2">
               {selectedProduct.certificates.map((certificate) => (
@@ -2394,7 +2370,7 @@ const MetaRegionsSection = ({
         ) : (
           profile.metaRegions.map((m) => (
             <AccountSectionCard key={m.id} title={m.name} testId={`account-meta-${m.id}`}>
-              <dl className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+              <dl className={accountCompactFieldGridClassName}>
                 <Field
                   label={t.account_metaRegion_reason}
                   value={reasonLabel[m.logisticsReason]}
@@ -2404,7 +2380,7 @@ const MetaRegionsSection = ({
                   value={m.defaultCurrency}
                 />
                 <div className="min-w-0 sm:col-span-2">
-                  <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                  <dt className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                     {t.account_metaRegion_field_countries}
                   </dt>
                   <dd className="mt-1 flex flex-wrap gap-1">
@@ -2416,7 +2392,7 @@ const MetaRegionsSection = ({
                   </dd>
                 </div>
                 <div className="min-w-0 sm:col-span-2">
-                  <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                  <dt className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                     {t.account_metaRegion_field_usedFor}
                   </dt>
                   <dd className="mt-1 flex flex-wrap gap-1">
@@ -2572,7 +2548,7 @@ const NotificationsSection = ({
             title={channelLabel[n.channel]}
             testId={`account-notif-${n.channel}`}
           >
-            <dl className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+            <dl className={accountCompactFieldGridClassName}>
               <Field
                 label={t.account_notif_field_enabled}
                 value={n.enabled ? t.account_notif_enabled : t.account_notif_disabled}
@@ -2582,7 +2558,7 @@ const NotificationsSection = ({
                 value={freqLabel[n.frequency]}
               />
               <div className="min-w-0 sm:col-span-2">
-                <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                <dt className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   {t.account_notif_eventsLabel}
                 </dt>
                 <dd className="mt-1 flex flex-wrap gap-1">

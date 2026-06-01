@@ -2,7 +2,9 @@
 
 Project: `yorso-commerce-hub`
 
-Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
+Root: `/tmp/yorso-commerce-hub-account-ui`
+
+Canonical checkout: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Read First
 
@@ -16,11 +18,59 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Start the next scoped public UX/UI audit batch from current `main`.
+Review and merge the account workspace UI local verification branch.
 
 ## Current Status
 
-- The repository is currently on `main`.
+- The active clean worktree is `/tmp/yorso-commerce-hub-account-ui`.
+- The active branch is `codex/account-ui-local-verification`.
+- Baseline before this branch was `origin/main` at `ab628019`.
+- The canonical checkout may contain unrelated local changes; do not use it for
+  this branch unless explicitly switching back.
+- Scope:
+  - align account tabs to the improved `/account/personal` visual pattern;
+  - improve scanability of labels/values and edit fields;
+  - make edit/add/save/cancel actions easier to find;
+  - remove product matrix horizontal scrolling from account workspace;
+  - add local Playwright UI verification and screenshot generation.
+- Main implementation files:
+  - `src/components/account/fields.tsx`;
+  - `src/components/account/EditableCard.tsx`;
+  - `src/components/account/ListSection.tsx`;
+  - `src/components/account/account-layout.ts`;
+  - `src/components/account/account-values.ts`;
+  - `src/pages/account/Account.tsx`;
+  - `e2e/account-workspace-ui-audit.spec.ts`;
+  - `e2e/account-products-crud.spec.ts`;
+  - `e2e/account-products-save-flow-report.spec.ts`;
+  - `docs/testing/local-ui-verification.md`;
+  - `package.json`.
+- Local validation passed:
+  - `npm test -- --run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx`, 28 tests;
+  - targeted `npx eslint` over changed account/e2e files;
+  - `npm run account:ui:audit`, 12 Playwright checks and screenshots;
+  - `npm run test:account-workspace`, 45 tests;
+  - `E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4274 npx playwright test e2e/account-workspace-sections.spec.ts e2e/account-products-crud.spec.ts --project=chromium`, 27 tests;
+  - `E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4275 npx playwright test e2e/account-products-save-flow-report.spec.ts --project=chromium`, 1 test;
+  - `git diff --check`.
+- Screenshot artifacts are generated under
+  `test-results/account-workspace-ui-audit/`.
+- Known warnings preserved:
+  - Supabase generated types out of sync in non-strict mode;
+  - Browserslist data stale;
+  - existing React Router future-flag and React act warnings in account unit
+    tests.
+- Next action:
+  - merge PR #195 if Lovable/user review accepts the account workspace visual
+    direction.
+- PR:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/195`.
+- GitHub validation:
+  `Core Type And Build Gate` passed on PR #195.
+
+## Previous Status
+
+- The repository was previously on `main`.
 - Batch #141 is implemented, validated and merged.
 - Batch #141 commit:
   `5eafcb7`, `[codex] Batch #141 public sheet close locale a11y`.

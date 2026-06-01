@@ -2,20 +2,12 @@ import { cloneElement, useId, type ReactElement, type ReactNode } from "react";
 import { AlertCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { fallback } from "@/components/account/account-values";
 
 /* ─────────────────────────────────────────────────────────────────
  * Account form primitives — shared across all `/account/*` sections.
  * Keep these visually minimal: muted uppercase label, prominent value.
  * ───────────────────────────────────────────────────────────────── */
-
-export const fallback = (v: string | undefined, nf: string) =>
-  v && v.trim() ? v : nf;
-
-export const splitList = (s: string): string[] =>
-  s
-    .split(",")
-    .map((x) => x.trim())
-    .filter(Boolean);
 
 /**
  * Read-only field for an account profile section.
@@ -36,18 +28,18 @@ export const Field = ({
   const isEmpty = !value || !value.trim();
   return (
     <div className={`min-w-0 ${className ?? ""}`.trim()}>
-      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+      <dt className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </dt>
       <dd
         className={
           isEmpty
-            ? "mt-1 flex items-center text-[15px] italic text-muted-foreground"
-            : "mt-1 flex items-center text-[15px] font-medium text-foreground"
+            ? "mt-1 flex min-w-0 flex-wrap items-center gap-2 text-[15px] leading-6 italic text-muted-foreground"
+            : "mt-1 flex min-w-0 flex-wrap items-center gap-2 text-[15px] font-semibold leading-6 text-foreground"
         }
         title={isEmpty ? undefined : value}
       >
-        <span className="truncate">{fallback(value, t.account_value_notSpecified)}</span>
+        <span className="min-w-0 truncate">{fallback(value, t.account_value_notSpecified)}</span>
         {badge}
       </dd>
     </div>
@@ -107,8 +99,11 @@ export const FormRow = ({
   })();
 
   return (
-    <div className={`space-y-1 ${className ?? ""}`.trim()}>
-      <Label htmlFor={id} className="text-xs">
+    <div className={`min-w-0 space-y-1.5 ${className ?? ""}`.trim()}>
+      <Label
+        htmlFor={id}
+        className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground"
+      >
         {label}{" "}
         {required ? (
           <span aria-hidden className="text-destructive">
