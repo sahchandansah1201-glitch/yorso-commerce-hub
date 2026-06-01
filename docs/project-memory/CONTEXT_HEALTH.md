@@ -1,21 +1,21 @@
 # Context Health
 
-Updated: 2026-05-27
+Updated: 2026-06-01
 
 ## Current Status
 
 ```yaml
 context_risk: "low"
-last_checkpoint: "2026-05-27"
+last_checkpoint: "2026-06-01"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "main_after_batch_141_lovable_sync_record"
+active_branch: "codex/account-ui-local-verification"
+head_commit: "account_ui_branch_head"
 latest_merged_batch: 141
-active_workstream: "next_scoped_public_ux_ui_audit_batch"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193"
-recommended_action: "start next scoped public UX/UI audit batch"
-why_low: "Batch #141 is merged to main as 5eafcb7 and Lovable sync is confirmed clean with no conflicts. It localizes public catalog sheet close controls while preserving visible drawer behavior, access gating, supplier identity redaction, exact-price locks, Batch #112 code splitting, Batch #113 route chunk error boundary and Batches #110-#140 safeguards."
+active_workstream: "account_workspace_ui_local_verification"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/195"
+recommended_action: "review and merge PR #195 if accepted"
+why_low: "Account workspace UI changes are isolated in a clean temp worktree and validated with focused unit tests, account workspace tests, targeted e2e checks, product save-flow report e2e, local UI audit screenshots, git diff checks and passing GitHub Core Type And Build Gate. Batch #110-#141 public safeguards are not changed."
 ```
 
 ## Risk Levels
@@ -48,12 +48,21 @@ Read first:
 5. docs/project-memory/NEXT_ACTIONS.md
 6. docs/project-memory/WORKLOG.md
 
-Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
+Use /tmp/yorso-commerce-hub-account-ui as the active worktree for the account UI branch.
+Canonical checkout: /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: next_scoped_public_ux_ui_audit_batch.
-Current HEAD baseline: main after Batch #141 Lovable sync record; Batch #141 merge commit 5eafcb7.
-Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/193 (merged).
+Current branch: codex/account-ui-local-verification.
+Current workstream: account_workspace_ui_local_verification.
+Current HEAD baseline: origin/main ab628019 plus account UI PR changes.
+Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/195.
+Current account UI scope: align account tabs to the improved /account/personal visual pattern, improve scanability of labels/values and edit fields, make edit/add/save/cancel actions easier to find, remove product matrix horizontal scrolling from account workspace, and add local Playwright UI verification/screenshots.
+Current account UI implementation: fields.tsx, EditableCard, ListSection, account-layout.ts, account-values.ts, Account.tsx, account-workspace-ui-audit e2e, account-products-crud selector update, local-ui-verification docs and package scripts.
+Current account UI validation passed: npm test -- --run src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx, 28 tests; targeted npx eslint over changed account/e2e files; npm run account:ui:audit, 12 Playwright checks; npm run test:account-workspace, 45 tests; E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4274 npx playwright test e2e/account-workspace-sections.spec.ts e2e/account-products-crud.spec.ts --project=chromium, 27 tests; E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4275 npx playwright test e2e/account-products-save-flow-report.spec.ts --project=chromium, 1 test; git diff --check; GitHub Core Type And Build Gate passed on PR #195.
+Current account UI screenshots: test-results/account-workspace-ui-audit/*.png.
+Next action: review and merge PR #195 if accepted.
+Previous Batch #141 context follows.
+Current Batch #141 status: merged and Lovable-synced clean.
+Current Batch #141 merge commit: 5eafcb7.
 Current Batch #141 scope: localize shared catalog sheet close controls for RU/ES without changing visible catalog drawer layout, compare behavior, route structure, public SEO, access gating, supplier identity redaction or exact-price locks.
 Current Batch #141 finding: shared SheetContent hardcoded the default close accessible name as Close; public catalog drawer usages in CompareTray and IntelligenceRail did not pass a localized close label.
 Current Batch #141 implementation: SheetContent accepts optional closeLabel while preserving the English fallback; CompareTray and IntelligenceRail pass t.aria_close; SheetCloseLocale.test.tsx guards RU/ES CompareTray and IntelligenceRail close labels; public-sheet-close-locale-a11y e2e opens the real /offers comparison drawer in RU/ES.
