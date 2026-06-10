@@ -61,8 +61,8 @@ export const AccountShell = ({ active, children, profile: profileProp }: Props) 
           <p className="text-sm text-muted-foreground">{t.account_workspace_subtitle}</p>
         </div>
 
-        {/* Mobile section tabs */}
-        <div className="mb-4 lg:hidden">
+        {/* Mobile section tabs — sticky so the user can switch разделы без скролла наверх */}
+        <div className="sticky top-[64px] z-20 -mx-4 mb-4 border-b border-border/60 bg-background/95 px-4 pt-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 lg:hidden">
           <AccountSidebar active={active} variant="chips" />
         </div>
 
