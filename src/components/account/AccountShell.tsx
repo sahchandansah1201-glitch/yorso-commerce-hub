@@ -1,5 +1,4 @@
 import { type ReactNode } from "react";
-import { NavLink } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 import { Link } from "react-router-dom";
@@ -7,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import Header from "@/components/landing/Header";
 import { AccountOverview } from "./AccountOverview";
+import { AccountSidebar } from "./AccountSidebar";
 import { getAccountProfile } from "@/lib/account-store";
 import type { AccountProfile } from "@/data/mockAccount";
-import { ACCOUNT_SECTIONS, type AccountSectionKey } from "./account-sections";
+import { type AccountSectionKey } from "./account-sections";
 
 export type { AccountSectionKey };
 
@@ -62,58 +62,14 @@ export const AccountShell = ({ active, children, profile: profileProp }: Props) 
         </div>
 
         {/* Mobile section tabs */}
-        <nav
-          className="mb-4 flex gap-2 overflow-x-auto pb-2 lg:hidden"
-          aria-label={t.account_nav_aria}
-          data-testid="account-mobile-nav"
-        >
-          {ACCOUNT_SECTIONS.map((s) => {
-            const Icon = s.icon;
-            return (
-              <NavLink
-                key={s.key}
-                to={`/account/${s.key}`}
-                className={({ isActive }) =>
-                  `flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                    isActive
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-muted-foreground hover:bg-muted"
-                  }`
-                }
-              >
-                <Icon className="h-3.5 w-3.5" aria-hidden />
-                {t[s.labelKey as keyof typeof t] as string}
-              </NavLink>
-            );
-          })}
-        </nav>
+        <div className="mb-4 lg:hidden">
+          <AccountSidebar active={active} variant="chips" />
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)_300px]">
           {/* Sidebar */}
           <aside className="hidden lg:block" data-testid="account-sidebar">
-            <nav aria-label={t.account_nav_aria} className="sticky top-20 space-y-1">
-              {ACCOUNT_SECTIONS.map((s) => {
-                const Icon = s.icon;
-                const isActive = s.key === active;
-                return (
-                  <NavLink
-                    key={s.key}
-                    to={`/account/${s.key}`}
-                    className={({ isActive: navActive }) => {
-                      const a = navActive || isActive;
-                      return `flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${
-                        a
-                          ? "bg-primary/10 text-primary font-medium"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`;
-                    }}
-                  >
-                    <Icon className="h-4 w-4" aria-hidden />
-                    {t[s.labelKey as keyof typeof t] as string}
-                  </NavLink>
-                );
-              })}
-            </nav>
+            <AccountSidebar active={active} variant="rail" />
           </aside>
 
           {/* Content */}
