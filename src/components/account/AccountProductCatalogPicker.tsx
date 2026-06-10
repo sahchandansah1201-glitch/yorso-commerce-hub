@@ -20,7 +20,7 @@ interface Props {
  * commercialName (active locale display) and latinName (Latin).
  */
 export const AccountProductCatalogPicker = ({ onSelect }: Props) => {
-  const { lang, t } = useLanguage();
+  const { lang } = useLanguage();
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
