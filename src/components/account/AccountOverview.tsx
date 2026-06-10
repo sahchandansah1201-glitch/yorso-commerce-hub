@@ -67,9 +67,9 @@ export const AccountOverview = ({ profile }: Props) => {
               {list.map((it) => (
                 <li key={it.id} className="flex items-start gap-2 text-xs">
                   {it.done ? (
-                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
                   ) : (
-                    <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
                   )}
                   <span className={it.done ? "text-foreground" : "text-muted-foreground"}>
                     {t[it.labelKey as keyof typeof t] as string}

@@ -78,7 +78,7 @@ const MarketplaceActivity = () => {
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${colors}`}>
                     <Icon className="h-4 w-4" />
                   </div>
-                  <p className="flex-1 text-sm text-foreground">{item.text}</p>
+                  <p className="min-w-0 flex-1 break-words text-sm text-foreground">{item.text}</p>
                   <span className="shrink-0 text-xs text-muted-foreground">{item.time}</span>
                 </div>
               );
