@@ -6,6 +6,7 @@ import { AccountSectionCard } from "@/components/account/AccountSectionCard";
 import { EditableCard } from "@/components/account/EditableCard";
 import { CompanyMediaCard, type CompanyMediaDraft } from "@/components/account/CompanyMediaCard";
 import { CompanyDocumentsCard } from "@/components/account/CompanyDocumentsCard";
+import { AccountProductCatalogPicker } from "@/components/account/AccountProductCatalogPicker";
 import { SupplierProfilePreview } from "@/components/account/SupplierProfilePreview";
 import { Field, FormRow, PendingFeatureRow, fallback, splitList } from "@/components/account/fields";
 import { ListSectionHeader, ListEmpty } from "@/components/account/ListSection";
