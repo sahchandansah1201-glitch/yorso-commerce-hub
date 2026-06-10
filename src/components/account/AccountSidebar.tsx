@@ -23,7 +23,9 @@ export const AccountSidebar = ({ active, variant = "rail" }: Props) => {
 
   useEffect(() => {
     if (variant !== "chips") return;
-    activeRef.current?.scrollIntoView({
+    const activeEl = activeRef.current;
+    if (typeof activeEl?.scrollIntoView !== "function") return;
+    activeEl.scrollIntoView({
       behavior: "smooth",
       inline: "center",
       block: "nearest",
