@@ -127,6 +127,16 @@
      * instead of the looser 16px default.
      */
     @apply text-sm leading-relaxed;
+    /*
+     * Mobile overflow guardrail. Some landing/workspace cards can spill
+     * 1-2px past the viewport on narrow widths (390px) because of
+     * sub-pixel rounding or long unbreakable strings. `overflow-x: clip`
+     * stops the body from horizontally scrolling without breaking
+     * `position: sticky` on descendants (unlike `overflow-x: hidden`).
+     * Real layout fixes (min-w-0, responsive grid collapse, wrapping)
+     * still apply inside each section.
+     */
+    overflow-x: clip;
   }
 
   /*
