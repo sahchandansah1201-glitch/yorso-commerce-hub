@@ -52,7 +52,7 @@ export const localizedName = (
   item: CatalogItem,
   lang: string,
 ): string => {
-  const primary = (item as Record<string, string | undefined>)[lang];
+  const primary = (item as unknown as Record<string, string | undefined>)[lang];
   if (primary && primary.trim()) return primary;
   for (const l of LANG_FALLBACK_ORDER) {
     const v = item[l];
