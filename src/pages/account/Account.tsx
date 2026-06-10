@@ -6,6 +6,7 @@ import { AccountSectionCard } from "@/components/account/AccountSectionCard";
 import { EditableCard } from "@/components/account/EditableCard";
 import { CompanyMediaCard, type CompanyMediaDraft } from "@/components/account/CompanyMediaCard";
 import { CompanyDocumentsCard } from "@/components/account/CompanyDocumentsCard";
+import { AccountProductCatalogPicker } from "@/components/account/AccountProductCatalogPicker";
 import { SupplierProfilePreview } from "@/components/account/SupplierProfilePreview";
 import { Field, FormRow, PendingFeatureRow, fallback, splitList } from "@/components/account/fields";
 import { ListSectionHeader, ListEmpty } from "@/components/account/ListSection";
@@ -1845,6 +1846,13 @@ const ProductsSection = ({
           description={t.account_product_form_desc}
           testId="account-product-form"
         >
+          <div className="mb-3">
+            <AccountProductCatalogPicker
+              onSelect={({ commercialName, latinName }) =>
+                setDraft((prev) => (prev ? { ...prev, commercialName, latinName } : prev))
+              }
+            />
+          </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <FormRow label={t.account_product_col_product} required error={errors.commercialName}>
               <Input
