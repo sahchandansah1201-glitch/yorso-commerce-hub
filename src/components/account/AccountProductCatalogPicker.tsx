@@ -49,11 +49,9 @@ export const AccountProductCatalogPicker = ({ onSelect }: Props) => {
     [items, query],
   );
 
-  const placeholder =
-    t.account_product_catalog_search_placeholder ??
-    "Поиск по каталогу: латинское или локализованное название";
-  const label = t.account_product_catalog_search_label ?? "Каталог продуктов";
-  const emptyLabel = t.account_product_catalog_empty ?? "Ничего не найдено";
+  const placeholder = "Поиск по каталогу: латинское или локализованное название";
+  const label = "Каталог продуктов";
+  const emptyLabel = "Ничего не найдено";
 
   return (
     <div ref={wrapRef} className="relative">
