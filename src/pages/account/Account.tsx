@@ -2583,7 +2583,7 @@ const ProductsSection = ({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => void deleteProduct(p.id)}
+                        onClick={() => setPendingDeleteProduct(p)}
                         aria-label={`${t.account_product_delete}: ${p.commercialName}`}
                         data-testid={`account-product-delete-${p.id}`}
                       >
