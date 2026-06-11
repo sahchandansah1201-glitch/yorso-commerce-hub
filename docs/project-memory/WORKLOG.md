@@ -4022,3 +4022,51 @@ Keep this file factual and append-only.
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-p1a1-mobile390.png`;
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-p1a1-desktop.png`.
 - Local preview URL used for verification: `http://127.0.0.1:4173/account/products`.
+
+## 2026-06-11 P1A.2 Products Delete Confirmation Stabilization
+
+- Scoped frontend UX checkpoint: `/account/products` delete confirmation.
+- User approved the scope after clarification that the deleted entity is one
+  `CompanyProduct` row/card in the account product matrix, not the global
+  product catalog, not the workbook-backed fish taxonomy, not an offer and not
+  a backend database row.
+- Lovable/GitHub sync added a shared account product delete confirmation:
+  - desktop table delete opens `account-product-delete-confirm`;
+  - mobile product card delete opens the same confirmation;
+  - cancel closes the dialog and keeps the product unchanged;
+  - confirm calls the existing product delete handler.
+- Local stabilization updated `e2e/account-products-crud.spec.ts` because the
+  old desktop delete test still expected immediate deletion. The e2e now covers
+  desktop cancel/confirm and mobile 390px cancel/confirm.
+- Local sync verification found that the Lovable report about Supabase cleanup
+  was not fully true locally: `src/integrations/supabase/*`,
+  `supabase/config.toml` and tracked `.env` were still present.
+- Remediation removed the restored provider scaffold, removed tracked `.env`,
+  added `.env` to `.gitignore`, and changed the provider-free test to inspect
+  `.env` only when it is tracked by git.
+- An initial provider-free/backend-contract rerun failed while `.env` was still
+  tracked. Final validation passed after `git rm --cached .env` and local
+  `.env` removal.
+- Recorded the process lesson in
+  `docs/project-memory/ENGINEERING_LESSONS.md`.
+- План / факт:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Delete confirmation | Защитить удаление продукта от случайного клика. | Desktop и mobile delete открывают общий confirmation dialog. | После push синхронизировать Lovable. |
+| Cancel path | Cancel не должен менять матрицу. | E2E проверяет сохранение продукта после cancel. | Сохранять при refactor. |
+| Confirm path | Confirm должен удалять через существующую логику. | Submit вызывает `deleteProduct(target.id)`. | Undo/toast — отдельный scope. |
+| Provider-free guard | Не возвращать Supabase/hosted BaaS runtime. | Supabase dirs/config и tracked `.env` удалены; `.env` ignored. | Проверять в каждом Lovable sync. |
+
+- Validation run during stabilization:
+  - `npm test -- src/test/provider-free-tooling-retirement.test.ts src/test/self-hosted-backend-policy.test.ts` — passed, 5 tests;
+  - `node scripts/check-provider-production-boundary.mjs` — passed;
+  - `npm test -- src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-product-catalog.test.ts` — passed, 40 tests;
+  - `npm run test:backend-contract` — passed, 101 tests;
+  - `npm run lint` — passed with 0 errors and 4 existing fast-refresh warnings;
+  - `npx tsc -b --noEmit` — passed;
+  - `npm run build` — passed with known Browserslist stale warning;
+  - `E2E_USE_WEB_SERVER=1 npx playwright test e2e/account-products-crud.spec.ts --project=chromium` — passed, 19 tests.
+  - `npm run check:self-hosted-api` — passed;
+  - `npm run check:production-scale-baseline` — passed;
+  - `git diff --check` — passed.

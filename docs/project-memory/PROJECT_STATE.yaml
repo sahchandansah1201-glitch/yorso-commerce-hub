@@ -12,11 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-06-11"
   active_branch: "main"
-  head_commit: "see git log; P1A.1 implementation commit b7f87aa4"
-  head_summary: "P1A.1 Products Mobile Scanability is pushed to GitHub main for Lovable sync."
-  dirty_worktree_before_project_memory: false
+  head_commit: "see git log; P1A.2 stabilization commit pending during checkpoint update"
+  head_summary: "P1A.2 Products Delete Confirmation is being stabilized after Lovable sync, with provider-free remediation."
+  dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "No unresolved product mobile scanability worktree debt remains after sync."
+    - "Owned P1A.2 stabilization edits: account product delete e2e coverage, provider-free remediation, project-memory update."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,17 +36,18 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "p1a1_products_mobile_scanability"
-  summary: "Account products mobile view uses labelled cards instead of horizontal table scanning while preserving desktop table behavior."
-  status: "pushed_to_github_ready_for_lovable_sync"
+  id: "p1a2_products_delete_confirmation"
+  summary: "Account products delete actions require explicit confirmation on desktop table rows and mobile product cards."
+  status: "local_validation_in_progress_before_commit"
   branch: "main"
   pull_request: null
   confirmed_scope:
-    - "/account/products keeps the existing desktop table at md+."
-    - "Mobile <md renders labelled product cards from the same pagedProducts data."
-    - "Mobile cards preserve detail, edit and delete handlers."
-    - "No backend, storage, auth, supplier access, catalog source or Supabase/runtime behavior changed."
-    - "Validation passed: account unit tests/product catalog tests; production build; account-products Playwright e2e; lint; git diff --check."
+    - "/account/products desktop delete and mobile delete now open one shared confirmation dialog before removing a CompanyProduct."
+    - "Cancel keeps the product unchanged; confirm calls the existing deleteProduct handler."
+    - "The dialog shows safe product context: commercial name, Latin name, role and state."
+    - "No backend, storage, auth, supplier access, catalog source or hosted provider dependency was added."
+    - "Lovable sync restored retired Supabase scaffold locally; this checkpoint removes it again and records the guard in ENGINEERING_LESSONS.md."
+    - "Tracked .env is removed and .env is ignored so hosted backend keys do not remain in the repository surface."
     - "Phase 4T implementation is recorded in docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md."
     - "/admin/supplier-document-management-events preserves Phase 4R list/export and Phase 4S mutation controls."
     - "Approve remains immediate."

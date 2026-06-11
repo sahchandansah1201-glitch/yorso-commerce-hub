@@ -1,11 +1,22 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+
+const readTrackedFileIfPresent = (path: string) => {
+  try {
+    execFileSync("git", ["ls-files", "--error-unmatch", path], { stdio: "ignore" });
+  } catch {
+    return "";
+  }
+
+  return existsSync(path) ? readFileSync(path, "utf8") : "";
+};
 
 describe("provider-free tooling retirement", () => {
   it("removes Supabase reference runtime and tooling from the tracked product surface", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8"));
     const lockfile = readFileSync("package-lock.json", "utf8");
-    const env = readFileSync(".env", "utf8");
+    const env = readTrackedFileIfPresent(".env");
     const envExample = readFileSync(".env.example", "utf8");
 
     expect(existsSync("src/integrations/supabase")).toBe(false);

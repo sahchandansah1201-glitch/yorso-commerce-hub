@@ -17,6 +17,7 @@ account-report-packs
 .data/
 *.local
 *.local.save
+.env
 .env*.save
 supabase/.temp/
 

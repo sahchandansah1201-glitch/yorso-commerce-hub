@@ -1,21 +1,21 @@
 # Context Health
 
-Updated: 2026-05-31
+Updated: 2026-06-11
 
 ## Current Status
 
 ```yaml
-context_risk: "low"
-last_checkpoint: "2026-05-31"
+context_risk: "medium"
+last_checkpoint: "2026-06-11"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "609ff7d1_phase_4t_supplier_document_admin_confirmation_ui"
+head_commit: "see_git_log_p1a2_products_delete_confirmation_stabilization"
 latest_merged_batch: 141
-active_workstream: "backend_phase_4t_supplier_document_admin_confirmation_ui"
+active_workstream: "p1a2_products_delete_confirmation"
 pull_request: null
-recommended_action: "Choose the next scoped Phase 4U workstream."
-why_low: "Backend Phase 0 closure audit/remediation, Phase 1A-1J, Phase 2A-2J, Phase 3A-3C and Phase 4A-4T are documented, committed and validated."
+recommended_action: "Finish validation, commit and push P1A.2 stabilization, then sync Lovable from GitHub main."
+why_medium: "Lovable sync restored retired Supabase scaffold and tracked .env; local remediation is being committed with P1A.2 delete-confirmation test stabilization."
 ```
 
 ## Risk Levels
@@ -51,9 +51,12 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: backend_phase_4t_supplier_document_admin_confirmation_ui.
-Current HEAD baseline: Backend Phase 4T supplier document admin confirmation UI implementation commit 609ff7d1 is preserved; a documentation-only project-memory checkpoint may sit on top.
+Current workstream: p1a2_products_delete_confirmation.
+Current HEAD baseline: see git log. P1A.2 is a frontend-only account products checkpoint over /account/products.
 Current PR: none.
+P1A.2 behavior: desktop table delete and mobile card delete open a shared confirmation dialog before removing a CompanyProduct. Cancel keeps the product unchanged. Confirm calls the existing deleteProduct handler.
+P1A.2 provider-free remediation: if Lovable/GitHub sync restores src/integrations/supabase, supabase/, @supabase/supabase-js, tracked .env, or VITE_SUPABASE_* values, remove them and rerun provider-free policy tests before accepting the sync.
+Next action after this checkpoint: sync Lovable from GitHub main and verify /account/products visually.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.
 docs/backend/frontend-backend-contract.md is now Phase 0 closure-audited and maps current App.tsx public, info/legal, account, dashboard, admin, redirect, dev and * routes to data sources or explicit no-data-source redirects.

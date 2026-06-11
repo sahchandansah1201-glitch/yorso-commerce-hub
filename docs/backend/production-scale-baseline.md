@@ -6811,6 +6811,75 @@ Marker: account-products-mobile-cards.
 Marker: account-product-mobile-card.
 Marker: 10,000 concurrent users.
 
+## P1A.2 - Products Delete Confirmation
+
+Status: implemented and locally stabilized.
+
+P1A.2 changes the destructive action UX for `/account/products`: deleting one
+account `CompanyProduct` from the desktop table or mobile product card now
+requires an explicit confirmation dialog. This does not add or change backend
+endpoints, persistence, queues, schedulers, storage behavior, catalog source,
+supplier access policy, auth behavior or hosted provider/runtime paths.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Prevent accidental product deletion. | Desktop and mobile delete buttons open a shared confirmation dialog. | Optional undo/toast feedback is a separate scope. |
+| Preserve existing product state logic. | Confirm calls the existing `deleteProduct` handler; cancel does not mutate state. | Keep this invariant in future product matrix refactors. |
+| Preserve responsive behavior. | Desktop table and mobile labelled cards remain separate renderers. | Visual density review remains separate. |
+| Preserve provider-free boundary. | Restored Supabase scaffold and tracked `.env` are removed during stabilization. | Run provider-free tests on every Lovable/GitHub sync. |
+
+Expected read/write profile:
+
+- No new backend reads or writes.
+- No new data fetch path; the dialog uses already rendered account product
+  state.
+- Confirm uses the existing product delete/save behavior for the local account
+  workspace prototype.
+
+Cache, queue and backpressure strategy:
+
+- No cache, queue, polling, scheduler or backpressure behavior is introduced.
+- The change is client-side confirmation over an existing low-frequency user
+  action.
+
+Database indexing and pagination strategy:
+
+- No database query, index or migration.
+- Existing client-side filters, sorting and pagination are reused.
+
+Failure mode and graceful degradation:
+
+- Cancel closes the dialog without removing a product.
+- Confirm removes only the selected product.
+- If the dialog cannot render, the destructive action path should not silently
+  delete because delete buttons are wired to open the confirmation state first.
+
+Observability and load-test plan:
+
+- No new traffic class requires load testing.
+- Regression coverage: account provider-free tests, account unit tests,
+  account product e2e and production build.
+
+Validation:
+
+- `npm test -- src/test/provider-free-tooling-retirement.test.ts src/test/self-hosted-backend-policy.test.ts`;
+- `node scripts/check-provider-production-boundary.mjs`;
+- `npm test -- src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-product-catalog.test.ts`;
+- `npm run test:backend-contract`;
+- `npm run lint`;
+- `npm run build`;
+- `E2E_USE_WEB_SERVER=1 npx playwright test e2e/account-products-crud.spec.ts --project=chromium`;
+- `git diff --check`.
+
+Marker: P1A.2 Products Delete Confirmation.
+Marker: account-product-delete-confirm.
+Marker: account-product-delete-confirm-cancel.
+Marker: account-product-delete-confirm-submit.
+Marker: provider-free Lovable sync guard.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

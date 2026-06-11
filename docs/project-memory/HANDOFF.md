@@ -16,27 +16,26 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-P1A.1 Products Mobile Scanability has been pushed to GitHub `main` and is ready
-for Lovable sync.
+P1A.2 Products Delete Confirmation is being stabilized after Lovable sync.
 
-This scoped frontend UX checkpoint keeps `/account/products` desktop table
-behavior intact and adds a mobile-only labelled product-card renderer for
-390px scanability. It does not change backend, auth, storage, supplier access,
-catalog source or Supabase/runtime behavior.
+This scoped frontend UX checkpoint keeps `/account/products` desktop table and
+mobile product cards intact, but adds an explicit confirmation before deleting
+one `CompanyProduct`. It also removes provider scaffold files that reappeared
+after sync and keeps the self-hosted/provider-free policy intact.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Improve mobile scanability of `/account/products`. | Mobile `<md` uses labelled product cards instead of a horizontal table. | Pull GitHub `main` into Lovable. |
-| Desktop | Preserve current desktop matrix. | Desktop table remains visible on `md+`; test ids unchanged. | Separate prompt needed for desktop redesign. |
-| Actions | Preserve product detail/edit/delete behavior. | Mobile cards reuse existing handlers and 44px action targets. | Delete confirmation is separate scope. |
-| Guards | Verify no overflow/nested controls. | Account unit tests, product e2e, build, lint and visual screenshots passed locally. | CI/GitHub validation after push. |
+| Scope | Add explicit confirmation before product delete. | Desktop row delete and mobile card delete open one shared confirmation dialog. | Commit/push after validation, then sync Lovable. |
+| Cancel | Cancel must be no-op. | E2E covers cancel before confirm on desktop and mobile. | Preserve in future dialog refactors. |
+| Confirm | Confirm should reuse current delete logic. | Dialog submit calls existing `deleteProduct(target.id)`. | Undo/toast feedback is separate scope. |
+| Provider-free | Do not reintroduce hosted BaaS/Supabase runtime. | Restored Supabase dirs/config and tracked `.env` are removed; guard lesson recorded. | Run provider-free tests on every Lovable sync. |
 
 ## Current Status
 
 - Repository branch: `main`.
-- Active local checkpoint: P1A.1 Products Mobile Scanability.
+- Active local checkpoint: P1A.2 Products Delete Confirmation.
 - Latest public UX/a11y safeguard batch synced: Batch #141.
 - Backend Phase 0 closure audit and remediation are complete.
 - Backend Phase 1 discovery/audit and Phases 1A-1J are complete.

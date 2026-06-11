@@ -2,36 +2,34 @@
 
 ## Current Next Action
 
-P1A.1 Products Mobile Scanability has been pushed to GitHub `main` and is ready
-for Lovable sync.
+P1A.2 Products Delete Confirmation is the active stabilization checkpoint.
 
-This is a frontend-only account workspace checkpoint:
+This is a frontend-only account workspace checkpoint over `/account/products`:
 
-- `/account/products` keeps the existing desktop product table;
-- mobile `<md` now renders labelled product cards instead of forcing users to
-  scan a horizontal table;
-- cards reuse the same product data, filters, sorting, pagination, detail, edit
-  and delete handlers;
-- no backend, storage, auth, supplier access, catalog source or
-  Supabase/runtime behavior changed.
+- desktop table and mobile cards keep the existing product matrix;
+- deleting one `CompanyProduct` now requires an explicit confirmation dialog;
+- canceling the dialog keeps the product unchanged;
+- confirming the dialog calls the existing product delete handler;
+- no backend, storage, auth, supplier access, catalog source or hosted
+  provider behavior is added.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Mobile cards | Убрать мобильное чтение через horizontal table. | Добавлены labelled product cards на `<md`. | Проверить в Lovable после sync. |
-| Desktop table | Сохранить текущий desktop UI. | Таблица остается на `md+`, старые test ids сохранены. | Не менять без отдельного prompt. |
-| Actions | Сохранить детали/редактирование/удаление. | Mobile cards вызывают те же handlers, touch targets 44px. | Delete confirm отдельно. |
-| Sync | Сделать локальную и Lovable/GitHub базу единой. | P1A.1 отправлен в GitHub `main`. | Подтянуть `main` в Lovable. |
+| Delete confirmation | Защитить удаление продукта от случайного клика. | Desktop delete и mobile delete открывают общий confirmation dialog. | После commit/push подтянуть GitHub `main` в Lovable. |
+| Cancel path | Cancel не должен удалять продукт. | E2E проверяет cancel на desktop и mobile. | Сохранять при refactor. |
+| Confirm path | Confirm должен переиспользовать текущий delete handler. | Dialog submit вызывает существующий `deleteProduct(target.id)`. | Undo/toast — отдельный scope, если понадобится. |
+| Provider-free guard | Не возвращать Supabase scaffold. | Удалены восстановленные `src/integrations/supabase/*`, `supabase/`, tracked `.env`; `.env` добавлен в `.gitignore`. | В каждом Lovable sync проверять provider-free tests. |
 
-## Next Implementation After P1A.1
+## Next Implementation After P1A.2
 
 Recommended next scoped implementation after Lovable confirms sync:
 
-1. review `/account/products` visual density in Lovable against the mobile
-   screenshot;
-2. decide whether delete confirmation is needed for product rows/cards;
-3. keep workbook-backed product picker and catalog source as separate scope.
+1. verify `/account/products` in Lovable after GitHub sync;
+2. decide whether product delete needs undo/toast feedback;
+3. keep workbook-backed product picker/catalog source changes as separate
+   scope unless explicitly requested.
 
 ## Guardrails To Preserve
 

@@ -567,11 +567,63 @@ test.describe("/account/products · editable product matrix", () => {
 
     const row = page.locator("tbody tr").filter({ hasText: "Trial Mackerel HGT" });
     await row.getByRole("button", { name: /delete product/i }).click();
+    await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
+    await expect(page.getByTestId("account-product-delete-confirm")).toContainText(
+      "Trial Mackerel HGT",
+    );
+    await expect(page.getByTestId("account-product-delete-confirm")).toContainText(
+      "Scomber japonicus",
+    );
+
+    await page.getByTestId("account-product-delete-confirm-cancel").click();
+    await expect(page.getByTestId("account-product-delete-confirm")).toBeHidden();
+    await expect(page.getByTestId("account-products-table")).toContainText("Trial Mackerel HGT");
+
+    await row.getByRole("button", { name: /delete product/i }).click();
+    await page.getByTestId("account-product-delete-confirm-submit").click();
 
     await expect(page.getByTestId("account-products-table")).not.toContainText("Trial Mackerel HGT");
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
     await expect(page.getByTestId("account-products-table")).not.toContainText("Trial Mackerel HGT");
+  });
+
+  test("mobile product delete confirmation cancels safely and confirms removal", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openProducts(page, "ru");
+
+    const firstCard = page.locator('[data-testid^="account-product-mobile-card-"]').first();
+    const productName = "Alaska Pollock Fillet";
+    await expect(firstCard).toContainText(productName);
+    await firstCard.locator('[data-testid^="account-product-mobile-delete-"]').click();
+
+    await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
+    await expect(page.getByTestId("account-product-delete-confirm")).toContainText(
+      "Удалить продукт из матрицы?",
+    );
+    await expect(page.getByTestId("account-product-delete-confirm")).toContainText(productName);
+    await expect(page.getByTestId("account-product-delete-confirm")).toContainText(
+      "Gadus chalcogrammus",
+    );
+
+    await page.getByTestId("account-product-delete-confirm-cancel").click();
+    await expect(page.getByTestId("account-product-delete-confirm")).toBeHidden();
+    await expect(page.getByTestId("account-products-mobile-cards")).toContainText(productName);
+
+    await firstCard.locator('[data-testid^="account-product-mobile-delete-"]').click();
+    await page.getByTestId("account-product-delete-confirm-submit").click();
+    await expect(page.getByTestId("account-products-mobile-cards")).not.toContainText(productName);
+
+    const metrics = await page.evaluate(() => ({
+      bodyDelta: document.body.scrollWidth - document.documentElement.clientWidth,
+      pageDelta: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      nestedControls: document.querySelectorAll("a button, button a, a a, button button").length,
+    }));
+    expect(metrics.bodyDelta).toBeLessThanOrEqual(0);
+    expect(metrics.pageDelta).toBeLessThanOrEqual(0);
+    expect(metrics.nestedControls).toBe(0);
   });
 
   test("Russian product matrix stays localized while editing", async ({ page }) => {

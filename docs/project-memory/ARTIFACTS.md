@@ -1859,3 +1859,23 @@
   mobile screenshot artifact.
 - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-p1a1-desktop.png`:
   desktop screenshot artifact.
+
+## P1A.2 Products Delete Confirmation
+
+- `docs/project-memory/PROMPTS/prompt-p1a2-products-delete-confirmation-lovable-build.md`:
+  Lovable build prompt for `/account/products` delete confirmation.
+- `src/pages/account/Account.tsx`: shared `AlertDialog` confirmation for
+  deleting one account product from desktop table rows and mobile product cards.
+- `src/i18n/translations.ts`: EN/RU/ES account product delete confirmation
+  copy, as reported by Lovable/GitHub sync and verified by local e2e text.
+- `e2e/account-products-crud.spec.ts`: desktop and mobile cancel/confirm
+  regression coverage for account product deletion.
+- `src/test/provider-free-tooling-retirement.test.ts`: provider-free guard now
+  accepts absent `.env` and still rejects hosted backend env references if the
+  file exists.
+- `docs/project-memory/ENGINEERING_LESSONS.md`: P1A.2 lesson documenting that
+  Lovable/GitHub sync must not restore retired provider runtime.
+- `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-p1a2-desktop-confirm-viewport.png`:
+  desktop confirmation viewport screenshot.
+- `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-p1a2-mobile-confirm-viewport.png`:
+  mobile 390px confirmation viewport screenshot.
