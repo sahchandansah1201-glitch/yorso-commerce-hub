@@ -2681,6 +2681,80 @@ const ProductsSection = ({
           </div>
         </AccountSectionCard>
       ) : null}
+      <AlertDialog
+        open={pendingDeleteProduct !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteProduct(null);
+        }}
+      >
+        <AlertDialogContent data-testid="account-product-delete-confirm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.account_product_delete_confirm_title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.account_product_delete_confirm_desc.replace(
+                "{product}",
+                pendingDeleteProduct?.commercialName ?? "",
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {pendingDeleteProduct ? (
+            <dl
+              className="grid grid-cols-1 gap-2 rounded-md border border-border bg-muted/30 p-3 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-3"
+              data-testid="account-product-delete-confirm-context"
+            >
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                {t.account_product_delete_confirm_productLabel}
+              </dt>
+              <dd
+                className="font-medium text-foreground"
+                data-testid="account-product-delete-confirm-product"
+              >
+                {pendingDeleteProduct.commercialName}
+              </dd>
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                {t.account_product_delete_confirm_latinLabel}
+              </dt>
+              <dd
+                className="italic text-muted-foreground"
+                data-testid="account-product-delete-confirm-latin"
+              >
+                {pendingDeleteProduct.latinName}
+              </dd>
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                {t.account_product_delete_confirm_roleLabel}
+              </dt>
+              <dd className="text-foreground">
+                {productRoleLabel(pendingDeleteProduct.role, t)}
+              </dd>
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                {t.account_product_col_state}
+              </dt>
+              <dd className="text-foreground">
+                {productStateLabel(pendingDeleteProduct.state, t)}
+              </dd>
+            </dl>
+          ) : null}
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => setPendingDeleteProduct(null)}
+              data-testid="account-product-delete-confirm-cancel"
+            >
+              {t.account_product_delete_confirm_cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const target = pendingDeleteProduct;
+                setPendingDeleteProduct(null);
+                if (target) void deleteProduct(target.id);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="account-product-delete-confirm-submit"
+            >
+              {t.account_product_delete_confirm_submit}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
