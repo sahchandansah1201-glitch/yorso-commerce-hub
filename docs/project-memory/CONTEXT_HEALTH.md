@@ -459,4 +459,5 @@ Lovable confirmed RegistrationLayout, CountryPhoneInput, SignIn, ResetPassword, 
 Batch #128 preserves registration copy, route flow, analytics hooks, local registration storage behavior, auth runtime behavior, buyer-first public narrative, access gating, supplier identity redaction, price locks, Batch #112 code splitting and Batch #113 RouteChunkErrorBoundary.
 Known warning remains: Browserslist data is stale.
 Next step: decide between admin UI for document audit listings and supplier owner/admin document management from current main.
+2026-06-11 P1A.1 account products mobile scanability checkpoint: `/account/products` now has a mobile-only labelled card renderer for product rows while preserving the desktop table and all existing product handlers. Local validation passed for account unit tests/catalog tests, production build, account-products Playwright e2e, lint and diff-check. No backend, auth, storage, catalog source, supplier access or Supabase/runtime behavior changed.
 ```

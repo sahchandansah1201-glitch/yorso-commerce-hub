@@ -1655,6 +1655,122 @@ const productRoleLabel = (role: CompanyProduct["role"], t: ReturnType<typeof use
     both: t.account_product_role_both,
   }[role]);
 
+const ProductMobileField = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) => (
+  <div className="min-w-0">
+    <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+      {label}
+    </p>
+    <div className="mt-1 text-sm font-medium text-foreground">{children}</div>
+  </div>
+);
+
+const ProductMobileCard = ({
+  product,
+  isSelected,
+  onToggleDetails,
+  onEdit,
+  onDelete,
+  t,
+}: {
+  product: CompanyProduct;
+  isSelected: boolean;
+  onToggleDetails: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  t: ReturnType<typeof useLanguage>["t"];
+}) => (
+  <article
+    className="rounded-lg border border-border bg-card p-4 shadow-sm"
+    data-testid={`account-product-mobile-card-${product.id}`}
+  >
+    <div className="space-y-1">
+      <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+        {t.account_product_col_product}
+      </p>
+      <h3 className="text-base font-semibold leading-snug text-foreground">
+        {product.commercialName}
+      </h3>
+      {product.format ? (
+        <p className="text-sm leading-snug text-muted-foreground">{product.format}</p>
+      ) : null}
+    </div>
+
+    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <ProductMobileField label={t.account_product_col_latin}>
+        <span className="break-words italic text-muted-foreground">{product.latinName}</span>
+      </ProductMobileField>
+      <ProductMobileField label={t.account_product_col_state}>
+        {productStateLabel(product.state, t)}
+      </ProductMobileField>
+      <ProductMobileField label={t.account_product_col_role}>
+        <ProductRoleBadge role={product.role} />
+      </ProductMobileField>
+      <ProductMobileField label={t.account_product_col_volume}>
+        {product.monthlyVolume}
+      </ProductMobileField>
+      <ProductMobileField label={t.account_product_col_certs}>
+        {product.certificates.length ? (
+          <span className="flex flex-wrap gap-1">
+            {product.certificates.map((certificate) => (
+              <Badge key={certificate} variant="outline" className="text-[10px]">
+                {certificate}
+              </Badge>
+            ))}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">{t.account_value_notSpecified}</span>
+        )}
+      </ProductMobileField>
+      <ProductMobileField label={t.account_product_col_targets}>
+        <span className="break-words text-muted-foreground">
+          {product.targetCountries.length
+            ? product.targetCountries.join(", ")
+            : t.account_value_notSpecified}
+        </span>
+      </ProductMobileField>
+    </div>
+
+    <div className="mt-4 grid grid-cols-1 gap-2 border-t border-border pt-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+      <Button
+        type="button"
+        variant={isSelected ? "secondary" : "outline"}
+        onClick={onToggleDetails}
+        className="min-h-11 justify-center"
+        data-testid={`account-product-mobile-open-${product.id}`}
+      >
+        {isSelected ? t.account_product_details_hide : t.account_product_details_open}
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onEdit}
+        className="min-h-11 justify-center"
+        data-testid={`account-product-mobile-edit-${product.id}`}
+      >
+        <Pencil className="mr-2 h-4 w-4" aria-hidden />
+        {t.account_action_edit}
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={onDelete}
+        className="min-h-11 justify-center"
+        aria-label={`${t.account_product_delete}: ${product.commercialName}`}
+        data-testid={`account-product-mobile-delete-${product.id}`}
+      >
+        <Trash2 className="mr-2 h-4 w-4" aria-hidden />
+        {t.account_product_delete}
+      </Button>
+    </div>
+  </article>
+);
+
 const createEmptyProduct = (): CompanyProduct => ({
   id: `product_${Date.now().toString(36)}`,
   commercialName: "",
@@ -2315,7 +2431,49 @@ const ProductsSection = ({
           </div>
         </AccountSectionCard>
       ) : null}
-      <div className="overflow-x-auto rounded-lg border border-border bg-card">
+      <div className="grid gap-3 md:hidden" data-testid="account-products-mobile-cards">
+        {profile.products.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
+            {t.account_product_empty}
+          </div>
+        ) : visibleProducts.length === 0 ? (
+          <div
+            className="rounded-lg border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground"
+            data-testid="account-product-mobile-no-results"
+          >
+            <div className="mx-auto flex max-w-sm flex-col items-center gap-3">
+              <div>
+                <p className="font-medium text-foreground">{t.account_product_noResults}</p>
+                <p className="mt-1">{t.account_product_noResults_desc}</p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetFilters}
+                className="min-h-11"
+                data-testid="account-product-mobile-no-results-reset"
+              >
+                {t.account_product_clear_filters}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          pagedProducts.map((product: CompanyProduct) => (
+            <ProductMobileCard
+              key={product.id}
+              product={product}
+              isSelected={selectedProductId === product.id}
+              onToggleDetails={() =>
+                setSelectedProductId((current) => (current === product.id ? null : product.id))
+              }
+              onEdit={() => startEdit(product)}
+              onDelete={() => void deleteProduct(product.id)}
+              t={t}
+            />
+          ))
+        )}
+      </div>
+      <div className="hidden overflow-x-auto rounded-lg border border-border bg-card md:block">
         <table className="w-full text-sm" data-testid="account-products-table">
           <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
             <tr>

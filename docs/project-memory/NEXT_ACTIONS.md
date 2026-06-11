@@ -2,41 +2,35 @@
 
 ## Current Next Action
 
-Backend Phase 4T is committed locally at `609ff7d1`; release validation passed.
+P1A.1 Products Mobile Scanability is ready for GitHub/Lovable sync.
 
-Phase 4T adds confirmation before risky admin document actions on the existing
-supplier document management events surface:
+This is a frontend-only account workspace checkpoint:
 
-- `/admin/supplier-document-management-events` keeps Phase 4R list/export and
-  Phase 4S status-aware mutation controls;
-- `approve` remains immediate;
-- `reject`, `expire` and `delete` require reason plus explicit confirmation;
-- canceling the confirmation dialog does not call `/decision` or `/lifecycle`;
-- confirming calls the existing `runDocumentAction` path and refreshes the
-  bounded event list on success;
-- unit/e2e guards keep `fileAssetId`, object keys, storage keys, `downloadPath`,
-  direct storage URLs and session identifiers out of browser state.
+- `/account/products` keeps the existing desktop product table;
+- mobile `<md` now renders labelled product cards instead of forcing users to
+  scan a horizontal table;
+- cards reuse the same product data, filters, sorting, pagination, detail, edit
+  and delete handlers;
+- no backend, storage, auth, supplier access, catalog source or
+  Supabase/runtime behavior changed.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Confirmation gate | Добавить confirm перед risky actions. | Reject/expire/delete открывают confirmation dialog. | Undo/audit taxonomy отдельно. |
-| Safe immediate action | Не замедлять approve. | Approve остается immediate action. | Confirm для approve только при compliance requirement. |
-| Cancel behavior | Cancel не должен делать backend write. | Unit/e2e проверяют отсутствие `/lifecycle` до confirm. | Сохранять при dialog refactor. |
-| Operator context | Показать, что будет изменено. | Dialog показывает action/supplier/document/reason. | Добавить safe document title, если backend вернет его. |
-| Guards | Закрепить tests, e2e, docs, self-hosted/scale guards. | Unit/e2e, self-hosted/scale guards, lint, TypeScript и diff-check зелёные; implementation commit `609ff7d1`. | Держать в release path. |
+| Mobile cards | Убрать мобильное чтение через horizontal table. | Добавлены labelled product cards на `<md`. | Проверить в Lovable после sync. |
+| Desktop table | Сохранить текущий desktop UI. | Таблица остается на `md+`, старые test ids сохранены. | Не менять без отдельного prompt. |
+| Actions | Сохранить детали/редактирование/удаление. | Mobile cards вызывают те же handlers, touch targets 44px. | Delete confirm отдельно. |
+| Sync | Сделать локальную и Lovable/GitHub базу единой. | Локально проверено, готовится commit/push. | После push подтянуть в Lovable. |
 
-## Next Implementation After Phase 4T
+## Next Implementation After P1A.1
 
-Recommended next scoped implementation:
+Recommended next scoped implementation after Lovable confirms sync:
 
-Backend Phase 4U - choose one small follow-up only:
-
-1. automated approved-document expiry scheduler decision/design; or
-2. structured reason taxonomy for supplier document management actions.
-
-Do not mix scheduler work and reason-taxonomy/admin UI work in one scope.
+1. review `/account/products` visual density in Lovable against the mobile
+   screenshot;
+2. decide whether delete confirmation is needed for product rows/cards;
+3. keep workbook-backed product picker and catalog source as separate scope.
 
 ## Guardrails To Preserve
 

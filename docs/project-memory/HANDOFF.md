@@ -16,25 +16,26 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-Backend Phase 4T Supplier Document Admin Confirmation UI is committed locally
-at `609ff7d1`; release validation passed. It adds an explicit confirmation
-dialog before risky `reject`, `expire` and `delete` actions on
-`/admin/supplier-document-management-events`, while keeping `approve`
-immediate and reusing the existing Phase 4S action path.
+P1A.1 Products Mobile Scanability is ready for GitHub/Lovable sync.
+
+This scoped frontend UX checkpoint keeps `/account/products` desktop table
+behavior intact and adds a mobile-only labelled product-card renderer for
+390px scanability. It does not change backend, auth, storage, supplier access,
+catalog source or Supabase/runtime behavior.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Добавить confirmation перед risky admin mutations без backend changes. | Reject/expire/delete открывают AlertDialog. | Scheduler или reason taxonomy отдельно. |
-| Safe action | Approve не должен получать лишний friction. | Approve остается immediate. | Confirm для approve только при compliance requirement. |
-| Cancel | Cancel не должен писать в backend. | Unit/e2e проверяют, что lifecycle не вызывается до confirm. | Сохранять при refactor dialog. |
-| Context/redaction | Confirmation должен показывать action context без secrets. | Dialog показывает action/supplier/document/reason; storage/session internals не рендерятся. | Добавить safe title только если backend отдаст его. |
-| Guards | Зафиксировать tests, e2e, docs, 10k-user review. | Scoped checks зелёные: unit, e2e, guards, lint, TypeScript, diff-check; commit `609ff7d1`. | Держать в release path. |
+| Scope | Improve mobile scanability of `/account/products`. | Mobile `<md` uses labelled product cards instead of a horizontal table. | Pull into Lovable after GitHub sync. |
+| Desktop | Preserve current desktop matrix. | Desktop table remains visible on `md+`; test ids unchanged. | Separate prompt needed for desktop redesign. |
+| Actions | Preserve product detail/edit/delete behavior. | Mobile cards reuse existing handlers and 44px action targets. | Delete confirmation is separate scope. |
+| Guards | Verify no overflow/nested controls. | Account unit tests, product e2e, build, lint and visual screenshots passed locally. | CI/GitHub validation after push. |
 
 ## Current Status
 
 - Repository branch: `main`.
+- Active local checkpoint: P1A.1 Products Mobile Scanability.
 - Latest public UX/a11y safeguard batch synced: Batch #141.
 - Backend Phase 0 closure audit and remediation are complete.
 - Backend Phase 1 discovery/audit and Phases 1A-1J are complete.

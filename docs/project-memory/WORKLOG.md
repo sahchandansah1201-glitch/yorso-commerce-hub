@@ -3990,3 +3990,35 @@ Keep this file factual and append-only.
 - Next scoped implementation after Phase 4T: choose one only - automated
   approved-document expiry scheduler decision/design, or structured reason
   taxonomy for supplier document management actions.
+
+## 2026-06-11 P1A.1 Products Mobile Scanability
+
+- Scoped frontend UX checkpoint: `/account/products` mobile scanability.
+- Implemented a mobile-only labelled product card renderer while preserving the
+  existing desktop table and product data/state behavior.
+- The mobile card view uses the same `pagedProducts`, filters, sorting,
+  pagination, detail, edit and delete handlers as the desktop table.
+- Desktop table test ids remain unchanged; mobile cards use separate
+  `account-product-mobile-*` test ids to avoid strict Playwright selector
+  collisions.
+- No backend, storage, auth, supplier access, catalog source or Supabase/runtime
+  changes were made.
+- План / факт:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Mobile scanability | Replace mobile horizontal product table reading with labelled cards. | Implemented mobile-only cards with product, Latin, state, role, volume, certificates and target countries labels. | Review visual density in Lovable after sync. |
+| Desktop parity | Keep current desktop table and existing tests. | Desktop table remains visible at `md+`; existing table test ids unchanged. | Keep table until a separate desktop redesign is requested. |
+| Actions | Preserve details/edit/delete behavior. | Mobile cards call the same handlers and have 44px action targets. | Delete confirmation remains separate scope. |
+| Verification | Prove no mobile overflow or nested controls. | Account unit tests, product e2e, build, lint and Playwright screenshots passed locally. | GitHub/Lovable sync after commit/push. |
+
+- Validation passed:
+  - `npm test -- src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-product-catalog.test.ts` — 40 tests passed;
+  - `npm run build` passed;
+  - `E2E_USE_WEB_SERVER=1 npx playwright test e2e/account-products-crud.spec.ts --project=chromium` — 18 tests passed;
+  - `npm run lint` passed with 0 errors and 4 existing fast-refresh warnings;
+  - `git diff --check` passed.
+- Visual artifacts captured under the operator workspace:
+  - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-p1a1-mobile390.png`;
+  - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-p1a1-desktop.png`.
+- Local preview URL used for verification: `http://127.0.0.1:4173/account/products`.

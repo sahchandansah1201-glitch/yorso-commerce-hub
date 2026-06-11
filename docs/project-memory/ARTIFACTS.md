@@ -1846,3 +1846,16 @@
 - `src/test/self-hosted-contracts.test.ts`: contract regression for admin grant-audit response shape without file asset or download path leakage.
 - `docs/backend/frontend-backend-contract.md`, `docs/backend/self-hosted-validation.md`, `docs/backend/production-scale-baseline.md`, `docs/backend/yorso-backend-implementation-plan.md` and `docs/backend/yorso-backend-implementation-plan.ru.md`: route contract, validation/readiness and implementation-plan updates.
 - `scripts/check-self-hosted-api.mjs` and `scripts/check-production-scale-baseline.mjs`: guard coverage for Phase 4J docs, route, contract, repository/service markers and production-scale baseline.
+
+## P1A.1 Products Mobile Scanability
+
+- `src/pages/account/Account.tsx`: mobile-only labelled product cards for
+  `/account/products`, preserving desktop table behavior and existing product
+  handlers.
+- `e2e/account-products-crud.spec.ts`: mobile 390px regression covering cards,
+  hidden table, labelled fields, no horizontal overflow, no nested controls and
+  44px action targets.
+- `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-p1a1-mobile390.png`:
+  mobile screenshot artifact.
+- `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-p1a1-desktop.png`:
+  desktop screenshot artifact.

@@ -419,6 +419,61 @@ test.describe("/account/products · editable product matrix", () => {
       .toBe(true);
   });
 
+  test("mobile renders labelled product cards instead of a horizontal table", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openProducts(page, "ru");
+
+    await expect(page.getByTestId("account-products-mobile-cards")).toBeVisible();
+    await expect(page.getByTestId("account-products-table")).toBeHidden();
+
+    const firstCard = page.locator('[data-testid^="account-product-mobile-card-"]').first();
+    await expect(firstCard).toBeVisible();
+    await expect(firstCard).toContainText("Продукт");
+    await expect(firstCard).toContainText("Латинское название");
+    await expect(firstCard).toContainText("Состояние");
+    await expect(firstCard).toContainText("Роль");
+    await expect(firstCard).toContainText("Объём");
+    await expect(firstCard).toContainText("Сертификации");
+    await expect(firstCard).toContainText("Целевые страны");
+
+    const metrics = await page.evaluate(() => ({
+      bodyDelta: document.body.scrollWidth - document.documentElement.clientWidth,
+      pageDelta: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      nestedControls: document.querySelectorAll("a button, button a, a a, button button").length,
+    }));
+    expect(metrics.bodyDelta).toBeLessThanOrEqual(0);
+    expect(metrics.pageDelta).toBeLessThanOrEqual(0);
+    expect(metrics.nestedControls).toBe(0);
+
+    const touchTargets = await page
+      .locator(
+        [
+          '[data-testid^="account-product-mobile-open-"]',
+          '[data-testid^="account-product-mobile-edit-"]',
+          '[data-testid^="account-product-mobile-delete-"]',
+        ].join(", "),
+      )
+      .evaluateAll((elements) =>
+        elements
+          .filter((element) => element instanceof HTMLElement && element.offsetParent !== null)
+          .map((element) => {
+            const rect = element.getBoundingClientRect();
+            return {
+              width: Math.round(rect.width),
+              height: Math.round(rect.height),
+            };
+          }),
+      );
+
+    expect(touchTargets.length).toBeGreaterThan(0);
+    touchTargets.forEach((target) => {
+      expect(target.width).toBeGreaterThanOrEqual(44);
+      expect(target.height).toBeGreaterThanOrEqual(44);
+    });
+  });
+
   test("duplicate guard blocks identical product matching records", async ({ page }) => {
     await openProducts(page);
 

@@ -6749,6 +6749,68 @@ Marker: admin-document-management-events-confirm-cancel.
 Marker: Confirm document action.
 Marker: 10,000 concurrent users.
 
+## P1A.1 - Products Mobile Scanability
+
+Status: implemented.
+
+P1A.1 changes the responsive rendering of `/account/products`: mobile `<md`
+renders labelled product cards instead of requiring horizontal table scanning.
+The existing desktop table remains the `md+` renderer. This does not add or
+change backend endpoints, persistence, queues, schedulers, storage behavior,
+catalog source, supplier access policy, auth behavior or Supabase/runtime paths.
+
+План / факт:
+
+| План реализации | Сделано | Будет реализовано |
+|---|---|---|
+| Improve mobile product scanability. | Mobile rows are labelled cards with product, Latin, state, role, volume, certifications and target countries. | Lovable visual review after GitHub sync. |
+| Preserve desktop behavior. | Desktop table and existing table test ids remain unchanged. | Desktop redesign requires a separate prompt. |
+| Preserve product actions. | Details/edit/delete reuse existing handlers and 44px mobile targets. | Delete confirmation remains separate scope. |
+| Prevent mobile overflow. | E2E and Playwright metrics verify zero horizontal overflow and zero nested controls. | Keep in future product matrix changes. |
+
+Expected read/write profile:
+
+- No new backend reads or writes.
+- No new data fetch path; cards render from the already loaded account profile
+  and existing `pagedProducts` derivation.
+- Existing local prototype save/delete behavior is unchanged.
+
+Cache, queue and backpressure strategy:
+
+- No cache, queue, polling, scheduler or backpressure behavior is introduced.
+- The change is a client-side responsive renderer only.
+
+Database indexing and pagination strategy:
+
+- No database query, index or migration.
+- Existing client-side filters, sorting and pagination are reused.
+
+Failure mode and graceful degradation:
+
+- Desktop/table rendering remains available at `md+`.
+- Mobile card rendering uses the same product handlers as the table, avoiding
+  divergent product state behavior.
+- If JavaScript fails, no new backend side effect exists.
+
+Observability and load-test plan:
+
+- No new traffic class requires load testing.
+- Regression coverage: account unit tests, account product e2e, build, lint and
+  Playwright mobile/desktop screenshots.
+
+Validation:
+
+- `npm test -- src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx src/lib/account-product-catalog.test.ts`;
+- `npm run build`;
+- `E2E_USE_WEB_SERVER=1 npx playwright test e2e/account-products-crud.spec.ts --project=chromium`;
+- `npm run lint`;
+- `git diff --check`.
+
+Marker: P1A.1 Products Mobile Scanability.
+Marker: account-products-mobile-cards.
+Marker: account-product-mobile-card.
+Marker: 10,000 concurrent users.
+
 ## Release Rule
 
 If a change affects production frontend, backend, persistence, queues,

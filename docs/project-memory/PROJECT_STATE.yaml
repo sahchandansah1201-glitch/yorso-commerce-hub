@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-05-31"
+updated_at: "2026-06-11"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -10,13 +10,14 @@ source_policy:
 
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-05-31"
+  git_status_confirmed_at: "2026-06-11"
   active_branch: "main"
-  head_commit: "609ff7d1"
-  head_summary: "Backend Phase 4T supplier document admin confirmation UI; release validation passed."
+  head_commit: "pending_p1a1_products_mobile_scanability_commit"
+  head_summary: "P1A.1 Products Mobile Scanability is locally validated and ready for GitHub/Lovable sync."
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
-    - "Project-memory checkpoint is being updated after the Phase 4T implementation commit."
+    - "P1A.1 product mobile scanability code and e2e are ready for commit."
+    - "Project-memory checkpoint is being updated before GitHub/Lovable sync."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -36,12 +37,17 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "backend_phase_4t_supplier_document_admin_confirmation_ui"
-  summary: "Admins must explicitly confirm risky supplier document reject/expire/delete actions before existing self-hosted decision/lifecycle endpoints are called."
-  status: "committed_validation_passed"
+  id: "p1a1_products_mobile_scanability"
+  summary: "Account products mobile view uses labelled cards instead of horizontal table scanning while preserving desktop table behavior."
+  status: "local_validation_passed_ready_for_sync"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "/account/products keeps the existing desktop table at md+."
+    - "Mobile <md renders labelled product cards from the same pagedProducts data."
+    - "Mobile cards preserve detail, edit and delete handlers."
+    - "No backend, storage, auth, supplier access, catalog source or Supabase/runtime behavior changed."
+    - "Validation passed: account unit tests/product catalog tests; production build; account-products Playwright e2e; lint; git diff --check."
     - "Phase 4T implementation is recorded in docs/backend/phase-4t-supplier-document-admin-confirmation-ui.md."
     - "/admin/supplier-document-management-events preserves Phase 4R list/export and Phase 4S mutation controls."
     - "Approve remains immediate."
