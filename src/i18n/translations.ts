@@ -1663,6 +1663,13 @@ type TranslationKeys = {
   account_product_col_actions: string;
   account_product_add: string;
   account_product_delete: string;
+  account_product_delete_confirm_title: string;
+  account_product_delete_confirm_desc: string;
+  account_product_delete_confirm_productLabel: string;
+  account_product_delete_confirm_latinLabel: string;
+  account_product_delete_confirm_roleLabel: string;
+  account_product_delete_confirm_cancel: string;
+  account_product_delete_confirm_submit: string;
   account_product_empty: string;
   account_product_search_title: string;
   account_product_search_desc: string;
