@@ -10,12 +10,12 @@ last_checkpoint: "2026-06-11"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_branch: "main"
-head_commit: "see_git_log_p1a2_products_delete_confirmation_stabilization"
+head_commit: "see_git_log_p1a3_products_latin_first_identity_pending_commit"
 latest_merged_batch: 141
-active_workstream: "p1a2_products_delete_confirmation"
+active_workstream: "p1a3_products_catalog_picker_latin_first"
 pull_request: null
-recommended_action: "Finish validation, commit and push P1A.2 stabilization, then sync Lovable from GitHub main."
-why_medium: "Lovable sync restored retired Supabase scaffold and tracked .env; local remediation is being committed with P1A.2 delete-confirmation test stabilization."
+recommended_action: "Commit and push P1A.3 products Latin-first identity, then sync Lovable from GitHub main."
+why_medium: "Long chat and cross-project port conflict risk; local validation is green, but Lovable preview still needs GitHub sync."
 ```
 
 ## Risk Levels
@@ -51,11 +51,12 @@ Read first:
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: main.
-Current workstream: p1a2_products_delete_confirmation.
-Current HEAD baseline: see git log. P1A.2 is a frontend-only account products checkpoint over /account/products.
+Current workstream: p1a3_products_catalog_picker_latin_first.
+Current HEAD baseline: see git log. P1A.3 is a frontend-only account products checkpoint over /account/products.
 Current PR: none.
-P1A.2 behavior: desktop table delete and mobile card delete open a shared confirmation dialog before removing a CompanyProduct. Cancel keeps the product unchanged. Confirm calls the existing deleteProduct handler.
-P1A.2 provider-free remediation: if Lovable/GitHub sync restores src/integrations/supabase, supabase/, @supabase/supabase-js, tracked .env, or VITE_SUPABASE_* values, remove them and rerun provider-free policy tests before accepting the sync.
+P1A.3 behavior: /account/products mounts the workbook-backed product picker; users can search by Latin or commercial/localized names; picker results and visible product identities use Latin-first format, e.g. Scomber scombrus (Atlantic mackerel).
+P1A.3 data boundary: commercialName and latinName remain separate structured edit/storage fields; no backend/provider dependency was added.
+P1A.3 local preview: yorso-commerce-hub is available at http://127.0.0.1:3301/account/products because port 3300 is held by /Users/istokdmgmail.com/yorso_new Next dev.
 Next action after this checkpoint: sync Lovable from GitHub main and verify /account/products visually.
 Backend Phase 0 closure audit and remediation are complete. Read docs/backend/phase-0-closure-audit.md before starting Phase 1.
 Phase 0 gate results: npm run lint passed; npm run build passed with known non-blocking Supabase generated type and Browserslist warnings; npm run contracts:build passed; npm test passed with 184 files passed, 1268 tests passed and 2 skipped.

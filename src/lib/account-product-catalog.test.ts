@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { searchCatalog } from "./account-product-catalog";
 
 const catalog: Array<{
   id: string;
@@ -54,5 +55,10 @@ describe("account product catalog (workbook-backed)", () => {
     const indian = by.get("Rastrelliger kanagurta");
     expect(indian?.en).toBe("Indian mackerel");
     expect(indian?.ru).toBe("Скумбрия индийская");
+  });
+
+  it("finds catalog items by commercial name and returns the Latin name", () => {
+    expect(searchCatalog(catalog, "Atlantic mackerel", 1)[0]?.latin).toBe("Scomber scombrus");
+    expect(searchCatalog(catalog, "Скумбрия обыкновенная", 1)[0]?.latin).toBe("Scomber scombrus");
   });
 });

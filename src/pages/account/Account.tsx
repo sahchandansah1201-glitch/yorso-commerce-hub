@@ -5,6 +5,7 @@ import Header from "@/components/landing/Header";
 import { AccountShell, type AccountSectionKey } from "@/components/account/AccountShell";
 import { AccountSectionCard } from "@/components/account/AccountSectionCard";
 import { EditableCard } from "@/components/account/EditableCard";
+import { AccountProductCatalogPicker } from "@/components/account/AccountProductCatalogPicker";
 import { CompanyMediaCard, type CompanyMediaDraft } from "@/components/account/CompanyMediaCard";
 import { CompanyDocumentsCard } from "@/components/account/CompanyDocumentsCard";
 import { SupplierProfilePreview } from "@/components/account/SupplierProfilePreview";
@@ -1680,6 +1681,9 @@ const ProductMobileField = ({
   </div>
 );
 
+const productTaxonomyDisplay = (product: Pick<CompanyProduct, "commercialName" | "latinName">) =>
+  `${product.latinName} (${product.commercialName})`;
+
 const ProductMobileCard = ({
   product,
   isSelected,
@@ -1704,17 +1708,15 @@ const ProductMobileCard = ({
         {t.account_product_col_product}
       </p>
       <h3 className="text-base font-semibold leading-snug text-foreground">
-        {product.commercialName}
+        <span className="italic">{product.latinName}</span>
       </h3>
+      <p className="text-sm leading-snug text-muted-foreground">({product.commercialName})</p>
       {product.format ? (
         <p className="text-sm leading-snug text-muted-foreground">{product.format}</p>
       ) : null}
     </div>
 
     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <ProductMobileField label={t.account_product_col_latin}>
-        <span className="break-words italic text-muted-foreground">{product.latinName}</span>
-      </ProductMobileField>
       <ProductMobileField label={t.account_product_col_state}>
         {productStateLabel(product.state, t)}
       </ProductMobileField>
@@ -1771,7 +1773,7 @@ const ProductMobileCard = ({
         variant="ghost"
         onClick={onDelete}
         className="min-h-11 justify-center"
-        aria-label={`${t.account_product_delete}: ${product.commercialName}`}
+        aria-label={`${t.account_product_delete}: ${productTaxonomyDisplay(product)}`}
         data-testid={`account-product-mobile-delete-${product.id}`}
       >
         <Trash2 className="mr-2 h-4 w-4" aria-hidden />
@@ -2342,6 +2344,21 @@ const ProductsSection = ({
           description={t.account_product_form_desc}
           testId="account-product-form"
         >
+          <div className="mb-4">
+            <AccountProductCatalogPicker
+              onSelect={(item) =>
+                setDraft((current) =>
+                  current
+                    ? {
+                        ...current,
+                        commercialName: item.commercialName,
+                        latinName: item.latinName,
+                      }
+                    : current,
+                )
+              }
+            />
+          </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <FormRow label={t.account_product_col_product} required error={errors.commercialName}>
               <Input
@@ -2489,7 +2506,6 @@ const ProductsSection = ({
           <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
               <th className="px-3 py-2">{t.account_product_col_product}</th>
-              <th className="px-3 py-2">{t.account_product_col_latin}</th>
               <th className="px-3 py-2">{t.account_product_col_state}</th>
               <th className="px-3 py-2">{t.account_product_col_role}</th>
               <th className="px-3 py-2">{t.account_product_col_volume}</th>
@@ -2501,13 +2517,13 @@ const ProductsSection = ({
           <tbody>
             {profile.products.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">
                   {t.account_product_empty}
                 </td>
               </tr>
             ) : visibleProducts.length === 0 ? (
               <tr data-testid="account-product-no-results">
-                <td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">
                   <div className="mx-auto flex max-w-md flex-col items-center gap-3">
                     <div>
                       <p className="font-medium text-foreground">{t.account_product_noResults}</p>
@@ -2533,10 +2549,10 @@ const ProductsSection = ({
                   data-testid={`account-product-row-${p.id}`}
                 >
                   <td className="px-3 py-2">
-                    <div className="font-medium">{p.commercialName}</div>
+                    <div className="font-medium italic">{p.latinName}</div>
+                    <div className="text-xs text-muted-foreground">({p.commercialName})</div>
                     <div className="text-xs text-muted-foreground">{p.format}</div>
                   </td>
-                  <td className="px-3 py-2 italic text-muted-foreground">{p.latinName}</td>
                   <td className="px-3 py-2">{productStateLabel(p.state, t)}</td>
                   <td className="px-3 py-2">
                     <ProductRoleBadge role={p.role} />
@@ -2584,7 +2600,7 @@ const ProductsSection = ({
                         variant="ghost"
                         size="sm"
                         onClick={() => setPendingDeleteProduct(p)}
-                        aria-label={`${t.account_product_delete}: ${p.commercialName}`}
+                        aria-label={`${t.account_product_delete}: ${productTaxonomyDisplay(p)}`}
                         data-testid={`account-product-delete-${p.id}`}
                       >
                         <Trash2 className="h-3.5 w-3.5" aria-hidden />
@@ -2640,8 +2656,7 @@ const ProductsSection = ({
           testId={`account-product-detail-${selectedProduct.id}`}
         >
           <div className="grid gap-3 md:grid-cols-2">
-            <Field label={t.account_product_col_product} value={selectedProduct.commercialName} />
-            <Field label={t.account_product_col_latin} value={selectedProduct.latinName} />
+            <Field label={t.account_product_col_product} value={productTaxonomyDisplay(selectedProduct)} />
             <Field label={t.account_product_field_category} value={selectedProduct.category} />
             <Field label={t.account_product_col_state} value={productStateLabel(selectedProduct.state, t)} />
             <Field label={t.account_product_col_role} value={productRoleLabel(selectedProduct.role, t)} />
@@ -2693,7 +2708,7 @@ const ProductsSection = ({
             <AlertDialogDescription>
               {t.account_product_delete_confirm_desc.replace(
                 "{product}",
-                pendingDeleteProduct?.commercialName ?? "",
+                pendingDeleteProduct ? productTaxonomyDisplay(pendingDeleteProduct) : "",
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -2709,16 +2724,7 @@ const ProductsSection = ({
                 className="font-medium text-foreground"
                 data-testid="account-product-delete-confirm-product"
               >
-                {pendingDeleteProduct.commercialName}
-              </dd>
-              <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-                {t.account_product_delete_confirm_latinLabel}
-              </dt>
-              <dd
-                className="italic text-muted-foreground"
-                data-testid="account-product-delete-confirm-latin"
-              >
-                {pendingDeleteProduct.latinName}
+                {productTaxonomyDisplay(pendingDeleteProduct)}
               </dd>
               <dt className="text-xs uppercase tracking-wide text-muted-foreground">
                 {t.account_product_delete_confirm_roleLabel}

@@ -16,26 +16,27 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-P1A.2 Products Delete Confirmation is being stabilized after Lovable sync.
+P1A.3 Products Catalog Picker And Latin-First Product Identity is ready for
+the operational GitHub/Lovable sync step.
 
-This scoped frontend UX checkpoint keeps `/account/products` desktop table and
-mobile product cards intact, but adds an explicit confirmation before deleting
-one `CompanyProduct`. It also removes provider scaffold files that reappeared
-after sync and keeps the self-hosted/provider-free policy intact.
+This scoped frontend UX checkpoint keeps `/account/products` storage and edit
+fields structured, but makes the visible product identity Latin-first:
+`Latin name (commercial name)`. The workbook-backed picker searches by Latin
+or commercial/localized names and fills both structured fields.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Add explicit confirmation before product delete. | Desktop row delete and mobile card delete open one shared confirmation dialog. | Commit/push after validation, then sync Lovable. |
-| Cancel | Cancel must be no-op. | E2E covers cancel before confirm on desktop and mobile. | Preserve in future dialog refactors. |
-| Confirm | Confirm should reuse current delete logic. | Dialog submit calls existing `deleteProduct(target.id)`. | Undo/toast feedback is separate scope. |
-| Provider-free | Do not reintroduce hosted BaaS/Supabase runtime. | Restored Supabase dirs/config and tracked `.env` are removed; guard lesson recorded. | Run provider-free tests on every Lovable sync. |
+| Scope | Show product identity as `Latin (commercial)` where users scan products. | Picker, desktop table, mobile cards, detail panel and delete context use Latin-first identity. | Commit/push, then sync Lovable preview. |
+| Search | Let users search by commercial/localized or Latin name. | `searchCatalog` covers Latin plus EN/RU/ES/FR/CN/DE names; e2e verifies `Atlantic mackerel` -> `Scomber scombrus`. | Later improve ranking/ARIA combobox if needed. |
+| Delete copy | Keep delete confirmation short and unambiguous. | EN/RU/ES title/description shortened while context remains visible. | Preserve safe context in future refactors. |
+| Provider-free | Do not reintroduce hosted BaaS/Supabase runtime. | P1A.3 adds no backend/provider dependency. | Run provider-free tests on every Lovable sync. |
 
 ## Current Status
 
 - Repository branch: `main`.
-- Active local checkpoint: P1A.2 Products Delete Confirmation.
+- Active local checkpoint: P1A.3 Products Catalog Picker And Latin-First Product Identity.
 - Latest public UX/a11y safeguard batch synced: Batch #141.
 - Backend Phase 0 closure audit and remediation are complete.
 - Backend Phase 1 discovery/audit and Phases 1A-1J are complete.

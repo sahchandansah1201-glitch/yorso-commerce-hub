@@ -12,8 +12,8 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-06-11"
   active_branch: "main"
-  head_commit: "see git log; P1A.2 stabilization commit pending during checkpoint update"
-  head_summary: "P1A.2 Products Delete Confirmation is being stabilized after Lovable sync, with provider-free remediation."
+  head_commit: "see git log; P1A.3 products Latin-first identity commit pending during checkpoint update"
+  head_summary: "P1A.3 Products catalog picker hookup and Latin-first product identity is validated locally before GitHub/Lovable sync."
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
     - "Owned P1A.2 stabilization edits: account product delete e2e coverage, provider-free remediation, project-memory update."
@@ -36,12 +36,20 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "p1a2_products_delete_confirmation"
-  summary: "Account products delete actions require explicit confirmation on desktop table rows and mobile product cards."
-  status: "local_validation_in_progress_before_commit"
+  id: "p1a3_products_catalog_picker_latin_first"
+  summary: "Account products picker and visible product matrix use Latin-first product identity while keeping commercialName and latinName as separate structured fields."
+  status: "local_validation_passed_before_commit"
   branch: "main"
   pull_request: null
   confirmed_scope:
+    - "/account/products add/edit form mounts the workbook-backed product catalog picker."
+    - "The picker searches by Latin name and commercial/localized names."
+    - "Picker results display Latin first with commercial/localized name in parentheses, e.g. Scomber scombrus (Atlantic mackerel)."
+    - "Selecting a catalog row fills commercialName from the active locale and latinName from the catalog latin value."
+    - "Desktop table, mobile cards, selected product details and delete confirmation use Latin-first product identity while edit/storage fields remain separate."
+    - "Product delete confirmation copy is shortened in EN/RU/ES and keeps safe context: product identity, role and state."
+    - "P1A.3 validation passed: account product catalog unit tests; account unit tests; TypeScript build graph; lint; production build; account products e2e; git diff --check."
+    - "Local preview for yorso-commerce-hub is available at http://127.0.0.1:3301/account/products because port 3300 is held by /Users/istokdmgmail.com/yorso_new Next dev."
     - "/account/products desktop delete and mobile delete now open one shared confirmation dialog before removing a CompanyProduct."
     - "Cancel keeps the product unchanged; confirm calls the existing deleteProduct handler."
     - "The dialog shows safe product context: commercial name, Latin name, role and state."

@@ -122,6 +122,31 @@ test.describe("/account/products · editable product matrix", () => {
     );
   });
 
+  test("catalog picker fills commercial and Latin names from the workbook catalog", async ({
+    page,
+  }) => {
+    await openProducts(page);
+
+    await page.getByTestId("account-product-add").click();
+    await page.getByTestId("account-product-catalog-search").fill("Atlantic mackerel");
+    const option = page
+      .locator('[data-testid^="account-product-catalog-option-"]')
+      .filter({ hasText: "Scomber scombrus" })
+      .first();
+
+    await expect(option).toContainText("Scomber scombrus");
+    await expect(option).toContainText("(Atlantic mackerel)");
+    await option.click();
+
+    await expect(page.getByTestId("account-product-catalog-search")).toHaveValue(
+      "Scomber scombrus (Atlantic mackerel)",
+    );
+    await expect(page.getByTestId("account-product-commercial-name")).toHaveValue(
+      "Atlantic mackerel",
+    );
+    await expect(page.getByTestId("account-product-latin-name")).toHaveValue("Scomber scombrus");
+  });
+
   test("validation keeps incomplete products out of the matrix", async ({ page }) => {
     await openProducts(page);
 
@@ -431,7 +456,8 @@ test.describe("/account/products · editable product matrix", () => {
     const firstCard = page.locator('[data-testid^="account-product-mobile-card-"]').first();
     await expect(firstCard).toBeVisible();
     await expect(firstCard).toContainText("Продукт");
-    await expect(firstCard).toContainText("Латинское название");
+    await expect(firstCard).toContainText("Gadus chalcogrammus");
+    await expect(firstCard).toContainText("(Alaska Pollock Fillet)");
     await expect(firstCard).toContainText("Состояние");
     await expect(firstCard).toContainText("Роль");
     await expect(firstCard).toContainText("Объём");
@@ -601,9 +627,12 @@ test.describe("/account/products · editable product matrix", () => {
 
     await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
     await expect(page.getByTestId("account-product-delete-confirm")).toContainText(
-      "Удалить продукт из матрицы?",
+      "Удалить продукт?",
     );
     await expect(page.getByTestId("account-product-delete-confirm")).toContainText(productName);
+    await expect(page.getByTestId("account-product-delete-confirm")).not.toContainText(
+      "Справочник продукции",
+    );
     await expect(page.getByTestId("account-product-delete-confirm")).toContainText(
       "Gadus chalcogrammus",
     );

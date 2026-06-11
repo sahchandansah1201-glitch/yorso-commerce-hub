@@ -1879,3 +1879,22 @@
   desktop confirmation viewport screenshot.
 - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-p1a2-mobile-confirm-viewport.png`:
   mobile 390px confirmation viewport screenshot.
+
+## P1A.3 Products Catalog Picker Hookup And Delete Copy Cleanup
+
+- `src/components/account/AccountProductCatalogPicker.tsx`: workbook-backed
+  product picker with localized label, placeholder and empty state.
+- `src/pages/account/Account.tsx`: product picker mounted in add/edit form and
+  wired to fill `commercialName` plus `latinName` from the selected catalog row;
+  product matrix, mobile cards, detail panel and delete context show
+  `Latin (commercial)` as the visible product identity.
+- `src/lib/account-product-catalog.test.ts`: regression that commercial EN/RU
+  product names resolve to the expected Latin name.
+- `e2e/account-products-crud.spec.ts`: product picker e2e (`Atlantic mackerel`
+  -> `Scomber scombrus`) plus shortened delete confirmation copy regression.
+- `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-latin-first-desktop-current.png`:
+  desktop picker/table screenshot with Latin-first display.
+- `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-latin-first-mobile-current.png`:
+  mobile 390px product card screenshot with Latin-first display.
+- `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-delete-short-copy-ru-mobile-current.png`:
+  mobile 390px short delete confirmation screenshot.

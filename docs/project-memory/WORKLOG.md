@@ -4070,3 +4070,52 @@ Keep this file factual and append-only.
   - `npm run check:self-hosted-api` — passed;
   - `npm run check:production-scale-baseline` — passed;
   - `git diff --check` — passed.
+
+## 2026-06-11 P1A.3 Products Catalog Picker Hookup And Delete Copy Cleanup
+
+- Scoped frontend UX correction: `/account/products`.
+- User asked whether commercial product search already shows the Latin name
+  from the workbook-backed catalog, and pointed out that the delete dialog copy
+  was too verbose.
+- Local audit found a contract gap: `AccountProductCatalogPicker` and
+  `searchCatalog` existed, but the picker was not mounted in
+  `src/pages/account/Account.tsx`. The visible add/edit form still exposed
+  manual `commercialName` and `latinName` inputs only.
+- Implemented the missing UI hookup:
+  - mounted `AccountProductCatalogPicker` above product add/edit fields;
+  - catalog options display Latin name first and commercial/localized name in
+    parentheses, for example `Scomber scombrus (Atlantic mackerel)`;
+  - selecting a catalog row fills `commercialName` from the active locale and
+    `latinName` from the catalog `latin` value;
+  - localized picker label, placeholder and empty state in EN/RU/ES.
+- Extended the same Latin-first convention to visible product identities in the
+  product matrix:
+  - desktop rows now show `latinName` first with `commercialName` in
+    parentheses in the Product column;
+  - mobile cards use the Latin name as the card title and commercial name below
+    it;
+  - selected product details and delete confirmation use the same
+    `Latin (commercial)` identity while edit/storage fields remain separate.
+- Shortened product delete confirmation copy in EN/RU/ES while preserving the
+  structured context block: product identity, role and state.
+- План / факт:
+
+| Пункт | План | Факт | Что дальше |
+|---|---|---|---|
+| Catalog picker | Подключить workbook-backed справочник к форме продукта. | Picker смонтирован в add/edit form; результат показывает Latin first: `Scomber scombrus (Atlantic mackerel)`. | После sync проверить в Lovable preview. |
+| Product identity | Сделать Latin name главным видимым названием продукта. | Desktop table, mobile cards, detail panel и delete context показывают `Latin (commercial)`. | После sync проверить в Lovable preview. |
+| Commercial search | Поиск по коммерческому названию должен находить Latin name. | `searchCatalog` ищет по `latin`, `en`, `es`, `ru`, `fr`, `cn`, `de`; unit и e2e покрывают EN/RU. | Позже улучшить ranking/keyboard combobox при необходимости. |
+| Delete copy | Сократить поясняющий текст в confirmation. | Title/description сокращены; старый длинный RU текст запрещён e2e. | Не убирать context block, он защищает от ошибки удаления. |
+
+- Validation:
+  - `npm test -- src/lib/account-product-catalog.test.ts` — 6 tests passed;
+  - `npm test -- src/pages/account/Account.test.tsx src/pages/account/Account.editable.test.tsx` — 35 tests passed with existing React Router/act warnings;
+  - `npx tsc -b --noEmit` — passed;
+  - `npm run lint` — passed with 0 errors and 4 existing fast-refresh warnings;
+  - `npm run build` — passed with known Browserslist stale warning;
+  - `E2E_USE_WEB_SERVER=1 npx playwright test e2e/account-products-crud.spec.ts --project=chromium` — passed, 20 tests;
+  - `git diff --check` — passed.
+- Visual artifacts:
+  - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-latin-first-desktop-current.png`;
+  - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-latin-first-mobile-current.png`;
+  - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-delete-short-copy-ru-mobile-current.png`.

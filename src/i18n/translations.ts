@@ -1715,6 +1715,9 @@ type TranslationKeys = {
   account_product_form_title_add: string;
   account_product_form_title_edit: string;
   account_product_form_desc: string;
+  account_product_catalog_picker_label: string;
+  account_product_catalog_picker_placeholder: string;
+  account_product_catalog_picker_empty: string;
   account_product_field_category: string;
   account_product_field_format: string;
   account_product_role_buying: string;
@@ -3614,8 +3617,8 @@ const en: TranslationKeys = {
   account_product_col_actions: "Actions",
   account_product_add: "Add product",
   account_product_delete: "Delete product",
-  account_product_delete_confirm_title: "Delete product from matrix?",
-  account_product_delete_confirm_desc: "{product} will be removed from the products your company buys or sells on YORSO. The product catalog and other companies are not changed.",
+  account_product_delete_confirm_title: "Delete product?",
+  account_product_delete_confirm_desc: "Only {product} is removed from your company matrix.",
   account_product_delete_confirm_productLabel: "Product",
   account_product_delete_confirm_latinLabel: "Latin name",
   account_product_delete_confirm_roleLabel: "Role",
@@ -3666,6 +3669,9 @@ const en: TranslationKeys = {
   account_product_form_title_add: "Add product",
   account_product_form_title_edit: "Edit product",
   account_product_form_desc: "Keep product names, states, volume and target markets structured for matching.",
+  account_product_catalog_picker_label: "Product catalog",
+  account_product_catalog_picker_placeholder: "Search by commercial or Latin name",
+  account_product_catalog_picker_empty: "No catalog matches",
   account_product_field_category: "Category",
   account_product_field_format: "Format / cut",
   account_product_role_buying: "Buying",
@@ -5553,8 +5559,8 @@ const ru: TranslationKeys = {
   account_product_col_actions: "Действия",
   account_product_add: "Добавить продукт",
   account_product_delete: "Удалить продукт",
-  account_product_delete_confirm_title: "Удалить продукт из матрицы?",
-  account_product_delete_confirm_desc: "{product} будет убран из продуктов, которые ваша компания покупает или продаёт на YORSO. Справочник продукции и другие компании не изменятся.",
+  account_product_delete_confirm_title: "Удалить продукт?",
+  account_product_delete_confirm_desc: "Из матрицы вашей компании удаляется только {product}.",
   account_product_delete_confirm_productLabel: "Продукт",
   account_product_delete_confirm_latinLabel: "Латинское название",
   account_product_delete_confirm_roleLabel: "Роль",
@@ -5605,6 +5611,9 @@ const ru: TranslationKeys = {
   account_product_form_title_add: "Добавить продукт",
   account_product_form_title_edit: "Редактировать продукт",
   account_product_form_desc: "Заполняйте названия, состояние, объём и целевые рынки структурно, чтобы улучшить матчинг.",
+  account_product_catalog_picker_label: "Справочник продуктов",
+  account_product_catalog_picker_placeholder: "Поиск по коммерческому или латинскому названию",
+  account_product_catalog_picker_empty: "В справочнике ничего не найдено",
   account_product_field_category: "Категория",
   account_product_field_format: "Формат / разделка",
   account_product_role_buying: "Покупка",
@@ -7491,8 +7500,8 @@ const es: TranslationKeys = {
   account_product_col_actions: "Acciones",
   account_product_add: "Añadir producto",
   account_product_delete: "Eliminar producto",
-  account_product_delete_confirm_title: "¿Eliminar producto de la matriz?",
-  account_product_delete_confirm_desc: "{product} se eliminará de los productos que su empresa compra o vende en YORSO. El catálogo de productos y otras empresas no cambian.",
+  account_product_delete_confirm_title: "¿Eliminar producto?",
+  account_product_delete_confirm_desc: "Solo {product} se elimina de la matriz de su empresa.",
   account_product_delete_confirm_productLabel: "Producto",
   account_product_delete_confirm_latinLabel: "Nombre latino",
   account_product_delete_confirm_roleLabel: "Rol",
@@ -7543,6 +7552,9 @@ const es: TranslationKeys = {
   account_product_form_title_add: "Añadir producto",
   account_product_form_title_edit: "Editar producto",
   account_product_form_desc: "Mantén nombres, estado, volumen y mercados objetivo estructurados para el matching.",
+  account_product_catalog_picker_label: "Catálogo de productos",
+  account_product_catalog_picker_placeholder: "Buscar por nombre comercial o latino",
+  account_product_catalog_picker_empty: "No hay coincidencias en el catálogo",
   account_product_field_category: "Categoría",
   account_product_field_format: "Formato / corte",
   account_product_role_buying: "Compra",

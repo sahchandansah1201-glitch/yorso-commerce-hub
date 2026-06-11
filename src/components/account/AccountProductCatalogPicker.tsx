@@ -17,10 +17,12 @@ interface Props {
  * Compact catalog picker used inside the product editing form.
  * Uses a single text input + listbox (no nested interactive controls).
  * Search matches latin + every localized name. Selecting a row fills
- * commercialName (active locale display) and latinName (Latin).
+ * commercialName (active locale display) and latinName (Latin). The picker
+ * displays Latin first so users learn the canonical taxonomy while searching
+ * by either Latin or commercial names.
  */
 export const AccountProductCatalogPicker = ({ onSelect }: Props) => {
-  const { lang } = useLanguage();
+  const { lang, t } = useLanguage();
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -49,9 +51,7 @@ export const AccountProductCatalogPicker = ({ onSelect }: Props) => {
     [items, query],
   );
 
-  const placeholder = "Поиск по каталогу: латинское или локализованное название";
-  const label = "Каталог продуктов";
-  const emptyLabel = "Ничего не найдено";
+  const label = t.account_product_catalog_picker_label;
 
   return (
     <div ref={wrapRef} className="relative">
@@ -63,7 +63,7 @@ export const AccountProductCatalogPicker = ({ onSelect }: Props) => {
         type="search"
         autoComplete="off"
         value={query}
-        placeholder={placeholder}
+        placeholder={t.account_product_catalog_picker_placeholder}
         onChange={(e) => {
           setQuery(e.target.value);
           setOpen(true);
@@ -80,10 +80,13 @@ export const AccountProductCatalogPicker = ({ onSelect }: Props) => {
           className="absolute z-30 mt-1 max-h-72 w-full overflow-auto rounded-md border border-input bg-popover p-1 text-sm shadow-md"
         >
           {results.length === 0 ? (
-            <li className="px-3 py-2 text-muted-foreground">{emptyLabel}</li>
+            <li className="px-3 py-2 text-muted-foreground">
+              {t.account_product_catalog_picker_empty}
+            </li>
           ) : (
             results.map((item) => {
-              const display = localizedName(item, lang);
+              const commercialName = localizedName(item, lang);
+              const display = `${item.latin} (${commercialName})`;
               return (
                 <li
                   key={item.id}
@@ -93,7 +96,7 @@ export const AccountProductCatalogPicker = ({ onSelect }: Props) => {
                   data-testid={`account-product-catalog-option-${item.id}`}
                   onClick={() => {
                     onSelect({
-                      commercialName: display,
+                      commercialName,
                       latinName: item.latin,
                     });
                     setQuery(display);
@@ -103,7 +106,7 @@ export const AccountProductCatalogPicker = ({ onSelect }: Props) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       onSelect({
-                        commercialName: display,
+                        commercialName,
                         latinName: item.latin,
                       });
                       setQuery(display);
@@ -112,9 +115,9 @@ export const AccountProductCatalogPicker = ({ onSelect }: Props) => {
                   }}
                   className="cursor-pointer rounded px-3 py-2 hover:bg-accent focus:bg-accent focus:outline-none"
                 >
-                  <div className="font-medium">{display}</div>
-                  <div className="text-xs italic text-muted-foreground">
-                    {item.latin}
+                  <div className="font-medium italic text-foreground">{item.latin}</div>
+                  <div className="text-xs text-muted-foreground">
+                    ({commercialName})
                   </div>
                 </li>
               );
