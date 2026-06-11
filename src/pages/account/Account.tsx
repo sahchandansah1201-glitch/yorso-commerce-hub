@@ -1856,6 +1856,7 @@ const ProductsSection = ({
   const [ignoredLinkParams, setIgnoredLinkParams] = useState(initialView.ignoredParams);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [pendingDeleteProduct, setPendingDeleteProduct] = useState<CompanyProduct | null>(null);
   const productViewMountedRef = useRef(false);
   const shareButtonRef = useRef<HTMLButtonElement>(null);
   const shareLinkInputRef = useRef<HTMLInputElement>(null);
