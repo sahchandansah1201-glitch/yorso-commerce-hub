@@ -2478,7 +2478,7 @@ const ProductsSection = ({
                 setSelectedProductId((current) => (current === product.id ? null : product.id))
               }
               onEdit={() => startEdit(product)}
-              onDelete={() => void deleteProduct(product.id)}
+              onDelete={() => setPendingDeleteProduct(product)}
               t={t}
             />
           ))
