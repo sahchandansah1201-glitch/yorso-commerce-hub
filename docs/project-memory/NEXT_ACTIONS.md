@@ -2,7 +2,8 @@
 
 ## Current Next Action
 
-P1A.1 Products Mobile Scanability is ready for GitHub/Lovable sync.
+P1A.1 Products Mobile Scanability has been pushed to GitHub `main` and is ready
+for Lovable sync.
 
 This is a frontend-only account workspace checkpoint:
 
@@ -21,7 +22,7 @@ This is a frontend-only account workspace checkpoint:
 | Mobile cards | Убрать мобильное чтение через horizontal table. | Добавлены labelled product cards на `<md`. | Проверить в Lovable после sync. |
 | Desktop table | Сохранить текущий desktop UI. | Таблица остается на `md+`, старые test ids сохранены. | Не менять без отдельного prompt. |
 | Actions | Сохранить детали/редактирование/удаление. | Mobile cards вызывают те же handlers, touch targets 44px. | Delete confirm отдельно. |
-| Sync | Сделать локальную и Lovable/GitHub базу единой. | Локально проверено, готовится commit/push. | После push подтянуть в Lovable. |
+| Sync | Сделать локальную и Lovable/GitHub базу единой. | P1A.1 отправлен в GitHub `main`. | Подтянуть `main` в Lovable. |
 
 ## Next Implementation After P1A.1
 

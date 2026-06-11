@@ -12,12 +12,11 @@ repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
   git_status_confirmed_at: "2026-06-11"
   active_branch: "main"
-  head_commit: "pending_p1a1_products_mobile_scanability_commit"
-  head_summary: "P1A.1 Products Mobile Scanability is locally validated and ready for GitHub/Lovable sync."
-  dirty_worktree_before_project_memory: true
+  head_commit: "see git log; P1A.1 implementation commit b7f87aa4"
+  head_summary: "P1A.1 Products Mobile Scanability is pushed to GitHub main for Lovable sync."
+  dirty_worktree_before_project_memory: false
   dirty_worktree_reason:
-    - "P1A.1 product mobile scanability code and e2e are ready for commit."
-    - "Project-memory checkpoint is being updated before GitHub/Lovable sync."
+    - "No unresolved product mobile scanability worktree debt remains after sync."
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -39,7 +38,7 @@ project_identity:
 active_workstream:
   id: "p1a1_products_mobile_scanability"
   summary: "Account products mobile view uses labelled cards instead of horizontal table scanning while preserving desktop table behavior."
-  status: "local_validation_passed_ready_for_sync"
+  status: "pushed_to_github_ready_for_lovable_sync"
   branch: "main"
   pull_request: null
   confirmed_scope:

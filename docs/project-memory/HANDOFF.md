@@ -16,7 +16,8 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-P1A.1 Products Mobile Scanability is ready for GitHub/Lovable sync.
+P1A.1 Products Mobile Scanability has been pushed to GitHub `main` and is ready
+for Lovable sync.
 
 This scoped frontend UX checkpoint keeps `/account/products` desktop table
 behavior intact and adds a mobile-only labelled product-card renderer for
@@ -27,7 +28,7 @@ catalog source or Supabase/runtime behavior.
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
-| Scope | Improve mobile scanability of `/account/products`. | Mobile `<md` uses labelled product cards instead of a horizontal table. | Pull into Lovable after GitHub sync. |
+| Scope | Improve mobile scanability of `/account/products`. | Mobile `<md` uses labelled product cards instead of a horizontal table. | Pull GitHub `main` into Lovable. |
 | Desktop | Preserve current desktop matrix. | Desktop table remains visible on `md+`; test ids unchanged. | Separate prompt needed for desktop redesign. |
 | Actions | Preserve product detail/edit/delete behavior. | Mobile cards reuse existing handlers and 44px action targets. | Delete confirmation is separate scope. |
 | Guards | Verify no overflow/nested controls. | Account unit tests, product e2e, build, lint and visual screenshots passed locally. | CI/GitHub validation after push. |
