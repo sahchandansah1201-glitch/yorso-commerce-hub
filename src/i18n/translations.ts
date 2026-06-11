@@ -1663,6 +1663,13 @@ type TranslationKeys = {
   account_product_col_actions: string;
   account_product_add: string;
   account_product_delete: string;
+  account_product_delete_confirm_title: string;
+  account_product_delete_confirm_desc: string;
+  account_product_delete_confirm_productLabel: string;
+  account_product_delete_confirm_latinLabel: string;
+  account_product_delete_confirm_roleLabel: string;
+  account_product_delete_confirm_cancel: string;
+  account_product_delete_confirm_submit: string;
   account_product_empty: string;
   account_product_search_title: string;
   account_product_search_desc: string;
@@ -3607,6 +3614,13 @@ const en: TranslationKeys = {
   account_product_col_actions: "Actions",
   account_product_add: "Add product",
   account_product_delete: "Delete product",
+  account_product_delete_confirm_title: "Delete product from matrix?",
+  account_product_delete_confirm_desc: "{product} will be removed from the products your company buys or sells on YORSO. The product catalog and other companies are not changed.",
+  account_product_delete_confirm_productLabel: "Product",
+  account_product_delete_confirm_latinLabel: "Latin name",
+  account_product_delete_confirm_roleLabel: "Role",
+  account_product_delete_confirm_cancel: "Cancel",
+  account_product_delete_confirm_submit: "Delete product",
   account_product_empty: "No products added yet. Add the first product to improve matching.",
   account_product_search_title: "Find product",
   account_product_search_desc: "Filter the product matrix before editing matching data.",
@@ -5539,6 +5553,13 @@ const ru: TranslationKeys = {
   account_product_col_actions: "Действия",
   account_product_add: "Добавить продукт",
   account_product_delete: "Удалить продукт",
+  account_product_delete_confirm_title: "Удалить продукт из матрицы?",
+  account_product_delete_confirm_desc: "{product} будет убран из продуктов, которые ваша компания покупает или продаёт на YORSO. Справочник продукции и другие компании не изменятся.",
+  account_product_delete_confirm_productLabel: "Продукт",
+  account_product_delete_confirm_latinLabel: "Латинское название",
+  account_product_delete_confirm_roleLabel: "Роль",
+  account_product_delete_confirm_cancel: "Отмена",
+  account_product_delete_confirm_submit: "Удалить продукт",
   account_product_empty: "Продукты ещё не добавлены. Добавьте первый продукт для улучшения матчинга.",
   account_product_search_title: "Найти продукт",
   account_product_search_desc: "Фильтруйте матрицу продуктов перед редактированием данных для матчинга.",
@@ -7470,6 +7491,13 @@ const es: TranslationKeys = {
   account_product_col_actions: "Acciones",
   account_product_add: "Añadir producto",
   account_product_delete: "Eliminar producto",
+  account_product_delete_confirm_title: "¿Eliminar producto de la matriz?",
+  account_product_delete_confirm_desc: "{product} se eliminará de los productos que su empresa compra o vende en YORSO. El catálogo de productos y otras empresas no cambian.",
+  account_product_delete_confirm_productLabel: "Producto",
+  account_product_delete_confirm_latinLabel: "Nombre latino",
+  account_product_delete_confirm_roleLabel: "Rol",
+  account_product_delete_confirm_cancel: "Cancelar",
+  account_product_delete_confirm_submit: "Eliminar producto",
   account_product_empty: "Aún no hay productos. Añade el primer producto para mejorar el matching.",
   account_product_search_title: "Buscar producto",
   account_product_search_desc: "Filtra la matriz de productos antes de editar datos de matching.",
