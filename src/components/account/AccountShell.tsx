@@ -36,7 +36,7 @@ export const AccountShell = ({
   if (!isSignedIn) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Header sticky={false} />
         <main
           className="container py-16 max-w-xl"
           data-testid="account-signin-required"
