@@ -21,6 +21,10 @@ account-report-packs
 .env*.save
 supabase/.temp/
 
+# Retired hosted-provider scaffolds. YORSO is self-hosted/provider-free.
+src/integrations/supabase/
+supabase/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -18,9 +18,12 @@ describe("provider-free tooling retirement", () => {
     const lockfile = readFileSync("package-lock.json", "utf8");
     const env = readTrackedFileIfPresent(".env");
     const envExample = readFileSync(".env.example", "utf8");
+    const gitignore = readFileSync(".gitignore", "utf8");
 
     expect(existsSync("src/integrations/supabase")).toBe(false);
     expect(existsSync("supabase")).toBe(false);
+    expect(gitignore).toContain("src/integrations/supabase/");
+    expect(gitignore).toContain("supabase/");
     expect(existsSync("scripts/check-supabase-access-types.mjs")).toBe(false);
     expect(existsSync("scripts/check-supabase-production-boundary.mjs")).toBe(false);
     expect(existsSync("scripts/regenerate-supabase-types.mjs")).toBe(false);
