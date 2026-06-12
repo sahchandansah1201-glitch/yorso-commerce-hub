@@ -5568,6 +5568,8 @@ const ru: TranslationKeys = {
   account_branch_form_section_address: "Адрес",
   account_branch_form_section_logistics: "Логистика",
   account_branch_form_section_notes: "Заметки",
+  account_country_combobox_placeholder: "Страна, ISO или телефонный код",
+  account_country_combobox_hint: "Начните вводить; ↑↓ — навигация, Enter — выбор.",
   account_products_title: "Матрица продуктов",
   account_products_desc: "Продукты, которые вы покупаете и продаёте.",
   account_products_matchingExplainer: "Продукты используются для матчинга между покупателями и поставщиками и для рекомендаций каталога.",
