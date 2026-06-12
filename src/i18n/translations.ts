@@ -1650,6 +1650,10 @@ type TranslationKeys = {
   account_branch_field_city: string;
   account_branch_field_address: string;
   account_branch_field_notes: string;
+  account_branch_form_section_identity: string;
+  account_branch_form_section_address: string;
+  account_branch_form_section_logistics: string;
+  account_branch_form_section_notes: string;
   account_products_title: string;
   account_products_desc: string;
   account_products_matchingExplainer: string;
