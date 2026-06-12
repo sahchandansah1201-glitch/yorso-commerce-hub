@@ -17,9 +17,10 @@ const langs: Language[] = ["en", "ru", "es"];
 type HeaderProps = {
   showSkipLink?: boolean;
   mainId?: string;
+  sticky?: boolean;
 };
 
-const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
+const Header = ({ showSkipLink = false, mainId = "main", sticky = true }: HeaderProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
