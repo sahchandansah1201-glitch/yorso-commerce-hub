@@ -7518,6 +7518,8 @@ const es: TranslationKeys = {
   account_branch_form_section_address: "Dirección",
   account_branch_form_section_logistics: "Logística",
   account_branch_form_section_notes: "Notas",
+  account_country_combobox_placeholder: "País, ISO o código telefónico",
+  account_country_combobox_hint: "Escribe para buscar; ↑↓ navegar, Enter seleccionar.",
   account_products_title: "Matriz de productos",
   account_products_desc: "Productos que compras y vendes.",
   account_products_matchingExplainer: "Los productos alimentan el matching entre compradores y proveedores y las recomendaciones del catálogo.",
