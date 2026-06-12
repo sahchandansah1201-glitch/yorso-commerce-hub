@@ -444,7 +444,7 @@ test.describe("/account/products · editable product matrix", () => {
       .toBe(true);
   });
 
-  test("mobile renders labelled product cards instead of a horizontal table", async ({
+  test("mobile renders Latin-first labelled product cards instead of a horizontal table", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
