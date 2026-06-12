@@ -100,7 +100,7 @@ const Header = ({ showSkipLink = false, mainId = "main", sticky = true }: Header
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className={`${sticky ? "sticky top-0 z-50 " : ""}border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80`}>
       {showSkipLink && (
         <a
           href={`#${mainId}`}
