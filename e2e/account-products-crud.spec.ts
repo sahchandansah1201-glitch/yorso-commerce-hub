@@ -455,7 +455,7 @@ test.describe("/account/products · editable product matrix", () => {
 
     const firstCard = page.locator('[data-testid^="account-product-mobile-card-"]').first();
     await expect(firstCard).toBeVisible();
-    await expect(firstCard).toContainText("Продукт");
+    await expect(firstCard).not.toContainText("Продукт");
     await expect(firstCard).toContainText("Gadus chalcogrammus");
     await expect(firstCard).toContainText("(Alaska Pollock Fillet)");
     await expect(firstCard).toContainText("Состояние");
