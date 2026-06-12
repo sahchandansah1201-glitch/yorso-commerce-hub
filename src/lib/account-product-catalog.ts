@@ -100,35 +100,70 @@ const normalize = (s: string) =>
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "");
 
+const LOCALIZED_KEYS: CatalogLang[] = ["en", "es", "ru", "fr", "cn", "de"];
+
 /**
- * Filter catalog by free-text query. Matches against latin and every
- * localized name (en/es/ru/fr/cn/de). Returns up to `limit` items.
+ * Filter catalog by free-text query with ranking:
+ *   0 — exact Latin match
+ *   1 — exact match on any localized name (active locale preferred)
+ *   2 — Latin starts-with
+ *   3 — localized starts-with
+ *   4 — Latin contains
+ *   5 — localized contains
+ * Returns up to `limit` items, sorted by rank then by original index.
  */
 export const searchCatalog = (
   items: CatalogItem[],
   query: string,
   limit = 25,
+  activeLang?: string,
 ): CatalogItem[] => {
   const q = normalize(query.trim());
   if (!q) return items.slice(0, limit);
-  const out: CatalogItem[] = [];
-  for (const item of items) {
-    const hay = [
-      item.latin,
-      item.en,
-      item.es,
-      item.ru,
-      item.fr,
-      item.cn,
-      item.de,
-    ]
-      .filter(Boolean)
-      .map((v) => normalize(v as string))
-      .join(" \u0001 ");
-    if (hay.includes(q)) {
-      out.push(item);
-      if (out.length >= limit) break;
+  const scored: Array<{ item: CatalogItem; rank: number; idx: number }> = [];
+  for (let idx = 0; idx < items.length; idx++) {
+    const item = items[idx];
+    const latinN = normalize(item.latin);
+    let rank = Infinity;
+    if (latinN === q) rank = 0;
+    else {
+      // exact localized
+      const activeVal = activeLang
+        ? (item as unknown as Record<string, string | undefined>)[activeLang]
+        : undefined;
+      if (activeVal && normalize(activeVal) === q) rank = 1;
+      else {
+        for (const l of LOCALIZED_KEYS) {
+          const v = item[l];
+          if (v && normalize(v) === q) {
+            rank = 1;
+            break;
+          }
+        }
+      }
+      if (rank === Infinity && latinN.startsWith(q)) rank = 2;
+      if (rank === Infinity) {
+        for (const l of LOCALIZED_KEYS) {
+          const v = item[l];
+          if (v && normalize(v).startsWith(q)) {
+            rank = 3;
+            break;
+          }
+        }
+      }
+      if (rank === Infinity && latinN.includes(q)) rank = 4;
+      if (rank === Infinity) {
+        for (const l of LOCALIZED_KEYS) {
+          const v = item[l];
+          if (v && normalize(v).includes(q)) {
+            rank = 5;
+            break;
+          }
+        }
+      }
     }
+    if (rank !== Infinity) scored.push({ item, rank, idx });
   }
-  return out;
+  scored.sort((a, b) => (a.rank - b.rank) || (a.idx - b.idx));
+  return scored.slice(0, limit).map((s) => s.item);
 };
