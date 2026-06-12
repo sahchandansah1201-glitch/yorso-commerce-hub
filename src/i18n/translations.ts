@@ -1654,6 +1654,8 @@ type TranslationKeys = {
   account_branch_form_section_address: string;
   account_branch_form_section_logistics: string;
   account_branch_form_section_notes: string;
+  account_country_combobox_placeholder: string;
+  account_country_combobox_hint: string;
   account_products_title: string;
   account_products_desc: string;
   account_products_matchingExplainer: string;
