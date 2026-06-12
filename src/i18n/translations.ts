@@ -1718,6 +1718,9 @@ type TranslationKeys = {
   account_product_catalog_picker_label: string;
   account_product_catalog_picker_placeholder: string;
   account_product_catalog_picker_empty: string;
+  account_product_catalog_picker_empty_hint: string;
+  account_product_catalog_picker_selected_label: string;
+  account_product_catalog_picker_alias_label: string;
   account_product_field_category: string;
   account_product_field_format: string;
   account_product_role_buying: string;
