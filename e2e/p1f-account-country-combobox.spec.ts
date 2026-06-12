@@ -46,9 +46,12 @@ test("P1F screenshots and programmatic checks", async ({ page }) => {
   });
 
   // exercise combobox keyboard a11y
-  await page.getByTestId("account-branch-country").fill("Spa");
-  await page.getByTestId("account-branch-country").press("Enter");
-  await expect(page.getByTestId("account-branch-country")).toHaveValue("Spain");
+  const country = page.getByTestId("account-branch-country");
+  await country.click();
+  await country.fill("Spa");
+  await expect(page.getByTestId("account-branch-country-option-es")).toBeVisible();
+  await country.press("Enter");
+  await expect(country).toHaveValue("Spain");
   await page.screenshot({
     path: "test-results/p1f-country-combobox-selected.png",
     fullPage: true,
