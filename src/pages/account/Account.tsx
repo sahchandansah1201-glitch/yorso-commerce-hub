@@ -2203,45 +2203,52 @@ const ProductsSection = ({
             </FormRow>
           </div>
           <div className="mt-2 flex flex-wrap items-end gap-2">
-            <FormRow label={t.account_product_sort_label} className="min-w-[160px] flex-1">
-              <select
-                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={sortKey}
-                onChange={(event) => setSortKey(event.target.value as ProductSortKey)}
-                data-testid="account-product-sort-key"
-              >
-                {PRODUCT_SORT_KEYS.map((key) => (
-                  <option key={key} value={key}>
-                    {sortKeyLabel(key)}
-                  </option>
-                ))}
-              </select>
-            </FormRow>
-            <FormRow label={t.account_product_sort_direction_label} className="min-w-[120px]">
-              <select
-                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={sortDirection}
-                onChange={(event) => setSortDirection(event.target.value as SortDirection)}
-                data-testid="account-product-sort-direction"
-              >
-                <option value="asc">{t.account_product_sort_asc}</option>
-                <option value="desc">{t.account_product_sort_desc}</option>
-              </select>
-            </FormRow>
-            <FormRow label={t.account_product_page_size_label} className="min-w-[120px]">
-              <select
-                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={pageSize}
-                onChange={(event) => setPageSize(Number(event.target.value) as ProductPageSize)}
-                data-testid="account-product-page-size"
-              >
-                {PRODUCT_PAGE_SIZE_OPTIONS.map((size) => (
-                  <option key={size} value={size}>
-                    {t.account_product_page_size_option.replace("{count}", String(size))}
-                  </option>
-                ))}
-              </select>
-            </FormRow>
+            <div className="min-w-[160px] flex-1">
+              <FormRow label={t.account_product_sort_label}>
+                <select
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={sortKey}
+                  onChange={(event) => setSortKey(event.target.value as ProductSortKey)}
+                  data-testid="account-product-sort-key"
+                >
+                  {PRODUCT_SORT_KEYS.map((key) => (
+                    <option key={key} value={key}>
+                      {sortKeyLabel(key)}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
+            </div>
+            <div className="min-w-[120px]">
+              <FormRow label={t.account_product_sort_direction_label}>
+                <select
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={sortDirection}
+                  onChange={(event) => setSortDirection(event.target.value as SortDirection)}
+                  data-testid="account-product-sort-direction"
+                >
+                  <option value="asc">{t.account_product_sort_asc}</option>
+                  <option value="desc">{t.account_product_sort_desc}</option>
+                </select>
+              </FormRow>
+            </div>
+            <div className="min-w-[120px]">
+              <FormRow label={t.account_product_page_size_label}>
+                <select
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={pageSize}
+                  onChange={(event) => setPageSize(Number(event.target.value) as ProductPageSize)}
+                  data-testid="account-product-page-size"
+                >
+                  {PRODUCT_PAGE_SIZE_OPTIONS.map((size) => (
+                    <option key={size} value={size}>
+                      {t.account_product_page_size_option.replace("{count}", String(size))}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
+            </div>
+
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
