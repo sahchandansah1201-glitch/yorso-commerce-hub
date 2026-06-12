@@ -6,6 +6,7 @@ import { AccountShell, type AccountSectionKey } from "@/components/account/Accou
 import { AccountSectionCard } from "@/components/account/AccountSectionCard";
 import { EditableCard } from "@/components/account/EditableCard";
 import { AccountProductCatalogPicker } from "@/components/account/AccountProductCatalogPicker";
+import { AccountCountryCombobox } from "@/components/account/AccountCountryCombobox";
 import { CompanyMediaCard, type CompanyMediaDraft } from "@/components/account/CompanyMediaCard";
 import { CompanyDocumentsCard } from "@/components/account/CompanyDocumentsCard";
 import { SupplierProfilePreview } from "@/components/account/SupplierProfilePreview";
@@ -1128,19 +1129,6 @@ const BranchesSection = ({
     });
   }, [branchTypeLabel, profile.branches, query, typeFilter]);
 
-  const countrySuggestions = useMemo(() => {
-    const seen = new Set<string>();
-    const out: string[] = [];
-    for (const b of profile.branches) {
-      const c = b.country.trim();
-      if (!c) continue;
-      const key = c.toLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push(c);
-    }
-    return out.sort((a, b) => a.localeCompare(b));
-  }, [profile.branches]);
 
   const selectedBranch = selectedBranchId
     ? profile.branches.find((branch) => branch.id === selectedBranchId) ?? null
@@ -1354,10 +1342,9 @@ const BranchesSection = ({
               </legend>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <FormRow label={t.account_company_country} required error={errors.country}>
-                  <Input
+                  <AccountCountryCombobox
                     value={draft.country}
-                    onChange={(e) => setDraft({ ...draft, country: e.target.value })}
-                    list="account-branch-country-suggestions"
+                    onChange={(value) => setDraft({ ...draft, country: value })}
                     data-testid="account-branch-country"
                   />
                 </FormRow>
@@ -1387,11 +1374,6 @@ const BranchesSection = ({
                   />
                 </FormRow>
               </div>
-              <datalist id="account-branch-country-suggestions">
-                {countrySuggestions.map((c) => (
-                  <option key={c} value={c} />
-                ))}
-              </datalist>
             </fieldset>
             <fieldset className="space-y-3">
               <legend className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">

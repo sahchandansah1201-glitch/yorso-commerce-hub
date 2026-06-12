@@ -1654,6 +1654,8 @@ type TranslationKeys = {
   account_branch_form_section_address: string;
   account_branch_form_section_logistics: string;
   account_branch_form_section_notes: string;
+  account_country_combobox_placeholder: string;
+  account_country_combobox_hint: string;
   account_products_title: string;
   account_products_desc: string;
   account_products_matchingExplainer: string;
@@ -3615,6 +3617,8 @@ const en: TranslationKeys = {
   account_branch_form_section_address: "Address",
   account_branch_form_section_logistics: "Logistics",
   account_branch_form_section_notes: "Notes",
+  account_country_combobox_placeholder: "Country, ISO or phone code",
+  account_country_combobox_hint: "Type to search; ↑↓ to navigate, Enter to select.",
   account_products_title: "Product matrix",
   account_products_desc: "Products you buy and sell.",
   account_products_matchingExplainer: "Products power buyer-supplier matching and catalog recommendations.",
@@ -5564,6 +5568,8 @@ const ru: TranslationKeys = {
   account_branch_form_section_address: "Адрес",
   account_branch_form_section_logistics: "Логистика",
   account_branch_form_section_notes: "Заметки",
+  account_country_combobox_placeholder: "Страна, ISO или телефонный код",
+  account_country_combobox_hint: "Начните вводить; ↑↓ — навигация, Enter — выбор.",
   account_products_title: "Матрица продуктов",
   account_products_desc: "Продукты, которые вы покупаете и продаёте.",
   account_products_matchingExplainer: "Продукты используются для матчинга между покупателями и поставщиками и для рекомендаций каталога.",
@@ -7512,6 +7518,8 @@ const es: TranslationKeys = {
   account_branch_form_section_address: "Dirección",
   account_branch_form_section_logistics: "Logística",
   account_branch_form_section_notes: "Notas",
+  account_country_combobox_placeholder: "País, ISO o código telefónico",
+  account_country_combobox_hint: "Escribe para buscar; ↑↓ navegar, Enter seleccionar.",
   account_products_title: "Matriz de productos",
   account_products_desc: "Productos que compras y vendes.",
   account_products_matchingExplainer: "Los productos alimentan el matching entre compradores y proveedores y las recomendaciones del catálogo.",
