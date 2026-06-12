@@ -7613,7 +7613,7 @@ const es: TranslationKeys = {
   account_product_role_both: "Ambos",
   account_metaRegions_title: "Meta-regiones",
   account_metaRegions_desc: "Agrupación de países por lógica logística o comercial.",
-  account_metaRegions_explainer: "Las meta-regiones agrupan países por logística, mercado o ruta de almacén común.",
+  account_metaRegions_explainer: "Agrupa países para matching y notificaciones.",
   account_metaRegion_reason: "Lógica",
   account_metaRegion_reason_freight: "Coste de flete similar",
   account_metaRegion_reason_customs: "Misma zona aduanera",
