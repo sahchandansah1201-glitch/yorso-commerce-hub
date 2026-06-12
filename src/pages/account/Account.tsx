@@ -2151,7 +2151,7 @@ const ProductsSection = ({
           description={t.account_product_search_desc}
           testId="account-product-search-panel"
         >
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[minmax(0,1fr)_150px_150px_170px_140px_130px_auto] 2xl:items-end">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
             <FormRow label={t.account_product_search_label}>
               <div className="relative">
                 <Search
@@ -2161,7 +2161,7 @@ const ProductsSection = ({
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  className="pl-9"
+                  className="h-9 pl-9"
                   placeholder={t.account_product_search_placeholder}
                   data-testid="account-product-search"
                 />
@@ -2169,7 +2169,7 @@ const ProductsSection = ({
             </FormRow>
             <FormRow label={t.account_product_state_filter_label}>
               <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={stateFilter}
                 onChange={(event) =>
                   setStateFilter(event.target.value as CompanyProduct["state"] | "all")
@@ -2186,7 +2186,7 @@ const ProductsSection = ({
             </FormRow>
             <FormRow label={t.account_product_role_filter_label}>
               <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={roleFilter}
                 onChange={(event) =>
                   setRoleFilter(event.target.value as CompanyProduct["role"] | "all")
@@ -2201,9 +2201,11 @@ const ProductsSection = ({
                 ))}
               </select>
             </FormRow>
-            <FormRow label={t.account_product_sort_label}>
+          </div>
+          <div className="mt-2 flex flex-wrap items-end gap-2">
+            <FormRow label={t.account_product_sort_label} className="min-w-[160px] flex-1">
               <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={sortKey}
                 onChange={(event) => setSortKey(event.target.value as ProductSortKey)}
                 data-testid="account-product-sort-key"
@@ -2215,9 +2217,9 @@ const ProductsSection = ({
                 ))}
               </select>
             </FormRow>
-            <FormRow label={t.account_product_sort_direction_label}>
+            <FormRow label={t.account_product_sort_direction_label} className="min-w-[120px]">
               <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={sortDirection}
                 onChange={(event) => setSortDirection(event.target.value as SortDirection)}
                 data-testid="account-product-sort-direction"
@@ -2226,9 +2228,9 @@ const ProductsSection = ({
                 <option value="desc">{t.account_product_sort_desc}</option>
               </select>
             </FormRow>
-            <FormRow label={t.account_product_page_size_label}>
+            <FormRow label={t.account_product_page_size_label} className="min-w-[120px]">
               <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={pageSize}
                 onChange={(event) => setPageSize(Number(event.target.value) as ProductPageSize)}
                 data-testid="account-product-page-size"
@@ -2240,13 +2242,15 @@ const ProductsSection = ({
                 ))}
               </select>
             </FormRow>
-            <div className="flex flex-col gap-2 sm:flex-row 2xl:flex-col">
+            <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
                 variant="outline"
+                size="sm"
                 onClick={resetFilters}
                 disabled={!query && stateFilter === "all" && roleFilter === "all"}
                 data-testid="account-product-search-clear"
+                className="h-9"
               >
                 <X className="mr-2 h-4 w-4" aria-hidden />
                 {t.account_product_clear_filters}
@@ -2254,14 +2258,17 @@ const ProductsSection = ({
               <Button
                 type="button"
                 variant="secondary"
+                size="sm"
                 ref={shareButtonRef}
                 onClick={shareCurrentView}
                 data-testid="account-product-share-view"
+                className="h-9"
               >
                 {t.account_product_share_view}
               </Button>
             </div>
           </div>
+
           <div className="mt-3 flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <p data-testid="account-product-results-count" aria-live="polite">
               {t.account_product_results_count
