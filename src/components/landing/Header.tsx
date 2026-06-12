@@ -17,9 +17,10 @@ const langs: Language[] = ["en", "ru", "es"];
 type HeaderProps = {
   showSkipLink?: boolean;
   mainId?: string;
+  sticky?: boolean;
 };
 
-const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
+const Header = ({ showSkipLink = false, mainId = "main", sticky = true }: HeaderProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -99,7 +100,7 @@ const Header = ({ showSkipLink = false, mainId = "main" }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className={`${sticky ? "sticky top-0 z-50 " : ""}border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80`}>
       {showSkipLink && (
         <a
           href={`#${mainId}`}
