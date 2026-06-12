@@ -197,8 +197,10 @@ export const AccountCountryCombobox = forwardRef<
                   selectEntry(entry);
                 }}
                 onMouseEnter={() => setActiveIndex(i)}
-                className={`flex min-h-[44px] cursor-pointer items-center justify-between gap-2 rounded px-3 py-2 ${
-                  isActive ? "bg-accent" : ""
+                className={`flex min-h-[44px] cursor-pointer items-center justify-between gap-2 rounded px-3 py-2 text-foreground ${
+                  isActive
+                    ? "bg-primary/10 ring-1 ring-inset ring-primary/40"
+                    : "hover:bg-muted"
                 }`}
               >
                 <span className="break-words font-medium text-foreground">

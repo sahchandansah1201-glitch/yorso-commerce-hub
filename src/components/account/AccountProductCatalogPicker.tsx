@@ -232,8 +232,10 @@ export const AccountProductCatalogPicker = ({ onSelect, selected }: Props) => {
                     select(item);
                   }}
                   onMouseEnter={() => setActiveIndex(i)}
-                  className={`cursor-pointer rounded px-3 py-2 min-h-[44px] ${
-                    isActive ? "bg-accent" : ""
+                  className={`cursor-pointer rounded px-3 py-2 min-h-[44px] text-foreground ${
+                    isActive
+                      ? "bg-primary/10 ring-1 ring-inset ring-primary/40"
+                      : "hover:bg-muted"
                   }`}
                 >
                   <div className="font-medium italic text-foreground break-words">
