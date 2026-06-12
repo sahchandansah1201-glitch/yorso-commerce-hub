@@ -1700,31 +1700,30 @@ const ProductMobileCard = ({
   t: ReturnType<typeof useLanguage>["t"];
 }) => (
   <article
-    className="rounded-lg border border-border bg-card p-4 shadow-sm"
+    className="min-w-0 rounded-lg border border-border bg-card p-4 shadow-sm"
     data-testid={`account-product-mobile-card-${product.id}`}
   >
-    <div className="space-y-1">
-      <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-        {t.account_product_col_product}
-      </p>
-      <h3 className="text-base font-semibold leading-snug text-foreground">
+    <div className="min-w-0 space-y-0.5">
+      <h3 className="break-words text-base font-semibold leading-snug text-foreground">
         <span className="italic">{product.latinName}</span>
       </h3>
-      <p className="text-sm leading-snug text-muted-foreground">({product.commercialName})</p>
+      <p className="break-words text-sm leading-snug text-muted-foreground">
+        ({product.commercialName})
+      </p>
       {product.format ? (
-        <p className="text-sm leading-snug text-muted-foreground">{product.format}</p>
+        <p className="break-words text-xs leading-snug text-muted-foreground">{product.format}</p>
       ) : null}
     </div>
 
-    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-3 border-t border-border/60 pt-3">
       <ProductMobileField label={t.account_product_col_state}>
-        {productStateLabel(product.state, t)}
+        <span className="break-words">{productStateLabel(product.state, t)}</span>
       </ProductMobileField>
       <ProductMobileField label={t.account_product_col_role}>
         <ProductRoleBadge role={product.role} />
       </ProductMobileField>
       <ProductMobileField label={t.account_product_col_volume}>
-        {product.monthlyVolume}
+        <span className="break-words">{product.monthlyVolume}</span>
       </ProductMobileField>
       <ProductMobileField label={t.account_product_col_certs}>
         {product.certificates.length ? (
@@ -1739,21 +1738,25 @@ const ProductMobileCard = ({
           <span className="text-muted-foreground">{t.account_value_notSpecified}</span>
         )}
       </ProductMobileField>
-      <ProductMobileField label={t.account_product_col_targets}>
-        <span className="break-words text-muted-foreground">
+      <div className="col-span-2 min-w-0">
+        <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          {t.account_product_col_targets}
+        </p>
+        <p className="mt-1 break-words text-sm text-foreground">
           {product.targetCountries.length
             ? product.targetCountries.join(", ")
             : t.account_value_notSpecified}
-        </span>
-      </ProductMobileField>
+        </p>
+      </div>
     </div>
 
-    <div className="mt-4 grid grid-cols-1 gap-2 border-t border-border pt-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+    <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
       <Button
         type="button"
         variant={isSelected ? "secondary" : "outline"}
         onClick={onToggleDetails}
-        className="min-h-11 justify-center"
+        size="sm"
+        className="min-h-11 flex-1 justify-center"
         data-testid={`account-product-mobile-open-${product.id}`}
       >
         {isSelected ? t.account_product_details_hide : t.account_product_details_open}
@@ -1762,22 +1765,25 @@ const ProductMobileCard = ({
         type="button"
         variant="outline"
         onClick={onEdit}
-        className="min-h-11 justify-center"
+        size="sm"
+        className="min-h-11 min-w-11 justify-center px-3"
+        aria-label={`${t.account_action_edit}: ${productTaxonomyDisplay(product)}`}
         data-testid={`account-product-mobile-edit-${product.id}`}
       >
-        <Pencil className="mr-2 h-4 w-4" aria-hidden />
-        {t.account_action_edit}
+        <Pencil className="h-4 w-4" aria-hidden />
+        <span className="sr-only">{t.account_action_edit}</span>
       </Button>
       <Button
         type="button"
         variant="ghost"
         onClick={onDelete}
-        className="min-h-11 justify-center"
+        size="sm"
+        className="min-h-11 min-w-11 justify-center px-3 text-destructive hover:text-destructive"
         aria-label={`${t.account_product_delete}: ${productTaxonomyDisplay(product)}`}
         data-testid={`account-product-mobile-delete-${product.id}`}
       >
-        <Trash2 className="mr-2 h-4 w-4" aria-hidden />
-        {t.account_product_delete}
+        <Trash2 className="h-4 w-4" aria-hidden />
+        <span className="sr-only">{t.account_product_delete}</span>
       </Button>
     </div>
   </article>
@@ -2145,7 +2151,7 @@ const ProductsSection = ({
           description={t.account_product_search_desc}
           testId="account-product-search-panel"
         >
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[minmax(0,1fr)_150px_150px_170px_140px_130px_auto] 2xl:items-end">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
             <FormRow label={t.account_product_search_label}>
               <div className="relative">
                 <Search
@@ -2155,7 +2161,7 @@ const ProductsSection = ({
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  className="pl-9"
+                  className="h-9 pl-9"
                   placeholder={t.account_product_search_placeholder}
                   data-testid="account-product-search"
                 />
@@ -2163,7 +2169,7 @@ const ProductsSection = ({
             </FormRow>
             <FormRow label={t.account_product_state_filter_label}>
               <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={stateFilter}
                 onChange={(event) =>
                   setStateFilter(event.target.value as CompanyProduct["state"] | "all")
@@ -2180,7 +2186,7 @@ const ProductsSection = ({
             </FormRow>
             <FormRow label={t.account_product_role_filter_label}>
               <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={roleFilter}
                 onChange={(event) =>
                   setRoleFilter(event.target.value as CompanyProduct["role"] | "all")
@@ -2195,52 +2201,63 @@ const ProductsSection = ({
                 ))}
               </select>
             </FormRow>
-            <FormRow label={t.account_product_sort_label}>
-              <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={sortKey}
-                onChange={(event) => setSortKey(event.target.value as ProductSortKey)}
-                data-testid="account-product-sort-key"
-              >
-                {PRODUCT_SORT_KEYS.map((key) => (
-                  <option key={key} value={key}>
-                    {sortKeyLabel(key)}
-                  </option>
-                ))}
-              </select>
-            </FormRow>
-            <FormRow label={t.account_product_sort_direction_label}>
-              <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={sortDirection}
-                onChange={(event) => setSortDirection(event.target.value as SortDirection)}
-                data-testid="account-product-sort-direction"
-              >
-                <option value="asc">{t.account_product_sort_asc}</option>
-                <option value="desc">{t.account_product_sort_desc}</option>
-              </select>
-            </FormRow>
-            <FormRow label={t.account_product_page_size_label}>
-              <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={pageSize}
-                onChange={(event) => setPageSize(Number(event.target.value) as ProductPageSize)}
-                data-testid="account-product-page-size"
-              >
-                {PRODUCT_PAGE_SIZE_OPTIONS.map((size) => (
-                  <option key={size} value={size}>
-                    {t.account_product_page_size_option.replace("{count}", String(size))}
-                  </option>
-                ))}
-              </select>
-            </FormRow>
-            <div className="flex flex-col gap-2 sm:flex-row 2xl:flex-col">
+          </div>
+          <div className="mt-2 flex flex-wrap items-end gap-2">
+            <div className="min-w-[160px] flex-1">
+              <FormRow label={t.account_product_sort_label}>
+                <select
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={sortKey}
+                  onChange={(event) => setSortKey(event.target.value as ProductSortKey)}
+                  data-testid="account-product-sort-key"
+                >
+                  {PRODUCT_SORT_KEYS.map((key) => (
+                    <option key={key} value={key}>
+                      {sortKeyLabel(key)}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
+            </div>
+            <div className="min-w-[120px]">
+              <FormRow label={t.account_product_sort_direction_label}>
+                <select
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={sortDirection}
+                  onChange={(event) => setSortDirection(event.target.value as SortDirection)}
+                  data-testid="account-product-sort-direction"
+                >
+                  <option value="asc">{t.account_product_sort_asc}</option>
+                  <option value="desc">{t.account_product_sort_desc}</option>
+                </select>
+              </FormRow>
+            </div>
+            <div className="min-w-[120px]">
+              <FormRow label={t.account_product_page_size_label}>
+                <select
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={pageSize}
+                  onChange={(event) => setPageSize(Number(event.target.value) as ProductPageSize)}
+                  data-testid="account-product-page-size"
+                >
+                  {PRODUCT_PAGE_SIZE_OPTIONS.map((size) => (
+                    <option key={size} value={size}>
+                      {t.account_product_page_size_option.replace("{count}", String(size))}
+                    </option>
+                  ))}
+                </select>
+              </FormRow>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
                 variant="outline"
+                size="sm"
                 onClick={resetFilters}
                 disabled={!query && stateFilter === "all" && roleFilter === "all"}
                 data-testid="account-product-search-clear"
+                className="h-9"
               >
                 <X className="mr-2 h-4 w-4" aria-hidden />
                 {t.account_product_clear_filters}
@@ -2248,14 +2265,17 @@ const ProductsSection = ({
               <Button
                 type="button"
                 variant="secondary"
+                size="sm"
                 ref={shareButtonRef}
                 onClick={shareCurrentView}
                 data-testid="account-product-share-view"
+                className="h-9"
               >
                 {t.account_product_share_view}
               </Button>
             </div>
           </div>
+
           <div className="mt-3 flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <p data-testid="account-product-results-count" aria-live="polite">
               {t.account_product_results_count
@@ -2549,9 +2569,10 @@ const ProductsSection = ({
               pagedProducts.map((p: CompanyProduct) => (
                 <tr
                   key={p.id}
-                  className="border-t border-border align-top"
+                  className="border-t border-border align-top odd:bg-muted/20 hover:bg-muted/40"
                   data-testid={`account-product-row-${p.id}`}
                 >
+
                   <td className="px-3 py-2">
                     <div className="font-medium italic">{p.latinName}</div>
                     <div className="text-xs text-muted-foreground">({p.commercialName})</div>
