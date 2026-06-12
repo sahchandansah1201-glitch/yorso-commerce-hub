@@ -1128,6 +1128,20 @@ const BranchesSection = ({
     });
   }, [branchTypeLabel, profile.branches, query, typeFilter]);
 
+  const countrySuggestions = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const b of profile.branches) {
+      const c = b.country.trim();
+      if (!c) continue;
+      const key = c.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(c);
+    }
+    return out.sort((a, b) => a.localeCompare(b));
+  }, [profile.branches]);
+
   const selectedBranch = selectedBranchId
     ? profile.branches.find((branch) => branch.id === selectedBranchId) ?? null
     : null;
@@ -1244,7 +1258,7 @@ const BranchesSection = ({
           description={t.account_branch_search_desc}
           testId="account-branch-search-panel"
         >
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_220px_auto] lg:items-end">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_180px_auto] sm:items-end">
             <FormRow label={t.account_branch_search_label}>
               <div className="relative">
                 <Search
@@ -1254,7 +1268,7 @@ const BranchesSection = ({
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  className="pl-9"
+                  className="h-9 pl-9"
                   placeholder={t.account_branch_search_placeholder}
                   data-testid="account-branch-search"
                 />
@@ -1262,7 +1276,7 @@ const BranchesSection = ({
             </FormRow>
             <FormRow label={t.account_branch_type_filter_label}>
               <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={typeFilter}
                 onChange={(event) =>
                   setTypeFilter(event.target.value as CompanyBranch["type"] | "all")
@@ -1280,9 +1294,11 @@ const BranchesSection = ({
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={resetFilters}
               disabled={!query && typeFilter === "all"}
               data-testid="account-branch-search-clear"
+              className="h-9"
             >
               <X className="mr-2 h-4 w-4" aria-hidden />
               {t.account_action_reset}
@@ -1301,85 +1317,115 @@ const BranchesSection = ({
           description={t.account_branch_form_desc}
           testId="account-branch-form"
         >
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <FormRow label={t.account_branch_field_name} required error={errors.name}>
-              <Input
-                value={draft.name}
-                onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                data-testid="account-branch-name"
-              />
-            </FormRow>
-            <FormRow label={t.account_branch_field_type}>
-              <select
-                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={draft.type}
-                onChange={(e) =>
-                  setDraft({ ...draft, type: e.target.value as CompanyBranch["type"] })
-                }
-                data-testid="account-branch-type"
-              >
-                {BRANCH_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {branchTypeLabel[type]}
-                  </option>
+          <div className="space-y-5">
+            <fieldset className="space-y-3">
+              <legend className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {t.account_branch_form_section_identity}
+              </legend>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <FormRow label={t.account_branch_field_name} required error={errors.name}>
+                  <Input
+                    value={draft.name}
+                    onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                    data-testid="account-branch-name"
+                  />
+                </FormRow>
+                <FormRow label={t.account_branch_field_type}>
+                  <select
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={draft.type}
+                    onChange={(e) =>
+                      setDraft({ ...draft, type: e.target.value as CompanyBranch["type"] })
+                    }
+                    data-testid="account-branch-type"
+                  >
+                    {BRANCH_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {branchTypeLabel[type]}
+                      </option>
+                    ))}
+                  </select>
+                </FormRow>
+              </div>
+            </fieldset>
+            <fieldset className="space-y-3">
+              <legend className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {t.account_branch_form_section_address}
+              </legend>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <FormRow label={t.account_company_country} required error={errors.country}>
+                  <Input
+                    value={draft.country}
+                    onChange={(e) => setDraft({ ...draft, country: e.target.value })}
+                    list="account-branch-country-suggestions"
+                    data-testid="account-branch-country"
+                  />
+                </FormRow>
+                <FormRow label={t.account_branch_field_region}>
+                  <Input
+                    value={draft.region}
+                    onChange={(e) => setDraft({ ...draft, region: e.target.value })}
+                    data-testid="account-branch-region"
+                  />
+                </FormRow>
+                <FormRow label={t.account_branch_field_city} required error={errors.city}>
+                  <Input
+                    value={draft.city}
+                    onChange={(e) => setDraft({ ...draft, city: e.target.value })}
+                    data-testid="account-branch-city"
+                  />
+                </FormRow>
+                <FormRow
+                  label={t.account_branch_field_address}
+                  required
+                  error={errors.addressLine}
+                >
+                  <Input
+                    value={draft.addressLine}
+                    onChange={(e) => setDraft({ ...draft, addressLine: e.target.value })}
+                    data-testid="account-branch-address"
+                  />
+                </FormRow>
+              </div>
+              <datalist id="account-branch-country-suggestions">
+                {countrySuggestions.map((c) => (
+                  <option key={c} value={c} />
                 ))}
-              </select>
-            </FormRow>
-            <FormRow label={t.account_company_country} required error={errors.country}>
-              <Input
-                value={draft.country}
-                onChange={(e) => setDraft({ ...draft, country: e.target.value })}
-                data-testid="account-branch-country"
-              />
-            </FormRow>
-            <FormRow label={t.account_branch_field_region}>
-              <Input
-                value={draft.region}
-                onChange={(e) => setDraft({ ...draft, region: e.target.value })}
-                data-testid="account-branch-region"
-              />
-            </FormRow>
-            <FormRow label={t.account_branch_field_city} required error={errors.city}>
-              <Input
-                value={draft.city}
-                onChange={(e) => setDraft({ ...draft, city: e.target.value })}
-                data-testid="account-branch-city"
-              />
-            </FormRow>
-            <FormRow
-              label={t.account_branch_field_address}
-              required
-              error={errors.addressLine}
-            >
-              <Input
-                value={draft.addressLine}
-                onChange={(e) => setDraft({ ...draft, addressLine: e.target.value })}
-                data-testid="account-branch-address"
-              />
-            </FormRow>
-            <FormRow
-              label={t.account_branch_incoterms}
-              required
-              error={errors.defaultIncoterms}
-            >
-              <Input
-                value={draft.defaultIncoterms}
-                onChange={(e) => setDraft({ ...draft, defaultIncoterms: e.target.value })}
-                data-testid="account-branch-incoterms"
-              />
-            </FormRow>
-            <FormRow
-              label={t.account_branch_pickup}
-              required
-              error={errors.portOrPickupPoint}
-            >
-              <Input
-                value={draft.portOrPickupPoint}
-                onChange={(e) => setDraft({ ...draft, portOrPickupPoint: e.target.value })}
-                data-testid="account-branch-pickup"
-              />
-            </FormRow>
-            <div className="md:col-span-2">
+              </datalist>
+            </fieldset>
+            <fieldset className="space-y-3">
+              <legend className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {t.account_branch_form_section_logistics}
+              </legend>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <FormRow
+                  label={t.account_branch_incoterms}
+                  required
+                  error={errors.defaultIncoterms}
+                >
+                  <Input
+                    value={draft.defaultIncoterms}
+                    onChange={(e) => setDraft({ ...draft, defaultIncoterms: e.target.value })}
+                    data-testid="account-branch-incoterms"
+                  />
+                </FormRow>
+                <FormRow
+                  label={t.account_branch_pickup}
+                  required
+                  error={errors.portOrPickupPoint}
+                >
+                  <Input
+                    value={draft.portOrPickupPoint}
+                    onChange={(e) => setDraft({ ...draft, portOrPickupPoint: e.target.value })}
+                    data-testid="account-branch-pickup"
+                  />
+                </FormRow>
+              </div>
+            </fieldset>
+            <fieldset className="space-y-3">
+              <legend className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {t.account_branch_form_section_notes}
+              </legend>
               <FormRow label={t.account_branch_field_notes} error={errors.notes}>
                 <Textarea
                   value={draft.notes}
@@ -1387,7 +1433,7 @@ const BranchesSection = ({
                   data-testid="account-branch-notes"
                 />
               </FormRow>
-            </div>
+            </fieldset>
           </div>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
             <Button
@@ -1425,63 +1471,89 @@ const BranchesSection = ({
             </Button>
           </AccountSectionCard>
         ) : (
-          visibleBranches.map((b) => (
-            <AccountSectionCard key={b.id} title={b.name} testId={`account-branch-${b.id}`}>
-              <div className="space-y-3">
-                <BranchTypeBadge type={b.type} />
-                <p className="text-sm">
-                  {[b.city, b.region, b.country].filter(Boolean).join(", ")}
-                </p>
-                <p className="text-xs text-muted-foreground">{b.addressLine}</p>
-                <div className="flex flex-wrap gap-3 text-xs">
-                  <span>
-                    <span className="text-muted-foreground">{t.account_branch_incoterms}: </span>
-                    <span className="font-medium">{b.defaultIncoterms}</span>
-                  </span>
-                  <span>
-                    <span className="text-muted-foreground">{t.account_branch_pickup}: </span>
-                    <span className="font-medium">{b.portOrPickupPoint}</span>
-                  </span>
+          visibleBranches.map((b) => {
+            const locationLine = [b.city, b.region, b.country].filter(Boolean).join(", ");
+            return (
+              <AccountSectionCard key={b.id} title={b.name} testId={`account-branch-${b.id}`}>
+                <div className="space-y-3 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <BranchTypeBadge type={b.type} />
+                    {locationLine ? (
+                      <span className="text-sm font-medium text-foreground break-words min-w-0">
+                        {locationLine}
+                      </span>
+                    ) : null}
+                  </div>
+                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs min-w-0">
+                    <div className="min-w-0">
+                      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                        {t.account_branch_incoterms}
+                      </dt>
+                      <dd className="mt-0.5 font-semibold text-foreground break-words">
+                        {b.defaultIncoterms || "—"}
+                      </dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                        {t.account_branch_pickup}
+                      </dt>
+                      <dd className="mt-0.5 font-medium text-foreground break-words">
+                        {b.portOrPickupPoint || "—"}
+                      </dd>
+                    </div>
+                    <div className="col-span-2 min-w-0">
+                      <dt className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                        {t.account_branch_field_address}
+                      </dt>
+                      <dd className="mt-0.5 text-foreground break-words">
+                        {b.addressLine || "—"}
+                      </dd>
+                    </div>
+                  </dl>
+                  {b.notes ? (
+                    <p className="text-xs italic text-muted-foreground break-words">{b.notes}</p>
+                  ) : null}
+                  <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-border/60">
+                    <Button
+                      type="button"
+                      variant={selectedBranchId === b.id ? "secondary" : "default"}
+                      size="sm"
+                      onClick={() => setSelectedBranchId((current) => (current === b.id ? null : b.id))}
+                      data-testid={`account-branch-open-${b.id}`}
+                      className="min-h-11"
+                    >
+                      {selectedBranchId === b.id
+                        ? t.account_branch_details_hide
+                        : t.account_branch_details_open}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => startEdit(b)}
+                      data-testid={`account-branch-edit-${b.id}`}
+                      aria-label={`${t.account_action_edit}: ${b.name}`}
+                      className="min-h-11 min-w-11"
+                    >
+                      <Pencil className="h-4 w-4" aria-hidden />
+                      <span className="sr-only sm:not-sr-only sm:ml-1.5">{t.account_action_edit}</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => void deleteBranch(b.id)}
+                      aria-label={`${t.account_branch_delete}: ${b.name}`}
+                      data-testid={`account-branch-delete-${b.id}`}
+                      className="min-h-11 min-w-11 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden />
+                    </Button>
+                  </div>
                 </div>
-                {b.notes ? (
-                  <p className="text-xs text-muted-foreground italic">{b.notes}</p>
-                ) : null}
-                <div className="flex justify-end gap-2 pt-1">
-                  <Button
-                    type="button"
-                    variant={selectedBranchId === b.id ? "secondary" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedBranchId((current) => (current === b.id ? null : b.id))}
-                    data-testid={`account-branch-open-${b.id}`}
-                  >
-                    {selectedBranchId === b.id
-                      ? t.account_branch_details_hide
-                      : t.account_branch_details_open}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => startEdit(b)}
-                    data-testid={`account-branch-edit-${b.id}`}
-                  >
-                    <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-                    {t.account_action_edit}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => void deleteBranch(b.id)}
-                    aria-label={`${t.account_branch_delete}: ${b.name}`}
-                    data-testid={`account-branch-delete-${b.id}`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                  </Button>
-                </div>
-              </div>
-            </AccountSectionCard>
-          ))
+              </AccountSectionCard>
+            );
+          })
         )}
       </div>
       {selectedBranch ? (
