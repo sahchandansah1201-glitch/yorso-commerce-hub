@@ -55,12 +55,12 @@ export const CompanyMediaCard = ({
       initial={initial}
       onSave={(d) => onSave({ ...company, ...d })}
       renderView={(v) => (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-[140px_minmax(0,1fr)]">
           <div>
             <p className="mb-1 text-[11px] uppercase tracking-wider text-muted-foreground">
               {t.account_company_media_logo}
             </p>
-            <div className="aspect-square w-32 overflow-hidden rounded-md border bg-muted/40">
+            <div className="aspect-square w-28 overflow-hidden rounded-md border bg-muted/40">
               {v.logoImageUrl ? (
                 <img
                   src={resolveMediaSrc(v.logoImageUrl)}
@@ -80,7 +80,10 @@ export const CompanyMediaCard = ({
             <p className="mb-1 text-[11px] uppercase tracking-wider text-muted-foreground">
               {t.account_company_media_cover}
             </p>
-            <div className="aspect-video w-full overflow-hidden rounded-md border bg-muted/40">
+            <div
+              className="w-full overflow-hidden rounded-md border bg-muted/40"
+              style={{ aspectRatio: "5 / 2" }}
+            >
               {v.coverImageUrl ? (
                 <img
                   src={resolveMediaSrc(v.coverImageUrl)}
