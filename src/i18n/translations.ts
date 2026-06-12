@@ -3617,6 +3617,8 @@ const en: TranslationKeys = {
   account_branch_form_section_address: "Address",
   account_branch_form_section_logistics: "Logistics",
   account_branch_form_section_notes: "Notes",
+  account_country_combobox_placeholder: "Country, ISO or phone code",
+  account_country_combobox_hint: "Type to search; ↑↓ to navigate, Enter to select.",
   account_products_title: "Product matrix",
   account_products_desc: "Products you buy and sell.",
   account_products_matchingExplainer: "Products power buyer-supplier matching and catalog recommendations.",
