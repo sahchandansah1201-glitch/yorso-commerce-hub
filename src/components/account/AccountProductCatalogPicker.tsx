@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -23,12 +23,6 @@ const normalize = (s: string) =>
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "");
 
-/**
- * Returns the localized alias that actually matched the user's query,
- * but only when it differs from both the Latin name and the active-locale
- * commercial name. Used to disclose which alias caused the hit without
- * replacing the Latin-first identity.
- */
 const matchedAlias = (
   item: CatalogItem,
   query: string,
@@ -46,17 +40,23 @@ const matchedAlias = (
 };
 
 /**
- * Compact catalog picker used inside the product editing form.
- * Single text input + listbox (no nested interactive controls).
- * Latin name is the primary identity; commercial name is secondary.
- * Matching alias (if different from the active locale) is shown muted.
+ * Combobox/listbox catalog picker with full keyboard a11y:
+ *   ArrowDown/Up — move active option
+ *   Enter        — select active option
+ *   Escape       — close listbox
+ * Latin-first identity, ranked results, no nested interactive controls.
  */
 export const AccountProductCatalogPicker = ({ onSelect, selected }: Props) => {
   const { lang, t } = useLanguage();
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const reactId = useId();
+  const listboxId = `account-product-catalog-listbox-${reactId.replace(/:/g, "")}`;
+  const optionId = (id: string) => `${listboxId}-opt-${id}`;
 
   useEffect(() => {
     let alive = true;
@@ -76,16 +76,69 @@ export const AccountProductCatalogPicker = ({ onSelect, selected }: Props) => {
     return () => document.removeEventListener("mousedown", onDown);
   }, []);
 
-  const results = useMemo(() => searchCatalog(items, query, 25), [items, query]);
+  const results = useMemo(
+    () => searchCatalog(items, query, 25, lang),
+    [items, query, lang],
+  );
+
+  // Reset active index when result set changes
+  useEffect(() => {
+    setActiveIndex(results.length > 0 ? 0 : -1);
+  }, [results]);
+
+  // Scroll active option into view
+  useEffect(() => {
+    if (!open || activeIndex < 0) return;
+    const el = listRef.current?.querySelector<HTMLLIElement>(
+      `[data-option-index="${activeIndex}"]`,
+    );
+    el?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex, open]);
 
   const label = t.account_product_catalog_picker_label;
   const hasSelected = Boolean(selected?.latinName && selected.latinName.trim());
+  const listOpen = open && (query.length > 0 || results.length > 0);
+  const activeId =
+    listOpen && activeIndex >= 0 && results[activeIndex]
+      ? optionId(results[activeIndex].id)
+      : undefined;
 
   const select = (item: CatalogItem) => {
     const commercialName = localizedName(item, lang);
     onSelect({ commercialName, latinName: item.latin });
     setQuery(`${item.latin} (${commercialName})`);
     setOpen(false);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!open) setOpen(true);
+      if (results.length === 0) return;
+      setActiveIndex((i) => (i + 1) % results.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!open) setOpen(true);
+      if (results.length === 0) return;
+      setActiveIndex((i) => (i <= 0 ? results.length - 1 : i - 1));
+    } else if (e.key === "Enter") {
+      if (listOpen && activeIndex >= 0 && results[activeIndex]) {
+        e.preventDefault();
+        select(results[activeIndex]);
+      }
+    } else if (e.key === "Escape") {
+      if (open) {
+        e.preventDefault();
+        setOpen(false);
+        setActiveIndex(-1);
+      }
+    } else if (e.key === "Home" && open && results.length > 0) {
+      e.preventDefault();
+      setActiveIndex(0);
+    } else if (e.key === "End" && open && results.length > 0) {
+      e.preventDefault();
+      setActiveIndex(results.length - 1);
+    }
   };
 
   return (
@@ -97,6 +150,11 @@ export const AccountProductCatalogPicker = ({ onSelect, selected }: Props) => {
         id="account-product-catalog-search"
         type="search"
         autoComplete="off"
+        role="combobox"
+        aria-expanded={listOpen}
+        aria-controls={listboxId}
+        aria-autocomplete="list"
+        aria-activedescendant={activeId}
         value={query}
         placeholder={t.account_product_catalog_picker_placeholder}
         onChange={(e) => {
@@ -104,12 +162,10 @@ export const AccountProductCatalogPicker = ({ onSelect, selected }: Props) => {
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
+        onKeyDown={onKeyDown}
         data-testid="account-product-catalog-search"
-        className="mt-1"
+        className="mt-1 min-h-[44px]"
       />
-      <p className="mt-1 text-xs text-muted-foreground">
-        {t.account_product_catalog_picker_placeholder}
-      </p>
 
       {hasSelected ? (
         <div
@@ -136,8 +192,10 @@ export const AccountProductCatalogPicker = ({ onSelect, selected }: Props) => {
         </div>
       ) : null}
 
-      {open && (query || results.length > 0) ? (
+      {listOpen ? (
         <ul
+          ref={listRef}
+          id={listboxId}
           role="listbox"
           aria-label={label}
           data-testid="account-product-catalog-results"
@@ -147,6 +205,7 @@ export const AccountProductCatalogPicker = ({ onSelect, selected }: Props) => {
             <li
               data-testid="account-product-catalog-empty"
               className="px-3 py-2"
+              role="presentation"
             >
               <div className="text-foreground">
                 {t.account_product_catalog_picker_empty}
@@ -156,33 +215,35 @@ export const AccountProductCatalogPicker = ({ onSelect, selected }: Props) => {
               </div>
             </li>
           ) : (
-            results.map((item) => {
+            results.map((item, i) => {
               const commercialName = localizedName(item, lang);
               const alias = matchedAlias(item, query, commercialName);
+              const isActive = i === activeIndex;
               return (
                 <li
                   key={item.id}
+                  id={optionId(item.id)}
                   role="option"
-                  aria-selected={false}
-                  tabIndex={0}
+                  aria-selected={isActive}
+                  data-option-index={i}
                   data-testid={`account-product-catalog-option-${item.id}`}
-                  onClick={() => select(item)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      select(item);
-                    }
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    select(item);
                   }}
-                  className="cursor-pointer rounded px-3 py-2 min-h-[44px] hover:bg-accent focus:bg-accent focus:outline-none"
+                  onMouseEnter={() => setActiveIndex(i)}
+                  className={`cursor-pointer rounded px-3 py-2 min-h-[44px] ${
+                    isActive ? "bg-accent" : ""
+                  }`}
                 >
-                  <div className="font-medium italic text-foreground">
+                  <div className="font-medium italic text-foreground break-words">
                     {item.latin}
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-muted-foreground break-words">
                     ({commercialName})
                   </div>
                   {alias ? (
-                    <div className="text-[11px] text-muted-foreground/80">
+                    <div className="text-[11px] text-muted-foreground/80 break-words">
                       {t.account_product_catalog_picker_alias_label}: {alias}
                     </div>
                   ) : null}
