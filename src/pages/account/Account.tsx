@@ -1129,19 +1129,6 @@ const BranchesSection = ({
     });
   }, [branchTypeLabel, profile.branches, query, typeFilter]);
 
-  const countrySuggestions = useMemo(() => {
-    const seen = new Set<string>();
-    const out: string[] = [];
-    for (const b of profile.branches) {
-      const c = b.country.trim();
-      if (!c) continue;
-      const key = c.toLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push(c);
-    }
-    return out.sort((a, b) => a.localeCompare(b));
-  }, [profile.branches]);
 
   const selectedBranch = selectedBranchId
     ? profile.branches.find((branch) => branch.id === selectedBranchId) ?? null
