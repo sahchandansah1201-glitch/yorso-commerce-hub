@@ -47,7 +47,6 @@ test("P1F screenshots and programmatic checks", async ({ page }) => {
 
   // exercise combobox keyboard a11y
   await page.getByTestId("account-branch-country").fill("Spa");
-  await page.getByTestId("account-branch-country").press("ArrowDown");
   await page.getByTestId("account-branch-country").press("Enter");
   await expect(page.getByTestId("account-branch-country")).toHaveValue("Spain");
   await page.screenshot({
