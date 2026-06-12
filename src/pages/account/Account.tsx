@@ -2569,9 +2569,10 @@ const ProductsSection = ({
               pagedProducts.map((p: CompanyProduct) => (
                 <tr
                   key={p.id}
-                  className="border-t border-border align-top"
+                  className="border-t border-border align-top odd:bg-muted/20 hover:bg-muted/40"
                   data-testid={`account-product-row-${p.id}`}
                 >
+
                   <td className="px-3 py-2">
                     <div className="font-medium italic">{p.latinName}</div>
                     <div className="text-xs text-muted-foreground">({p.commercialName})</div>
