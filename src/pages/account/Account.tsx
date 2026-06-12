@@ -1387,11 +1387,6 @@ const BranchesSection = ({
                   />
                 </FormRow>
               </div>
-              <datalist id="account-branch-country-suggestions">
-                {countrySuggestions.map((c) => (
-                  <option key={c} value={c} />
-                ))}
-              </datalist>
             </fieldset>
             <fieldset className="space-y-3">
               <legend className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
