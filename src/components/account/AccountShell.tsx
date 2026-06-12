@@ -67,8 +67,8 @@ export const AccountShell = ({
           <p className="text-sm text-muted-foreground">{t.account_workspace_subtitle}</p>
         </div>
 
-        {/* Mobile section tabs — sticky so the user can switch разделы без скролла наверх */}
-        <div className="sticky top-[64px] z-20 -mx-4 mb-4 border-b border-border/60 bg-background/95 px-4 pt-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 lg:hidden">
+        {/* Mobile section tabs — статичные, чтобы не перекрывать поля формы при скролле */}
+        <div className="mb-6 border-b border-border/60 pb-3 lg:hidden" data-testid="account-mobile-nav">
           <AccountSidebar active={active} variant="chips" />
         </div>
 
