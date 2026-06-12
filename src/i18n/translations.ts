@@ -1758,6 +1758,11 @@ type TranslationKeys = {
   account_metaRegion_field_currency: string;
   account_metaRegion_field_notes: string;
   account_metaRegion_field_usedFor: string;
+  account_metaRegion_add_country: string;
+  account_metaRegion_selected_countries: string;
+  account_metaRegion_no_countries: string;
+  account_metaRegion_remove_country: string;
+  account_metaRegion_duplicate_country: string;
   account_notifications_title: string;
   account_notifications_desc: string;
   account_notifications_disclaimer: string;
