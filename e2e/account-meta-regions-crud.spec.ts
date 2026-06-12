@@ -42,10 +42,12 @@ const expectStorageContains = async (page: Page, expected: string) => {
 
 const addCountry = async (page: Page, name: string) => {
   const combo = page.getByTestId("account-meta-country-combobox");
+  await combo.click();
   await combo.fill(name);
   // Combobox auto-adds when the typed value exactly matches a catalog name
   // (lookup is by localized EN/RU/ES name or ISO alpha-2/alpha-3).
-  await combo.evaluate((el) => (el as HTMLInputElement).blur());
+  // Close the listbox so subsequent clicks (e.g. Save) are not intercepted.
+  await page.keyboard.press("Escape");
   await expect(page.getByTestId("account-meta-selected-countries")).toContainText(name);
 };
 
