@@ -681,12 +681,19 @@ const CompanySection = ({
         }}
         onSave={saveCompany}
         renderView={(v) => (
-          <div className="space-y-6" data-field-group-root>
+          <div className="space-y-5" data-field-group-root>
             <FieldGroup title={t.account_group_identity}>
               <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label={t.account_company_legalName} value={v.legalName} />
-                <Field label={t.account_company_tradeName} value={v.tradeName} />
-                <Field label={t.account_company_role} value={accountRoleLabel(v.accountRole, t)} />
+                <div className="space-y-1">
+                  <dt className="text-xs text-muted-foreground">{t.account_company_tradeName}</dt>
+                  <dd className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-foreground">{v.tradeName || "—"}</span>
+                    <Badge variant="outline" className="text-[11px] font-normal">
+                      {accountRoleLabel(v.accountRole, t)}
+                    </Badge>
+                  </dd>
+                </div>
                 <Field label={t.account_company_website} value={v.website} />
               </dl>
             </FieldGroup>
@@ -955,18 +962,40 @@ const CompanySection = ({
         testId="account-card-company-publication"
         initial={c}
         onSave={saveCompany}
-        renderView={(v) => (
-          <div className="space-y-1 text-sm">
-            <p>
-              <span className="text-muted-foreground">{t.account_company_publication_status}: </span>
-              <span className="font-medium">{pub[v.supplierPublicationStatus]}</span>
-            </p>
-            <p>
-              <span className="text-muted-foreground">{t.account_company_qualification_status}: </span>
-              <span className="font-medium">{qual[v.buyerQualificationStatus]}</span>
-            </p>
-          </div>
-        )}
+        renderView={(v) => {
+          const pubVariant: "default" | "secondary" | "outline" =
+            v.supplierPublicationStatus === "published"
+              ? "default"
+              : v.supplierPublicationStatus === "ready_for_review"
+                ? "secondary"
+                : "outline";
+          const qualVariant: "default" | "secondary" | "outline" =
+            v.buyerQualificationStatus === "qualified"
+              ? "default"
+              : v.buyerQualificationStatus === "ready"
+                ? "secondary"
+                : "outline";
+          return (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">
+                  {t.account_company_publication_status}
+                </p>
+                <Badge variant={pubVariant} className="text-xs">
+                  {pub[v.supplierPublicationStatus]}
+                </Badge>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">
+                  {t.account_company_qualification_status}
+                </p>
+                <Badge variant={qualVariant} className="text-xs">
+                  {qual[v.buyerQualificationStatus]}
+                </Badge>
+              </div>
+            </div>
+          );
+        }}
         renderEdit={({ draft, setDraft }) => (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormRow label={t.account_company_publication_status}>

@@ -22,7 +22,10 @@ export const SupplierProfilePreview = ({
       </CardHeader>
       <CardContent>
         <div className="overflow-hidden rounded-lg border">
-          <div className="relative aspect-video w-full bg-muted/40">
+          <div
+            className="relative w-full bg-muted/40"
+            style={{ aspectRatio: "5 / 2" }}
+          >
             {company.coverImageUrl ? (
               <img
                 src={resolveMediaSrc(company.coverImageUrl)}
@@ -38,8 +41,8 @@ export const SupplierProfilePreview = ({
             )}
           </div>
           <div className="p-4">
-            <div className="-mt-12 mb-3 flex items-end gap-3">
-              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border bg-card">
+            <div className="-mt-8 mb-3 flex items-end gap-3">
+              <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border bg-card">
                 {company.logoImageUrl ? (
                   <img
                     src={resolveMediaSrc(company.logoImageUrl)}
@@ -55,7 +58,7 @@ export const SupplierProfilePreview = ({
                 )}
               </div>
               <div className="min-w-0">
-                <h3 className="truncate font-heading text-lg font-semibold">
+                <h3 className="truncate font-heading text-base font-semibold">
                   {company.tradeName || t.account_value_notSpecified}
                 </h3>
                 <p className="text-xs text-muted-foreground">
