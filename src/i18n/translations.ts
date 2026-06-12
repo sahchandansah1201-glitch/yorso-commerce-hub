@@ -7631,7 +7631,7 @@ const es: TranslationKeys = {
   account_metaRegion_empty_desc: "Crea un grupo de países para reutilizarlo en matching, alertas y lógica de coste en destino.",
   account_metaRegion_form_title_add: "Añadir meta-región",
   account_metaRegion_form_title_edit: "Editar meta-región",
-  account_metaRegion_form_desc: "Agrupa países por la misma regla logística o comercial. Usa nombres separados por coma.",
+  account_metaRegion_form_desc: "Nombra una región y añade países.",
   account_metaRegion_field_name: "Nombre de región",
   account_metaRegion_field_countries: "Países",
   account_metaRegion_field_currency: "Moneda predeterminada",
