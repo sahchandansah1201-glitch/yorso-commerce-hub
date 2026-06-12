@@ -1700,31 +1700,30 @@ const ProductMobileCard = ({
   t: ReturnType<typeof useLanguage>["t"];
 }) => (
   <article
-    className="rounded-lg border border-border bg-card p-4 shadow-sm"
+    className="min-w-0 rounded-lg border border-border bg-card p-4 shadow-sm"
     data-testid={`account-product-mobile-card-${product.id}`}
   >
-    <div className="space-y-1">
-      <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-        {t.account_product_col_product}
-      </p>
-      <h3 className="text-base font-semibold leading-snug text-foreground">
+    <div className="min-w-0 space-y-0.5">
+      <h3 className="break-words text-base font-semibold leading-snug text-foreground">
         <span className="italic">{product.latinName}</span>
       </h3>
-      <p className="text-sm leading-snug text-muted-foreground">({product.commercialName})</p>
+      <p className="break-words text-sm leading-snug text-muted-foreground">
+        ({product.commercialName})
+      </p>
       {product.format ? (
-        <p className="text-sm leading-snug text-muted-foreground">{product.format}</p>
+        <p className="break-words text-xs leading-snug text-muted-foreground">{product.format}</p>
       ) : null}
     </div>
 
-    <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-3 border-t border-border/60 pt-3">
       <ProductMobileField label={t.account_product_col_state}>
-        {productStateLabel(product.state, t)}
+        <span className="break-words">{productStateLabel(product.state, t)}</span>
       </ProductMobileField>
       <ProductMobileField label={t.account_product_col_role}>
         <ProductRoleBadge role={product.role} />
       </ProductMobileField>
       <ProductMobileField label={t.account_product_col_volume}>
-        {product.monthlyVolume}
+        <span className="break-words">{product.monthlyVolume}</span>
       </ProductMobileField>
       <ProductMobileField label={t.account_product_col_certs}>
         {product.certificates.length ? (
@@ -1739,21 +1738,25 @@ const ProductMobileCard = ({
           <span className="text-muted-foreground">{t.account_value_notSpecified}</span>
         )}
       </ProductMobileField>
-      <ProductMobileField label={t.account_product_col_targets}>
-        <span className="break-words text-muted-foreground">
+      <div className="col-span-2 min-w-0">
+        <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          {t.account_product_col_targets}
+        </p>
+        <p className="mt-1 break-words text-sm text-foreground">
           {product.targetCountries.length
             ? product.targetCountries.join(", ")
             : t.account_value_notSpecified}
-        </span>
-      </ProductMobileField>
+        </p>
+      </div>
     </div>
 
-    <div className="mt-4 grid grid-cols-1 gap-2 border-t border-border pt-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+    <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
       <Button
         type="button"
         variant={isSelected ? "secondary" : "outline"}
         onClick={onToggleDetails}
-        className="min-h-11 justify-center"
+        size="sm"
+        className="min-h-11 flex-1 justify-center"
         data-testid={`account-product-mobile-open-${product.id}`}
       >
         {isSelected ? t.account_product_details_hide : t.account_product_details_open}
@@ -1762,22 +1765,25 @@ const ProductMobileCard = ({
         type="button"
         variant="outline"
         onClick={onEdit}
-        className="min-h-11 justify-center"
+        size="sm"
+        className="min-h-11 min-w-11 justify-center px-3"
+        aria-label={`${t.account_action_edit}: ${productTaxonomyDisplay(product)}`}
         data-testid={`account-product-mobile-edit-${product.id}`}
       >
-        <Pencil className="mr-2 h-4 w-4" aria-hidden />
-        {t.account_action_edit}
+        <Pencil className="h-4 w-4" aria-hidden />
+        <span className="sr-only">{t.account_action_edit}</span>
       </Button>
       <Button
         type="button"
         variant="ghost"
         onClick={onDelete}
-        className="min-h-11 justify-center"
+        size="sm"
+        className="min-h-11 min-w-11 justify-center px-3 text-destructive hover:text-destructive"
         aria-label={`${t.account_product_delete}: ${productTaxonomyDisplay(product)}`}
         data-testid={`account-product-mobile-delete-${product.id}`}
       >
-        <Trash2 className="mr-2 h-4 w-4" aria-hidden />
-        {t.account_product_delete}
+        <Trash2 className="h-4 w-4" aria-hidden />
+        <span className="sr-only">{t.account_product_delete}</span>
       </Button>
     </div>
   </article>
