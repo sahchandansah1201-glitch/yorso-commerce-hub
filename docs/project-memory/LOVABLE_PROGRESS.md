@@ -1,6 +1,6 @@
 # План/факт по Lovable prompt и ответам
 
-Обновлено: 2026-06-11
+Обновлено: 2026-06-12
 
 ## Назначение
 
@@ -24,6 +24,53 @@
   `План`, `Факт / проверено`, `Будет реализовано`, `Статус точности`.
 
 ## Таблица прогресса
+
+## Закрытие серии Prompt 0-6 / P1A-P1B
+
+Серия закрыта по факту GitHub `main` на `dcc15b22` и локальной проверки в
+`/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`.
+
+| Prompt / scope | Решение | Факт / проверено | Статус |
+|---|---|---|---|
+| Prompt 0 — Plan First For P0/P1/P2 | Принять как planning artifact, не как реализацию. | План был передан пользователем скриншотом; кодовых изменений по Prompt 0 не ожидалось. | Закрыт как planning-only. |
+| Prompt 1 — P0A Account Primitives And Routes | Принять. | Локально подтверждены `src/components/account/AccountShell.tsx`, `AccountSidebar.tsx`, `AccountActionBar.tsx`, `AccountEmptyState.tsx`, `AccountField.tsx`, `AccountCompletionCard.tsx`; маршруты `/account` -> `/account/personal` и `/account/:section` есть в `src/App.tsx`. | Закрыт. |
+| Prompt 2 — P0B Personal Read/Edit Mode | Принять как уже покрытый существующей реализацией. | Локально подтверждены `EditableCard` и `PersonalSection` в `src/pages/account/Account.tsx`; read/edit значения рендерятся через `renderView`/`renderEdit`; тестовые файлы `Account.test.tsx` и `Account.editable.test.tsx` присутствуют. | Закрыт. |
+| Prompt 3 — P1A Products Tab MVP | Не принимать исходный P1A как полный результат; принять только после follow-up. | Исходный отчёт Lovable сам фиксировал незакрытое: workbook не был подключён, mobile row-cards и delete confirm требовали follow-up. Позже закрыто через P1A.1, P1A.2, P1A.3 и P1B. | Закрыт через follow-up batch-и. |
+| P1A.1 — Products Mobile Scanability | Принять. | Локально подтверждены `account-products-mobile-cards`, desktop table remains md+, mobile cards use existing handlers; e2e `/account/products` позже прошёл 20/20. | Закрыт. |
+| P1A.2 — Products Delete Confirmation | Принять. | Локально подтверждён `pendingDeleteProduct`, dialog `account-product-delete-confirm`, cancel/confirm flows; `e2e/account-products-crud.spec.ts` покрывает desktop/mobile delete. | Закрыт. |
+| P1A.3 — Products Latin-first Identity | Принять. | Локально подтверждён picker hookup, `productTaxonomyDisplay`, Latin-first table/cards/detail/delete, `searchCatalog` и catalog test; `e2e/account-products-crud.spec.ts` прошёл 20/20. | Закрыт. |
+| P1B — Products Picker Usability & Search Confidence | Принять. | Локально подтверждён `dcc15b22`: `AccountProductCatalogPicker` показывает Latin-first results, selected summary, empty state; `npm test` focused 11/11, `check:provider-boundary`, `tsc`, `build`, Playwright e2e 20/20, desktop/mobile screenshots via Playwright. | Закрыт. |
+| Prompt 4 — Sticky mobile account nav chips | Принять. | Локально подтверждено: `AccountShell` рендерит sticky mobile chips; `AccountSidebar` uses real `NavLink`, `min-h-11`, `scrollIntoView` guard. | Закрыт. |
+| Prompt 5 — P2A Home Overflow Fix | Принять. | Локально подтверждено: `src/index.css` содержит `overflow-x: clip`; `MarketplaceActivity.tsx` содержит `min-w-0 flex-1 break-words`. | Закрыт. |
+| Prompt 6 — P2B Steering Dashboard Density Cleanup | Оставить skipped/deferred. | Локально подтверждено: в этом repo нет `/agents` route и `src/components/steering/agent-directory.tsx`; prompt был не применим к `yorso-commerce-hub`. | Закрыт как skipped/deferred. |
+
+### Ошибки и drift, обнаруженные в серии
+
+| Проблема | Факт | Решение |
+|---|---|---|
+| Lovable путал актуальный HEAD | В P1B отчёте был указан `HEAD: 4c43ef0b`, фактический GitHub после sync был `dcc15b22`. | Принимать Lovable отчёт только после `git fetch`, сравнения `HEAD/origin/main` и локальных checks. |
+| Supabase scaffold возвращался автоматически | Несколько sync-коммитов возвращали `src/integrations/supabase/*` и `supabase/config.toml`, несмотря на отчёты Lovable “provider-free clean”. | Зафиксировано в `.gitignore`; `provider-free-tooling-retirement.test.ts` проверяет retired path guards; `check:provider-boundary` обязателен перед принятием sync. |
+| P1A исходно был неполным | Workbook-backed picker, mobile cards и delete confirm не были закрыты первым ответом Lovable. | Закрыто отдельными scoped batch: P1A.1, P1A.2, P1A.3, P1B. |
+| Browser MCP нестабилен | Browser MCP падал с `Transport closed`. | Browser MCP исключён из acceptance gates; замена: Playwright e2e/scripts/screenshots + overflow metrics. |
+
+### Обязательный sync-gate для следующих Lovable batch
+
+1. `git fetch origin`.
+2. Сравнить `HEAD` и `origin/main`.
+3. Проверить `git diff --name-status HEAD..origin/main` до pull.
+4. После pull проверить:
+   - `src/integrations/supabase/` отсутствует;
+   - `supabase/` отсутствует;
+   - `@supabase/supabase-js` отсутствует в package/lockfiles.
+5. Запустить минимум:
+   - `npm run check:provider-boundary`;
+   - focused tests по изменённому scope;
+   - `npx tsc -b --noEmit` при TS/UI logic изменениях;
+   - `npm run build`.
+6. Для UI scope использовать Playwright, а не Browser MCP:
+   - desktop screenshot;
+   - mobile `390x844` screenshot;
+   - `document.body.scrollWidth <= document.documentElement.clientWidth`.
 
 | Дата | Batch / prompt | Источник ответа Lovable | План | Факт / проверено | Будет реализовано | Статус точности |
 |---|---|---|---|---|---|---|

@@ -2,22 +2,20 @@
 
 ## Current Next Action
 
-P1A.3 Products catalog picker hookup and delete copy cleanup is the active
+P1B Products picker usability and search confidence is the latest accepted
 frontend checkpoint.
 
-This is a frontend-only account workspace checkpoint over `/account/products`:
+This was a frontend-only account workspace checkpoint over `/account/products`:
 
-- the workbook-backed product catalog picker must be visible in the add/edit
-  product form;
-- searching by commercial/localized or Latin product name must show Latin name
-  first with the commercial name in parentheses, then fill both structured
-  fields from the static catalog JSON;
-- visible product identities in the product matrix must also use
-  `Latin (commercial)` so the user learns the canonical product taxonomy while
-  scanning rows/cards;
-- product delete confirmation copy must stay short and unambiguous;
+- product catalog picker results show Latin name as the primary identity and
+  commercial/localized name as secondary context;
+- the add/edit form shows a selected-product summary from the current draft;
+- helper and no-results copy are short and unambiguous;
+- the workflow keeps `commercialName` and `latinName` as separate structured
+  fields and continues to render visible product identities as
+  `Latin (commercial)`;
 - no backend, storage, auth, supplier access, catalog source or hosted provider
-  behavior is added.
+  behavior was added.
 
 ## План / факт
 
@@ -28,15 +26,36 @@ This is a frontend-only account workspace checkpoint over `/account/products`:
 | Commercial search | Поиск по коммерческому/локализованному названию должен находить Latin name. | `searchCatalog` ищет по `latin`, `en`, `es`, `ru`, `fr`, `cn`, `de`; unit test покрывает EN и RU. | Позже улучшить ranking/keyboard combobox, если понадобится. |
 | Delete copy | Уменьшить поясняющий текст в delete dialog. | Title/description сокращены в EN/RU/ES; e2e проверяет отсутствие старого длинного RU текста. | Сохранять structured context: product identity, role, state. |
 | Provider-free guard | Не возвращать Supabase scaffold. | Изменения не добавляют backend/provider runtime. | В каждом Lovable sync проверять provider-free tests. |
+| Visual QA | Проверять реальный UI без Browser MCP, так как transport нестабилен. | Browser MCP исключён из обязательного процесса; основной путь — Playwright tests/scripts/screenshots. | Сохранять screenshots в `output/playwright/` и указывать overflow result. |
 
-## Next Implementation After P1A.3
+## Next Implementation After Series Closure
 
-Recommended next scoped implementation after Lovable confirms sync:
+Recommended next scoped implementation after closing Prompt 0-6 / P1B:
 
-1. verify `/account/products` in Lovable after GitHub sync;
-2. decide whether the product picker needs full ARIA combobox keyboard
-   navigation and result ranking;
-3. decide whether product delete needs undo/toast feedback.
+1. P1C Products Picker Keyboard/A11y & Ranking:
+   - make the picker behave as a proper keyboard-accessible combobox/listbox;
+   - support ArrowDown, ArrowUp, Enter and Escape;
+   - add/verify `aria-expanded`, `aria-activedescendant`, option ids and active
+     option state;
+   - improve ranking so exact Latin matches come first, then exact commercial
+     matches, then localized partial matches;
+   - keep the current `Latin (commercial)` identity and selected summary.
+2. Later optional scope: product delete undo/toast feedback.
+
+## Testing Protocol
+
+- Do not use Browser MCP as an acceptance gate for Yorso UI work unless the
+  user explicitly asks for it in that turn.
+- Primary replacement: Playwright project e2e tests, route-specific Playwright
+  scripts and Playwright screenshots.
+- For visual UI checks, capture at least desktop and 390px mobile screenshots
+  under `output/playwright/` when the change affects rendered layout.
+- For mobile scanability, record:
+  `document.body.scrollWidth <= document.documentElement.clientWidth`.
+- For interaction quality, keep checking nested controls:
+  `a button`, `button a`, `a a`, `button button`.
+- If a route needs a signed-in session, use the same localStorage/sessionStorage
+  setup as the relevant e2e spec instead of relying on manual browser state.
 
 ## Guardrails To Preserve
 

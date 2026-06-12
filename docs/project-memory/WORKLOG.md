@@ -2,6 +2,23 @@
 
 Keep this file factual and append-only.
 
+## 2026-06-12
+
+- Accepted P1B Products picker usability checkpoint after local verification on
+  `dcc15b22`: provider boundary passed, focused Vitest policy/catalog tests
+  passed, `npx tsc -b --noEmit` passed, `npm run build` passed, and
+  `E2E_USE_WEB_SERVER=1 npx playwright test e2e/account-products-crud.spec.ts
+  --project=chromium` passed 20/20.
+- Browser MCP transport was unstable (`Transport closed`) and is no longer an
+  acceptance gate for Yorso UI work. Primary UI verification path is Playwright
+  e2e/scripts/screenshots, with desktop and 390px mobile screenshots for visual
+  changes.
+- Closed the Lovable Prompt 0-6 / P1A-P1B series in
+  `docs/project-memory/LOVABLE_PROGRESS.md` against GitHub facts. Prompt 6
+  remains skipped/deferred because `/agents` and `src/components/steering/*`
+  are not present in `yorso-commerce-hub`. Next recommended scope is P1C
+  Products Picker Keyboard/A11y & Ranking.
+
 ## 2026-05-17
 
 - Created project-memory black box for `yorso-commerce-hub`.
