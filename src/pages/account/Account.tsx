@@ -681,12 +681,19 @@ const CompanySection = ({
         }}
         onSave={saveCompany}
         renderView={(v) => (
-          <div className="space-y-6" data-field-group-root>
+          <div className="space-y-5" data-field-group-root>
             <FieldGroup title={t.account_group_identity}>
               <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label={t.account_company_legalName} value={v.legalName} />
-                <Field label={t.account_company_tradeName} value={v.tradeName} />
-                <Field label={t.account_company_role} value={accountRoleLabel(v.accountRole, t)} />
+                <div className="space-y-1">
+                  <dt className="text-xs text-muted-foreground">{t.account_company_tradeName}</dt>
+                  <dd className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium text-foreground">{v.tradeName || "—"}</span>
+                    <Badge variant="outline" className="text-[11px] font-normal">
+                      {accountRoleLabel(v.accountRole, t)}
+                    </Badge>
+                  </dd>
+                </div>
                 <Field label={t.account_company_website} value={v.website} />
               </dl>
             </FieldGroup>
