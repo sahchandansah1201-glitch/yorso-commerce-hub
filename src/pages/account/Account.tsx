@@ -1355,10 +1355,9 @@ const BranchesSection = ({
               </legend>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <FormRow label={t.account_company_country} required error={errors.country}>
-                  <Input
+                  <AccountCountryCombobox
                     value={draft.country}
-                    onChange={(e) => setDraft({ ...draft, country: e.target.value })}
-                    list="account-branch-country-suggestions"
+                    onChange={(value) => setDraft({ ...draft, country: value })}
                     data-testid="account-branch-country"
                   />
                 </FormRow>
