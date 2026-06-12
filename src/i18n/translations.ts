@@ -1718,6 +1718,9 @@ type TranslationKeys = {
   account_product_catalog_picker_label: string;
   account_product_catalog_picker_placeholder: string;
   account_product_catalog_picker_empty: string;
+  account_product_catalog_picker_empty_hint: string;
+  account_product_catalog_picker_selected_label: string;
+  account_product_catalog_picker_alias_label: string;
   account_product_field_category: string;
   account_product_field_format: string;
   account_product_role_buying: string;
@@ -3670,8 +3673,11 @@ const en: TranslationKeys = {
   account_product_form_title_edit: "Edit product",
   account_product_form_desc: "Keep product names, states, volume and target markets structured for matching.",
   account_product_catalog_picker_label: "Product catalog",
-  account_product_catalog_picker_placeholder: "Search by commercial or Latin name",
-  account_product_catalog_picker_empty: "No catalog matches",
+  account_product_catalog_picker_placeholder: "Search by Latin or commercial name.",
+  account_product_catalog_picker_empty: "No catalog match found.",
+  account_product_catalog_picker_empty_hint: "Try Latin name or commercial name.",
+  account_product_catalog_picker_selected_label: "Selected product",
+  account_product_catalog_picker_alias_label: "alias",
   account_product_field_category: "Category",
   account_product_field_format: "Format / cut",
   account_product_role_buying: "Buying",
@@ -5612,8 +5618,11 @@ const ru: TranslationKeys = {
   account_product_form_title_edit: "Редактировать продукт",
   account_product_form_desc: "Заполняйте названия, состояние, объём и целевые рынки структурно, чтобы улучшить матчинг.",
   account_product_catalog_picker_label: "Справочник продуктов",
-  account_product_catalog_picker_placeholder: "Поиск по коммерческому или латинскому названию",
-  account_product_catalog_picker_empty: "В справочнике ничего не найдено",
+  account_product_catalog_picker_placeholder: "Ищите по латинскому или коммерческому названию.",
+  account_product_catalog_picker_empty: "Совпадений в каталоге не найдено.",
+  account_product_catalog_picker_empty_hint: "Попробуйте латинское или коммерческое название.",
+  account_product_catalog_picker_selected_label: "Выбранный продукт",
+  account_product_catalog_picker_alias_label: "псевдоним",
   account_product_field_category: "Категория",
   account_product_field_format: "Формат / разделка",
   account_product_role_buying: "Покупка",
@@ -7553,8 +7562,11 @@ const es: TranslationKeys = {
   account_product_form_title_edit: "Editar producto",
   account_product_form_desc: "Mantén nombres, estado, volumen y mercados objetivo estructurados para el matching.",
   account_product_catalog_picker_label: "Catálogo de productos",
-  account_product_catalog_picker_placeholder: "Buscar por nombre comercial o latino",
-  account_product_catalog_picker_empty: "No hay coincidencias en el catálogo",
+  account_product_catalog_picker_placeholder: "Busca por nombre latino o comercial.",
+  account_product_catalog_picker_empty: "Sin coincidencias en el catálogo.",
+  account_product_catalog_picker_empty_hint: "Prueba con el nombre latino o comercial.",
+  account_product_catalog_picker_selected_label: "Producto seleccionado",
+  account_product_catalog_picker_alias_label: "alias",
   account_product_field_category: "Categoría",
   account_product_field_format: "Formato / corte",
   account_product_role_buying: "Compra",

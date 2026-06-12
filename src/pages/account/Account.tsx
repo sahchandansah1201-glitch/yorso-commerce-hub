@@ -2346,6 +2346,10 @@ const ProductsSection = ({
         >
           <div className="mb-4">
             <AccountProductCatalogPicker
+              selected={{
+                commercialName: draft.commercialName,
+                latinName: draft.latinName,
+              }}
               onSelect={(item) =>
                 setDraft((current) =>
                   current
