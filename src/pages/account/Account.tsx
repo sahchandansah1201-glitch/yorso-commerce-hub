@@ -3343,49 +3343,77 @@ const NotificationsSection = ({
         title={t.account_notifications_title}
         description={t.account_notifications_desc}
       >
-        <p className="text-sm text-muted-foreground">{t.account_notifications_disclaimer}</p>
+        <p className="text-xs text-muted-foreground">{t.account_notifications_disclaimer}</p>
       </AccountSectionCard>
       <div className="grid gap-3 sm:grid-cols-2">
-        {profile.notifications.map((n) => (
-          <AccountSectionCard
-            key={n.id}
-            title={channelLabel[n.channel]}
-            testId={`account-notif-${n.channel}`}
-          >
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Badge variant={n.enabled ? "default" : "outline"}>
-                  {n.enabled ? t.account_notif_enabled : t.account_notif_disabled}
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {t.account_notif_freqLabel}: {freqLabel[n.frequency]}
-                </span>
+        {profile.notifications.map((n) => {
+          const isDisabled = !n.enabled;
+          return (
+            <div
+              key={n.id}
+              data-testid={`account-notif-${n.channel}`}
+              className={`flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm ${
+                isDisabled ? "opacity-75" : ""
+              }`}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <h3 className="text-sm font-semibold text-foreground">
+                  {channelLabel[n.channel]}
+                </h3>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Badge variant={n.enabled ? "default" : "outline"}>
+                    {n.enabled ? t.account_notif_enabled : t.account_notif_disabled}
+                  </Badge>
+                  <Badge variant="secondary" aria-label={t.account_notif_freqLabel}>
+                    {freqLabel[n.frequency]}
+                  </Badge>
+                </div>
               </div>
               <div>
-                <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                <p className="text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground">
                   {t.account_notif_eventsLabel}
                 </p>
-                <ul className="mt-1 space-y-0.5 text-xs">
-                  {n.events.map((e) => (
-                    <li key={e}>• {eventLabel(e)}</li>
-                  ))}
-                </ul>
+                {n.events.length > 0 ? (
+                  <ul className="mt-1.5 flex flex-wrap gap-1.5" aria-label={t.account_notif_eventsLabel}>
+                    {n.events.map((e) => (
+                      <li key={e}>
+                        <Badge
+                          variant={isDisabled ? "outline" : "secondary"}
+                          className={isDisabled ? "text-muted-foreground" : ""}
+                        >
+                          {eventLabel(e)}
+                        </Badge>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-1.5 text-xs italic text-muted-foreground">
+                    {t.account_notif_noEvents}
+                  </p>
+                )}
+                {isDisabled ? (
+                  <p className="mt-2 text-[11px] italic text-muted-foreground">
+                    {t.account_notif_disabled_hint}
+                  </p>
+                ) : null}
               </div>
-              <div className="flex justify-end">
+              <div className="mt-auto flex justify-end border-t border-border/60 pt-3">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => startEdit(n)}
                   data-testid={`account-notif-edit-${n.channel}`}
+                  className="min-h-11"
+                  aria-label={`${t.account_action_edit} · ${channelLabel[n.channel]}`}
                 >
                   <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
                   {t.account_action_edit}
                 </Button>
               </div>
             </div>
-          </AccountSectionCard>
-        ))}
+          );
+        })}
       </div>
       {draft ? (
         <AccountSectionCard
@@ -3395,9 +3423,9 @@ const NotificationsSection = ({
         >
           <div className="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
             <div className="space-y-3">
-              <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm">
+              <label className="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm">
                 <span>
-                  <span className="font-medium text-foreground">
+                  <span className="block font-medium text-foreground">
                     {t.account_notif_field_enabled}
                   </span>
                   <span className="mt-0.5 block text-xs text-muted-foreground">
@@ -3406,14 +3434,16 @@ const NotificationsSection = ({
                 </span>
                 <input
                   type="checkbox"
+                  className="h-5 w-5 cursor-pointer accent-primary"
                   checked={draft.enabled}
                   onChange={(e) => setDraft({ ...draft, enabled: e.target.checked })}
                   data-testid="account-notif-enabled"
+                  aria-label={t.account_notif_field_enabled}
                 />
               </label>
               <FormRow label={t.account_notif_field_frequency}>
                 <select
-                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  className="min-h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
                   value={draft.frequency}
                   onChange={(e) =>
                     setDraft({
@@ -3422,6 +3452,7 @@ const NotificationsSection = ({
                     })
                   }
                   data-testid="account-notif-frequency"
+                  aria-label={t.account_notif_field_frequency}
                 >
                   {NOTIFICATION_FREQUENCIES.map((frequency) => (
                     <option key={frequency} value={frequency}>
@@ -3436,24 +3467,32 @@ const NotificationsSection = ({
               aria-invalid={!!eventsError || undefined}
               aria-describedby={eventsError ? "account-notif-events-error" : undefined}
             >
-              <legend className="px-1 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <legend className="px-1 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 {t.account_notif_eventsLabel}
               </legend>
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {NOTIFICATION_EVENTS.map((event) => (
-                  <label
-                    key={event}
-                    className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={draft.events.includes(event)}
-                      onChange={() => toggleEvent(event)}
-                      data-testid={`account-notif-event-${event}`}
-                    />
-                    <span>{eventLabel(event)}</span>
-                  </label>
-                ))}
+                {NOTIFICATION_EVENTS.map((event) => {
+                  const checked = draft.events.includes(event);
+                  return (
+                    <label
+                      key={event}
+                      className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors ${
+                        checked
+                          ? "border-primary/40 bg-primary/5"
+                          : "border-border bg-background hover:bg-muted/50"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 cursor-pointer accent-primary"
+                        checked={checked}
+                        onChange={() => toggleEvent(event)}
+                        data-testid={`account-notif-event-${event}`}
+                      />
+                      <span>{eventLabel(event)}</span>
+                    </label>
+                  );
+                })}
               </div>
               {eventsError ? (
                 <p
@@ -3468,16 +3507,22 @@ const NotificationsSection = ({
               ) : null}
             </fieldset>
           </div>
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-3 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"
               onClick={cancelEdit}
               data-testid="account-notif-cancel"
+              className="min-h-11"
             >
               {t.account_action_cancel}
             </Button>
-            <Button type="button" onClick={() => void saveDraft()} data-testid="account-notif-save">
+            <Button
+              type="button"
+              onClick={() => void saveDraft()}
+              data-testid="account-notif-save"
+              className="min-h-11"
+            >
               {t.account_action_save}
             </Button>
           </div>
