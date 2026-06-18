@@ -1640,7 +1640,7 @@ const ProductRoleBadge = ({ role }: { role: CompanyProduct["role"] }) => {
   );
 };
 
-const PRODUCT_STATES: CompanyProduct["state"][] = ["frozen", "fresh", "chilled", "alive", "cooked"];
+const PRODUCT_STATES: CompanyProduct["state"][] = ["frozen", "chilled", "alive", "cooked"];
 const PRODUCT_ROLES: CompanyProduct["role"][] = ["buying", "selling", "both"];
 type ProductSortKey = "commercialName" | "category" | "state" | "role" | "monthlyVolume";
 type SortDirection = "asc" | "desc";
@@ -1738,14 +1738,19 @@ const readProductInitialView = (searchParams: URLSearchParams) => {
   };
 };
 
-const productStateLabel = (s: ProductState, t: ReturnType<typeof useLanguage>["t"]) =>
-  ({
+const normalizeAccountProductState = (state: ProductState): CompanyProduct["state"] =>
+  state === "fresh" ? "chilled" : state;
+
+const productStateLabel = (s: ProductState, t: ReturnType<typeof useLanguage>["t"]) => {
+  const state = normalizeAccountProductState(s);
+  return {
     frozen: t.account_product_state_frozen,
-    fresh: t.account_product_state_fresh,
     chilled: t.account_product_state_chilled,
     alive: t.account_product_state_alive,
     cooked: t.account_product_state_cooked,
-  }[s]);
+    fresh: t.account_product_state_chilled,
+  }[state];
+};
 
 const productRoleLabel = (role: CompanyProduct["role"], t: ReturnType<typeof useLanguage>["t"]) =>
   ({
@@ -2017,7 +2022,9 @@ const ProductsSection = ({
   const visibleProducts = useMemo(() => {
     const normalizedQuery = normalizeProductValue(query);
     const filtered = profile.products.filter((product) => {
-      if (stateFilter !== "all" && product.state !== stateFilter) return false;
+      if (stateFilter !== "all" && normalizeAccountProductState(product.state) !== stateFilter) {
+        return false;
+      }
       if (roleFilter !== "all" && product.role !== roleFilter) return false;
       if (!normalizedQuery) return true;
 
@@ -2139,6 +2146,7 @@ const ProductsSection = ({
   const startEdit = (product: CompanyProduct) => {
     setDraft({
       ...product,
+      state: normalizeAccountProductState(product.state),
       certificates: [...product.certificates],
       targetCountries: [...product.targetCountries],
     });

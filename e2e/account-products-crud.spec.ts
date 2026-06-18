@@ -71,7 +71,7 @@ const fillProductForm = async (
     commercialName: string;
     latinName: string;
     category: string;
-    state: "frozen" | "fresh" | "chilled" | "alive" | "cooked";
+    state: "frozen" | "chilled" | "alive" | "cooked";
     role: "buying" | "selling" | "both";
     monthlyVolume: string;
     format: string;
@@ -99,7 +99,7 @@ test.describe("/account/products · editable product matrix", () => {
       commercialName: "Norwegian Salmon Fillet 2-4 lb",
       latinName: "Salmo salar",
       category: "Salmon",
-      state: "fresh",
+      state: "chilled",
       role: "selling",
       monthlyVolume: "18 t / month",
       format: "Skin-on fillet",
@@ -110,7 +110,7 @@ test.describe("/account/products · editable product matrix", () => {
 
     const table = page.getByTestId("account-products-table");
     await expect(table).toContainText("Norwegian Salmon Fillet 2-4 lb");
-    await expect(table).toContainText("Fresh");
+    await expect(table).toContainText("Chilled");
     await expect(table).toContainText("Selling");
     await expect(table).toContainText("ASC");
     await expectStorageContains(page, "Norwegian Salmon Fillet 2-4 lb");
@@ -167,6 +167,26 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByTestId("account-product-results-count")).toContainText("1 of 6");
     await expect(page.getByTestId("account-products-table")).toContainText("Atlantic Salmon Fillet");
     await expect(page.getByTestId("account-products-table")).not.toContainText("Vannamei Shrimp");
+
+    const stateOptions = await page
+      .getByTestId("account-product-state-filter")
+      .locator("option")
+      .evaluateAll((options) =>
+        options.map((option) => ({
+          label: option.textContent?.trim() ?? "",
+          value: option.getAttribute("value"),
+        })),
+      );
+    expect(stateOptions).toEqual([
+      { label: "All", value: "all" },
+      { label: "Frozen", value: "frozen" },
+      { label: "Chilled", value: "chilled" },
+      { label: "Live", value: "alive" },
+      { label: "Cooked", value: "cooked" },
+    ]);
+    expect(stateOptions.some((option) => option.value === "fresh" || option.label === "Fresh")).toBe(
+      false,
+    );
 
     await page.getByTestId("account-product-search").fill("no product match");
     await expect(page.getByTestId("account-product-no-results")).toBeVisible();
@@ -675,7 +695,7 @@ test.describe("/account/products · editable product matrix", () => {
 
     const text = await mainText(page);
     expect(text).toContain("Креветка ваннамей HOSO");
-    expect(text).toContain("Замороженный");
+    expect(text).toContain("Мороженный");
     expect(text).toContain("Покупка");
     expect(text).toContain("Сортировать по");
     expect(text).toContain("Сортировка: Названию продукта");
