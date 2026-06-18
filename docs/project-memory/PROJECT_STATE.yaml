@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-06-11"
+updated_at: "2026-06-18"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -10,10 +10,10 @@ source_policy:
 
 repository:
   cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-06-11"
-  active_branch: "main"
-  head_commit: "see git log; P1A.3 products Latin-first identity commit pending during checkpoint update"
-  head_summary: "P1A.3 Products catalog picker hookup and Latin-first product identity is validated locally before GitHub/Lovable sync."
+  git_status_confirmed_at: "2026-06-18"
+  active_branch: "codex/p1i-meta-regions-country-picker-fix"
+  head_commit: "see PR #196; P1I defect fix pending GitHub checks"
+  head_summary: "P1I meta-regions country picker defect fix is locally verified and open in PR #196."
   dirty_worktree_before_project_memory: true
   dirty_worktree_reason:
     - "Owned P1A.2 stabilization edits: account product delete e2e coverage, provider-free remediation, project-memory update."
@@ -36,12 +36,21 @@ project_identity:
     - "docs/"
 
 active_workstream:
-  id: "p1a3_products_catalog_picker_latin_first"
-  summary: "Account products picker and visible product matrix use Latin-first product identity while keeping commercialName and latinName as separate structured fields."
-  status: "local_validation_passed_before_commit"
-  branch: "main"
-  pull_request: null
+  id: "p1i_meta_regions_country_picker_defect_fix"
+  summary: "Account meta-regions require at least two countries and support repeated country selection in the same form session."
+  status: "pr_open_local_validation_passed_waiting_for_github_checks"
+  branch: "codex/p1i-meta-regions-country-picker-fix"
+  pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/196"
   confirmed_scope:
+    - "/account/meta-regions add/edit form requires at least two countries before save."
+    - "After selecting Argentina, the country picker remains ready for a second country."
+    - "Searching Brazil after Argentina shows Brazil as a selectable option."
+    - "Selected countries are excluded from the next result list and duplicates are blocked."
+    - "Removing a selected country still works after adding another country."
+    - "Read mode renders country chips and does not show technical reason/currency/usedFor enum values."
+    - "Local validation passed: account unit tests 35/35; TypeScript build graph; provider-boundary; production build; Playwright account meta-regions/workspace 17/17; Playwright meta-regions repeat 14/14; 390px screenshot script with no overflow, no nested interactive controls and no console/page errors."
+    - "Screenshot evidence is saved under test-results/p1i-meta-regions-defect-fixed/."
+    - "Previous P1I acceptance was incorrect because the real repeated country-selection flow was not delivered and verified through GitHub/Lovable."
     - "/account/products add/edit form mounts the workbook-backed product catalog picker."
     - "The picker searches by Latin name and commercial/localized names."
     - "Picker results display Latin first with commercial/localized name in parentheses, e.g. Scomber scombrus (Atlantic mackerel)."

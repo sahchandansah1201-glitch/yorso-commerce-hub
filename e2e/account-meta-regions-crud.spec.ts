@@ -26,8 +26,8 @@ const setSignedInStorage = async (page: Page, lang: "en" | "ru" | "es" = "en") =
 const openMetaRegions = async (page: Page, lang: "en" | "ru" | "es" = "en") => {
   await setSignedInStorage(page, lang);
   await page.goto("/account/meta-regions", { waitUntil: "domcontentloaded" });
-  await page.waitForLoadState("networkidle");
   await expect(page.getByTestId("account-section-meta-regions")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("account-meta-add")).toBeVisible({ timeout: 15_000 });
 };
 
 const mainText = async (page: Page) => (await page.locator("main").textContent()) ?? "";
@@ -40,15 +40,22 @@ const expectStorageContains = async (page: Page, expected: string) => {
     .toBe(true);
 };
 
-const addCountry = async (page: Page, name: string) => {
+const selectCountryFromList = async (
+  page: Page,
+  query: string,
+  countryId: string,
+  expectedName: string,
+) => {
   const combo = page.getByTestId("account-meta-country-combobox");
   await combo.click();
-  await combo.fill(name);
-  // Combobox auto-adds when the typed value exactly matches a catalog name
-  // (lookup is by localized EN/RU/ES name or ISO alpha-2/alpha-3).
-  // Close the listbox so subsequent clicks (e.g. Save) are not intercepted.
-  await page.keyboard.press("Escape");
-  await expect(page.getByTestId("account-meta-selected-countries")).toContainText(name);
+  await combo.fill(query);
+  await expect(combo).toHaveValue(query);
+  const option = page.getByTestId(`account-meta-country-combobox-option-${countryId}`);
+  await expect(option).toBeVisible();
+  await option.click();
+  await expect(page.getByTestId(`account-meta-selected-country-${countryId}`)).toContainText(
+    expectedName,
+  );
 };
 
 test.describe("/account/meta-regions · country list builder", () => {
@@ -57,9 +64,10 @@ test.describe("/account/meta-regions · country list builder", () => {
 
     await page.getByTestId("account-meta-add").click();
     await page.getByTestId("account-meta-name").fill("Baltic Cold Route");
-    await addCountry(page, "Lithuania");
-    await addCountry(page, "Latvia");
-    await addCountry(page, "Estonia");
+    await selectCountryFromList(page, "Lith", "lt", "Lithuania");
+    await selectCountryFromList(page, "Latv", "lv", "Latvia");
+    await selectCountryFromList(page, "Esto", "ee", "Estonia");
+    await page.keyboard.press("Escape");
     await page.getByTestId("account-meta-save").click();
 
     const section = page.getByTestId("account-section-meta-regions");
@@ -74,8 +82,9 @@ test.describe("/account/meta-regions · country list builder", () => {
     await expectStorageContains(page, "Baltic Cold Route");
 
     await page.reload({ waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle");
-    await expect(page.getByTestId("account-section-meta-regions")).toContainText("Baltic Cold Route");
+    await expect(page.getByTestId("account-section-meta-regions")).toContainText("Baltic Cold Route", {
+      timeout: 15_000,
+    });
   });
 
   test("validation keeps meta-regions with empty name or countries out of the list", async ({ page }) => {
@@ -90,14 +99,39 @@ test.describe("/account/meta-regions · country list builder", () => {
     expect(await mainText(page)).not.toContain("meta_");
   });
 
+  test("requires at least two countries and keeps the list ready for repeated selection", async ({ page }) => {
+    await openMetaRegions(page);
+
+    await page.getByTestId("account-meta-add").click();
+    await page.getByTestId("account-meta-name").fill("South Atlantic Route");
+
+    await selectCountryFromList(page, "Argen", "ar", "Argentina");
+    await expect(page.getByTestId("account-meta-country-combobox-listbox")).toBeVisible();
+    await expect(page.getByTestId("account-meta-country-combobox-option-ar")).toHaveCount(0);
+
+    await page.getByTestId("account-meta-save").click();
+    await expect(page.getByTestId("account-meta-form")).toBeVisible();
+    await expect(page.getByText("Add at least 2 countries", { exact: true })).toBeVisible();
+
+    await selectCountryFromList(page, "Braz", "br", "Brazil");
+    await page.keyboard.press("Escape");
+    await page.getByTestId("account-meta-save").click();
+
+    const section = page.getByTestId("account-section-meta-regions");
+    await expect(section).toContainText("South Atlantic Route");
+    await expect(section).toContainText("Argentina");
+    await expect(section).toContainText("Brazil");
+  });
+
   test("edits an existing meta-region: add and remove a country", async ({ page }) => {
     await openMetaRegions(page);
 
     await page.getByTestId("account-meta-edit-mr_3").click();
     await page.getByTestId("account-meta-name").fill("LATAM Shrimp Corridor");
     // mr_3 fixture countries: Ecuador, Peru, Honduras
-    await addCountry(page, "India");
+    await selectCountryFromList(page, "Indi", "in", "India");
     await page.getByTestId("account-meta-remove-country-hn").click();
+    await page.keyboard.press("Escape");
     await page.getByTestId("account-meta-save").click();
 
     const text = await mainText(page);
@@ -113,8 +147,9 @@ test.describe("/account/meta-regions · country list builder", () => {
 
     await page.getByTestId("account-meta-add").click();
     await page.getByTestId("account-meta-name").fill("Trial Freight Zone");
-    await addCountry(page, "Chile");
-    await addCountry(page, "Peru");
+    await selectCountryFromList(page, "Chil", "cl", "Chile");
+    await selectCountryFromList(page, "Per", "pe", "Peru");
+    await page.keyboard.press("Escape");
     await page.getByTestId("account-meta-save").click();
     await expect(page.getByTestId("account-section-meta-regions")).toContainText("Trial Freight Zone");
 
@@ -124,8 +159,10 @@ test.describe("/account/meta-regions · country list builder", () => {
 
     await expect(page.getByTestId("account-section-meta-regions")).not.toContainText("Trial Freight Zone");
     await page.reload({ waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle");
-    await expect(page.getByTestId("account-section-meta-regions")).not.toContainText("Trial Freight Zone");
+    await expect(page.getByTestId("account-section-meta-regions")).not.toContainText(
+      "Trial Freight Zone",
+      { timeout: 15_000 },
+    );
   });
 
   test("duplicate country is not added twice", async ({ page }) => {
@@ -133,7 +170,7 @@ test.describe("/account/meta-regions · country list builder", () => {
 
     await page.getByTestId("account-meta-add").click();
     await page.getByTestId("account-meta-name").fill("Dup Region");
-    await addCountry(page, "Spain");
+    await selectCountryFromList(page, "Spa", "es", "Spain");
     await page.getByTestId("account-meta-country-combobox").fill("Spain");
     await expect(page.getByTestId("account-meta-country-duplicate")).toBeVisible();
     await expect(page.getByTestId("account-meta-selected-country-es")).toHaveCount(1);
@@ -145,9 +182,10 @@ test.describe("/account/meta-regions · country list builder", () => {
     await expect(page.getByTestId("account-section-meta-regions")).toContainText("Мета-регионы");
     await page.getByTestId("account-meta-add").click();
     await page.getByTestId("account-meta-name").fill("Балтийский холодный маршрут");
-    await addCountry(page, "Литва");
-    await addCountry(page, "Латвия");
-    await addCountry(page, "Эстония");
+    await selectCountryFromList(page, "Лит", "lt", "Литва");
+    await selectCountryFromList(page, "Лат", "lv", "Латвия");
+    await selectCountryFromList(page, "Эсто", "ee", "Эстония");
+    await page.keyboard.press("Escape");
     await page.getByTestId("account-meta-save").click();
 
     const text = await mainText(page);

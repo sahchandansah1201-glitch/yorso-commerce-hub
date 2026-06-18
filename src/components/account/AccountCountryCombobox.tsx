@@ -33,6 +33,12 @@ export interface AccountCountryComboboxProps {
   value: string;
   onChange: (value: string, entry: CountryEntry | undefined) => void;
   placeholder?: string;
+  className?: string;
+  containerTestId?: string;
+  excludedCountryIds?: string[];
+  forceOpenKey?: number;
+  inlineList?: boolean;
+  reopenOnSelect?: boolean;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
   "data-testid"?: string;
@@ -47,6 +53,12 @@ export const AccountCountryCombobox = forwardRef<
     value,
     onChange,
     placeholder,
+    className,
+    containerTestId,
+    excludedCountryIds,
+    forceOpenKey,
+    inlineList = false,
+    reopenOnSelect = false,
     "aria-invalid": ariaInvalid,
     "aria-describedby": ariaDescribedBy,
     "data-testid": testId,
@@ -66,18 +78,32 @@ export const AccountCountryCombobox = forwardRef<
     [value, lang],
   );
 
-  const results = useMemo(
-    () => searchCountries(value, lang, 50),
-    [value, lang],
+  const excludedKey = (excludedCountryIds ?? []).join("|");
+  const excludedCountryIdSet = useMemo(
+    () => new Set(excludedCountryIds ?? []),
+    [excludedKey, excludedCountryIds],
   );
 
-  // Close on outside click
+  const results = useMemo(
+    () =>
+      searchCountries(value, lang, 50).filter(
+        (entry) => !excludedCountryIdSet.has(entry.id),
+      ),
+    [excludedCountryIdSet, value, lang],
+  );
+
+  // Close after outside clicks. Using click instead of mousedown prevents the
+  // inline list from collapsing before adjacent chip actions receive onClick.
   useEffect(() => {
-    const onDown = (e: MouseEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    const onClick = (e: MouseEvent) => {
+      const wrap = wrapRef.current;
+      if (!wrap) return;
+      const path = typeof e.composedPath === "function" ? e.composedPath() : [];
+      if (wrap.contains(e.target as Node) || path.includes(wrap)) return;
+      setOpen(false);
     };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
   }, []);
 
   // Reset active index when result set changes
@@ -85,13 +111,22 @@ export const AccountCountryCombobox = forwardRef<
     setActiveIndex(results.length > 0 ? 0 : -1);
   }, [results]);
 
+  useEffect(() => {
+    if (reopenOnSelect && forceOpenKey) {
+      setOpen(true);
+      setActiveIndex(0);
+    }
+  }, [forceOpenKey, reopenOnSelect]);
+
   // Scroll active option into view
   useEffect(() => {
     if (!open || activeIndex < 0) return;
     const el = listRef.current?.querySelector<HTMLLIElement>(
       `[data-option-index="${activeIndex}"]`,
     );
-    el?.scrollIntoView({ block: "nearest" });
+    if (typeof el?.scrollIntoView === "function") {
+      el.scrollIntoView({ block: "nearest" });
+    }
   }, [activeIndex, open]);
 
   const listOpen = open && results.length > 0;
@@ -102,7 +137,8 @@ export const AccountCountryCombobox = forwardRef<
 
   const selectEntry = (entry: CountryEntry) => {
     onChange(localizedCountryName(entry, lang), entry);
-    setOpen(false);
+    setOpen(reopenOnSelect);
+    if (reopenOnSelect) setActiveIndex(0);
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -137,7 +173,7 @@ export const AccountCountryCombobox = forwardRef<
   };
 
   return (
-    <div ref={wrapRef} className="relative">
+    <div ref={wrapRef} className="relative" data-testid={containerTestId}>
       <Input
         ref={ref}
         id={id}
@@ -153,13 +189,13 @@ export const AccountCountryCombobox = forwardRef<
         value={value}
         placeholder={placeholder ?? t.account_country_combobox_placeholder}
         onChange={(e) => {
-          onChange(e.target.value, findCountryByName(e.target.value, lang));
+          onChange(e.target.value, undefined);
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         data-testid={testId}
-        className="min-h-[44px]"
+        className={["min-h-[44px]", className].filter(Boolean).join(" ")}
       />
       {matchedEntry ? (
         <div
@@ -177,7 +213,10 @@ export const AccountCountryCombobox = forwardRef<
           role="listbox"
           aria-label={t.account_country_combobox_placeholder}
           data-testid={testId ? `${testId}-listbox` : undefined}
-          className="absolute z-30 mt-1 max-h-72 w-full overflow-auto rounded-md border border-input bg-popover p-1 text-sm shadow-md"
+          className={[
+            inlineList ? "relative" : "absolute z-30",
+            "mt-1 max-h-72 w-full overflow-auto rounded-md border border-input bg-popover p-1 text-sm shadow-md",
+          ].join(" ")}
         >
           {results.map((entry, i) => {
             const name = localizedCountryName(entry, lang);

@@ -16,18 +16,30 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 
 ## Current Goal
 
-P1A.3 Products Catalog Picker And Latin-First Product Identity is ready for
-the operational GitHub/Lovable sync step.
+P1I meta-regions defect fix is in GitHub PR #196 and must be accepted only
+after GitHub checks are green.
 
-This scoped frontend UX checkpoint keeps `/account/products` storage and edit
-fields structured, but makes the visible product identity Latin-first:
-`Latin name (commercial name)`. The workbook-backed picker searches by Latin
-or commercial/localized names and fills both structured fields.
+PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/196`
+
+Branch: `codex/p1i-meta-regions-country-picker-fix`
+
+This scoped frontend UX fix keeps `/account/meta-regions` local account storage
+and schema unchanged, but fixes the real user flow:
+
+- the form requires at least 2 countries;
+- after selecting Argentina, the picker remains ready for a second country;
+- the next query can find Brazil and add it without closing/reopening the form;
+- selected countries are excluded from results and duplicates are blocked;
+- chip removal still works after another country is added;
+- read mode shows country chips and avoids technical enum leakage.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
+| P1I defect | Fix the failed meta-region 2+ country interaction and deliver it to GitHub/Lovable. | PR #196 contains the code/test/memory fix. Local verification passed after CI blockers were fixed. | Wait for PR checks, then merge/sync if green. |
+| Evidence | Prove repeated selection, not only static render. | Playwright e2e passed 17/17; meta-regions repeated 14/14 with `--repeat-each=2`; 390px screenshots saved. | Keep screenshots under `test-results/p1i-meta-regions-defect-fixed/` for review. |
+| Known prior mistake | Previous P1I acceptance was overstated. | Work was local/dirty and not fully delivered/verified through GitHub/Lovable. | Do not accept future Lovable reports without local sync + real-flow verification. |
 | Scope | Show product identity as `Latin (commercial)` where users scan products. | Picker, desktop table, mobile cards, detail panel and delete context use Latin-first identity. | Commit/push, then sync Lovable preview. |
 | Search | Let users search by commercial/localized or Latin name. | `searchCatalog` covers Latin plus EN/RU/ES/FR/CN/DE names; e2e verifies `Atlantic mackerel` -> `Scomber scombrus`. | Later improve ranking/ARIA combobox if needed. |
 | Delete copy | Keep delete confirmation short and unambiguous. | EN/RU/ES title/description shortened while context remains visible. | Preserve safe context in future refactors. |
