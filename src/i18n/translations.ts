@@ -1777,6 +1777,8 @@ type TranslationKeys = {
   account_notif_freq_daily: string;
   account_notif_freq_weekly: string;
   account_notif_eventsLabel: string;
+  account_notif_noEvents: string;
+  account_notif_disabled_hint: string;
   account_notif_form_title: string;
   account_notif_form_desc: string;
   account_notif_field_enabled: string;
