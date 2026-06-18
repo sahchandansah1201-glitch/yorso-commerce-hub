@@ -5705,6 +5705,8 @@ const ru: TranslationKeys = {
   account_notif_freq_daily: "Раз в день",
   account_notif_freq_weekly: "Раз в неделю",
   account_notif_eventsLabel: "События",
+  account_notif_noEvents: "События не выбраны",
+  account_notif_disabled_hint: "Канал выключен — события сохранены, но уведомления не отправляются.",
   account_notif_form_title: "Редактировать канал уведомлений",
   account_notif_form_desc: "Выберите, когда этот канал должен уведомлять пользователя. В прототипе реальные сообщения не отправляются.",
   account_notif_field_enabled: "Канал включён",
