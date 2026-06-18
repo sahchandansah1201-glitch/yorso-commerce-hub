@@ -2,25 +2,35 @@
 
 ## Current Next Action
 
-P1B Products picker usability and search confidence is the latest accepted
-frontend checkpoint.
+P1I meta-regions defect fix is the active GitHub handoff.
 
-This was a frontend-only account workspace checkpoint over `/account/products`:
+Open PR: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/196`
 
-- product catalog picker results show Latin name as the primary identity and
-  commercial/localized name as secondary context;
-- the add/edit form shows a selected-product summary from the current draft;
-- helper and no-results copy are short and unambiguous;
-- the workflow keeps `commercialName` and `latinName` as separate structured
-  fields and continues to render visible product identities as
-  `Latin (commercial)`;
+Branch: `codex/p1i-meta-regions-country-picker-fix`
+
+This is a frontend-only account workspace fix over `/account/meta-regions`:
+
+- meta-regions require at least 2 countries;
+- after selecting one country, the country picker remains ready for the next
+  country instead of leaving the user in a dead input state;
+- selected countries are excluded from the next result list;
+- duplicate countries are blocked;
+- removing a selected country still works after adding another country;
+- read mode shows country chips and does not expose technical reason/currency
+  or `usedFor` enum values;
 - no backend, storage, auth, supplier access, catalog source or hosted provider
   behavior was added.
+
+Next operational step: wait for PR #196 GitHub checks, then merge/sync Lovable
+only if CI is green. Do not mark P1I accepted from chat or Lovable text alone.
 
 ## План / факт
 
 | Пункт | План | Факт | Что дальше |
 |---|---|---|---|
+| P1I defect delivery | Deliver the actual meta-region country-picker fix to GitHub/Lovable. | PR #196 opened and locally re-verified after CI blockers were fixed. | Wait for GitHub checks, then merge/sync only if green. |
+| Country picker repeated selection | User can add Argentina, immediately search/select Brazil, then save 2+ countries. | Playwright e2e 17/17 plus repeat 14/14; screenshots show Argentina -> Brazil at 390px. | Keep this scenario as required acceptance for future picker changes. |
+| Flaky e2e hardening | Avoid `networkidle` waits that can hang on this app. | Meta-regions e2e now waits on account-section UI readiness and persisted text. | Avoid `networkidle` in new account workspace tests unless there is a clear reason. |
 | Catalog picker | Дать пользователю выбор продукта из workbook-backed справочника. | Picker подключён к add/edit form; e2e проверяет `Scomber scombrus (Atlantic mackerel)` и заполнение полей. | После commit/push подтянуть GitHub `main` в Lovable. |
 | Product identity | Показывать продукт как `Latin (commercial)`, а не заставлять пользователя связывать две разные колонки. | Desktop table, mobile card, detail panel и delete context используют Latin-first product identity; отдельные storage/edit fields сохранены. | После Lovable sync визуально проверить desktop/mobile. |
 | Commercial search | Поиск по коммерческому/локализованному названию должен находить Latin name. | `searchCatalog` ищет по `latin`, `en`, `es`, `ru`, `fr`, `cn`, `de`; unit test покрывает EN и RU. | Позже улучшить ranking/keyboard combobox, если понадобится. |

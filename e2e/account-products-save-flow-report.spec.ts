@@ -202,6 +202,8 @@ test.describe("/account/products · save-flow report artifacts", () => {
 
     const addedRow = page.locator("tbody tr").filter({ hasText: "Report Salmon Portions 4-6 oz" });
     await addedRow.getByRole("button", { name: /delete product/i }).click();
+    await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
+    await page.getByTestId("account-product-delete-confirm-submit").click();
     await expect(page.getByTestId("account-products-table")).not.toContainText(
       "Report Salmon Portions 4-6 oz",
     );

@@ -253,12 +253,12 @@ describe("Account workspace", () => {
     expect(explainer.textContent?.toLowerCase()).toMatch(/delivery basis|incoterms/);
   });
 
-  it("meta-regions page renders countries and usedFor tags", () => {
+  it("meta-regions page renders countries without technical usedFor tags", () => {
     signIn();
     renderAt("/account/meta-regions");
     const section = screen.getByTestId("account-section-meta-regions");
     expect(within(section).getByText("Spain")).toBeInTheDocument();
-    expect(within(section).getAllByText("Notifications").length).toBeGreaterThan(0);
+    expect(within(section).queryByText("Notifications")).not.toBeInTheDocument();
   });
 
   it("notifications page renders all 4 channels", () => {

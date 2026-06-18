@@ -2909,7 +2909,10 @@ const validateMetaRegionDraft = (
 ) => {
   const nextErrors: Record<string, string> = {
     name: validateName(draft.name, t, true) ?? "",
-    countries: draft.countries.length ? "" : t.account_validation_required,
+    countries:
+      draft.countries.length >= 2
+        ? ""
+        : t.account_metaRegion_min_countries,
   };
   return Object.fromEntries(Object.entries(nextErrors).filter(([, value]) => value));
 };
@@ -2928,6 +2931,13 @@ const MetaRegionsSection = ({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [countryInput, setCountryInput] = useState("");
   const [duplicateHint, setDuplicateHint] = useState<string | null>(null);
+  const [countryOpenKey, setCountryOpenKey] = useState(0);
+  const countryInputRef = useRef<HTMLInputElement>(null);
+
+  const selectedCountryIds = useMemo(
+    () => draft?.countries.map((country) => countryKey(country, lang)) ?? [],
+    [draft?.countries, lang],
+  );
 
   const startAdd = () => {
     setDraft(createEmptyMetaRegion());
@@ -2936,6 +2946,7 @@ const MetaRegionsSection = ({
     setSaveError(null);
     setCountryInput("");
     setDuplicateHint(null);
+    setCountryOpenKey(0);
   };
 
   const startEdit = (region: MetaRegion) => {
@@ -2949,6 +2960,7 @@ const MetaRegionsSection = ({
     setSaveError(null);
     setCountryInput("");
     setDuplicateHint(null);
+    setCountryOpenKey(0);
   };
 
   const cancelEdit = () => {
@@ -2958,22 +2970,27 @@ const MetaRegionsSection = ({
     setSaveError(null);
     setCountryInput("");
     setDuplicateHint(null);
+    setCountryOpenKey(0);
   };
 
   const addCountryToDraft = (entry: CountryEntry) => {
-    if (!draft) return;
     const canonical = localizedCountryName(entry, lang);
-    const exists = draft.countries.some(
-      (c) => countryKey(c, lang) === entry.id,
-    );
+    const exists = draft?.countries.some((c) => countryKey(c, lang) === entry.id);
     if (exists) {
       setDuplicateHint(canonical);
       setCountryInput("");
+      setCountryOpenKey((value) => value + 1);
+      window.requestAnimationFrame(() => countryInputRef.current?.focus());
       return;
     }
-    setDraft({ ...draft, countries: [...draft.countries, canonical] });
+    setDraft((current) => {
+      if (!current) return current;
+      return { ...current, countries: [...current.countries, canonical] };
+    });
     setCountryInput("");
     setDuplicateHint(null);
+    setCountryOpenKey((value) => value + 1);
+    window.requestAnimationFrame(() => countryInputRef.current?.focus());
     if (errors.countries) {
       setErrors((prev) => {
         const { countries: _omit, ...rest } = prev;
@@ -2983,20 +3000,25 @@ const MetaRegionsSection = ({
   };
 
   const removeCountryFromDraft = (key: string) => {
-    if (!draft) return;
-    setDraft({
-      ...draft,
-      countries: draft.countries.filter((c) => countryKey(c, lang) !== key),
+    setDraft((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        countries: current.countries.filter((c) => countryKey(c, lang) !== key),
+      };
     });
     setDuplicateHint(null);
   };
 
   const handleComboboxChange = (value: string, entry: CountryEntry | undefined) => {
-    setDuplicateHint(null);
     if (entry) {
       addCountryToDraft(entry);
       return;
     }
+    const typedEntry = findCountryByName(value, lang);
+    const isDuplicate =
+      typedEntry && draft?.countries.some((c) => countryKey(c, lang) === typedEntry.id);
+    setDuplicateHint(isDuplicate && typedEntry ? localizedCountryName(typedEntry, lang) : null);
     setCountryInput(value);
   };
 
@@ -3085,25 +3107,29 @@ const MetaRegionsSection = ({
             </FormRow>
             <FormRow
               label={t.account_metaRegion_add_country}
-              required={draft.countries.length === 0}
+              required={draft.countries.length < 2}
               error={errors.countries}
             >
-              <div data-testid="account-meta-countries">
-                <AccountCountryCombobox
-                  value={countryInput}
-                  onChange={handleComboboxChange}
-                  data-testid="account-meta-country-combobox"
-                />
-                {duplicateHint ? (
-                  <p
-                    className="mt-1 text-[11px] text-muted-foreground"
-                    data-testid="account-meta-country-duplicate"
-                  >
-                    {t.account_metaRegion_duplicate_country}: {duplicateHint}
-                  </p>
-                ) : null}
-              </div>
+              <AccountCountryCombobox
+                ref={countryInputRef}
+                value={countryInput}
+                onChange={handleComboboxChange}
+                containerTestId="account-meta-countries"
+                data-testid="account-meta-country-combobox"
+                excludedCountryIds={selectedCountryIds}
+                forceOpenKey={countryOpenKey}
+                inlineList
+                reopenOnSelect
+              />
             </FormRow>
+            {duplicateHint ? (
+              <p
+                className="-mt-3 text-[11px] text-muted-foreground"
+                data-testid="account-meta-country-duplicate"
+              >
+                {t.account_metaRegion_duplicate_country}: {duplicateHint}
+              </p>
+            ) : null}
             <div>
               <p className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 {t.account_metaRegion_selected_countries}

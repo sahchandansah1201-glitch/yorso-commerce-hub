@@ -1761,6 +1761,7 @@ type TranslationKeys = {
   account_metaRegion_add_country: string;
   account_metaRegion_selected_countries: string;
   account_metaRegion_no_countries: string;
+  account_metaRegion_min_countries: string;
   account_metaRegion_remove_country: string;
   account_metaRegion_duplicate_country: string;
   account_notifications_title: string;
@@ -3722,7 +3723,7 @@ const en: TranslationKeys = {
   account_metaRegion_empty_desc: "Create a country group to reuse it in matching, alerts and landed-cost logic.",
   account_metaRegion_form_title_add: "Add meta-region",
   account_metaRegion_form_title_edit: "Edit meta-region",
-  account_metaRegion_form_desc: "Name a region and add countries.",
+  account_metaRegion_form_desc: "Name a region and add at least 2 countries.",
   account_metaRegion_field_name: "Region name",
   account_metaRegion_field_countries: "Countries",
   account_metaRegion_field_currency: "Default currency",
@@ -3731,6 +3732,7 @@ const en: TranslationKeys = {
   account_metaRegion_add_country: "Add country",
   account_metaRegion_selected_countries: "Selected countries",
   account_metaRegion_no_countries: "No countries added",
+  account_metaRegion_min_countries: "Add at least 2 countries",
   account_metaRegion_remove_country: "Remove country",
   account_metaRegion_duplicate_country: "Already added",
   account_notifications_title: "Notifications",
@@ -5680,7 +5682,7 @@ const ru: TranslationKeys = {
   account_metaRegion_empty_desc: "Создайте группу стран, чтобы использовать её в матчинге, уведомлениях и расчёте логистики.",
   account_metaRegion_form_title_add: "Добавить мета-регион",
   account_metaRegion_form_title_edit: "Редактировать мета-регион",
-  account_metaRegion_form_desc: "Назовите регион и добавьте страны.",
+  account_metaRegion_form_desc: "Назовите регион и добавьте минимум 2 страны.",
   account_metaRegion_field_name: "Название региона",
   account_metaRegion_field_countries: "Страны",
   account_metaRegion_field_currency: "Валюта по умолчанию",
@@ -5689,6 +5691,7 @@ const ru: TranslationKeys = {
   account_metaRegion_add_country: "Добавить страну",
   account_metaRegion_selected_countries: "Выбранные страны",
   account_metaRegion_no_countries: "Страны не добавлены",
+  account_metaRegion_min_countries: "Добавьте минимум 2 страны",
   account_metaRegion_remove_country: "Удалить страну",
   account_metaRegion_duplicate_country: "Уже добавлено",
   account_notifications_title: "Уведомления",
@@ -7637,7 +7640,7 @@ const es: TranslationKeys = {
   account_metaRegion_empty_desc: "Crea un grupo de países para reutilizarlo en matching, alertas y lógica de coste en destino.",
   account_metaRegion_form_title_add: "Añadir meta-región",
   account_metaRegion_form_title_edit: "Editar meta-región",
-  account_metaRegion_form_desc: "Nombra una región y añade países.",
+  account_metaRegion_form_desc: "Nombra una región y añade al menos 2 países.",
   account_metaRegion_field_name: "Nombre de región",
   account_metaRegion_field_countries: "Países",
   account_metaRegion_field_currency: "Moneda predeterminada",
@@ -7646,6 +7649,7 @@ const es: TranslationKeys = {
   account_metaRegion_add_country: "Añadir país",
   account_metaRegion_selected_countries: "Países seleccionados",
   account_metaRegion_no_countries: "Sin países añadidos",
+  account_metaRegion_min_countries: "Añade al menos 2 países",
   account_metaRegion_remove_country: "Quitar país",
   account_metaRegion_duplicate_country: "Ya añadido",
   account_notifications_title: "Notificaciones",

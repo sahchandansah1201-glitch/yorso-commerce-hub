@@ -1,21 +1,21 @@
 # Context Health
 
-Updated: 2026-06-11
+Updated: 2026-06-18
 
 ## Current Status
 
 ```yaml
 context_risk: "medium"
-last_checkpoint: "2026-06-11"
+last_checkpoint: "2026-06-18"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
-active_branch: "main"
-head_commit: "see_git_log_p1a3_products_latin_first_identity_pending_commit"
+active_branch: "codex/p1i-meta-regions-country-picker-fix"
+head_commit: "see PR #196; P1I defect fix pending GitHub checks"
 latest_merged_batch: 141
-active_workstream: "p1a3_products_catalog_picker_latin_first"
-pull_request: null
-recommended_action: "Commit and push P1A.3 products Latin-first identity, then sync Lovable from GitHub main."
-why_medium: "Long chat and cross-project port conflict risk; local validation is green, but Lovable preview still needs GitHub sync."
+active_workstream: "p1i_meta_regions_country_picker_defect_fix"
+pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/196"
+recommended_action: "Wait for PR #196 checks, then merge/sync Lovable only if CI is green."
+why_medium: "Long chat, prior false acceptance of P1I and cross-project naming risk; local validation is green, but GitHub CI is the merge gate."
 ```
 
 ## Risk Levels
@@ -50,10 +50,13 @@ Read first:
 
 Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
-Current branch: main.
-Current workstream: p1a3_products_catalog_picker_latin_first.
-Current HEAD baseline: see git log. P1A.3 is a frontend-only account products checkpoint over /account/products.
-Current PR: none.
+Current branch: codex/p1i-meta-regions-country-picker-fix.
+Current workstream: p1i_meta_regions_country_picker_defect_fix.
+Current HEAD baseline: see PR #196.
+Current PR: https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/196.
+P1I defect context: a prior acceptance claim was wrong because the real repeated country-selection flow was not delivered and verified through GitHub/Lovable.
+P1I behavior: /account/meta-regions requires at least 2 countries; after selecting Argentina the picker stays ready for a second country; Brazil can be searched and selected; selected countries are excluded from the result list; duplicate countries are blocked; chip removal works after adding another country.
+P1I verification: account unit tests passed 35/35; TypeScript, provider-boundary and production build passed; account meta-regions/workspace Playwright passed 17/17; account meta-regions repeated with --repeat-each=2 passed 14/14; 390px screenshots are in test-results/p1i-meta-regions-defect-fixed/.
 P1A.3 behavior: /account/products mounts the workbook-backed product picker; users can search by Latin or commercial/localized names; picker results and visible product identities use Latin-first format, e.g. Scomber scombrus (Atlantic mackerel).
 P1A.3 data boundary: commercialName and latinName remain separate structured edit/storage fields; no backend/provider dependency was added.
 P1A.3 local preview: yorso-commerce-hub is available at http://127.0.0.1:3301/account/products because port 3300 is held by /Users/istokdmgmail.com/yorso_new Next dev.

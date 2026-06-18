@@ -15,6 +15,27 @@
 - `docs/project-memory/PROMPTS/new-chat-recovery-prompt.md`: prompt for recovery in a new chat.
 - `docs/project-memory/templates/`: reusable templates.
 
+## P1I Meta-Regions Defect Fix
+
+- Pull request:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/196`
+- Branch: `codex/p1i-meta-regions-country-picker-fix`
+- `src/pages/account/Account.tsx`: meta-region form requires at least 2
+  countries, keeps the country picker ready for repeated selection, excludes
+  selected countries from results and preserves existing storage shape.
+- `src/components/account/AccountCountryCombobox.tsx`: repeated-selection
+  combobox behavior plus jsdom-safe `scrollIntoView` guard.
+- `src/pages/account/Account.test.tsx`: stale meta-region expectation updated
+  so read mode asserts no technical `usedFor` enum leakage.
+- `e2e/account-meta-regions-crud.spec.ts`: repeated country selection,
+  duplicate prevention, edit remove/add, delete/reload and RU locale coverage.
+- `test-results/p1i-meta-regions-defect-fixed/01-after-argentina-input-ready.png`:
+  390px screenshot showing the picker remains open after Argentina.
+- `test-results/p1i-meta-regions-defect-fixed/02-second-country-list-visible.png`:
+  390px screenshot showing Brazil as the second selectable country.
+- `test-results/p1i-meta-regions-defect-fixed/03-two-countries-selected.png`:
+  390px screenshot showing Argentina and Brazil selected.
+
 ## Core Project Files
 
 - `README.md`: project readme.

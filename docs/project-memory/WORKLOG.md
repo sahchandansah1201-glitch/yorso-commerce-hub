@@ -2,6 +2,39 @@
 
 Keep this file factual and append-only.
 
+## 2026-06-18
+
+- Re-opened P1I meta-regions after user-reported acceptance failure: adding a
+  second country after Argentina was not reliably verified before the previous
+  acceptance claim.
+- Created PR #196 from branch `codex/p1i-meta-regions-country-picker-fix` to
+  deliver the actual `/account/meta-regions` country-list-builder fix to
+  GitHub/Lovable instead of leaving it as local dirty state.
+- Fixed CI blockers on PR #196:
+  - guarded `scrollIntoView` in `AccountCountryCombobox` for jsdom where the
+    method is absent;
+  - updated stale unit coverage so meta-region read mode expects countries
+    without technical `usedFor` enum tags;
+  - removed `networkidle` waits from the meta-regions e2e helper and reload
+    checks, replacing them with explicit account-section assertions.
+- Verified P1I defect flow with fresh evidence:
+  - `npx vitest run src/pages/account/Account.test.tsx
+    src/pages/account/Account.editable.test.tsx` passed 35/35;
+  - `npx tsc -b --noEmit`, `npm run check:provider-boundary` and
+    `npm run build` passed;
+  - `E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4188 npx playwright test
+    e2e/account-meta-regions-crud.spec.ts e2e/account-workspace-sections.spec.ts
+    --project=chromium --reporter=list` passed 17/17;
+  - `E2E_USE_WEB_SERVER=1 E2E_WEB_SERVER_PORT=4189 npx playwright test
+    e2e/account-meta-regions-crud.spec.ts --project=chromium --reporter=list
+    --repeat-each=2` passed 14/14;
+  - Playwright screenshot script confirmed at 390px that after selecting
+    Argentina the picker stays ready for a second country, Brazil appears in
+    the list, and Argentina plus Brazil are selected with no console/page
+    errors, no document overflow and no nested interactive controls.
+- Screenshot evidence saved under
+  `test-results/p1i-meta-regions-defect-fixed/`.
+
 ## 2026-06-12
 
 - Accepted P1B Products picker usability checkpoint after local verification on
