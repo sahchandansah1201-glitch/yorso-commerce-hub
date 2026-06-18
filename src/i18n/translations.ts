@@ -3747,6 +3747,8 @@ const en: TranslationKeys = {
   account_notif_freq_daily: "Daily",
   account_notif_freq_weekly: "Weekly",
   account_notif_eventsLabel: "Events",
+  account_notif_noEvents: "No events selected",
+  account_notif_disabled_hint: "Channel is off — events are kept but no updates are sent.",
   account_notif_form_title: "Edit notification channel",
   account_notif_form_desc: "Choose when this channel should notify the user. No real messages are sent in this prototype.",
   account_notif_field_enabled: "Channel enabled",
