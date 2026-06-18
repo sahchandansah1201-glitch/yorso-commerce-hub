@@ -261,7 +261,7 @@ test.describe("/account workspace sections", () => {
     await openAccount(page, "products", "ru");
 
     const tableText = (await page.getByTestId("account-products-table").textContent()) ?? "";
-    expect(tableText).toContain("Замороженный");
+    expect(tableText).toContain("Мороженный");
     expect(tableText).not.toMatch(/\b(frozen|fresh|alive|buying|selling|both)\b/i);
 
     await page.goto("/account/notifications", { waitUntil: "domcontentloaded" });

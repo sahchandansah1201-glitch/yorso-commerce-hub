@@ -532,7 +532,7 @@ describe("Account RU locale enum leaks", () => {
     expect(html).not.toMatch(/>\s*fresh\s*</);
     expect(html).not.toMatch(/>\s*alive\s*</);
     // Cyrillic state label visible
-    expect(within(table).getAllByText("Замороженный").length).toBeGreaterThan(0);
+    expect(within(table).getAllByText("Мороженный").length).toBeGreaterThan(0);
   });
 
   it("RU company page uses localized accountRole label, not raw enum", () => {
