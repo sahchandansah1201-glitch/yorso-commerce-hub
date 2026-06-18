@@ -1777,6 +1777,8 @@ type TranslationKeys = {
   account_notif_freq_daily: string;
   account_notif_freq_weekly: string;
   account_notif_eventsLabel: string;
+  account_notif_noEvents: string;
+  account_notif_disabled_hint: string;
   account_notif_form_title: string;
   account_notif_form_desc: string;
   account_notif_field_enabled: string;
@@ -3745,6 +3747,8 @@ const en: TranslationKeys = {
   account_notif_freq_daily: "Daily",
   account_notif_freq_weekly: "Weekly",
   account_notif_eventsLabel: "Events",
+  account_notif_noEvents: "No events selected",
+  account_notif_disabled_hint: "Channel is off — events are kept but no updates are sent.",
   account_notif_form_title: "Edit notification channel",
   account_notif_form_desc: "Choose when this channel should notify the user. No real messages are sent in this prototype.",
   account_notif_field_enabled: "Channel enabled",
@@ -5701,6 +5705,8 @@ const ru: TranslationKeys = {
   account_notif_freq_daily: "Раз в день",
   account_notif_freq_weekly: "Раз в неделю",
   account_notif_eventsLabel: "События",
+  account_notif_noEvents: "События не выбраны",
+  account_notif_disabled_hint: "Канал выключен — события сохранены, но уведомления не отправляются.",
   account_notif_form_title: "Редактировать канал уведомлений",
   account_notif_form_desc: "Выберите, когда этот канал должен уведомлять пользователя. В прототипе реальные сообщения не отправляются.",
   account_notif_field_enabled: "Канал включён",
@@ -7656,6 +7662,8 @@ const es: TranslationKeys = {
   account_notif_freq_daily: "Diario",
   account_notif_freq_weekly: "Semanal",
   account_notif_eventsLabel: "Eventos",
+  account_notif_noEvents: "Sin eventos seleccionados",
+  account_notif_disabled_hint: "Canal desactivado: los eventos se conservan, pero no se envían avisos.",
   account_notif_form_title: "Editar canal de notificaciones",
   account_notif_form_desc: "Elige cuándo este canal debe avisar al usuario. En este prototipo no se envían mensajes reales.",
   account_notif_field_enabled: "Canal activo",
