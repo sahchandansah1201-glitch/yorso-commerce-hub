@@ -7662,6 +7662,8 @@ const es: TranslationKeys = {
   account_notif_freq_daily: "Diario",
   account_notif_freq_weekly: "Semanal",
   account_notif_eventsLabel: "Eventos",
+  account_notif_noEvents: "Sin eventos seleccionados",
+  account_notif_disabled_hint: "Canal desactivado: los eventos se conservan, pero no se envían avisos.",
   account_notif_form_title: "Editar canal de notificaciones",
   account_notif_form_desc: "Elige cuándo este canal debe avisar al usuario. En este prototipo no se envían mensajes reales.",
   account_notif_field_enabled: "Canal activo",
