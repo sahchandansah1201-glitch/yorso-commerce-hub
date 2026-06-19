@@ -5832,7 +5832,7 @@ const ru: TranslationKeys = {
   account_supplier_preview_note: "Только фронтенд-предпросмотр. Публичный профиль поставщика будет использовать эти данные позже.",
   account_supplier_preview_emptyLogo: "Нет логотипа",
   account_supplier_preview_emptyCover: "Нет обложки",
-  account_product_state_frozen: "Замороженный",
+  account_product_state_frozen: "Мороженый",
   account_product_state_fresh: "Свежий",
   account_product_state_chilled: "Охлаждённый",
   account_product_state_alive: "Живой",
