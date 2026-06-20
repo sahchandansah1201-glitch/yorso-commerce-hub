@@ -1895,9 +1895,10 @@ const validateProductDraft = (
   t: ReturnType<typeof useLanguage>["t"],
 ) => {
   const nextErrors: Record<string, string> = {
-    commercialName: validateName(draft.commercialName, t, true) ?? "",
-    latinName: validateName(draft.latinName, t, true) ?? "",
-    category: validateName(draft.category, t, true) ?? "",
+    catalog:
+      !draft.commercialName.trim() || !draft.latinName.trim()
+        ? t.account_product_catalog_required
+        : "",
     format: validateText(draft.format, t, 120) ?? "",
     monthlyVolume: validateName(draft.monthlyVolume, t, true) ?? "",
   };
