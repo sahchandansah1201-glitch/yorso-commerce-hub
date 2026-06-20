@@ -2,29 +2,44 @@ import { expect, test, type Page } from "@playwright/test";
 import { installBuyerSession } from "./helpers/buyer-session";
 import { createReportRecorder } from "./helpers/report-artifacts";
 
+const selectFromCatalog = async (page: Page, latin: string) => {
+  await page.getByTestId("account-product-catalog-search").fill(latin);
+  await page
+    .locator('[data-testid^="account-product-catalog-option-"]')
+    .filter({ hasText: latin })
+    .first()
+    .click();
+};
+
 const fillProductForm = async (
   page: Page,
   values: {
-    category: string;
-    certificates: string;
-    commercialName: string;
-    format: string;
-    latinName: string;
-    monthlyVolume: string;
-    role: "buying" | "selling" | "both";
+    latin: string;
     state: "frozen" | "fresh" | "chilled" | "alive" | "cooked";
-    targetCountries: string;
+    role: "buying" | "selling" | "both";
+    monthlyVolume: string;
+    format: string;
+    certificates?: string;
+    targetCountries?: string;
   },
 ) => {
-  await page.getByTestId("account-product-commercial-name").fill(values.commercialName);
-  await page.getByTestId("account-product-latin-name").fill(values.latinName);
-  await page.getByTestId("account-product-category").fill(values.category);
+  await selectFromCatalog(page, values.latin);
   await page.getByTestId("account-product-state").selectOption(values.state);
   await page.getByTestId("account-product-role").selectOption(values.role);
   await page.getByTestId("account-product-monthly-volume").fill(values.monthlyVolume);
   await page.getByTestId("account-product-format").fill(values.format);
-  await page.getByTestId("account-product-certificates").fill(values.certificates);
-  await page.getByTestId("account-product-target-countries").fill(values.targetCountries);
+  if (values.certificates !== undefined || values.targetCountries !== undefined) {
+    await page
+      .getByTestId("account-product-optional-details")
+      .locator("summary")
+      .click();
+    if (values.certificates !== undefined) {
+      await page.getByTestId("account-product-certificates").fill(values.certificates);
+    }
+    if (values.targetCountries !== undefined) {
+      await page.getByTestId("account-product-target-countries").fill(values.targetCountries);
+    }
+  }
 };
 
 const firstProductRowText = async (page: Page) =>
