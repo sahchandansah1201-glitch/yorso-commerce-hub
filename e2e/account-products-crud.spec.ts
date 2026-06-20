@@ -168,7 +168,8 @@ test.describe("/account/products · editable product matrix", () => {
     await page.getByTestId("account-product-save").click();
 
     await expect(page.getByTestId("account-product-form")).toBeVisible();
-    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(4);
+    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(1);
+    await expect(page.getByTestId("account-product-catalog-error")).toBeVisible();
     expect(await mainText(page)).not.toContain("product_");
   });
 
