@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "clean:supabase-scaffold": "node scripts/clean-supabase-scaffold.mjs",
+    "prebuild": "node scripts/clean-supabase-scaffold.mjs",
+    "precheck:provider-boundary": "node scripts/clean-supabase-scaffold.mjs",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "contracts:build": "tsc -p packages/contracts/tsconfig.json",
