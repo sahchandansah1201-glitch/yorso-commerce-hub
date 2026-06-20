@@ -19,8 +19,6 @@ const fillProductForm = async (
     role: "buying" | "selling" | "both";
     monthlyVolume: string;
     format: string;
-    certificates?: string;
-    targetCountries?: string;
   },
 ) => {
   await selectFromCatalog(page, values.latin);
@@ -28,18 +26,6 @@ const fillProductForm = async (
   await page.getByTestId("account-product-role").selectOption(values.role);
   await page.getByTestId("account-product-monthly-volume").fill(values.monthlyVolume);
   await page.getByTestId("account-product-format").fill(values.format);
-  if (values.certificates !== undefined || values.targetCountries !== undefined) {
-    await page
-      .getByTestId("account-product-optional-details")
-      .locator("summary")
-      .click();
-    if (values.certificates !== undefined) {
-      await page.getByTestId("account-product-certificates").fill(values.certificates);
-    }
-    if (values.targetCountries !== undefined) {
-      await page.getByTestId("account-product-target-countries").fill(values.targetCountries);
-    }
-  }
 };
 
 const firstProductRowText = async (page: Page) =>
@@ -107,8 +93,6 @@ test.describe("/account/products · save-flow report artifacts", () => {
       role: "selling",
       monthlyVolume: "22 t / month",
       format: "IQF portions, 4-6 oz",
-      certificates: "ASC, HACCP",
-      targetCountries: "Germany, France, Spain",
     });
     await page.getByTestId("account-product-save").click();
     await expect(page.getByTestId("account-products-table")).toContainText("Atlantic salmon");
@@ -191,13 +175,7 @@ test.describe("/account/products · save-flow report artifacts", () => {
     await expect(detail).toBeVisible();
     await expect(detail).toContainText("Vannamei Shrimp");
     await page.getByTestId("account-product-detail-edit").click();
-    await page
-      .getByTestId("account-product-optional-details")
-      .locator("summary")
-      .click();
-    await page.getByTestId("account-product-target-countries").fill(
-      "Ecuador, India, Vietnam, Spain",
-    );
+    await page.getByTestId("account-product-monthly-volume").fill("9 t / month");
     await page.getByTestId("account-product-save").click();
     await expect(page.getByTestId("account-products-table")).toContainText("Vannamei Shrimp");
     await report.recordStep({
