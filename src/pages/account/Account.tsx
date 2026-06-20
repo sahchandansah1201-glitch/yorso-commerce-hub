@@ -1772,6 +1772,50 @@ const ProductMobileField = ({
 const productTaxonomyDisplay = (product: Pick<CompanyProduct, "commercialName" | "latinName">) =>
   `${product.latinName} (${product.commercialName})`;
 
+const ChipsPreview = ({
+  values,
+  max = 3,
+  testId,
+  emptyLabel,
+}: {
+  values: string[];
+  max?: number;
+  testId?: string;
+  emptyLabel: string;
+}) => {
+  if (!values.length) {
+    return <span className="text-xs text-muted-foreground">{emptyLabel}</span>;
+  }
+  const visible = values.slice(0, max);
+  const hidden = values.slice(max);
+  const fullList = values.join(", ");
+  return (
+    <div
+      className="flex flex-wrap items-center gap-1"
+      data-testid={testId}
+      title={fullList}
+      aria-label={fullList}
+    >
+      {visible.map((v) => (
+        <Badge key={v} variant="outline" className="text-[10px]">
+          {v}
+        </Badge>
+      ))}
+      {hidden.length > 0 ? (
+        <Badge
+          variant="secondary"
+          className="text-[10px]"
+          title={hidden.join(", ")}
+          aria-label={hidden.join(", ")}
+          data-testid={testId ? `${testId}-more` : undefined}
+        >
+          +{hidden.length}
+        </Badge>
+      ) : null}
+    </div>
+  );
+};
+
 const ProductMobileCard = ({
   product,
   isSelected,
@@ -1791,57 +1835,60 @@ const ProductMobileCard = ({
     className="min-w-0 rounded-lg border border-border bg-card p-4 shadow-sm"
     data-testid={`account-product-mobile-card-${product.id}`}
   >
-    <div className="min-w-0 space-y-0.5">
-      <h3 className="break-words text-base font-semibold leading-snug text-foreground">
-        <span className="italic">{product.latinName}</span>
-      </h3>
-      <p className="break-words text-sm leading-snug text-muted-foreground">
-        ({product.commercialName})
-      </p>
-      {product.format ? (
-        <p className="break-words text-xs leading-snug text-muted-foreground">{product.format}</p>
-      ) : null}
+    <div className="flex items-start justify-between gap-3 min-w-0">
+      <div className="min-w-0 space-y-0.5 flex-1">
+        <h3 className="break-words text-base font-semibold leading-snug text-foreground">
+          <span className="italic">{product.latinName}</span>
+        </h3>
+        <p className="break-words text-sm leading-snug text-muted-foreground">
+          ({product.commercialName})
+        </p>
+        {product.format ? (
+          <p className="break-words text-xs leading-snug text-muted-foreground">{product.format}</p>
+        ) : null}
+      </div>
+      <ProductRoleBadge role={product.role} />
     </div>
 
     <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-3 border-t border-border/60 pt-3">
       <ProductMobileField label={t.account_product_col_state}>
-        <span className="break-words">{productStateLabel(product.state, t)}</span>
-      </ProductMobileField>
-      <ProductMobileField label={t.account_product_col_role}>
-        <ProductRoleBadge role={product.role} />
+        <Badge variant="secondary" className="font-normal">
+          {productStateLabel(product.state, t)}
+        </Badge>
       </ProductMobileField>
       <ProductMobileField label={t.account_product_col_volume}>
-        <span className="break-words">{product.monthlyVolume}</span>
+        <span className="break-words tabular-nums">{product.monthlyVolume}</span>
       </ProductMobileField>
-      <ProductMobileField label={t.account_product_col_certs}>
-        {product.certificates.length ? (
-          <span className="flex flex-wrap gap-1">
-            {product.certificates.map((certificate) => (
-              <Badge key={certificate} variant="outline" className="text-[10px]">
-                {certificate}
-              </Badge>
-            ))}
-          </span>
-        ) : (
-          <span className="text-muted-foreground">{t.account_value_notSpecified}</span>
-        )}
-      </ProductMobileField>
+      <div className="col-span-2 min-w-0">
+        <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          {t.account_product_col_certs}
+        </p>
+        <div className="mt-1">
+          <ChipsPreview
+            values={product.certificates}
+            testId={`account-product-mobile-certs-${product.id}`}
+            emptyLabel={t.account_value_notSpecified}
+          />
+        </div>
+      </div>
       <div className="col-span-2 min-w-0">
         <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
           {t.account_product_col_targets}
         </p>
-        <p className="mt-1 break-words text-sm text-foreground">
-          {product.targetCountries.length
-            ? product.targetCountries.join(", ")
-            : t.account_value_notSpecified}
-        </p>
+        <div className="mt-1">
+          <ChipsPreview
+            values={product.targetCountries}
+            testId={`account-product-mobile-targets-${product.id}`}
+            emptyLabel={t.account_value_notSpecified}
+          />
+        </div>
       </div>
     </div>
 
     <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
       <Button
         type="button"
-        variant={isSelected ? "secondary" : "outline"}
+        variant={isSelected ? "secondary" : "default"}
         onClick={onToggleDetails}
         size="sm"
         className="min-h-11 flex-1 justify-center"
@@ -2667,28 +2714,34 @@ const ProductsSection = ({
                     <div className="text-xs text-muted-foreground">({p.commercialName})</div>
                     <div className="text-xs text-muted-foreground">{p.format}</div>
                   </td>
-                  <td className="px-3 py-2">{productStateLabel(p.state, t)}</td>
+                  <td className="px-3 py-2">
+                    <Badge variant="secondary" className="font-normal">
+                      {productStateLabel(p.state, t)}
+                    </Badge>
+                  </td>
                   <td className="px-3 py-2">
                     <ProductRoleBadge role={p.role} />
                   </td>
-                  <td className="px-3 py-2">{p.monthlyVolume}</td>
+                  <td className="px-3 py-2 font-medium tabular-nums">{p.monthlyVolume}</td>
                   <td className="px-3 py-2">
-                    <div className="flex flex-wrap gap-1">
-                      {p.certificates.map((c) => (
-                        <Badge key={c} variant="outline" className="text-[10px]">
-                          {c}
-                        </Badge>
-                      ))}
-                    </div>
+                    <ChipsPreview
+                      values={p.certificates}
+                      testId={`account-product-certs-${p.id}`}
+                      emptyLabel={t.account_value_notSpecified}
+                    />
                   </td>
-                  <td className="px-3 py-2 text-xs text-muted-foreground">
-                    {p.targetCountries.join(", ")}
+                  <td className="px-3 py-2">
+                    <ChipsPreview
+                      values={p.targetCountries}
+                      testId={`account-product-targets-${p.id}`}
+                      emptyLabel={t.account_value_notSpecified}
+                    />
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-2">
                       <Button
                         type="button"
-                        variant={selectedProductId === p.id ? "secondary" : "outline"}
+                        variant={selectedProductId === p.id ? "secondary" : "default"}
                         size="sm"
                         onClick={() =>
                           setSelectedProductId((current) => (current === p.id ? null : p.id))
@@ -2771,25 +2824,34 @@ const ProductsSection = ({
         >
           <div className="grid gap-3 md:grid-cols-2">
             <Field label={t.account_product_col_product} value={productTaxonomyDisplay(selectedProduct)} />
-            <Field label={t.account_product_field_category} value={selectedProduct.category} />
+            <Field label={t.account_product_field_format} value={selectedProduct.format} />
             <Field label={t.account_product_col_state} value={productStateLabel(selectedProduct.state, t)} />
             <Field label={t.account_product_col_role} value={productRoleLabel(selectedProduct.role, t)} />
             <Field label={t.account_product_col_volume} value={selectedProduct.monthlyVolume} />
-            <Field label={t.account_product_field_format} value={selectedProduct.format} />
             <Field
               label={t.account_product_col_targets}
               value={selectedProduct.targetCountries.join(", ")}
             />
           </div>
-          {selectedProduct.certificates.length ? (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {selectedProduct.certificates.map((certificate) => (
-                <Badge key={certificate} variant="outline">
-                  {certificate}
-                </Badge>
-              ))}
+          <div className="mt-4">
+            <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+              {t.account_product_col_certs}
+            </p>
+            <div
+              className="mt-2 flex flex-wrap gap-2"
+              data-testid={`account-product-detail-certs-${selectedProduct.id}`}
+            >
+              {selectedProduct.certificates.length ? (
+                selectedProduct.certificates.map((certificate) => (
+                  <Badge key={certificate} variant="outline">
+                    {certificate}
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-sm text-muted-foreground">{t.account_value_notSpecified}</span>
+              )}
             </div>
-          ) : null}
+          </div>
           <div className="mt-4 flex justify-end gap-2">
             <Button
               type="button"
