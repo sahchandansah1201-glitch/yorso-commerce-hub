@@ -1916,7 +1916,6 @@ const productDuplicateKey = (product: CompanyProduct) =>
   [
     product.commercialName,
     product.latinName,
-    product.category,
     product.state,
     product.role,
     product.format,
