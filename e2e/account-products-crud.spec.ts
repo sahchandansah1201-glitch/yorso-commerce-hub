@@ -607,9 +607,7 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: "Trial Mackerel HGT",
-      latinName: "Scomber japonicus",
-      category: "Mackerel",
+      latin: "Scomber japonicus",
       state: "frozen",
       role: "buying",
       monthlyVolume: "6 t / month",
@@ -618,13 +616,13 @@ test.describe("/account/products · editable product matrix", () => {
       targetCountries: "China",
     });
     await page.getByTestId("account-product-save").click();
-    await expect(page.getByTestId("account-products-table")).toContainText("Trial Mackerel HGT");
+    await expect(page.getByTestId("account-products-table")).toContainText("Pacific chub mackerel");
 
-    const row = page.locator("tbody tr").filter({ hasText: "Trial Mackerel HGT" });
+    const row = page.locator("tbody tr").filter({ hasText: "Pacific chub mackerel" });
     await row.getByRole("button", { name: /delete product/i }).click();
     await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
     await expect(page.getByTestId("account-product-delete-confirm")).toContainText(
-      "Trial Mackerel HGT",
+      "Pacific chub mackerel",
     );
     await expect(page.getByTestId("account-product-delete-confirm")).toContainText(
       "Scomber japonicus",
@@ -632,15 +630,15 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-delete-confirm-cancel").click();
     await expect(page.getByTestId("account-product-delete-confirm")).toBeHidden();
-    await expect(page.getByTestId("account-products-table")).toContainText("Trial Mackerel HGT");
+    await expect(page.getByTestId("account-products-table")).toContainText("Pacific chub mackerel");
 
     await row.getByRole("button", { name: /delete product/i }).click();
     await page.getByTestId("account-product-delete-confirm-submit").click();
 
-    await expect(page.getByTestId("account-products-table")).not.toContainText("Trial Mackerel HGT");
+    await expect(page.getByTestId("account-products-table")).not.toContainText("Pacific chub mackerel");
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
-    await expect(page.getByTestId("account-products-table")).not.toContainText("Trial Mackerel HGT");
+    await expect(page.getByTestId("account-products-table")).not.toContainText("Pacific chub mackerel");
   });
 
   test("mobile product delete confirmation cancels safely and confirms removal", async ({
