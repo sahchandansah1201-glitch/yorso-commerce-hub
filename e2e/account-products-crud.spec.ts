@@ -474,7 +474,8 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(firstCard).toContainText("Gadus chalcogrammus");
     await expect(firstCard).toContainText("(Alaska Pollock Fillet)");
     await expect(firstCard).toContainText("Состояние");
-    await expect(firstCard).toContainText("Роль");
+    // Role rendered as a top-right badge without a separate label in the scanable card.
+    await expect(firstCard).toContainText("Покупка");
     await expect(firstCard).toContainText("Объём");
     await expect(firstCard).toContainText("Сертификации");
     await expect(firstCard).toContainText("Целевые страны");
