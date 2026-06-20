@@ -2,29 +2,44 @@ import { expect, test, type Page } from "@playwright/test";
 import { installBuyerSession } from "./helpers/buyer-session";
 import { createReportRecorder } from "./helpers/report-artifacts";
 
+const selectFromCatalog = async (page: Page, latin: string) => {
+  await page.getByTestId("account-product-catalog-search").fill(latin);
+  await page
+    .locator('[data-testid^="account-product-catalog-option-"]')
+    .filter({ hasText: latin })
+    .first()
+    .click();
+};
+
 const fillProductForm = async (
   page: Page,
   values: {
-    category: string;
-    certificates: string;
-    commercialName: string;
-    format: string;
-    latinName: string;
-    monthlyVolume: string;
-    role: "buying" | "selling" | "both";
+    latin: string;
     state: "frozen" | "fresh" | "chilled" | "alive" | "cooked";
-    targetCountries: string;
+    role: "buying" | "selling" | "both";
+    monthlyVolume: string;
+    format: string;
+    certificates?: string;
+    targetCountries?: string;
   },
 ) => {
-  await page.getByTestId("account-product-commercial-name").fill(values.commercialName);
-  await page.getByTestId("account-product-latin-name").fill(values.latinName);
-  await page.getByTestId("account-product-category").fill(values.category);
+  await selectFromCatalog(page, values.latin);
   await page.getByTestId("account-product-state").selectOption(values.state);
   await page.getByTestId("account-product-role").selectOption(values.role);
   await page.getByTestId("account-product-monthly-volume").fill(values.monthlyVolume);
   await page.getByTestId("account-product-format").fill(values.format);
-  await page.getByTestId("account-product-certificates").fill(values.certificates);
-  await page.getByTestId("account-product-target-countries").fill(values.targetCountries);
+  if (values.certificates !== undefined || values.targetCountries !== undefined) {
+    await page
+      .getByTestId("account-product-optional-details")
+      .locator("summary")
+      .click();
+    if (values.certificates !== undefined) {
+      await page.getByTestId("account-product-certificates").fill(values.certificates);
+    }
+    if (values.targetCountries !== undefined) {
+      await page.getByTestId("account-product-target-countries").fill(values.targetCountries);
+    }
+  }
 };
 
 const firstProductRowText = async (page: Page) =>
@@ -74,7 +89,8 @@ test.describe("/account/products · save-flow report artifacts", () => {
     await page.getByTestId("account-product-add").click();
     await page.getByTestId("account-product-save").click();
     await expect(page.getByTestId("account-product-form")).toBeVisible();
-    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(4);
+    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(1);
+    await expect(page.getByTestId("account-product-catalog-error")).toBeVisible();
     await report.recordStep({
       name: "incomplete product blocked",
       detail: "required product fields keep the form open and expose invalid-field markers",
@@ -86,9 +102,7 @@ test.describe("/account/products · save-flow report artifacts", () => {
 
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: "Report Salmon Portions 4-6 oz",
-      latinName: "Salmo salar",
-      category: "Salmon",
+      latin: "Salmo salar",
       state: "frozen",
       role: "selling",
       monthlyVolume: "22 t / month",
@@ -97,16 +111,14 @@ test.describe("/account/products · save-flow report artifacts", () => {
       targetCountries: "Germany, France, Spain",
     });
     await page.getByTestId("account-product-save").click();
-    await expect(page.getByTestId("account-products-table")).toContainText(
-      "Report Salmon Portions 4-6 oz",
-    );
+    await expect(page.getByTestId("account-products-table")).toContainText("Atlantic salmon");
     await expect
       .poll(() =>
         page.evaluate(() =>
           Boolean(
             localStorage
               .getItem("yorso_account_profile_v1")
-              ?.includes("Report Salmon Portions 4-6 oz"),
+              ?.includes("Salmo salar"),
           ),
         ),
       )
@@ -121,19 +133,14 @@ test.describe("/account/products · save-flow report artifacts", () => {
 
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: " Atlantic Cod H&G ",
-      latinName: "gadus morhua",
-      category: "whitefish",
+      latin: "Salmo salar",
       state: "frozen",
       role: "selling",
-      monthlyVolume: "Duplicate product should not persist",
-      format: "H&G, IQF, 1-2 / 2-4 kg",
-      certificates: "MSC",
-      targetCountries: "Spain",
+      monthlyVolume: "Duplicate volume should not persist",
+      format: "IQF portions, 4-6 oz",
     });
     await page.getByTestId("account-product-save").click();
     await expect(page.getByText("This product already exists")).toBeVisible();
-    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(1);
     await report.recordStep({
       name: "duplicate product blocked",
       detail: "duplicate matching key is rejected without writing the draft into storage",
@@ -184,43 +191,38 @@ test.describe("/account/products · save-flow report artifacts", () => {
     await expect(detail).toBeVisible();
     await expect(detail).toContainText("Vannamei Shrimp");
     await page.getByTestId("account-product-detail-edit").click();
-    await page.getByTestId("account-product-commercial-name").fill("Vannamei Shrimp Report QA");
+    await page
+      .getByTestId("account-product-optional-details")
+      .locator("summary")
+      .click();
     await page.getByTestId("account-product-target-countries").fill(
       "Ecuador, India, Vietnam, Spain",
     );
     await page.getByTestId("account-product-save").click();
-    await expect(page.getByTestId("account-products-table")).toContainText(
-      "Vannamei Shrimp Report QA",
-    );
+    await expect(page.getByTestId("account-products-table")).toContainText("Vannamei Shrimp");
     await report.recordStep({
       name: "detail panel starts edit flow",
-      detail: "selected product detail panel can enter edit mode and persist a product rename",
+      detail: "selected product detail panel can enter edit mode and persist a product change",
       page,
       screenshotName: "product-detail-edit-saved",
       testInfo,
     });
 
-    const addedRow = page.locator("tbody tr").filter({ hasText: "Report Salmon Portions 4-6 oz" });
+    const addedRow = page.locator("tbody tr").filter({ hasText: "Atlantic salmon" });
     await addedRow.getByRole("button", { name: /delete product/i }).click();
     await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
     await page.getByTestId("account-product-delete-confirm-submit").click();
-    await expect(page.getByTestId("account-products-table")).not.toContainText(
-      "Report Salmon Portions 4-6 oz",
-    );
+    await expect(page.getByTestId("account-products-table")).not.toContainText("Atlantic salmon");
     await page.goto("/account/products", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
-    await page.getByTestId("account-product-search").fill("Vannamei Shrimp Report QA");
-    await expect(page.getByTestId("account-products-table")).toContainText(
-      "Vannamei Shrimp Report QA",
-    );
-    await page.getByTestId("account-product-search").fill("Report Salmon Portions");
+    await page.getByTestId("account-product-search").fill("Vannamei Shrimp");
+    await expect(page.getByTestId("account-products-table")).toContainText("Vannamei Shrimp");
+    await page.getByTestId("account-product-search").fill("Atlantic salmon");
     await expect(page.getByTestId("account-product-no-results")).toBeVisible();
-    await expect(page.getByTestId("account-products-table")).not.toContainText(
-      "Report Salmon Portions 4-6 oz",
-    );
+    await expect(page.getByTestId("account-products-table")).not.toContainText("Atlantic salmon");
     await report.recordStep({
       name: "delete and reload persistence verified",
-      detail: "deleted report product stays removed while the edited shrimp product survives reload",
+      detail: "deleted salmon product stays removed while the shrimp product survives reload",
       page,
       screenshotName: "product-delete-after-reload",
       testInfo,
@@ -235,7 +237,7 @@ test.describe("/account/products · save-flow report artifacts", () => {
     await ruPage.waitForLoadState("networkidle");
     const mainText = (await ruPage.locator("main").textContent()) ?? "";
     expect(mainText).toContain("Матрица продуктов");
-    expect(mainText).toContain("Замороженный");
+    expect(mainText).toContain("Мороженый");
     expect(mainText).toContain("Сортировать по");
     expect(mainText).not.toMatch(
       /\bfrozen\b|\bbuying\b|\bselling\b|\bboth\b|commercialName|monthlyVolume/,

@@ -1895,9 +1895,10 @@ const validateProductDraft = (
   t: ReturnType<typeof useLanguage>["t"],
 ) => {
   const nextErrors: Record<string, string> = {
-    commercialName: validateName(draft.commercialName, t, true) ?? "",
-    latinName: validateName(draft.latinName, t, true) ?? "",
-    category: validateName(draft.category, t, true) ?? "",
+    catalog:
+      !draft.commercialName.trim() || !draft.latinName.trim()
+        ? t.account_product_catalog_required
+        : "",
     format: validateText(draft.format, t, 120) ?? "",
     monthlyVolume: validateName(draft.monthlyVolume, t, true) ?? "",
   };
@@ -1915,7 +1916,6 @@ const productDuplicateKey = (product: CompanyProduct) =>
   [
     product.commercialName,
     product.latinName,
-    product.category,
     product.state,
     product.role,
     product.format,
@@ -2176,7 +2176,7 @@ const ProductsSection = ({
         product.id !== editingId && productDuplicateKey(product) === productDuplicateKey(normalized),
     );
     if (duplicate) {
-      setErrors({ commercialName: t.account_product_duplicate_error });
+      setSaveError(t.account_product_duplicate_error);
       return;
     }
 
@@ -2470,29 +2470,17 @@ const ProductsSection = ({
                 )
               }
             />
+            {errors.catalog ? (
+              <p
+                className="mt-2 text-xs text-destructive"
+                role="alert"
+                data-testid="account-product-catalog-error"
+              >
+                {errors.catalog}
+              </p>
+            ) : null}
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <FormRow label={t.account_product_col_product} required error={errors.commercialName}>
-              <Input
-                value={draft.commercialName}
-                onChange={(e) => setDraft({ ...draft, commercialName: e.target.value })}
-                data-testid="account-product-commercial-name"
-              />
-            </FormRow>
-            <FormRow label={t.account_product_col_latin} required error={errors.latinName}>
-              <Input
-                value={draft.latinName}
-                onChange={(e) => setDraft({ ...draft, latinName: e.target.value })}
-                data-testid="account-product-latin-name"
-              />
-            </FormRow>
-            <FormRow label={t.account_product_field_category} required error={errors.category}>
-              <Input
-                value={draft.category}
-                onChange={(e) => setDraft({ ...draft, category: e.target.value })}
-                data-testid="account-product-category"
-              />
-            </FormRow>
             <FormRow label={t.account_product_col_state}>
               <select
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -2539,23 +2527,36 @@ const ProductsSection = ({
                 data-testid="account-product-format"
               />
             </FormRow>
-            <FormRow label={t.account_product_col_certs}>
-              <Input
-                value={draft.certificates.join(", ")}
-                onChange={(e) => setDraft({ ...draft, certificates: splitList(e.target.value) })}
-                data-testid="account-product-certificates"
-              />
-            </FormRow>
-            <FormRow label={t.account_product_col_targets}>
-              <Input
-                value={draft.targetCountries.join(", ")}
-                onChange={(e) =>
-                  setDraft({ ...draft, targetCountries: splitList(e.target.value) })
-                }
-                data-testid="account-product-target-countries"
-              />
-            </FormRow>
           </div>
+          <details
+            className="mt-4 rounded-md border border-border/60 bg-muted/30 px-3 py-2"
+            data-testid="account-product-optional-details"
+          >
+            <summary className="cursor-pointer text-sm font-medium text-foreground">
+              {t.account_product_optional_title}
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                {t.account_product_optional_summary}
+              </span>
+            </summary>
+            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+              <FormRow label={t.account_product_col_certs}>
+                <Input
+                  value={draft.certificates.join(", ")}
+                  onChange={(e) => setDraft({ ...draft, certificates: splitList(e.target.value) })}
+                  data-testid="account-product-certificates"
+                />
+              </FormRow>
+              <FormRow label={t.account_product_col_targets}>
+                <Input
+                  value={draft.targetCountries.join(", ")}
+                  onChange={(e) =>
+                    setDraft({ ...draft, targetCountries: splitList(e.target.value) })
+                  }
+                  data-testid="account-product-target-countries"
+                />
+              </FormRow>
+            </div>
+          </details>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
             <Button
               type="button"

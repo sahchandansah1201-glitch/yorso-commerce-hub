@@ -65,29 +65,44 @@ const expectStorageContains = async (page: Page, expected: string) => {
     .toBe(true);
 };
 
+const selectFromCatalog = async (page: Page, latin: string) => {
+  await page.getByTestId("account-product-catalog-search").fill(latin);
+  await page
+    .locator('[data-testid^="account-product-catalog-option-"]')
+    .filter({ hasText: latin })
+    .first()
+    .click();
+};
+
 const fillProductForm = async (
   page: Page,
   values: {
-    commercialName: string;
-    latinName: string;
-    category: string;
+    latin: string;
     state: "frozen" | "fresh" | "chilled" | "alive" | "cooked";
     role: "buying" | "selling" | "both";
     monthlyVolume: string;
     format: string;
-    certificates: string;
-    targetCountries: string;
+    certificates?: string;
+    targetCountries?: string;
   },
 ) => {
-  await page.getByTestId("account-product-commercial-name").fill(values.commercialName);
-  await page.getByTestId("account-product-latin-name").fill(values.latinName);
-  await page.getByTestId("account-product-category").fill(values.category);
+  await selectFromCatalog(page, values.latin);
   await page.getByTestId("account-product-state").selectOption(values.state);
   await page.getByTestId("account-product-role").selectOption(values.role);
   await page.getByTestId("account-product-monthly-volume").fill(values.monthlyVolume);
   await page.getByTestId("account-product-format").fill(values.format);
-  await page.getByTestId("account-product-certificates").fill(values.certificates);
-  await page.getByTestId("account-product-target-countries").fill(values.targetCountries);
+  if (values.certificates !== undefined || values.targetCountries !== undefined) {
+    await page
+      .getByTestId("account-product-optional-details")
+      .locator("summary")
+      .click();
+    if (values.certificates !== undefined) {
+      await page.getByTestId("account-product-certificates").fill(values.certificates);
+    }
+    if (values.targetCountries !== undefined) {
+      await page.getByTestId("account-product-target-countries").fill(values.targetCountries);
+    }
+  }
 };
 
 test.describe("/account/products · editable product matrix", () => {
@@ -96,9 +111,7 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: "Norwegian Salmon Fillet 2-4 lb",
-      latinName: "Salmo salar",
-      category: "Salmon",
+      latin: "Salmo salar",
       state: "fresh",
       role: "selling",
       monthlyVolume: "18 t / month",
@@ -109,18 +122,17 @@ test.describe("/account/products · editable product matrix", () => {
     await page.getByTestId("account-product-save").click();
 
     const table = page.getByTestId("account-products-table");
-    await expect(table).toContainText("Norwegian Salmon Fillet 2-4 lb");
+    await expect(table).toContainText("Atlantic salmon");
     await expect(table).toContainText("Fresh");
     await expect(table).toContainText("Selling");
     await expect(table).toContainText("ASC");
-    await expectStorageContains(page, "Norwegian Salmon Fillet 2-4 lb");
+    await expectStorageContains(page, "Salmo salar");
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
-    await expect(page.getByTestId("account-products-table")).toContainText(
-      "Norwegian Salmon Fillet 2-4 lb",
-    );
+    await expect(page.getByTestId("account-products-table")).toContainText("Atlantic salmon");
   });
+
 
   test("catalog picker fills commercial and Latin names from the workbook catalog", async ({
     page,
@@ -141,10 +153,12 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByTestId("account-product-catalog-search")).toHaveValue(
       "Scomber scombrus (Atlantic mackerel)",
     );
-    await expect(page.getByTestId("account-product-commercial-name")).toHaveValue(
+    await expect(page.getByTestId("account-product-selected-latin")).toContainText(
+      "Scomber scombrus",
+    );
+    await expect(page.getByTestId("account-product-selected-commercial")).toContainText(
       "Atlantic mackerel",
     );
-    await expect(page.getByTestId("account-product-latin-name")).toHaveValue("Scomber scombrus");
   });
 
   test("validation keeps incomplete products out of the matrix", async ({ page }) => {
@@ -154,7 +168,8 @@ test.describe("/account/products · editable product matrix", () => {
     await page.getByTestId("account-product-save").click();
 
     await expect(page.getByTestId("account-product-form")).toBeVisible();
-    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(4);
+    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(1);
+    await expect(page.getByTestId("account-product-catalog-error")).toBeVisible();
     expect(await mainText(page)).not.toContain("product_");
   });
 
@@ -505,29 +520,34 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: " Atlantic Cod H&G ",
-      latinName: "gadus morhua",
-      category: "whitefish",
-      state: "frozen",
+      latin: "Salmo salar",
+      state: "fresh",
       role: "selling",
-      monthlyVolume: "Duplicate product should not persist",
-      format: "H&G, IQF, 1-2 / 2-4 kg",
-      certificates: "MSC",
-      targetCountries: "Spain",
+      monthlyVolume: "Original duplicate test volume",
+      format: "Skin-on fillet",
+    });
+    await page.getByTestId("account-product-save").click();
+    await expect(page.getByTestId("account-products-table")).toContainText("Atlantic salmon");
+
+    await page.getByTestId("account-product-add").click();
+    await fillProductForm(page, {
+      latin: "Salmo salar",
+      state: "fresh",
+      role: "selling",
+      monthlyVolume: "Duplicate volume should not persist",
+      format: "Skin-on fillet",
     });
     await page.getByTestId("account-product-save").click();
 
     await expect(page.getByTestId("account-product-form")).toBeVisible();
     await expect(page.getByText("This product already exists")).toBeVisible();
-    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(1);
-    await expect(page.getByTestId("account-product-results-count")).toContainText("6 of 6");
     await expect
       .poll(() =>
         page.evaluate(() =>
           Boolean(
             localStorage
               .getItem("yorso_account_profile_v1")
-              ?.includes("Duplicate product should not persist"),
+              ?.includes("Duplicate volume should not persist"),
           ),
         ),
       )
@@ -538,18 +558,22 @@ test.describe("/account/products · editable product matrix", () => {
     await openProducts(page);
 
     await page.getByTestId("account-product-edit-p_1").click();
-    await page.getByTestId("account-product-commercial-name").fill("Atlantic Salmon Fillet EU");
     await page.getByTestId("account-product-state").selectOption("chilled");
     await page.getByTestId("account-product-role").selectOption("selling");
+    await page
+      .getByTestId("account-product-optional-details")
+      .locator("summary")
+      .click();
     await page.getByTestId("account-product-target-countries").fill("Germany, Poland, Spain");
     await page.getByTestId("account-product-save").click();
 
     const text = await mainText(page);
-    expect(text).toContain("Atlantic Salmon Fillet EU");
+    expect(text).toContain("Atlantic Cod H&G");
     expect(text).toContain("Chilled");
     expect(text).toContain("Selling");
+    expect(text).toContain("Poland");
     expect(text).not.toMatch(/\bfrozen\b|\bchilled\b|\bselling\b/);
-    await expectStorageContains(page, "Atlantic Salmon Fillet EU");
+    await expectStorageContains(page, "Poland");
   });
 
   test("product details panel shows matching profile and can start editing", async ({
@@ -566,7 +590,12 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-detail-edit").click();
     await expect(page.getByTestId("account-product-form")).toBeVisible();
-    await expect(page.getByTestId("account-product-commercial-name")).toHaveValue("Vannamei Shrimp");
+    await expect(page.getByTestId("account-product-selected-latin")).toContainText(
+      "Litopenaeus vannamei",
+    );
+    await expect(page.getByTestId("account-product-selected-commercial")).toContainText(
+      "Vannamei Shrimp",
+    );
     await page.getByTestId("account-product-cancel").click();
 
     await page.getByTestId("account-product-close-detail").click();
@@ -578,9 +607,7 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: "Trial Mackerel HGT",
-      latinName: "Scomber japonicus",
-      category: "Mackerel",
+      latin: "Scomber japonicus",
       state: "frozen",
       role: "buying",
       monthlyVolume: "6 t / month",
@@ -589,13 +616,13 @@ test.describe("/account/products · editable product matrix", () => {
       targetCountries: "China",
     });
     await page.getByTestId("account-product-save").click();
-    await expect(page.getByTestId("account-products-table")).toContainText("Trial Mackerel HGT");
+    await expect(page.getByTestId("account-products-table")).toContainText("Pacific chub mackerel");
 
-    const row = page.locator("tbody tr").filter({ hasText: "Trial Mackerel HGT" });
+    const row = page.locator("tbody tr").filter({ hasText: "Pacific chub mackerel" });
     await row.getByRole("button", { name: /delete product/i }).click();
     await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
     await expect(page.getByTestId("account-product-delete-confirm")).toContainText(
-      "Trial Mackerel HGT",
+      "Pacific chub mackerel",
     );
     await expect(page.getByTestId("account-product-delete-confirm")).toContainText(
       "Scomber japonicus",
@@ -603,15 +630,15 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-delete-confirm-cancel").click();
     await expect(page.getByTestId("account-product-delete-confirm")).toBeHidden();
-    await expect(page.getByTestId("account-products-table")).toContainText("Trial Mackerel HGT");
+    await expect(page.getByTestId("account-products-table")).toContainText("Pacific chub mackerel");
 
     await row.getByRole("button", { name: /delete product/i }).click();
     await page.getByTestId("account-product-delete-confirm-submit").click();
 
-    await expect(page.getByTestId("account-products-table")).not.toContainText("Trial Mackerel HGT");
+    await expect(page.getByTestId("account-products-table")).not.toContainText("Pacific chub mackerel");
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
-    await expect(page.getByTestId("account-products-table")).not.toContainText("Trial Mackerel HGT");
+    await expect(page.getByTestId("account-products-table")).not.toContainText("Pacific chub mackerel");
   });
 
   test("mobile product delete confirmation cancels safely and confirms removal", async ({
@@ -661,9 +688,7 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByTestId("account-section-products")).toContainText("Матрица продуктов");
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: "Креветка ваннамей HOSO",
-      latinName: "Litopenaeus vannamei",
-      category: "Креветка",
+      latin: "Salmo salar",
       state: "frozen",
       role: "buying",
       monthlyVolume: "12 т / месяц",
@@ -674,8 +699,8 @@ test.describe("/account/products · editable product matrix", () => {
     await page.getByTestId("account-product-save").click();
 
     const text = await mainText(page);
-    expect(text).toContain("Креветка ваннамей HOSO");
-    expect(text).toContain("Замороженный");
+    expect(text).toContain("Лосось атлантический");
+    expect(text).toContain("Мороженый");
     expect(text).toContain("Покупка");
     expect(text).toContain("Сортировать по");
     expect(text).toContain("Сортировка: Названию продукта");

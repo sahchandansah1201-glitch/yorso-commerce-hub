@@ -1727,6 +1727,9 @@ type TranslationKeys = {
   account_product_catalog_picker_empty_hint: string;
   account_product_catalog_picker_selected_label: string;
   account_product_catalog_picker_alias_label: string;
+  account_product_catalog_required: string;
+  account_product_optional_title: string;
+  account_product_optional_summary: string;
   account_product_field_category: string;
   account_product_field_format: string;
   account_product_role_buying: string;
@@ -3698,6 +3701,9 @@ const en: TranslationKeys = {
   account_product_catalog_picker_empty_hint: "Try Latin name or commercial name.",
   account_product_catalog_picker_selected_label: "Selected product",
   account_product_catalog_picker_alias_label: "alias",
+  account_product_catalog_required: "Select a product from the catalog.",
+  account_product_optional_title: "Optional details",
+  account_product_optional_summary: "Certifications, target countries",
   account_product_field_category: "Category",
   account_product_field_format: "Format / cut",
   account_product_role_buying: "Buying",
@@ -5657,6 +5663,9 @@ const ru: TranslationKeys = {
   account_product_catalog_picker_empty_hint: "Попробуйте латинское или коммерческое название.",
   account_product_catalog_picker_selected_label: "Выбранный продукт",
   account_product_catalog_picker_alias_label: "псевдоним",
+  account_product_catalog_required: "Выберите продукт из справочника.",
+  account_product_optional_title: "Дополнительные детали",
+  account_product_optional_summary: "Сертификации, целевые страны",
   account_product_field_category: "Категория",
   account_product_field_format: "Формат / разделка",
   account_product_role_buying: "Покупка",
@@ -7615,6 +7624,9 @@ const es: TranslationKeys = {
   account_product_catalog_picker_empty_hint: "Prueba con el nombre latino o comercial.",
   account_product_catalog_picker_selected_label: "Producto seleccionado",
   account_product_catalog_picker_alias_label: "alias",
+  account_product_catalog_required: "Selecciona un producto del catálogo.",
+  account_product_optional_title: "Detalles opcionales",
+  account_product_optional_summary: "Certificaciones, países objetivo",
   account_product_field_category: "Categoría",
   account_product_field_format: "Formato / corte",
   account_product_role_buying: "Compra",
