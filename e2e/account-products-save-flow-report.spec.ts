@@ -89,7 +89,8 @@ test.describe("/account/products · save-flow report artifacts", () => {
     await page.getByTestId("account-product-add").click();
     await page.getByTestId("account-product-save").click();
     await expect(page.getByTestId("account-product-form")).toBeVisible();
-    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(4);
+    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(1);
+    await expect(page.getByTestId("account-product-catalog-error")).toBeVisible();
     await report.recordStep({
       name: "incomplete product blocked",
       detail: "required product fields keep the form open and expose invalid-field markers",
@@ -101,9 +102,7 @@ test.describe("/account/products · save-flow report artifacts", () => {
 
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: "Report Salmon Portions 4-6 oz",
-      latinName: "Salmo salar",
-      category: "Salmon",
+      latin: "Salmo salar",
       state: "frozen",
       role: "selling",
       monthlyVolume: "22 t / month",
@@ -112,16 +111,14 @@ test.describe("/account/products · save-flow report artifacts", () => {
       targetCountries: "Germany, France, Spain",
     });
     await page.getByTestId("account-product-save").click();
-    await expect(page.getByTestId("account-products-table")).toContainText(
-      "Report Salmon Portions 4-6 oz",
-    );
+    await expect(page.getByTestId("account-products-table")).toContainText("Atlantic salmon");
     await expect
       .poll(() =>
         page.evaluate(() =>
           Boolean(
             localStorage
               .getItem("yorso_account_profile_v1")
-              ?.includes("Report Salmon Portions 4-6 oz"),
+              ?.includes("Salmo salar"),
           ),
         ),
       )
@@ -136,19 +133,14 @@ test.describe("/account/products · save-flow report artifacts", () => {
 
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: " Atlantic Cod H&G ",
-      latinName: "gadus morhua",
-      category: "whitefish",
+      latin: "Salmo salar",
       state: "frozen",
       role: "selling",
-      monthlyVolume: "Duplicate product should not persist",
-      format: "H&G, IQF, 1-2 / 2-4 kg",
-      certificates: "MSC",
-      targetCountries: "Spain",
+      monthlyVolume: "Duplicate volume should not persist",
+      format: "IQF portions, 4-6 oz",
     });
     await page.getByTestId("account-product-save").click();
     await expect(page.getByText("This product already exists")).toBeVisible();
-    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(1);
     await report.recordStep({
       name: "duplicate product blocked",
       detail: "duplicate matching key is rejected without writing the draft into storage",
