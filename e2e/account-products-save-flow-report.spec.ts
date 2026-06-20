@@ -191,43 +191,38 @@ test.describe("/account/products · save-flow report artifacts", () => {
     await expect(detail).toBeVisible();
     await expect(detail).toContainText("Vannamei Shrimp");
     await page.getByTestId("account-product-detail-edit").click();
-    await page.getByTestId("account-product-commercial-name").fill("Vannamei Shrimp Report QA");
+    await page
+      .getByTestId("account-product-optional-details")
+      .locator("summary")
+      .click();
     await page.getByTestId("account-product-target-countries").fill(
       "Ecuador, India, Vietnam, Spain",
     );
     await page.getByTestId("account-product-save").click();
-    await expect(page.getByTestId("account-products-table")).toContainText(
-      "Vannamei Shrimp Report QA",
-    );
+    await expect(page.getByTestId("account-products-table")).toContainText("Vannamei Shrimp");
     await report.recordStep({
       name: "detail panel starts edit flow",
-      detail: "selected product detail panel can enter edit mode and persist a product rename",
+      detail: "selected product detail panel can enter edit mode and persist a product change",
       page,
       screenshotName: "product-detail-edit-saved",
       testInfo,
     });
 
-    const addedRow = page.locator("tbody tr").filter({ hasText: "Report Salmon Portions 4-6 oz" });
+    const addedRow = page.locator("tbody tr").filter({ hasText: "Atlantic salmon" });
     await addedRow.getByRole("button", { name: /delete product/i }).click();
     await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
     await page.getByTestId("account-product-delete-confirm-submit").click();
-    await expect(page.getByTestId("account-products-table")).not.toContainText(
-      "Report Salmon Portions 4-6 oz",
-    );
+    await expect(page.getByTestId("account-products-table")).not.toContainText("Atlantic salmon");
     await page.goto("/account/products", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
-    await page.getByTestId("account-product-search").fill("Vannamei Shrimp Report QA");
-    await expect(page.getByTestId("account-products-table")).toContainText(
-      "Vannamei Shrimp Report QA",
-    );
-    await page.getByTestId("account-product-search").fill("Report Salmon Portions");
+    await page.getByTestId("account-product-search").fill("Vannamei Shrimp");
+    await expect(page.getByTestId("account-products-table")).toContainText("Vannamei Shrimp");
+    await page.getByTestId("account-product-search").fill("Atlantic salmon");
     await expect(page.getByTestId("account-product-no-results")).toBeVisible();
-    await expect(page.getByTestId("account-products-table")).not.toContainText(
-      "Report Salmon Portions 4-6 oz",
-    );
+    await expect(page.getByTestId("account-products-table")).not.toContainText("Atlantic salmon");
     await report.recordStep({
       name: "delete and reload persistence verified",
-      detail: "deleted report product stays removed while the edited shrimp product survives reload",
+      detail: "deleted salmon product stays removed while the shrimp product survives reload",
       page,
       screenshotName: "product-delete-after-reload",
       testInfo,
