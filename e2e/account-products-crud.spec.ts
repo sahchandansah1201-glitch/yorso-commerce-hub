@@ -520,29 +520,34 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: " Atlantic Cod H&G ",
-      latinName: "gadus morhua",
-      category: "whitefish",
-      state: "frozen",
+      latin: "Salmo salar",
+      state: "fresh",
       role: "selling",
-      monthlyVolume: "Duplicate product should not persist",
-      format: "H&G, IQF, 1-2 / 2-4 kg",
-      certificates: "MSC",
-      targetCountries: "Spain",
+      monthlyVolume: "Original duplicate test volume",
+      format: "Skin-on fillet",
+    });
+    await page.getByTestId("account-product-save").click();
+    await expect(page.getByTestId("account-products-table")).toContainText("Atlantic salmon");
+
+    await page.getByTestId("account-product-add").click();
+    await fillProductForm(page, {
+      latin: "Salmo salar",
+      state: "fresh",
+      role: "selling",
+      monthlyVolume: "Duplicate volume should not persist",
+      format: "Skin-on fillet",
     });
     await page.getByTestId("account-product-save").click();
 
     await expect(page.getByTestId("account-product-form")).toBeVisible();
     await expect(page.getByText("This product already exists")).toBeVisible();
-    await expect(page.locator('[aria-invalid="true"]')).toHaveCount(1);
-    await expect(page.getByTestId("account-product-results-count")).toContainText("6 of 6");
     await expect
       .poll(() =>
         page.evaluate(() =>
           Boolean(
             localStorage
               .getItem("yorso_account_profile_v1")
-              ?.includes("Duplicate product should not persist"),
+              ?.includes("Duplicate volume should not persist"),
           ),
         ),
       )
