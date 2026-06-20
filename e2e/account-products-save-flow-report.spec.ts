@@ -18,14 +18,12 @@ const fillProductForm = async (
     state: "frozen" | "fresh" | "chilled" | "alive" | "cooked";
     role: "buying" | "selling" | "both";
     monthlyVolume: string;
-    format: string;
   },
 ) => {
   await selectFromCatalog(page, values.latin);
   await page.getByTestId("account-product-state").selectOption(values.state);
   await page.getByTestId("account-product-role").selectOption(values.role);
   await page.getByTestId("account-product-monthly-volume").fill(values.monthlyVolume);
-  await page.getByTestId("account-product-format").fill(values.format);
 };
 
 const firstProductRowText = async (page: Page) =>
@@ -92,7 +90,6 @@ test.describe("/account/products · save-flow report artifacts", () => {
       state: "frozen",
       role: "selling",
       monthlyVolume: "22 t / month",
-      format: "IQF portions, 4-6 oz",
     });
     await page.getByTestId("account-product-save").click();
     await expect(page.getByTestId("account-products-table")).toContainText("Atlantic salmon");
@@ -121,7 +118,6 @@ test.describe("/account/products · save-flow report artifacts", () => {
       state: "frozen",
       role: "selling",
       monthlyVolume: "Duplicate volume should not persist",
-      format: "IQF portions, 4-6 oz",
     });
     await page.getByTestId("account-product-save").click();
     await expect(page.getByText("This product already exists")).toBeVisible();
@@ -174,7 +170,7 @@ test.describe("/account/products · save-flow report artifacts", () => {
     const detail = page.getByTestId("account-product-detail-p_3");
     await expect(detail).toBeVisible();
     await expect(detail).toContainText("Vannamei Shrimp");
-    await page.getByTestId("account-product-detail-edit").click();
+    await detail.getByTestId("account-product-detail-edit").click();
     await page.getByTestId("account-product-monthly-volume").fill("9 t / month");
     await page.getByTestId("account-product-save").click();
     await expect(page.getByTestId("account-products-table")).toContainText("Vannamei Shrimp");
@@ -187,9 +183,9 @@ test.describe("/account/products · save-flow report artifacts", () => {
     });
 
     const addedRow = page
-      .locator("tbody tr")
-      .filter({ hasText: "Atlantic salmon" })
-      .filter({ hasText: "IQF portions, 4-6 oz" });
+      .locator('[data-testid^="account-product-row-"]')
+      .filter({ hasText: "Salmo salar" })
+      .filter({ hasText: "22 t / month" });
     await addedRow.getByRole("button", { name: /delete product/i }).click();
     await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
     await page.getByTestId("account-product-delete-confirm-submit").click();
@@ -201,9 +197,9 @@ test.describe("/account/products · save-flow report artifacts", () => {
     await page.getByTestId("account-product-search-clear").click();
     await expect(
       page
-        .locator("tbody tr")
-        .filter({ hasText: "Atlantic salmon" })
-        .filter({ hasText: "IQF portions, 4-6 oz" }),
+        .locator('[data-testid^="account-product-row-"]')
+        .filter({ hasText: "Salmo salar" })
+        .filter({ hasText: "22 t / month" }),
     ).toHaveCount(0);
     await report.recordStep({
       name: "delete and reload persistence verified",

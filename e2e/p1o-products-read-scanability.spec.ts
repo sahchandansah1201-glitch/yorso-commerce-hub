@@ -40,12 +40,12 @@ test.describe("P1O/P1P /account/products read-view scanability", () => {
     await page.screenshot({ path: `${OUT}/desktop-products-table.png`, fullPage: true });
 
     await page.getByTestId("account-product-open-p_1").click();
-    const detail = page.getByTestId("account-product-detail-p_1");
+    const detail = table.getByTestId("account-product-detail-p_1");
     await expect(detail).toBeVisible();
     await expect(detail).toContainText("Gadus morhua");
     await expect(detail).toContainText("Atlantic Cod H&G");
-    await expect(detail).toContainText("H&G, IQF, 1-2 / 2-4 kg");
     const detailText = (await detail.textContent()) ?? "";
+    expect(detailText).not.toContain("H&G, IQF, 1-2 / 2-4 kg");
     expect(detailText.toLowerCase()).not.toContain("certif");
     expect(detailText.toLowerCase()).not.toContain("target");
     expect(detailText.toLowerCase()).not.toContain("categor");
@@ -77,9 +77,9 @@ test.describe("P1O/P1P /account/products read-view scanability", () => {
     await page.screenshot({ path: `${OUT}/mobile-390-product-card.png`, fullPage: false });
 
     await page.getByTestId("account-product-mobile-open-p_1").click();
-    const detail = page.getByTestId("account-product-detail-p_1");
+    const detail = cards.getByTestId("account-product-mobile-detail-p_1");
     await expect(detail).toBeVisible();
-    await expect(detail).toContainText("H&G, IQF, 1-2 / 2-4 kg");
+    await expect(detail).not.toContainText("H&G, IQF, 1-2 / 2-4 kg");
 
     await programmaticChecks(page);
     await page.screenshot({ path: `${OUT}/mobile-390-product-details.png`, fullPage: true });
@@ -107,6 +107,7 @@ test.describe("P1O/P1P /account/products read-view scanability", () => {
     await expect(page.getByTestId("account-product-commercial-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-latin-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-category")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-format")).toHaveCount(0);
     await expect(page.getByTestId("account-product-certificates")).toHaveCount(0);
     await expect(page.getByTestId("account-product-target-countries")).toHaveCount(0);
     await expect(page.getByTestId("account-product-optional-details")).toHaveCount(0);
@@ -118,6 +119,7 @@ test.describe("P1O/P1P /account/products read-view scanability", () => {
     await expect(page.getByTestId("account-product-commercial-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-latin-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-category")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-format")).toHaveCount(0);
     await expect(page.getByTestId("account-product-certificates")).toHaveCount(0);
     await expect(page.getByTestId("account-product-target-countries")).toHaveCount(0);
     await expect(page.getByTestId("account-product-optional-details")).toHaveCount(0);
