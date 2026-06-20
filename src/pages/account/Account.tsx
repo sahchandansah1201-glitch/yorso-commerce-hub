@@ -1772,6 +1772,50 @@ const ProductMobileField = ({
 const productTaxonomyDisplay = (product: Pick<CompanyProduct, "commercialName" | "latinName">) =>
   `${product.latinName} (${product.commercialName})`;
 
+const ChipsPreview = ({
+  values,
+  max = 3,
+  testId,
+  emptyLabel,
+}: {
+  values: string[];
+  max?: number;
+  testId?: string;
+  emptyLabel: string;
+}) => {
+  if (!values.length) {
+    return <span className="text-xs text-muted-foreground">{emptyLabel}</span>;
+  }
+  const visible = values.slice(0, max);
+  const hidden = values.slice(max);
+  const fullList = values.join(", ");
+  return (
+    <div
+      className="flex flex-wrap items-center gap-1"
+      data-testid={testId}
+      title={fullList}
+      aria-label={fullList}
+    >
+      {visible.map((v) => (
+        <Badge key={v} variant="outline" className="text-[10px]">
+          {v}
+        </Badge>
+      ))}
+      {hidden.length > 0 ? (
+        <Badge
+          variant="secondary"
+          className="text-[10px]"
+          title={hidden.join(", ")}
+          aria-label={hidden.join(", ")}
+          data-testid={testId ? `${testId}-more` : undefined}
+        >
+          +{hidden.length}
+        </Badge>
+      ) : null}
+    </div>
+  );
+};
+
 const ProductMobileCard = ({
   product,
   isSelected,
