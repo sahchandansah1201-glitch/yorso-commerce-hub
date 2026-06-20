@@ -111,9 +111,7 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: "Norwegian Salmon Fillet 2-4 lb",
-      latinName: "Salmo salar",
-      category: "Salmon",
+      latin: "Salmo salar",
       state: "fresh",
       role: "selling",
       monthlyVolume: "18 t / month",
@@ -124,11 +122,16 @@ test.describe("/account/products · editable product matrix", () => {
     await page.getByTestId("account-product-save").click();
 
     const table = page.getByTestId("account-products-table");
-    await expect(table).toContainText("Norwegian Salmon Fillet 2-4 lb");
+    await expect(table).toContainText("Atlantic salmon");
     await expect(table).toContainText("Fresh");
     await expect(table).toContainText("Selling");
     await expect(table).toContainText("ASC");
-    await expectStorageContains(page, "Norwegian Salmon Fillet 2-4 lb");
+    await expectStorageContains(page, "Salmo salar");
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByTestId("account-products-table")).toContainText("Atlantic salmon");
+  });
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
