@@ -1725,6 +1725,7 @@ type TranslationKeys = {
   account_product_catalog_picker_placeholder: string;
   account_product_catalog_picker_empty: string;
   account_product_catalog_picker_empty_hint: string;
+  account_product_catalog_picker_clear: string;
   account_product_catalog_picker_selected_label: string;
   account_product_catalog_picker_alias_label: string;
   account_product_catalog_required: string;
