@@ -7625,6 +7625,7 @@ const es: TranslationKeys = {
   account_product_catalog_picker_placeholder: "Busca por nombre latino o comercial.",
   account_product_catalog_picker_empty: "Sin coincidencias en el catálogo.",
   account_product_catalog_picker_empty_hint: "Prueba con el nombre latino o comercial.",
+  account_product_catalog_picker_clear: "Borrar producto seleccionado",
   account_product_catalog_picker_selected_label: "Producto seleccionado",
   account_product_catalog_picker_alias_label: "alias",
   account_product_catalog_required: "Selecciona un producto del catálogo.",
