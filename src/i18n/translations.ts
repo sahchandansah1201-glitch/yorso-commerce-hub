@@ -1725,6 +1725,7 @@ type TranslationKeys = {
   account_product_catalog_picker_placeholder: string;
   account_product_catalog_picker_empty: string;
   account_product_catalog_picker_empty_hint: string;
+  account_product_catalog_picker_clear: string;
   account_product_catalog_picker_selected_label: string;
   account_product_catalog_picker_alias_label: string;
   account_product_catalog_required: string;
@@ -3699,6 +3700,7 @@ const en: TranslationKeys = {
   account_product_catalog_picker_placeholder: "Search by Latin or commercial name.",
   account_product_catalog_picker_empty: "No catalog match found.",
   account_product_catalog_picker_empty_hint: "Try Latin name or commercial name.",
+  account_product_catalog_picker_clear: "Clear selected product",
   account_product_catalog_picker_selected_label: "Selected product",
   account_product_catalog_picker_alias_label: "alias",
   account_product_catalog_required: "Select a product from the catalog.",
@@ -5661,6 +5663,7 @@ const ru: TranslationKeys = {
   account_product_catalog_picker_placeholder: "Ищите по латинскому или коммерческому названию.",
   account_product_catalog_picker_empty: "Совпадений в каталоге не найдено.",
   account_product_catalog_picker_empty_hint: "Попробуйте латинское или коммерческое название.",
+  account_product_catalog_picker_clear: "Очистить выбранный продукт",
   account_product_catalog_picker_selected_label: "Выбранный продукт",
   account_product_catalog_picker_alias_label: "псевдоним",
   account_product_catalog_required: "Выберите продукт из справочника.",
@@ -7622,6 +7625,7 @@ const es: TranslationKeys = {
   account_product_catalog_picker_placeholder: "Busca por nombre latino o comercial.",
   account_product_catalog_picker_empty: "Sin coincidencias en el catálogo.",
   account_product_catalog_picker_empty_hint: "Prueba con el nombre latino o comercial.",
+  account_product_catalog_picker_clear: "Borrar producto seleccionado",
   account_product_catalog_picker_selected_label: "Producto seleccionado",
   account_product_catalog_picker_alias_label: "alias",
   account_product_catalog_required: "Selecciona un producto del catálogo.",
