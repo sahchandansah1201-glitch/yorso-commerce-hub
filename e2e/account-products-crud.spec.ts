@@ -133,12 +133,6 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByTestId("account-products-table")).toContainText("Atlantic salmon");
   });
 
-    await page.reload({ waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle");
-    await expect(page.getByTestId("account-products-table")).toContainText(
-      "Norwegian Salmon Fillet 2-4 lb",
-    );
-  });
 
   test("catalog picker fills commercial and Latin names from the workbook catalog", async ({
     page,
