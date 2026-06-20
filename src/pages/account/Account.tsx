@@ -2493,6 +2493,17 @@ const ProductsSection = ({
                     : current,
                 )
               }
+              onClear={() =>
+                setDraft((current) =>
+                  current
+                    ? {
+                        ...current,
+                        commercialName: "",
+                        latinName: "",
+                      }
+                    : current,
+                )
+              }
             />
             {errors.catalog ? (
               <p
