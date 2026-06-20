@@ -72,7 +72,7 @@ test.describe("P1M /account/products form simplification verification", () => {
     const editButton = page.locator('[data-testid^="account-product-edit-"]').first();
     await editButton.click();
     await expect(page.getByTestId("account-product-form")).toBeVisible();
-    await expect(page.getByTestId("account-product-catalog-selected")).toBeVisible();
+    await expect(page.getByTestId("account-product-selected-summary")).toBeVisible();
     // Manual identity inputs must not be present
     await expect(page.getByTestId("account-product-commercial-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-latin-name")).toHaveCount(0);
