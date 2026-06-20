@@ -153,10 +153,12 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByTestId("account-product-catalog-search")).toHaveValue(
       "Scomber scombrus (Atlantic mackerel)",
     );
-    await expect(page.getByTestId("account-product-commercial-name")).toHaveValue(
+    await expect(page.getByTestId("account-product-selected-latin")).toContainText(
+      "Scomber scombrus",
+    );
+    await expect(page.getByTestId("account-product-selected-commercial")).toContainText(
       "Atlantic mackerel",
     );
-    await expect(page.getByTestId("account-product-latin-name")).toHaveValue("Scomber scombrus");
   });
 
   test("validation keeps incomplete products out of the matrix", async ({ page }) => {
