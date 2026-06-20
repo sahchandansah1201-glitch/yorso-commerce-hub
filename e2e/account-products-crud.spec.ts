@@ -558,18 +558,22 @@ test.describe("/account/products · editable product matrix", () => {
     await openProducts(page);
 
     await page.getByTestId("account-product-edit-p_1").click();
-    await page.getByTestId("account-product-commercial-name").fill("Atlantic Salmon Fillet EU");
     await page.getByTestId("account-product-state").selectOption("chilled");
     await page.getByTestId("account-product-role").selectOption("selling");
+    await page
+      .getByTestId("account-product-optional-details")
+      .locator("summary")
+      .click();
     await page.getByTestId("account-product-target-countries").fill("Germany, Poland, Spain");
     await page.getByTestId("account-product-save").click();
 
     const text = await mainText(page);
-    expect(text).toContain("Atlantic Salmon Fillet EU");
+    expect(text).toContain("Atlantic Cod H&G");
     expect(text).toContain("Chilled");
     expect(text).toContain("Selling");
+    expect(text).toContain("Poland");
     expect(text).not.toMatch(/\bfrozen\b|\bchilled\b|\bselling\b/);
-    await expectStorageContains(page, "Atlantic Salmon Fillet EU");
+    await expectStorageContains(page, "Poland");
   });
 
   test("product details panel shows matching profile and can start editing", async ({
@@ -586,7 +590,12 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-detail-edit").click();
     await expect(page.getByTestId("account-product-form")).toBeVisible();
-    await expect(page.getByTestId("account-product-commercial-name")).toHaveValue("Vannamei Shrimp");
+    await expect(page.getByTestId("account-product-selected-latin")).toContainText(
+      "Litopenaeus vannamei",
+    );
+    await expect(page.getByTestId("account-product-selected-commercial")).toContainText(
+      "Vannamei Shrimp",
+    );
     await page.getByTestId("account-product-cancel").click();
 
     await page.getByTestId("account-product-close-detail").click();
