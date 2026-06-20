@@ -2714,28 +2714,34 @@ const ProductsSection = ({
                     <div className="text-xs text-muted-foreground">({p.commercialName})</div>
                     <div className="text-xs text-muted-foreground">{p.format}</div>
                   </td>
-                  <td className="px-3 py-2">{productStateLabel(p.state, t)}</td>
+                  <td className="px-3 py-2">
+                    <Badge variant="secondary" className="font-normal">
+                      {productStateLabel(p.state, t)}
+                    </Badge>
+                  </td>
                   <td className="px-3 py-2">
                     <ProductRoleBadge role={p.role} />
                   </td>
-                  <td className="px-3 py-2">{p.monthlyVolume}</td>
+                  <td className="px-3 py-2 font-medium tabular-nums">{p.monthlyVolume}</td>
                   <td className="px-3 py-2">
-                    <div className="flex flex-wrap gap-1">
-                      {p.certificates.map((c) => (
-                        <Badge key={c} variant="outline" className="text-[10px]">
-                          {c}
-                        </Badge>
-                      ))}
-                    </div>
+                    <ChipsPreview
+                      values={p.certificates}
+                      testId={`account-product-certs-${p.id}`}
+                      emptyLabel={t.account_value_notSpecified}
+                    />
                   </td>
-                  <td className="px-3 py-2 text-xs text-muted-foreground">
-                    {p.targetCountries.join(", ")}
+                  <td className="px-3 py-2">
+                    <ChipsPreview
+                      values={p.targetCountries}
+                      testId={`account-product-targets-${p.id}`}
+                      emptyLabel={t.account_value_notSpecified}
+                    />
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-2">
                       <Button
                         type="button"
-                        variant={selectedProductId === p.id ? "secondary" : "outline"}
+                        variant={selectedProductId === p.id ? "secondary" : "default"}
                         size="sm"
                         onClick={() =>
                           setSelectedProductId((current) => (current === p.id ? null : p.id))
