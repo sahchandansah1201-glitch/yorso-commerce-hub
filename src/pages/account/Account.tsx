@@ -1,4 +1,13 @@
-import { cloneElement, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  cloneElement,
+  Fragment,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useParams, Navigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/i18n/LanguageContext";
 import Header from "@/components/landing/Header";
@@ -1643,12 +1652,11 @@ const ProductRoleBadge = ({ role }: { role: CompanyProduct["role"] }) => {
 
 const PRODUCT_STATES: CompanyProduct["state"][] = ["frozen", "fresh", "chilled", "alive", "cooked"];
 const PRODUCT_ROLES: CompanyProduct["role"][] = ["buying", "selling", "both"];
-type ProductSortKey = "commercialName" | "category" | "state" | "role" | "monthlyVolume";
+type ProductSortKey = "commercialName" | "state" | "role" | "monthlyVolume";
 type SortDirection = "asc" | "desc";
 type ProductShareStatus = "idle" | "copied" | "manual";
 const PRODUCT_SORT_KEYS: ProductSortKey[] = [
   "commercialName",
-  "category",
   "state",
   "role",
   "monthlyVolume",
@@ -1773,50 +1781,6 @@ const ProductMobileField = ({
 const productTaxonomyDisplay = (product: Pick<CompanyProduct, "commercialName" | "latinName">) =>
   `${product.latinName} (${product.commercialName})`;
 
-const ChipsPreview = ({
-  values,
-  max = 3,
-  testId,
-  emptyLabel,
-}: {
-  values: string[];
-  max?: number;
-  testId?: string;
-  emptyLabel: string;
-}) => {
-  if (!values.length) {
-    return <span className="text-xs text-muted-foreground">{emptyLabel}</span>;
-  }
-  const visible = values.slice(0, max);
-  const hidden = values.slice(max);
-  const fullList = values.join(", ");
-  return (
-    <div
-      className="flex flex-wrap items-center gap-1"
-      data-testid={testId}
-      title={fullList}
-      aria-label={fullList}
-    >
-      {visible.map((v) => (
-        <Badge key={v} variant="outline" className="text-[10px]">
-          {v}
-        </Badge>
-      ))}
-      {hidden.length > 0 ? (
-        <Badge
-          variant="secondary"
-          className="text-[10px]"
-          title={hidden.join(", ")}
-          aria-label={hidden.join(", ")}
-          data-testid={testId ? `${testId}-more` : undefined}
-        >
-          +{hidden.length}
-        </Badge>
-      ) : null}
-    </div>
-  );
-};
-
 const ProductMobileCard = ({
   product,
   isSelected,
@@ -1844,9 +1808,6 @@ const ProductMobileCard = ({
         <p className="break-words text-sm leading-snug text-muted-foreground">
           ({product.commercialName})
         </p>
-        {product.format ? (
-          <p className="break-words text-xs leading-snug text-muted-foreground">{product.format}</p>
-        ) : null}
       </div>
       <ProductRoleBadge role={product.role} />
     </div>
@@ -1858,7 +1819,9 @@ const ProductMobileCard = ({
         </Badge>
       </ProductMobileField>
       <ProductMobileField label={t.account_product_col_volume}>
-        <span className="break-words tabular-nums">{product.monthlyVolume}</span>
+        <span className="break-words tabular-nums">
+          {product.monthlyVolume || t.account_value_notSpecified}
+        </span>
       </ProductMobileField>
     </div>
 
@@ -1901,6 +1864,53 @@ const ProductMobileCard = ({
   </article>
 );
 
+const ProductInlineDetails = ({
+  product,
+  onClose,
+  onEdit,
+  t,
+  surface = "desktop",
+}: {
+  product: CompanyProduct;
+  onClose: () => void;
+  onEdit: () => void;
+  t: ReturnType<typeof useLanguage>["t"];
+  surface?: "desktop" | "mobile";
+}) => (
+  <div
+    className="rounded-lg border border-border bg-muted/25 p-4"
+    data-testid={
+      surface === "mobile"
+        ? `account-product-mobile-detail-${product.id}`
+        : `account-product-detail-${product.id}`
+    }
+  >
+    <div className="grid gap-3 md:grid-cols-2">
+      <Field label={t.account_product_col_product} value={productTaxonomyDisplay(product)} />
+      <Field label={t.account_product_col_state} value={productStateLabel(product.state, t)} />
+      <Field label={t.account_product_col_role} value={productRoleLabel(product.role, t)} />
+      <Field
+        label={t.account_product_col_volume}
+        value={product.monthlyVolume || t.account_value_notSpecified}
+      />
+    </div>
+    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onClose}
+        data-testid="account-product-close-detail"
+      >
+        {t.account_action_close}
+      </Button>
+      <Button type="button" onClick={onEdit} data-testid="account-product-detail-edit">
+        <Pencil className="mr-2 h-4 w-4" aria-hidden />
+        {t.account_action_edit}
+      </Button>
+    </div>
+  </div>
+);
+
 const createEmptyProduct = (): CompanyProduct => ({
   id: `product_${Date.now().toString(36)}`,
   commercialName: "",
@@ -1908,7 +1918,7 @@ const createEmptyProduct = (): CompanyProduct => ({
   category: "",
   state: "frozen",
   format: "",
-  role: "both",
+  role: "buying",
   monthlyVolume: "",
   certificates: [],
   targetCountries: [],
@@ -1923,8 +1933,7 @@ const validateProductDraft = (
       !draft.commercialName.trim() || !draft.latinName.trim()
         ? t.account_product_catalog_required
         : "",
-    format: validateText(draft.format, t, 120) ?? "",
-    monthlyVolume: validateName(draft.monthlyVolume, t, true) ?? "",
+    monthlyVolume: validateName(draft.monthlyVolume, t, false) ?? "",
   };
   return Object.fromEntries(Object.entries(nextErrors).filter(([, value]) => value));
 };
@@ -1942,7 +1951,6 @@ const productDuplicateKey = (product: CompanyProduct) =>
     product.latinName,
     product.state,
     product.role,
-    product.format,
   ]
     .map(normalizeProductValue)
     .join("|");
@@ -2032,7 +2040,6 @@ const ProductsSection = ({
   const sortKeyLabel = (key: ProductSortKey) =>
     ({
       commercialName: t.account_product_sort_by_product,
-      category: t.account_product_sort_by_category,
       state: t.account_product_sort_by_state,
       role: t.account_product_sort_by_role,
       monthlyVolume: t.account_product_sort_by_volume,
@@ -2048,13 +2055,9 @@ const ProductsSection = ({
       const searchable = [
         product.commercialName,
         product.latinName,
-        product.category,
         productStateLabel(product.state, t),
         productRoleLabel(product.role, t),
-        product.format,
         product.monthlyVolume,
-        product.certificates.join(" "),
-        product.targetCountries.join(" "),
       ]
         .map(normalizeProductValue)
         .join(" ");
@@ -2095,10 +2098,6 @@ const ProductsSection = ({
   const pageStart = visibleProducts.length === 0 ? 0 : safePageIndex * pageSize + 1;
   const pageEnd = Math.min(visibleProducts.length, (safePageIndex + 1) * pageSize);
   const pagedProducts = visibleProducts.slice(safePageIndex * pageSize, pageEnd);
-
-  const selectedProduct = selectedProductId
-    ? profile.products.find((product) => product.id === selectedProductId) ?? null
-    : null;
 
   const resetFilters = () => {
     setQuery("");
@@ -2156,6 +2155,7 @@ const ProductsSection = ({
   const startAdd = () => {
     setDraft(createEmptyProduct());
     setEditingId(null);
+    setSelectedProductId(null);
     setErrors({});
     setSaveError(null);
   };
@@ -2167,6 +2167,7 @@ const ProductsSection = ({
       targetCountries: [...product.targetCountries],
     });
     setEditingId(product.id);
+    setSelectedProductId(product.id);
     setErrors({});
     setSaveError(null);
   };
@@ -2482,7 +2483,7 @@ const ProductsSection = ({
                 commercialName: draft.commercialName,
                 latinName: draft.latinName,
               }}
-              onSelect={(item) =>
+              onSelect={(item) => {
                 setDraft((current) =>
                   current
                     ? {
@@ -2491,8 +2492,13 @@ const ProductsSection = ({
                         latinName: item.latinName,
                       }
                     : current,
-                )
-              }
+                );
+                setErrors((current) => {
+                  if (!current.catalog) return current;
+                  const { catalog, ...rest } = current;
+                  return rest;
+                });
+              }}
               onClear={() =>
                 setDraft((current) =>
                   current
@@ -2504,9 +2510,12 @@ const ProductsSection = ({
                     : current,
                 )
               }
+              invalid={Boolean(errors.catalog)}
+              errorId="account-product-catalog-error"
             />
             {errors.catalog ? (
               <p
+                id="account-product-catalog-error"
                 className="mt-2 text-xs text-destructive"
                 role="alert"
                 data-testid="account-product-catalog-error"
@@ -2548,18 +2557,11 @@ const ProductsSection = ({
                 ))}
               </select>
             </FormRow>
-            <FormRow label={t.account_product_col_volume} required error={errors.monthlyVolume}>
+            <FormRow label={t.account_product_col_volume} error={errors.monthlyVolume}>
               <Input
                 value={draft.monthlyVolume}
                 onChange={(e) => setDraft({ ...draft, monthlyVolume: e.target.value })}
                 data-testid="account-product-monthly-volume"
-              />
-            </FormRow>
-            <FormRow label={t.account_product_field_format} error={errors.format}>
-              <Input
-                value={draft.format}
-                onChange={(e) => setDraft({ ...draft, format: e.target.value })}
-                data-testid="account-product-format"
               />
             </FormRow>
           </div>
@@ -2606,17 +2608,27 @@ const ProductsSection = ({
           </div>
         ) : (
           pagedProducts.map((product: CompanyProduct) => (
-            <ProductMobileCard
-              key={product.id}
-              product={product}
-              isSelected={selectedProductId === product.id}
-              onToggleDetails={() =>
-                setSelectedProductId((current) => (current === product.id ? null : product.id))
-              }
-              onEdit={() => startEdit(product)}
-              onDelete={() => setPendingDeleteProduct(product)}
-              t={t}
-            />
+            <Fragment key={product.id}>
+              <ProductMobileCard
+                product={product}
+                isSelected={selectedProductId === product.id}
+                onToggleDetails={() =>
+                  setSelectedProductId((current) => (current === product.id ? null : product.id))
+                }
+                onEdit={() => startEdit(product)}
+                onDelete={() => setPendingDeleteProduct(product)}
+                t={t}
+              />
+              {selectedProductId === product.id ? (
+                <ProductInlineDetails
+                  product={product}
+                  onClose={() => setSelectedProductId(null)}
+                  onEdit={() => startEdit(product)}
+                  t={t}
+                  surface="mobile"
+                />
+              ) : null}
+            </Fragment>
           ))
         )}
       </div>
@@ -2660,76 +2672,90 @@ const ProductsSection = ({
               </tr>
             ) : (
               pagedProducts.map((p: CompanyProduct) => (
-                <tr
-                  key={p.id}
-                  className="border-t border-border align-top odd:bg-muted/20 hover:bg-muted/40"
-                  data-testid={`account-product-row-${p.id}`}
-                >
-                  <td className="px-3 py-2">
-                    <div className="font-medium italic">{p.latinName}</div>
-                    <div className="text-xs text-muted-foreground">({p.commercialName})</div>
-                    <div className="text-xs text-muted-foreground">{p.format}</div>
-                  </td>
-                  <td className="px-3 py-2">
-                    <Badge variant="secondary" className="font-normal">
-                      {productStateLabel(p.state, t)}
-                    </Badge>
-                  </td>
-                  <td className="px-3 py-2">
-                    <ProductRoleBadge role={p.role} />
-                  </td>
-                  <td className="px-3 py-2 font-medium tabular-nums">{p.monthlyVolume}</td>
-                  <td className="px-2 py-2 text-right">
-                    <div className="inline-flex items-center justify-end gap-1 rounded-md border border-border/70 bg-background p-1 shadow-sm">
-                      <Button
-                        type="button"
-                        variant={selectedProductId === p.id ? "secondary" : "ghost"}
-                        size="icon"
-                        className="h-9 min-h-9 w-9 min-w-9 p-0"
-                        onClick={() =>
-                          setSelectedProductId((current) => (current === p.id ? null : p.id))
-                        }
-                        aria-label={`${
-                          selectedProductId === p.id
-                            ? t.account_product_details_hide
-                            : t.account_product_details_open
-                        }: ${productTaxonomyDisplay(p)}`}
-                        title={
-                          selectedProductId === p.id
-                            ? t.account_product_details_hide
-                            : t.account_product_details_open
-                        }
-                        data-testid={`account-product-open-${p.id}`}
-                      >
-                        <Eye className="h-4 w-4" aria-hidden />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 min-h-9 w-9 min-w-9 p-0"
-                        onClick={() => startEdit(p)}
-                        aria-label={`${t.account_action_edit}: ${productTaxonomyDisplay(p)}`}
-                        title={t.account_action_edit}
-                        data-testid={`account-product-edit-${p.id}`}
-                      >
-                        <Pencil className="h-4 w-4" aria-hidden />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 min-h-9 w-9 min-w-9 p-0 text-muted-foreground hover:text-destructive"
-                        onClick={() => setPendingDeleteProduct(p)}
-                        aria-label={`${t.account_product_delete}: ${productTaxonomyDisplay(p)}`}
-                        title={t.account_product_delete}
-                        data-testid={`account-product-delete-${p.id}`}
-                      >
-                        <Trash2 className="h-4 w-4" aria-hidden />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
+                <Fragment key={p.id}>
+                  <tr
+                    className="border-t border-border align-top odd:bg-muted/20 hover:bg-muted/40"
+                    data-testid={`account-product-row-${p.id}`}
+                  >
+                    <td className="px-3 py-2">
+                      <div className="font-medium italic">{p.latinName}</div>
+                      <div className="text-xs text-muted-foreground">({p.commercialName})</div>
+                    </td>
+                    <td className="px-3 py-2">
+                      <Badge variant="secondary" className="font-normal">
+                        {productStateLabel(p.state, t)}
+                      </Badge>
+                    </td>
+                    <td className="px-3 py-2">
+                      <ProductRoleBadge role={p.role} />
+                    </td>
+                    <td className="px-3 py-2 font-medium tabular-nums">
+                      {p.monthlyVolume || t.account_value_notSpecified}
+                    </td>
+                    <td className="px-2 py-2 text-right">
+                      <div className="inline-flex items-center justify-end gap-1 rounded-md border border-border/70 bg-background p-1 shadow-sm">
+                        <Button
+                          type="button"
+                          variant={selectedProductId === p.id ? "secondary" : "ghost"}
+                          size="icon"
+                          className="h-9 min-h-9 w-9 min-w-9 p-0"
+                          onClick={() =>
+                            setSelectedProductId((current) => (current === p.id ? null : p.id))
+                          }
+                          aria-label={`${
+                            selectedProductId === p.id
+                              ? t.account_product_details_hide
+                              : t.account_product_details_open
+                          }: ${productTaxonomyDisplay(p)}`}
+                          title={
+                            selectedProductId === p.id
+                              ? t.account_product_details_hide
+                              : t.account_product_details_open
+                          }
+                          data-testid={`account-product-open-${p.id}`}
+                        >
+                          <Eye className="h-4 w-4" aria-hidden />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 min-h-9 w-9 min-w-9 p-0"
+                          onClick={() => startEdit(p)}
+                          aria-label={`${t.account_action_edit}: ${productTaxonomyDisplay(p)}`}
+                          title={t.account_action_edit}
+                          data-testid={`account-product-edit-${p.id}`}
+                        >
+                          <Pencil className="h-4 w-4" aria-hidden />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 min-h-9 w-9 min-w-9 p-0 text-muted-foreground hover:text-destructive"
+                          onClick={() => setPendingDeleteProduct(p)}
+                          aria-label={`${t.account_product_delete}: ${productTaxonomyDisplay(p)}`}
+                          title={t.account_product_delete}
+                          data-testid={`account-product-delete-${p.id}`}
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                  {selectedProductId === p.id ? (
+                    <tr className="border-t border-border bg-muted/10">
+                      <td colSpan={5} className="px-3 py-3">
+                        <ProductInlineDetails
+                          product={p}
+                          onClose={() => setSelectedProductId(null)}
+                          onEdit={() => startEdit(p)}
+                          t={t}
+                        />
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
               ))
             )}
           </tbody>
@@ -2770,39 +2796,6 @@ const ProductsSection = ({
             </Button>
           </div>
         </div>
-      ) : null}
-      {selectedProduct ? (
-        <AccountSectionCard
-          title={t.account_product_details_title}
-          description={t.account_product_details_desc}
-          testId={`account-product-detail-${selectedProduct.id}`}
-        >
-          <div className="grid gap-3 md:grid-cols-2">
-            <Field label={t.account_product_col_product} value={productTaxonomyDisplay(selectedProduct)} />
-            <Field label={t.account_product_field_format} value={selectedProduct.format} />
-            <Field label={t.account_product_col_state} value={productStateLabel(selectedProduct.state, t)} />
-            <Field label={t.account_product_col_role} value={productRoleLabel(selectedProduct.role, t)} />
-            <Field label={t.account_product_col_volume} value={selectedProduct.monthlyVolume} />
-          </div>
-          <div className="mt-4 flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setSelectedProductId(null)}
-              data-testid="account-product-close-detail"
-            >
-              {t.account_action_close}
-            </Button>
-            <Button
-              type="button"
-              onClick={() => startEdit(selectedProduct)}
-              data-testid="account-product-detail-edit"
-            >
-              <Pencil className="mr-2 h-4 w-4" aria-hidden />
-              {t.account_action_edit}
-            </Button>
-          </div>
-        </AccountSectionCard>
       ) : null}
       <AlertDialog
         open={pendingDeleteProduct !== null}

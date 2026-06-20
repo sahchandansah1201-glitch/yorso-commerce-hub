@@ -54,7 +54,7 @@ test.describe("P1Q /account/products table action density", () => {
     }
 
     await openButton.click();
-    await expect(page.getByTestId("account-product-detail-p_1")).toBeVisible();
+    await expect(table.getByTestId("account-product-detail-p_1")).toBeVisible();
     await programmaticChecks(page);
     await page.screenshot({ path: `${OUT}/desktop-actions-density.png`, fullPage: true });
   });

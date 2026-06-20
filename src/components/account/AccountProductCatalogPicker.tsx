@@ -15,6 +15,8 @@ interface Props {
   onSelect: (item: { commercialName: string; latinName: string }) => void;
   onClear?: () => void;
   selected?: { commercialName: string; latinName: string } | null;
+  invalid?: boolean;
+  errorId?: string;
 }
 
 const ALIAS_LANGS: CatalogLang[] = ["en", "es", "ru", "fr", "cn", "de"];
@@ -54,7 +56,13 @@ const selectedProductLabel = (selected?: Props["selected"]) => {
  *   Escape       — close listbox
  * Latin-first identity, ranked results, no nested interactive controls.
  */
-export const AccountProductCatalogPicker = ({ onSelect, onClear, selected }: Props) => {
+export const AccountProductCatalogPicker = ({
+  onSelect,
+  onClear,
+  selected,
+  invalid,
+  errorId,
+}: Props) => {
   const { lang, t } = useLanguage();
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [query, setQuery] = useState("");
@@ -190,6 +198,8 @@ export const AccountProductCatalogPicker = ({ onSelect, onClear, selected }: Pro
           aria-controls={listboxId}
           aria-autocomplete="list"
           aria-activedescendant={activeId}
+          aria-invalid={invalid ? "true" : undefined}
+          aria-describedby={invalid && errorId ? errorId : undefined}
           value={query}
           placeholder={t.account_product_catalog_picker_placeholder}
           onChange={(e) => {

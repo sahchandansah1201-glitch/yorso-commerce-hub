@@ -32,7 +32,7 @@ test.describe("P1P /account/products screenshots", () => {
     await page.getByTestId("account-product-cancel").click();
 
     await page.getByTestId("account-product-mobile-open-p_1").click();
-    await expect(page.getByTestId("account-product-detail-p_1")).toBeVisible();
+    await expect(page.getByTestId("account-product-mobile-detail-p_1")).toBeVisible();
     await page.screenshot({ path: `${OUT}/mobile-390-details.png`, fullPage: true });
   });
 });

@@ -81,14 +81,12 @@ const fillProductForm = async (
     state: "frozen" | "fresh" | "chilled" | "alive" | "cooked";
     role: "buying" | "selling" | "both";
     monthlyVolume: string;
-    format: string;
   },
 ) => {
   await selectFromCatalog(page, values.latin);
   await page.getByTestId("account-product-state").selectOption(values.state);
   await page.getByTestId("account-product-role").selectOption(values.role);
   await page.getByTestId("account-product-monthly-volume").fill(values.monthlyVolume);
-  await page.getByTestId("account-product-format").fill(values.format);
 };
 
 test.describe("/account/products · editable product matrix", () => {
@@ -101,7 +99,6 @@ test.describe("/account/products · editable product matrix", () => {
       state: "fresh",
       role: "selling",
       monthlyVolume: "18 t / month",
-      format: "Skin-on fillet",
     });
     await page.getByTestId("account-product-save").click();
 
@@ -505,7 +502,6 @@ test.describe("/account/products · editable product matrix", () => {
       state: "fresh",
       role: "selling",
       monthlyVolume: "Original duplicate test volume",
-      format: "Skin-on fillet",
     });
     await page.getByTestId("account-product-save").click();
     await expect(page.getByTestId("account-products-table")).toContainText("Atlantic salmon");
@@ -516,7 +512,6 @@ test.describe("/account/products · editable product matrix", () => {
       state: "fresh",
       role: "selling",
       monthlyVolume: "Duplicate volume should not persist",
-      format: "Skin-on fillet",
     });
     await page.getByTestId("account-product-save").click();
 
@@ -559,12 +554,14 @@ test.describe("/account/products · editable product matrix", () => {
     await openProducts(page);
 
     await page.getByTestId("account-product-open-p_3").click();
-    const detail = page.getByTestId("account-product-detail-p_3");
+    const detail = page
+      .getByTestId("account-products-table")
+      .getByTestId("account-product-detail-p_3");
     await expect(detail).toBeVisible();
     await expect(detail).toContainText("Vannamei Shrimp");
     await expect(detail).toContainText("Litopenaeus vannamei");
 
-    await page.getByTestId("account-product-detail-edit").click();
+    await detail.getByTestId("account-product-detail-edit").click();
     await expect(page.getByTestId("account-product-form")).toBeVisible();
     await expect(page.getByTestId("account-product-catalog-search")).toHaveValue(
       "Litopenaeus vannamei (Vannamei Shrimp)",
@@ -573,7 +570,7 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByTestId("account-product-selected-commercial")).toHaveCount(0);
     await page.getByTestId("account-product-cancel").click();
 
-    await page.getByTestId("account-product-close-detail").click();
+    await detail.getByTestId("account-product-close-detail").click();
     await expect(detail).not.toBeVisible();
   });
 
@@ -586,7 +583,6 @@ test.describe("/account/products · editable product matrix", () => {
       state: "frozen",
       role: "buying",
       monthlyVolume: "6 t / month",
-      format: "HGT 300-500",
     });
     await page.getByTestId("account-product-save").click();
     await expect(page.getByTestId("account-products-table")).toContainText("Pacific chub mackerel");
@@ -665,7 +661,6 @@ test.describe("/account/products · editable product matrix", () => {
       state: "frozen",
       role: "buying",
       monthlyVolume: "12 т / месяц",
-      format: "HOSO 40/50",
     });
     await page.getByTestId("account-product-save").click();
 

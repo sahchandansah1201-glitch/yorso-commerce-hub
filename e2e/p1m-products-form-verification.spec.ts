@@ -31,6 +31,7 @@ test.describe("P1M /account/products form simplification verification", () => {
     await expect(page.getByTestId("account-product-commercial-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-latin-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-category")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-format")).toHaveCount(0);
     await expect(page.getByTestId("account-product-optional-details")).toHaveCount(0);
     await expect(page.getByTestId("account-product-certificates")).toHaveCount(0);
     await expect(page.getByTestId("account-product-target-countries")).toHaveCount(0);
@@ -83,6 +84,7 @@ test.describe("P1M /account/products form simplification verification", () => {
     await expect(page.getByTestId("account-product-commercial-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-latin-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-category")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-format")).toHaveCount(0);
     await expect(page.getByTestId("account-product-optional-details")).toHaveCount(0);
   });
 });
