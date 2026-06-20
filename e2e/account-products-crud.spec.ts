@@ -688,9 +688,7 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByTestId("account-section-products")).toContainText("Матрица продуктов");
     await page.getByTestId("account-product-add").click();
     await fillProductForm(page, {
-      commercialName: "Креветка ваннамей HOSO",
-      latinName: "Litopenaeus vannamei",
-      category: "Креветка",
+      latin: "Salmo salar",
       state: "frozen",
       role: "buying",
       monthlyVolume: "12 т / месяц",
@@ -701,8 +699,8 @@ test.describe("/account/products · editable product matrix", () => {
     await page.getByTestId("account-product-save").click();
 
     const text = await mainText(page);
-    expect(text).toContain("Креветка ваннамей HOSO");
-    expect(text).toContain("Замороженный");
+    expect(text).toContain("Лосось атлантический");
+    expect(text).toContain("Мороженый");
     expect(text).toContain("Покупка");
     expect(text).toContain("Сортировать по");
     expect(text).toContain("Сортировка: Названию продукта");
