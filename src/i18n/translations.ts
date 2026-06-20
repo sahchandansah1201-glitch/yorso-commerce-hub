@@ -5663,6 +5663,7 @@ const ru: TranslationKeys = {
   account_product_catalog_picker_placeholder: "Ищите по латинскому или коммерческому названию.",
   account_product_catalog_picker_empty: "Совпадений в каталоге не найдено.",
   account_product_catalog_picker_empty_hint: "Попробуйте латинское или коммерческое название.",
+  account_product_catalog_picker_clear: "Очистить выбранный продукт",
   account_product_catalog_picker_selected_label: "Выбранный продукт",
   account_product_catalog_picker_alias_label: "псевдоним",
   account_product_catalog_required: "Выберите продукт из справочника.",
