@@ -1835,57 +1835,60 @@ const ProductMobileCard = ({
     className="min-w-0 rounded-lg border border-border bg-card p-4 shadow-sm"
     data-testid={`account-product-mobile-card-${product.id}`}
   >
-    <div className="min-w-0 space-y-0.5">
-      <h3 className="break-words text-base font-semibold leading-snug text-foreground">
-        <span className="italic">{product.latinName}</span>
-      </h3>
-      <p className="break-words text-sm leading-snug text-muted-foreground">
-        ({product.commercialName})
-      </p>
-      {product.format ? (
-        <p className="break-words text-xs leading-snug text-muted-foreground">{product.format}</p>
-      ) : null}
+    <div className="flex items-start justify-between gap-3 min-w-0">
+      <div className="min-w-0 space-y-0.5 flex-1">
+        <h3 className="break-words text-base font-semibold leading-snug text-foreground">
+          <span className="italic">{product.latinName}</span>
+        </h3>
+        <p className="break-words text-sm leading-snug text-muted-foreground">
+          ({product.commercialName})
+        </p>
+        {product.format ? (
+          <p className="break-words text-xs leading-snug text-muted-foreground">{product.format}</p>
+        ) : null}
+      </div>
+      <ProductRoleBadge role={product.role} />
     </div>
 
     <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-3 border-t border-border/60 pt-3">
       <ProductMobileField label={t.account_product_col_state}>
-        <span className="break-words">{productStateLabel(product.state, t)}</span>
-      </ProductMobileField>
-      <ProductMobileField label={t.account_product_col_role}>
-        <ProductRoleBadge role={product.role} />
+        <Badge variant="secondary" className="font-normal">
+          {productStateLabel(product.state, t)}
+        </Badge>
       </ProductMobileField>
       <ProductMobileField label={t.account_product_col_volume}>
-        <span className="break-words">{product.monthlyVolume}</span>
+        <span className="break-words tabular-nums">{product.monthlyVolume}</span>
       </ProductMobileField>
-      <ProductMobileField label={t.account_product_col_certs}>
-        {product.certificates.length ? (
-          <span className="flex flex-wrap gap-1">
-            {product.certificates.map((certificate) => (
-              <Badge key={certificate} variant="outline" className="text-[10px]">
-                {certificate}
-              </Badge>
-            ))}
-          </span>
-        ) : (
-          <span className="text-muted-foreground">{t.account_value_notSpecified}</span>
-        )}
-      </ProductMobileField>
+      <div className="col-span-2 min-w-0">
+        <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          {t.account_product_col_certs}
+        </p>
+        <div className="mt-1">
+          <ChipsPreview
+            values={product.certificates}
+            testId={`account-product-mobile-certs-${product.id}`}
+            emptyLabel={t.account_value_notSpecified}
+          />
+        </div>
+      </div>
       <div className="col-span-2 min-w-0">
         <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
           {t.account_product_col_targets}
         </p>
-        <p className="mt-1 break-words text-sm text-foreground">
-          {product.targetCountries.length
-            ? product.targetCountries.join(", ")
-            : t.account_value_notSpecified}
-        </p>
+        <div className="mt-1">
+          <ChipsPreview
+            values={product.targetCountries}
+            testId={`account-product-mobile-targets-${product.id}`}
+            emptyLabel={t.account_value_notSpecified}
+          />
+        </div>
       </div>
     </div>
 
     <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
       <Button
         type="button"
-        variant={isSelected ? "secondary" : "outline"}
+        variant={isSelected ? "secondary" : "default"}
         onClick={onToggleDetails}
         size="sm"
         className="min-h-11 flex-1 justify-center"
