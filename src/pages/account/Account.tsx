@@ -1859,30 +1859,6 @@ const ProductMobileCard = ({
       <ProductMobileField label={t.account_product_col_volume}>
         <span className="break-words tabular-nums">{product.monthlyVolume}</span>
       </ProductMobileField>
-      <div className="col-span-2 min-w-0">
-        <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-          {t.account_product_col_certs}
-        </p>
-        <div className="mt-1">
-          <ChipsPreview
-            values={product.certificates}
-            testId={`account-product-mobile-certs-${product.id}`}
-            emptyLabel={t.account_value_notSpecified}
-          />
-        </div>
-      </div>
-      <div className="col-span-2 min-w-0">
-        <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-          {t.account_product_col_targets}
-        </p>
-        <div className="mt-1">
-          <ChipsPreview
-            values={product.targetCountries}
-            testId={`account-product-mobile-targets-${product.id}`}
-            emptyLabel={t.account_value_notSpecified}
-          />
-        </div>
-      </div>
     </div>
 
     <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
@@ -2575,35 +2551,6 @@ const ProductsSection = ({
               />
             </FormRow>
           </div>
-          <details
-            className="mt-4 rounded-md border border-border/60 bg-muted/30 px-3 py-2"
-            data-testid="account-product-optional-details"
-          >
-            <summary className="cursor-pointer text-sm font-medium text-foreground">
-              {t.account_product_optional_title}
-              <span className="ml-2 text-xs font-normal text-muted-foreground">
-                {t.account_product_optional_summary}
-              </span>
-            </summary>
-            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-              <FormRow label={t.account_product_col_certs}>
-                <Input
-                  value={draft.certificates.join(", ")}
-                  onChange={(e) => setDraft({ ...draft, certificates: splitList(e.target.value) })}
-                  data-testid="account-product-certificates"
-                />
-              </FormRow>
-              <FormRow label={t.account_product_col_targets}>
-                <Input
-                  value={draft.targetCountries.join(", ")}
-                  onChange={(e) =>
-                    setDraft({ ...draft, targetCountries: splitList(e.target.value) })
-                  }
-                  data-testid="account-product-target-countries"
-                />
-              </FormRow>
-            </div>
-          </details>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
             <Button
               type="button"
@@ -2669,21 +2616,19 @@ const ProductsSection = ({
               <th className="px-3 py-2">{t.account_product_col_state}</th>
               <th className="px-3 py-2">{t.account_product_col_role}</th>
               <th className="px-3 py-2">{t.account_product_col_volume}</th>
-              <th className="px-3 py-2">{t.account_product_col_certs}</th>
-              <th className="px-3 py-2">{t.account_product_col_targets}</th>
               <th className="px-3 py-2 text-right">{t.account_product_col_actions}</th>
             </tr>
           </thead>
           <tbody>
             {profile.products.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={5} className="px-3 py-8 text-center text-sm text-muted-foreground">
                   {t.account_product_empty}
                 </td>
               </tr>
             ) : visibleProducts.length === 0 ? (
               <tr data-testid="account-product-no-results">
-                <td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={5} className="px-3 py-8 text-center text-sm text-muted-foreground">
                   <div className="mx-auto flex max-w-md flex-col items-center gap-3">
                     <div>
                       <p className="font-medium text-foreground">{t.account_product_noResults}</p>
@@ -2723,20 +2668,6 @@ const ProductsSection = ({
                     <ProductRoleBadge role={p.role} />
                   </td>
                   <td className="px-3 py-2 font-medium tabular-nums">{p.monthlyVolume}</td>
-                  <td className="px-3 py-2">
-                    <ChipsPreview
-                      values={p.certificates}
-                      testId={`account-product-certs-${p.id}`}
-                      emptyLabel={t.account_value_notSpecified}
-                    />
-                  </td>
-                  <td className="px-3 py-2">
-                    <ChipsPreview
-                      values={p.targetCountries}
-                      testId={`account-product-targets-${p.id}`}
-                      emptyLabel={t.account_value_notSpecified}
-                    />
-                  </td>
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-2">
                       <Button
@@ -2828,29 +2759,6 @@ const ProductsSection = ({
             <Field label={t.account_product_col_state} value={productStateLabel(selectedProduct.state, t)} />
             <Field label={t.account_product_col_role} value={productRoleLabel(selectedProduct.role, t)} />
             <Field label={t.account_product_col_volume} value={selectedProduct.monthlyVolume} />
-            <Field
-              label={t.account_product_col_targets}
-              value={selectedProduct.targetCountries.join(", ")}
-            />
-          </div>
-          <div className="mt-4">
-            <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-              {t.account_product_col_certs}
-            </p>
-            <div
-              className="mt-2 flex flex-wrap gap-2"
-              data-testid={`account-product-detail-certs-${selectedProduct.id}`}
-            >
-              {selectedProduct.certificates.length ? (
-                selectedProduct.certificates.map((certificate) => (
-                  <Badge key={certificate} variant="outline">
-                    {certificate}
-                  </Badge>
-                ))
-              ) : (
-                <span className="text-sm text-muted-foreground">{t.account_value_notSpecified}</span>
-              )}
-            </div>
           </div>
           <div className="mt-4 flex justify-end gap-2">
             <Button
