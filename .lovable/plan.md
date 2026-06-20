@@ -1,78 +1,92 @@
-# P1I — /account/meta-regions: Country List Builder
+# P1M — Упрощение формы Add/Edit товара в /account/products
 
 ## Цель
-Переделать UI секции мета-регионов: основной сценарий = «имя + список стран», без витрины enum-ов.
+Убрать дублирование: после выбора в Product catalog пользователь не вводит вручную название, латинское имя и категорию. Форма становится узкой и сфокусированной на полях, влияющих на матчинг.
 
-## Изменения UI (`src/pages/account/Account.tsx` → `MetaRegionsSection`)
+## Скоуп
+Только маршрут `/account/products`. Не трогаем AccountShell, Header, другие табы, backend/API/storage/auth, Supabase-policy.
 
-### Форма add/edit
-Только три блока:
-1. **Имя мета-региона** — `Input` с testid `account-meta-name` (как было).
-2. **Add country** — `AccountCountryCombobox` (из P1F):
-   - testid `account-meta-country-combobox` (+ alias `account-meta-countries` для обратной совместимости с программными querySelector'ами).
-   - При выборе страны из листбокса (или Enter по совпадению) — добавить в `draft.countries`, очистить инпут.
-   - Дубликаты блокируются (canonical-ключ — нижний регистр имени или `entry.alpha2`).
-   - Свободный текст разрешён только если он матчится в каталоге; иначе показывается inline-хинт и не добавляется.
-3. **Selected countries** — контейнер `account-meta-selected-countries`:
-   - Каждый чип `account-meta-selected-country-{idOrSlug}`: имя + опционально ISO2, кнопка удаления `account-meta-remove-country-{idOrSlug}` с `aria-label` и `min-h-11 min-w-11`.
-   - Пусто → `account-meta-empty-countries` с короткой подписью.
+## Изменения UI
 
-Кнопки `account-meta-save` / `account-meta-cancel` — без изменений.
-`account-meta-reason`, `account-meta-currency`, `account-meta-notes`, `account-meta-use-*` — **удалены из формы**. Значения сохраняются внутренне:
-- new: `logisticsReason='manual'`, `defaultCurrency='EUR'`, `usedFor=['supplier_matching']`, `notes=''`.
-- edit: сохраняем существующие значения региона.
+### Форма Add/Edit (`Account.tsx`, секция `account-product-form`)
+1. Оставляем `AccountProductCatalogPicker` как единственный источник идентичности товара.
+2. Под пикером — компактный «selected product summary»:
+   - Если `draft.latinName` и `draft.commercialName` заполнены: `Gadus morhua (Atlantic Cod H&G)` — латинское курсивом первым, коммерческое в скобках.
+   - Если ничего не выбрано: подсказка «Выберите товар из каталога» (i18n).
+   - testid: `account-product-selected-summary`.
+3. Удаляем `FormRow` для:
+   - `commercialName` (`account-product-commercial-name`)
+   - `latinName` (`account-product-latin-name`)
+   - `category` (`account-product-category`)
+   - Сами значения в `draft` сохраняются и пишутся при Save (из выбора каталога / из существующего product при edit).
+4. Primary поля (одна grid 1/2 колонки):
+   - State (`account-product-state`)
+   - Role (`account-product-role`)
+   - Monthly volume (`account-product-monthly-volume`, required)
+   - Format / cut (`account-product-format`)
+5. «Optional details» — `<details>` (нативный `<summary>` = одна интерактивная кнопка, без вложенностей), по умолчанию свёрнут на add; на edit — раскрыт, если есть значения:
+   - Certifications (`account-product-certificates`)
+   - Target countries (`account-product-target-countries`)
+   - testid: `account-product-optional-details`.
 
-### Read-mode карточка
-- Заголовок — имя.
-- Тело: чипы стран (wrap, `flex flex-wrap gap-1.5`); если пусто — fallback-строка.
-- Технические поля (reason/currency/usedFor) **не отображаются**.
-- Edit/Delete в футере (как сейчас, testid'ы сохраняются).
+### Валидация (`validateProductDraft`)
+Required:
+- выбранный catalog product → проверяем непустые `commercialName` и `latinName` (ошибка вешается на summary, testid `account-product-selected-summary-error`)
+- `monthlyVolume`
 
-### Шапка секции
-Короткий explainer: EN/RU/ES варианты из ТЗ. Старые ключи `account_metaRegions_explainer`, `account_metaRegion_form_desc` обновляем; неиспользуемые reason/usedFor ключи оставляем в `translations.ts` (не удаляем — могут использоваться elsewhere, проверим rg).
+Убираем required для:
+- `category`
+- `commercialName`/`latinName` как отдельных полей (валидируются через summary)
+- `certificates`, `targetCountries`
 
-## i18n (`src/i18n/translations.ts`)
-- Обновить `account_metaRegions_explainer` (EN/RU/ES) на короткую формулировку.
-- Новые ключи: `account_metaRegion_add_country`, `account_metaRegion_selected_countries`, `account_metaRegion_no_countries`, `account_metaRegion_remove_country` (для `aria-label`), `account_metaRegion_duplicate_country`.
+State и role — селекты с дефолтными значениями, не блокируют Save.
 
-## Валидация
-`validateMetaRegionDraft` → только `name` (required) + `countries.length ≥ 1`. Currency/notes уходят из валидации.
+### Edit mode
+- При `startEdit(product)` форма prefill-ит summary из `product.commercialName/latinName`.
+- Optional details авто-раскрывается, если `certificates.length > 0` или `targetCountries.length > 0`.
 
-## Без бэкенда / без схемы
-Структура `MetaRegion` в `mockAccount`/contracts не меняется — значения подставляем дефолтами/сохраняем существующие. БД-миграции не трогаем.
+### Table / mobile cards
+Не трогаем. Существующие строки продолжают показывать сертификаты и target countries.
+
+### Mobile 390px
+- Сетка `grid-cols-1` на mobile уже есть.
+- `<summary>` и кнопки имеют `min-h-11`.
+- Никаких nested `<a>`/`<button>` внутри `<summary>`.
+
+## i18n (EN/RU/ES) в `src/i18n/translations.ts`
+Новые ключи:
+- `account_product_selected_summary_empty` — «Выберите товар из каталога» / «Pick a product from the catalogue» / «Elige un producto del catálogo»
+- `account_product_selected_summary_required` — «Сначала выберите товар из каталога» / «Select a product from the catalogue first» / «Selecciona primero un producto del catálogo»
+- `account_product_optional_details` — «Дополнительно (необязательно)» / «Optional details» / «Detalles opcionales»
+- `account_product_form_desc` — укоротить (RU: «Заполните основные параметры закупки».)
+
+Старые ключи `account_product_col_product/_col_latin/_field_category` остаются — используются в таблице, поиске, сортировке.
 
 ## Тесты
+- `e2e/account-products-crud.spec.ts` — обновить add-сценарий: выбор каталога → state/role/volume/format → Save. Убрать ручной ввод commercialName/latinName/category.
+- `e2e/account-products-save-flow-report.spec.ts` — синхронизировать селекторы.
+- `e2e/account-workspace-acceptance.spec.ts` — обновить product screenshots/asserts.
+- Добавить новые проверки:
+  - попытка Save без выбора каталога → ошибка на summary
+  - edit существующего продукта → summary prefilled, optional details раскрыты
+  - mobile 390: no horizontal overflow, nested interactive controls = 0
+- Скриншоты в `test-results/p1m-products-form-simplification/`:
+  - `desktop-add-form.png`
+  - `mobile-390-add-form.png`
+  - `mobile-390-selected-summary.png`
+  - `mobile-390-optional-details.png`
 
-### `e2e/account-meta-regions-crud.spec.ts` — переписать под новый UX
-- helper `addCountry(page, name)` — кликает по combobox, вводит, выбирает option `account-meta-country-combobox-option-{id}` или нажимает Enter.
-- adds: имя + 3 страны через combobox → save → reload → видны имя и чипы стран.
-- validation: пустые name+countries → ошибки, форма не закрывается.
-- edit `mr_3`: добавить страну, удалить одну через `account-meta-remove-country-*` → save → проверить.
-- delete: создать + удалить, после reload не виден.
-- ru-локаль: имя кириллицей + 3 страны RU, заголовок «Мета-регионы», нет утечки enum-строк.
-
-### `e2e/account-workspace-sections.spec.ts`
-Поправить только если асёртит удалённые reason/currency/usedFor строки.
-
-## Проверка
+## Verification
 - `npx tsc -b --noEmit`
 - `npm run check:provider-boundary`
 - `npm run build`
-- `E2E_USE_WEB_SERVER=1 npx playwright test e2e/account-meta-regions-crud.spec.ts e2e/account-workspace-sections.spec.ts --project=chromium --reporter=list`
-- Скриншоты через отдельный playwright-скрипт в `/tmp` (desktop, mobile 390 list, mobile 390 add с выбранными странами, mobile 390 edit после удаления страны) → сохранить в `/mnt/documents/p1i/`.
-- Программно (внутри скриншот-скрипта): `scrollWidth ≤ clientWidth`, `a button, button a, a a, button button` = 0.
-- Проверить и удалить, если появились, `src/integrations/supabase/` и `supabase/`.
+- `E2E_USE_WEB_SERVER=1 npx playwright test e2e/account-products-crud.spec.ts e2e/account-products-save-flow-report.spec.ts e2e/account-workspace-acceptance.spec.ts --project=chromium --reporter=list`
 
-## Файлы (ожидаемо)
-- `src/pages/account/Account.tsx` — секция `MetaRegionsSection` (≈250 строк → ≈140).
-- `src/i18n/translations.ts` — ключи EN/RU/ES.
-- `e2e/account-meta-regions-crud.spec.ts` — переписан.
-- (возможно) `e2e/account-workspace-sections.spec.ts` — точечно.
+## Не трогаем
+backend, API, storage schema, auth, AccountShell, Header, другие /account табы, Supabase/provider-free policy, существующие testid таблицы/мобильных карточек/поиска/сортировки.
 
-## Stop condition
-После P1I — стоп. Никаких других вкладок account.
+## Stop
+После /account/products. Другие табы не начинаем.
 
-## Запреты (как в ТЗ)
-Никакого Supabase/Cloud/внешних API, не трогать `/account/personal|branches|products`, не откатывать P1G.1 header fix, не выдумывать страны вне каталога, не показывать enum-значения.
-
-Жду подтверждения, чтобы переключиться в Build.
+## Отчёт
+RU-таблица `План | Сделано | Осталось | Проверка` + commit hash, files changed, conflicts, provider-free guard status, batch size report.
