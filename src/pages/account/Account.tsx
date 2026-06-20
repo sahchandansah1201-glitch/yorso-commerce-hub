@@ -2824,25 +2824,34 @@ const ProductsSection = ({
         >
           <div className="grid gap-3 md:grid-cols-2">
             <Field label={t.account_product_col_product} value={productTaxonomyDisplay(selectedProduct)} />
-            <Field label={t.account_product_field_category} value={selectedProduct.category} />
+            <Field label={t.account_product_field_format} value={selectedProduct.format} />
             <Field label={t.account_product_col_state} value={productStateLabel(selectedProduct.state, t)} />
             <Field label={t.account_product_col_role} value={productRoleLabel(selectedProduct.role, t)} />
             <Field label={t.account_product_col_volume} value={selectedProduct.monthlyVolume} />
-            <Field label={t.account_product_field_format} value={selectedProduct.format} />
             <Field
               label={t.account_product_col_targets}
               value={selectedProduct.targetCountries.join(", ")}
             />
           </div>
-          {selectedProduct.certificates.length ? (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {selectedProduct.certificates.map((certificate) => (
-                <Badge key={certificate} variant="outline">
-                  {certificate}
-                </Badge>
-              ))}
+          <div className="mt-4">
+            <p className="text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+              {t.account_product_col_certs}
+            </p>
+            <div
+              className="mt-2 flex flex-wrap gap-2"
+              data-testid={`account-product-detail-certs-${selectedProduct.id}`}
+            >
+              {selectedProduct.certificates.length ? (
+                selectedProduct.certificates.map((certificate) => (
+                  <Badge key={certificate} variant="outline">
+                    {certificate}
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-sm text-muted-foreground">{t.account_value_notSpecified}</span>
+              )}
             </div>
-          ) : null}
+          </div>
           <div className="mt-4 flex justify-end gap-2">
             <Button
               type="button"
