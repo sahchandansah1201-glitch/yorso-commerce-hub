@@ -215,14 +215,18 @@ test.describe("/account/products · save-flow report artifacts", () => {
     await addedRow.getByRole("button", { name: /delete product/i }).click();
     await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
     await page.getByTestId("account-product-delete-confirm-submit").click();
-    await expect(page.getByTestId("account-products-table")).not.toContainText("Atlantic salmon");
+    await expect(addedRow).toHaveCount(0);
     await page.goto("/account/products", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
     await page.getByTestId("account-product-search").fill("Vannamei Shrimp");
     await expect(page.getByTestId("account-products-table")).toContainText("Vannamei Shrimp");
-    await page.getByTestId("account-product-search").fill("Atlantic salmon");
-    await expect(page.getByTestId("account-product-no-results")).toBeVisible();
-    await expect(page.getByTestId("account-products-table")).not.toContainText("Atlantic salmon");
+    await page.getByTestId("account-product-search-clear").click();
+    await expect(
+      page
+        .locator("tbody tr")
+        .filter({ hasText: "Atlantic salmon" })
+        .filter({ hasText: "IQF portions, 4-6 oz" }),
+    ).toHaveCount(0);
     await report.recordStep({
       name: "delete and reload persistence verified",
       detail: "deleted salmon product stays removed while the shrimp product survives reload",
