@@ -3700,6 +3700,7 @@ const en: TranslationKeys = {
   account_product_catalog_picker_placeholder: "Search by Latin or commercial name.",
   account_product_catalog_picker_empty: "No catalog match found.",
   account_product_catalog_picker_empty_hint: "Try Latin name or commercial name.",
+  account_product_catalog_picker_clear: "Clear selected product",
   account_product_catalog_picker_selected_label: "Selected product",
   account_product_catalog_picker_alias_label: "alias",
   account_product_catalog_required: "Select a product from the catalog.",
