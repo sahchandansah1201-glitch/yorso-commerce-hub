@@ -82,8 +82,6 @@ const fillProductForm = async (
     role: "buying" | "selling" | "both";
     monthlyVolume: string;
     format: string;
-    certificates?: string;
-    targetCountries?: string;
   },
 ) => {
   await selectFromCatalog(page, values.latin);
@@ -91,18 +89,6 @@ const fillProductForm = async (
   await page.getByTestId("account-product-role").selectOption(values.role);
   await page.getByTestId("account-product-monthly-volume").fill(values.monthlyVolume);
   await page.getByTestId("account-product-format").fill(values.format);
-  if (values.certificates !== undefined || values.targetCountries !== undefined) {
-    await page
-      .getByTestId("account-product-optional-details")
-      .locator("summary")
-      .click();
-    if (values.certificates !== undefined) {
-      await page.getByTestId("account-product-certificates").fill(values.certificates);
-    }
-    if (values.targetCountries !== undefined) {
-      await page.getByTestId("account-product-target-countries").fill(values.targetCountries);
-    }
-  }
 };
 
 test.describe("/account/products · editable product matrix", () => {
@@ -116,8 +102,6 @@ test.describe("/account/products · editable product matrix", () => {
       role: "selling",
       monthlyVolume: "18 t / month",
       format: "Skin-on fillet",
-      certificates: "ASC, HACCP",
-      targetCountries: "Germany, France",
     });
     await page.getByTestId("account-product-save").click();
 
@@ -125,7 +109,6 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(table).toContainText("Atlantic salmon");
     await expect(table).toContainText("Fresh");
     await expect(table).toContainText("Selling");
-    await expect(table).toContainText("ASC");
     await expectStorageContains(page, "Salmo salar");
 
     await page.reload({ waitUntil: "domcontentloaded" });
@@ -477,8 +460,8 @@ test.describe("/account/products · editable product matrix", () => {
     // Role rendered as a top-right badge without a separate label in the scanable card.
     await expect(firstCard).toContainText("Покупка");
     await expect(firstCard).toContainText("Объём");
-    await expect(firstCard).toContainText("Сертификации");
-    await expect(firstCard).toContainText("Целевые страны");
+    await expect(firstCard).not.toContainText("Сертификации");
+    await expect(firstCard).not.toContainText("Целевые страны");
 
     const metrics = await page.evaluate(() => ({
       bodyDelta: document.body.scrollWidth - document.documentElement.clientWidth,
@@ -561,20 +544,16 @@ test.describe("/account/products · editable product matrix", () => {
     await page.getByTestId("account-product-edit-p_1").click();
     await page.getByTestId("account-product-state").selectOption("chilled");
     await page.getByTestId("account-product-role").selectOption("selling");
-    await page
-      .getByTestId("account-product-optional-details")
-      .locator("summary")
-      .click();
-    await page.getByTestId("account-product-target-countries").fill("Germany, Poland, Spain");
+    await page.getByTestId("account-product-monthly-volume").fill("21 t / month");
     await page.getByTestId("account-product-save").click();
 
     const text = await mainText(page);
     expect(text).toContain("Atlantic Cod H&G");
     expect(text).toContain("Chilled");
     expect(text).toContain("Selling");
-    expect(text).toContain("Poland");
+    expect(text).toContain("21 t / month");
     expect(text).not.toMatch(/\bfrozen\b|\bchilled\b|\bselling\b/);
-    await expectStorageContains(page, "Poland");
+    await expectStorageContains(page, "21 t / month");
   });
 
   test("product details panel shows matching profile and can start editing", async ({
@@ -587,7 +566,6 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(detail).toBeVisible();
     await expect(detail).toContainText("Vannamei Shrimp");
     await expect(detail).toContainText("Litopenaeus vannamei");
-    await expect(detail).toContainText("Ecuador, India, Vietnam, Spain");
 
     await page.getByTestId("account-product-detail-edit").click();
     await expect(page.getByTestId("account-product-form")).toBeVisible();
@@ -613,8 +591,6 @@ test.describe("/account/products · editable product matrix", () => {
       role: "buying",
       monthlyVolume: "6 t / month",
       format: "HGT 300-500",
-      certificates: "HACCP",
-      targetCountries: "China",
     });
     await page.getByTestId("account-product-save").click();
     await expect(page.getByTestId("account-products-table")).toContainText("Pacific chub mackerel");
@@ -694,8 +670,6 @@ test.describe("/account/products · editable product matrix", () => {
       role: "buying",
       monthlyVolume: "12 т / месяц",
       format: "HOSO 40/50",
-      certificates: "BAP, HACCP",
-      targetCountries: "Эквадор, Индия",
     });
     await page.getByTestId("account-product-save").click();
 
