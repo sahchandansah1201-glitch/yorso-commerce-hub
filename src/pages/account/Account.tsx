@@ -34,6 +34,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Copy,
+  Eye,
   Loader2,
   Pencil,
   Plus,
@@ -2612,11 +2613,11 @@ const ProductsSection = ({
         <table className="w-full text-sm" data-testid="account-products-table">
           <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
-              <th className="px-3 py-2">{t.account_product_col_product}</th>
-              <th className="px-3 py-2">{t.account_product_col_state}</th>
-              <th className="px-3 py-2">{t.account_product_col_role}</th>
-              <th className="px-3 py-2">{t.account_product_col_volume}</th>
-              <th className="px-3 py-2 text-right">{t.account_product_col_actions}</th>
+              <th className="w-[42%] px-3 py-2">{t.account_product_col_product}</th>
+              <th className="w-[15%] px-3 py-2">{t.account_product_col_state}</th>
+              <th className="w-[15%] px-3 py-2">{t.account_product_col_role}</th>
+              <th className="w-[14%] px-3 py-2">{t.account_product_col_volume}</th>
+              <th className="w-[116px] px-2 py-2 text-right">{t.account_product_col_actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -2653,7 +2654,6 @@ const ProductsSection = ({
                   className="border-t border-border align-top odd:bg-muted/20 hover:bg-muted/40"
                   data-testid={`account-product-row-${p.id}`}
                 >
-
                   <td className="px-3 py-2">
                     <div className="font-medium italic">{p.latinName}</div>
                     <div className="text-xs text-muted-foreground">({p.commercialName})</div>
@@ -2668,40 +2668,53 @@ const ProductsSection = ({
                     <ProductRoleBadge role={p.role} />
                   </td>
                   <td className="px-3 py-2 font-medium tabular-nums">{p.monthlyVolume}</td>
-                  <td className="px-3 py-2">
-                    <div className="flex justify-end gap-2">
+                  <td className="px-2 py-2 text-right">
+                    <div className="inline-flex items-center justify-end gap-1 rounded-md border border-border/70 bg-background p-1 shadow-sm">
                       <Button
                         type="button"
-                        variant={selectedProductId === p.id ? "secondary" : "default"}
-                        size="sm"
+                        variant={selectedProductId === p.id ? "secondary" : "ghost"}
+                        size="icon"
+                        className="h-9 min-h-9 w-9 min-w-9 p-0"
                         onClick={() =>
                           setSelectedProductId((current) => (current === p.id ? null : p.id))
                         }
+                        aria-label={`${
+                          selectedProductId === p.id
+                            ? t.account_product_details_hide
+                            : t.account_product_details_open
+                        }: ${productTaxonomyDisplay(p)}`}
+                        title={
+                          selectedProductId === p.id
+                            ? t.account_product_details_hide
+                            : t.account_product_details_open
+                        }
                         data-testid={`account-product-open-${p.id}`}
                       >
-                        {selectedProductId === p.id
-                          ? t.account_product_details_hide
-                          : t.account_product_details_open}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => startEdit(p)}
-                        data-testid={`account-product-edit-${p.id}`}
-                      >
-                        <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-                        {t.account_action_edit}
+                        <Eye className="h-4 w-4" aria-hidden />
                       </Button>
                       <Button
                         type="button"
                         variant="ghost"
-                        size="sm"
+                        size="icon"
+                        className="h-9 min-h-9 w-9 min-w-9 p-0"
+                        onClick={() => startEdit(p)}
+                        aria-label={`${t.account_action_edit}: ${productTaxonomyDisplay(p)}`}
+                        title={t.account_action_edit}
+                        data-testid={`account-product-edit-${p.id}`}
+                      >
+                        <Pencil className="h-4 w-4" aria-hidden />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 min-h-9 w-9 min-w-9 p-0 text-muted-foreground hover:text-destructive"
                         onClick={() => setPendingDeleteProduct(p)}
                         aria-label={`${t.account_product_delete}: ${productTaxonomyDisplay(p)}`}
+                        title={t.account_product_delete}
                         data-testid={`account-product-delete-${p.id}`}
                       >
-                        <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                        <Trash2 className="h-4 w-4" aria-hidden />
                       </Button>
                     </div>
                   </td>
