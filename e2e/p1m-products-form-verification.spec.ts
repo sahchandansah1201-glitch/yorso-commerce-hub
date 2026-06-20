@@ -52,7 +52,7 @@ test.describe("P1M /account/products form simplification verification", () => {
       .filter({ hasText: "Salmo salar" })
       .first()
       .click();
-    await expect(page.getByTestId("account-product-catalog-selected")).toBeVisible();
+    await expect(page.getByTestId("account-product-selected-summary")).toBeVisible();
     await programmaticChecks(page);
     await page.screenshot({ path: `${OUT}/mobile-390-selected-summary.png`, fullPage: true });
 
