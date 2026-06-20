@@ -208,7 +208,10 @@ test.describe("/account/products · save-flow report artifacts", () => {
       testInfo,
     });
 
-    const addedRow = page.locator("tbody tr").filter({ hasText: "Atlantic salmon" });
+    const addedRow = page
+      .locator("tbody tr")
+      .filter({ hasText: "Atlantic salmon" })
+      .filter({ hasText: "IQF portions, 4-6 oz" });
     await addedRow.getByRole("button", { name: /delete product/i }).click();
     await expect(page.getByTestId("account-product-delete-confirm")).toBeVisible();
     await page.getByTestId("account-product-delete-confirm-submit").click();
