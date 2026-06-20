@@ -2177,7 +2177,7 @@ const ProductsSection = ({
         product.id !== editingId && productDuplicateKey(product) === productDuplicateKey(normalized),
     );
     if (duplicate) {
-      setErrors({ commercialName: t.account_product_duplicate_error });
+      setSaveError(t.account_product_duplicate_error);
       return;
     }
 
