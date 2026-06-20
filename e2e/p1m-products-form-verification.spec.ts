@@ -28,12 +28,17 @@ test.describe("P1M /account/products form simplification verification", () => {
     await page.getByTestId("account-product-add").click();
     await expect(page.getByTestId("account-product-form")).toBeVisible();
     await expect(page.getByTestId("account-product-catalog-search")).toBeVisible();
-    await expect(page.getByTestId("account-product-optional-details")).toBeVisible();
+    await expect(page.getByTestId("account-product-commercial-name")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-latin-name")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-category")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-optional-details")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-certificates")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-target-countries")).toHaveCount(0);
     await programmaticChecks(page);
     await page.screenshot({ path: `${OUT}/desktop-add-form.png`, fullPage: true });
   });
 
-  test("mobile 390 add form + selected summary + optional details", async ({ page }) => {
+  test("mobile 390 add form + selected product in the single catalog field", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openProducts(page);
     await page.getByTestId("account-product-add").click();
@@ -53,18 +58,16 @@ test.describe("P1M /account/products form simplification verification", () => {
       .first()
       .click();
     await expect(page.getByTestId("account-product-selected-summary")).toBeVisible();
+    await expect(page.getByTestId("account-product-catalog-search")).toHaveValue(
+      /Salmo salar \(.+\)/,
+    );
+    await expect(page.getByTestId("account-product-selected-latin")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-selected-commercial")).toHaveCount(0);
     await programmaticChecks(page);
     await page.screenshot({ path: `${OUT}/mobile-390-selected-summary.png`, fullPage: true });
-
-    // Expand optional details
-    await page.getByTestId("account-product-optional-details").locator("summary").click();
-    await expect(page.getByTestId("account-product-certificates")).toBeVisible();
-    await expect(page.getByTestId("account-product-target-countries")).toBeVisible();
-    await programmaticChecks(page);
-    await page.screenshot({ path: `${OUT}/mobile-390-optional-details.png`, fullPage: true });
   });
 
-  test("edit existing product pre-fills selected summary and expands optional details when filled", async ({
+  test("edit existing product pre-fills the single catalog field", async ({
     page,
   }) => {
     await openProducts(page);
@@ -73,9 +76,13 @@ test.describe("P1M /account/products form simplification verification", () => {
     await editButton.click();
     await expect(page.getByTestId("account-product-form")).toBeVisible();
     await expect(page.getByTestId("account-product-selected-summary")).toBeVisible();
+    await expect(page.getByTestId("account-product-catalog-search")).toHaveValue(
+      "Gadus chalcogrammus (Alaska Pollock Fillet)",
+    );
     // Manual identity inputs must not be present
     await expect(page.getByTestId("account-product-commercial-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-latin-name")).toHaveCount(0);
     await expect(page.getByTestId("account-product-category")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-optional-details")).toHaveCount(0);
   });
 });

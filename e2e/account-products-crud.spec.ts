@@ -136,12 +136,9 @@ test.describe("/account/products · editable product matrix", () => {
     await expect(page.getByTestId("account-product-catalog-search")).toHaveValue(
       "Scomber scombrus (Atlantic mackerel)",
     );
-    await expect(page.getByTestId("account-product-selected-latin")).toContainText(
-      "Scomber scombrus",
-    );
-    await expect(page.getByTestId("account-product-selected-commercial")).toContainText(
-      "Atlantic mackerel",
-    );
+    await expect(page.getByTestId("account-product-selected-summary")).toBeVisible();
+    await expect(page.getByTestId("account-product-selected-latin")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-selected-commercial")).toHaveCount(0);
   });
 
   test("validation keeps incomplete products out of the matrix", async ({ page }) => {
@@ -569,12 +566,11 @@ test.describe("/account/products · editable product matrix", () => {
 
     await page.getByTestId("account-product-detail-edit").click();
     await expect(page.getByTestId("account-product-form")).toBeVisible();
-    await expect(page.getByTestId("account-product-selected-latin")).toContainText(
-      "Litopenaeus vannamei",
+    await expect(page.getByTestId("account-product-catalog-search")).toHaveValue(
+      "Litopenaeus vannamei (Vannamei Shrimp)",
     );
-    await expect(page.getByTestId("account-product-selected-commercial")).toContainText(
-      "Vannamei Shrimp",
-    );
+    await expect(page.getByTestId("account-product-selected-latin")).toHaveCount(0);
+    await expect(page.getByTestId("account-product-selected-commercial")).toHaveCount(0);
     await page.getByTestId("account-product-cancel").click();
 
     await page.getByTestId("account-product-close-detail").click();
