@@ -237,7 +237,7 @@ test.describe("/account/products · save-flow report artifacts", () => {
     await ruPage.waitForLoadState("networkidle");
     const mainText = (await ruPage.locator("main").textContent()) ?? "";
     expect(mainText).toContain("Матрица продуктов");
-    expect(mainText).toContain("Замороженный");
+    expect(mainText).toContain("Мороженый");
     expect(mainText).toContain("Сортировать по");
     expect(mainText).not.toMatch(
       /\bfrozen\b|\bbuying\b|\bselling\b|\bboth\b|commercialName|monthlyVolume/,
