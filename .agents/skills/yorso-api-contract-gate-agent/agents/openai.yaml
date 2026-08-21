@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yorso API Contract Gate Agent"
+  short_description: "API and frontend-backend contract gate for Yorso"
+  default_prompt: "Use this agent for Yorso API/DTO/client/persistence changes: verify ownership, validation, response shape, errors, pagination, redaction, 10k-user scale, tests, and contract docs."

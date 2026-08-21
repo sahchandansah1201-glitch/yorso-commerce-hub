@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yorso Release Reliability Agent"
+  short_description: "Release evidence and go/no-go gate for Yorso"
+  default_prompt: "Use this agent before marking a Yorso phase done: verify checks, evidence, risk register, project-memory, rollback notes, and dirty-worktree safety."

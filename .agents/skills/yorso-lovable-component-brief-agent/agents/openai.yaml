@@ -1,0 +1,5 @@
+interface:
+  display_name: "Yorso Lovable Component Brief Agent"
+  short_description: "Lovable prompts for reusable Yorso components"
+  default_prompt: "Use $yorso-lovable-component-brief-agent to write Lovable prompts for reusable Yorso sections and components."
+  brand_color: "#6D28D9"

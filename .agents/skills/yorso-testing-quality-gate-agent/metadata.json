@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "organization": "Yorso",
+  "date": "June 2026",
+  "abstract": "Adversarial testing quality gate for Yorso. Verifies that passing tests actually prove user-visible behavior across real flows, repeated actions, mobile 390px, keyboard and accessibility, screenshots, persistence, i18n, provider-free guard, and Lovable sync evidence before a change is accepted.",
+  "references": [
+    "AGENTS.md",
+    "docs/project-memory/ENGINEERING_LESSONS.md"
+  ]
+}

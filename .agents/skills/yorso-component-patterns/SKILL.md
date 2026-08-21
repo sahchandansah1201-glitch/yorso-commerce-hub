@@ -1,6 +1,6 @@
 ---
 name: yorso-component-patterns
-description: Canonical YORSO UI patterns — Field/FormRow for account forms, ListSection for item lists, OfferRow for procurement workspace, IntelligencePanel for offer-aware sidebar, density tokens, and forbidden duplicates. Trigger when creating or refactoring cards, forms, tables, lists, offer rows, or any /account, /offers, /suppliers UI.
+description: Canonical YORSO UI patterns — Field/FormRow for account forms, ListSection for item lists, CatalogOfferRow for procurement workspace, IntelligenceRail for offer-aware context, density tokens, and forbidden duplicates. Trigger when creating or refactoring cards, forms, tables, lists, offer rows, or any /account, /offers, /suppliers UI.
 ---
 
 # YORSO Component Patterns
@@ -37,7 +37,9 @@ For repeatable item lists in `/account/*` (Branches, Products, Meta-Regions, Not
 
 Notes (free-text under fields) → `mt-3 text-xs italic text-muted-foreground`.
 
-## 3. Procurement workspace — OfferRow
+## 3. Procurement workspace — CatalogOfferRow
+
+Source: `src/components/catalog/CatalogOfferRow.tsx`.
 
 `/offers` is a workspace, not a grid. Each row has 6 zones (left → right):
 
@@ -55,7 +57,9 @@ Rules:
 - Compare button: lives in selected-row panel + compare tray, NOT per row.
 - Row scannable in 2-3s.
 
-## 4. IntelligencePanel (right sidebar on /offers)
+## 4. IntelligenceRail (offer-aware context on /offers)
+
+Source: `src/components/catalog/IntelligenceRail.tsx`.
 
 Tied to **selected offer**, not category. Inputs: category, origin, supplier country, logistics basis, access state.
 
@@ -102,7 +106,8 @@ Sections, in order: market snapshot → origin news → supplier-country news �
 If a screen genuinely needs a new shared pattern:
 1. Build it locally first.
 2. Use it in ≥2 places.
-3. Extract to `src/components/account/` or `src/components/offers/`.
+3. Extract to `src/components/account/`, `src/components/catalog/`, or the
+   nearest existing feature directory.
 4. Update this skill with the new entry + import path.
 5. Add an anti-pattern row for the old inline form.
 

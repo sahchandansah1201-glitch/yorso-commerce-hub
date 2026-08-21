@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yorso Engineering Quality Gate Agent"
+  short_description: "Strict completion gate for Yorso engineering work"
+  default_prompt: "Use this agent before marking Yorso implementation done: verify scope, readable code, tests, architecture, contracts, security/redaction, performance, project-memory, and report a Russian go/no-go table."

@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "organization": "Yorso",
+  "date": "June 2026",
+  "abstract": "Strict engineering completion gate for Yorso. Verifies scope truth, readable code, tests, architecture, Next/React and API boundaries, security and redaction, performance, project-memory, dirty-tree safety, and exact verification evidence before any Yorso implementation is reported as done.",
+  "references": [
+    "AGENTS.md",
+    "docs/pipelines/yorso-engineering-competency-upgrade-2026-06-10.md"
+  ]
+}

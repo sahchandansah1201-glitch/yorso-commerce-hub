@@ -100,16 +100,17 @@ Allowed phrasings:
 
 ## 6. State source
 
-Read state from `BuyerSessionContext`:
+Read the effective state through the shared access adapter:
 
 ```ts
-import { useBuyerSession } from "@/contexts/BuyerSessionContext";
+import { useAccessLevel } from "@/lib/access-level";
 
-const { accessState } = useBuyerSession();
+const { level } = useAccessLevel();
 // "anonymous_locked" | "registered_locked" | "qualified_unlocked"
 ```
 
-Never derive from `localStorage` directly. Never gate on a hardcoded boolean.
+`useAccessLevel` is the only UI-facing adapter for buyer access. Never derive the
+state from `localStorage` directly and never gate on a hardcoded boolean.
 
 ## 7. Test contract
 
@@ -128,4 +129,4 @@ E2E specs in `e2e/offer-detail-access.spec.ts`, `e2e/supplier-locked-i18n.spec.t
 - [ ] Lock icon used only on actually-locked fields, never beside trust copy.
 - [ ] Mock data carries honesty marker.
 - [ ] CTA copy from the table above (RU + EN both present).
-- [ ] State pulled from `BuyerSessionContext`, not localStorage.
+- [ ] State pulled through `useAccessLevel`, not directly from context or localStorage.

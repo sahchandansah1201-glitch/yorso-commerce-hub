@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yorso UX/UI Quality Agent"
+  short_description: "Buyer-first B2B UX/UI, a11y and Lovable prompt quality gate"
+  default_prompt: "Use this skill for Yorso public/admin UX/UI batches and Lovable prompts: buyer-first narrative, trust, scanability, a11y, SEO, mobile and plan/fact reporting."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yorso Service Architecture Agent"
+  short_description: "API/service boundary architect for Yorso"
+  default_prompt: "Use this agent for Yorso backend/API/service changes: validate contracts, source of truth, policy boundaries, persistence, scalability, runtime hardening, dependency discipline, observability, backpressure, and migration safety."

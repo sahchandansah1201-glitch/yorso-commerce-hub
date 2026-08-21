@@ -1,0 +1,5 @@
+interface:
+  display_name: "Yorso Testing Quality Gate Agent"
+  short_description: "Adversarial QA gate after tests"
+  default_prompt: "Use $yorso-testing-quality-gate-agent before accepting this Yorso change: audit real user flows, mobile 390px, keyboard/a11y, visual evidence, persistence, i18n, provider-free guard, and give a Russian GO/NO-GO verdict."
+  brand_color: "#B45309"

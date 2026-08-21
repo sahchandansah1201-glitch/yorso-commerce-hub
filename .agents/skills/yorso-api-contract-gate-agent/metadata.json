@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "organization": "Yorso",
+  "date": "June 2026",
+  "abstract": "API and frontend-backend contract gate for Yorso. Checks route ownership, request validation, response DTO shape, stable error envelopes, pagination, idempotency, auth/session/account/supplier/storage policy boundaries, browser-visible redaction, 10,000-user readiness, tests, and contract documentation.",
+  "references": [
+    "AGENTS.md",
+    "docs/backend/frontend-backend-contract.md",
+    "docs/pipelines/yorso-engineering-competency-upgrade-2026-06-10.md"
+  ]
+}

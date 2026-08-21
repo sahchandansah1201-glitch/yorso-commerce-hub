@@ -11,7 +11,7 @@ A repeatable review process that turns a YORSO screen into a severity-ranked fix
 
 - User asks for UX/usability audit or "проверь юзабилити".
 - Before merging non-trivial UI changes to /offers, /offers/:id, /account/*, /suppliers/*, registration, sign-in.
-- After a refactor that touches shared components (Field, FormRow, OfferRow, IntelligencePanel, ListSection).
+- After a refactor that touches shared components (Field, FormRow, CatalogOfferRow, IntelligenceRail, ListSection).
 
 ## Steps
 
