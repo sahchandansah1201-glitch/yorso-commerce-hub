@@ -1,5 +1,31 @@
 # Artifacts
 
+## Agent Capability Foundation (2026-08-21)
+
+- `.agents/manifest.json`: machine-readable role, skill, provenance, ownership,
+  reviewer and dependency registry.
+- `.agents/skills.lock.json`: content hashes and pinned source revisions for all
+  registered project-wide skills.
+- `.agents/agents/`: 13 accountable Yorso role profiles.
+- `.agents/skills/yorso-multilingual-ux-copywriter-agent/`: project-wide EN,
+  RU and ES-ES interface-copy workflow with independent human review.
+- `docs/agents/role-skill-provenance-matrix.md`: candidate, license, commit SHA,
+  overlap and pilot-decision matrix.
+- `docs/agents/skill-routing.md`: task-to-role-to-skill routing contract.
+- `docs/agents/skill-pilot-protocol.md`: Stage A and Stage B evaluation protocol.
+- `docs/agents/skill-pilot-results.md`: current evidence and explicit open gate.
+- `docs/agents/pilots/fixtures/`: five reusable adversarial pilot fixtures.
+- `scripts/check-agent-governance.mjs`: manifest, role, source, reviewer and lock
+  validation entrypoint.
+- `scripts/check-agent-governance.test.mjs`: fail-closed drift and self-review
+  regression tests.
+- `scripts/check-project-memory.mjs`: repository/branch identity plus structural
+  memory freshness check; it does not prove semantic completeness.
+- `scripts/check-gate-mutation.mjs`: verifies a gate command leaves Git-visible
+  tracked and nonignored untracked state unchanged.
+- `docs/project-memory/DECISIONS/ADR-0002-agent-capability-governance.md`:
+  durable governance decision.
+
 ## Project Memory
 
 - `AGENTS.md`: project-level agent rules.
@@ -1919,3 +1945,13 @@
   mobile 390px product card screenshot with Latin-first display.
 - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-delete-short-copy-ru-mobile-current.png`:
   mobile 390px short delete confirmation screenshot.
+# Capability Foundation Recovery Archives
+
+- `docs/project-memory/archive/2026-08-21-pre-capability/PROJECT_STATE.yaml.gz`
+  - source: `8ca08ffbc10d01ce53572ff874f711bba9d8e012`
+  - SHA-256: `daae307ea510d59a0a7b13d80af45b830196683ae91155d310b91e6182d40b04`
+- `docs/project-memory/archive/2026-08-21-pre-capability/HANDOFF.md.gz`
+  - source: `8ca08ffbc10d01ce53572ff874f711bba9d8e012`
+  - SHA-256: `eedd4fe9b12b64e878e8b18e1b4dce94c0c972c2d34a9f77e1da919944e182ad`
+- `docs/project-memory/archive/2026-08-21-pre-capability/README.md`
+  - provenance and deterministic restore commands.

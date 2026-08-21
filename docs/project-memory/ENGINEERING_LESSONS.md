@@ -487,3 +487,70 @@ retirement tests or at minimum verify that `src/integrations/supabase`,
 `supabase/`, `@supabase/supabase-js`, `git ls-files .env` and tracked
 `VITE_SUPABASE_*` are absent from the production surface. Local ignored `.env`
 files are developer state and must not be treated as product source of truth.
+
+## Capability gates must observe state, not repair it
+
+Symptom: `build` and `check:provider-boundary` had prehooks that deleted stale
+Supabase scaffold paths before running. A green result could therefore mean the
+gate repaired the tree rather than proving the submitted tree was valid.
+
+Root cause: maintenance and verification were combined in one command path.
+
+Fix: remove the mutating prehooks. Keep `clean:supabase-scaffold` as an explicit
+maintenance command, make provider/build gates observational, and add
+`check:gate-mutation` to compare Git-visible tracked and nonignored untracked
+state before and after a gate command.
+
+Guard: acceptance commands must be deterministic observers. The mutation checker
+does not cover ignored outputs or external state, so those effects need their
+own artifact/runtime checks. If a command needs to rewrite, generate or delete
+source files, expose that as a separate explicit step and verify the resulting
+diff before running the gate.
+
+## Skills require provenance, ownership and independent review
+
+Symptom: project skills could be copied, renamed or silently drift from current
+APIs without a registry, immutable content hash or accountable reviewer.
+
+Root cause: filesystem presence was treated as installation and quality proof.
+
+Fix: register roles and skills in `.agents/manifest.json`, pin contents in
+`.agents/skills.lock.json`, require source repository/revision/license metadata,
+and reject owner-reviewer identity.
+
+Guard: run `check:agent-governance` and its fail-closed tests before core CI.
+Passing structural checks is Stage A only; measured quality requires the Stage B
+comparative pilot.
+
+## Declared skill provenance is not evidence of exact source content
+
+Symptom: a local skill could declare a valid repository, commit and license
+while its executable instructions differed from the upstream file at that
+revision.
+
+Root cause: governance validated metadata and the local content lock separately
+but did not bind the local bytes to the pinned upstream bytes.
+
+Fix: fetch the registered source file at the exact commit SHA, hash its content
+and compare it with the local lock. Keep a repository evidence document that
+names repository, revision and license.
+
+Guard: reject unsafe paths, symlinks, incomplete evidence and upstream-content
+hash drift. A network failure must fail the external-source check rather than
+silently trust stale metadata.
+
+## Compact project memory needs a verifiable recovery path
+
+Symptom: compacting multi-thousand-line state and handoff files made current
+context easier to scan but risked losing durable historical detail.
+
+Root cause: the Git commit remained recoverable, but the compact memory did not
+contain a local, integrity-checked recovery artifact.
+
+Fix: create deterministic gzip archives from the pre-compaction commit, record
+their SHA-256 checksums and validate containment, symlink safety, gzip integrity
+and exact hashes in `check:project-memory`.
+
+Guard: archive tampering must fail the memory gate. Never call compaction
+complete unless the current state is concise and the prior state remains
+recoverable from a checksum-pinned artifact or immutable commit.

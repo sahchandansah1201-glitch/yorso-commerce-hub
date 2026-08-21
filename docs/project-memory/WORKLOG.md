@@ -4169,3 +4169,60 @@ Keep this file factual and append-only.
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-latin-first-desktop-current.png`;
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-latin-first-mobile-current.png`;
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-delete-short-copy-ru-mobile-current.png`.
+## 2026-08-21 — Agent Capability Foundation
+
+- Confirmed repository root:
+  `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`.
+- Confirmed canonical remote:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub.git`.
+- Created experimental branch `local-lab/agent-capability-foundation` from
+  `origin/main` at `0f71847b7150f5ed5358c418f4fb3509109b7b82`.
+- Defined 13 accountable Yorso roles and registered 11 project-wide skills.
+- Added project-wide multilingual UX copywriter coverage for EN, RU and ES-ES
+  with independent human review and no self-approval.
+- Added source/license/revision provenance, content locking, routing and
+  fail-closed governance tests.
+- Audited external candidates and recorded exact decisions in
+  `docs/agents/role-skill-provenance-matrix.md`.
+- Added five pilot fixtures and recorded Stage A pass; Stage B remains open, so
+  no quantified quality improvement is claimed.
+- Removed mutating cleanup prehooks from build/provider checks and added a
+  worktree-mutation verifier.
+- Replaced stale project state and handoff documents with the current
+  repository, branch, open gates and next actions.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Isolate local experiments | Branch created from `origin/main` | Push after acceptance | Git branch/base |
+| Build project-wide team | 13 roles and 11 skills registered | Stage B and independent review | Governance gate |
+| Add copywriter | Installed with locale and human-review gates | Real-copy pilot | Pilot protocol |
+| Make gates trustworthy | Hidden cleanup removed; mutation checker added | Run final mutation checks | Gate outputs |
+| Keep memory durable | Current state/handoff/actions recorded | Update with final commit hashes | Memory gate |
+
+## 2026-08-22 — Capability Governance Hardening
+
+- Changed external-skill verification from declaration-only checks to exact
+  upstream-content verification at the pinned commit SHA.
+- Added fail-closed path and symlink checks for role profiles, source files,
+  pilot artifacts and promotion evidence.
+- Added structured Stage B and main-promotion evidence validation so a status
+  flag cannot bypass pilot metrics or independent approval.
+- Added governance regression cases for incomplete provenance, unrelated
+  branches, missing Stage B evidence and attempted main promotion without
+  evidence.
+- Preserved the expanded pre-foundation `PROJECT_STATE.yaml` and `HANDOFF.md`
+  as deterministic gzip archives with recorded SHA-256 checksums.
+- Extended the project-memory gate to reject archive tampering, path escapes,
+  symlinks and invalid gzip content.
+- Governance hardening committed as `8644060a`.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Verify exact external content | Upstream file content is hashed at pinned SHA | Network availability remains required for external verification | Governance tests |
+| Fail closed on false pilot status | Stage B requires structured metrics and artifacts | Run real Stage B | Governance gate |
+| Fail closed on main promotion | Two approvers and all required gates are mandatory | Separate user approval | Governance gate |
+| Preserve historical memory | Deterministic checksum-pinned archives added | Keep immutable | Project-memory tests |

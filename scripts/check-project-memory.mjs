@@ -1,8 +1,10 @@
 #!/usr/bin/env node
+import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { gunzipSync } from "node:zlib";
 
 const REQUIRED_FILES = [
   "PROJECT_STATE.yaml",
@@ -29,6 +31,16 @@ const git = (root, args) =>
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
   }).trim();
+
+const isWithin = (parent, candidate) => candidate === parent || candidate.startsWith(`${parent}${path.sep}`);
+
+const isSafeRelativePath = (value) => {
+  if (typeof value !== "string" || value.length === 0 || path.isAbsolute(value)) return false;
+  const normalized = path.posix.normalize(value.replaceAll("\\", "/"));
+  return normalized === value && normalized !== ".." && !normalized.startsWith("../");
+};
+
+const sha256 = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
 
 export const validateProjectMemory = (candidateRoot, env = process.env) => {
   const root = realpathSync(candidateRoot);
@@ -65,12 +77,43 @@ export const validateProjectMemory = (candidateRoot, env = process.env) => {
   if (!expectedBranch?.startsWith("local-lab/")) {
     errors.push(`PROJECT_STATE active_branch must be a local-lab branch: ${expectedBranch ?? "missing"}`);
   }
-  if (currentBranch.startsWith("local-lab/") && expectedBranch !== currentBranch) {
+  if (currentBranch && expectedBranch !== currentBranch) {
     errors.push(`PROJECT_STATE active_branch does not match git: ${expectedBranch ?? "missing"} != ${currentBranch}`);
   }
   if (env.PROJECT_MEMORY_STRICT_LOCAL === "1") {
     if (!expectedCwd || !existsSync(expectedCwd) || realpathSync(expectedCwd) !== root) {
       errors.push(`PROJECT_STATE cwd does not match current repository: ${expectedCwd ?? "missing"}`);
+    }
+  }
+
+  const archiveRoot = path.join(memoryRoot, "archive");
+  for (const [pathKey, hashKey] of [
+    ["previous_expanded_state_archive", "previous_expanded_state_archive_sha256"],
+    ["previous_expanded_handoff_archive", "previous_expanded_handoff_archive_sha256"],
+  ]) {
+    const archive = value(pathKey);
+    const expectedHash = value(hashKey);
+    if (!isSafeRelativePath(archive ?? "") || !archive?.startsWith("docs/project-memory/archive/")) {
+      errors.push(`PROJECT_STATE ${pathKey} must be a safe project-memory archive path`);
+      continue;
+    }
+    const absolute = path.join(root, archive);
+    if (!existsSync(absolute) || !lstatSync(absolute).isFile() || lstatSync(absolute).isSymbolicLink()) {
+      errors.push(`PROJECT_STATE archive is missing or unsafe: ${archive}`);
+      continue;
+    }
+    if (!isWithin(realpathSync(archiveRoot), realpathSync(absolute))) {
+      errors.push(`PROJECT_STATE archive resolves outside project-memory archive: ${archive}`);
+      continue;
+    }
+    if (!/^[0-9a-f]{64}$/.test(expectedHash ?? "") || sha256(absolute) !== expectedHash) {
+      errors.push(`PROJECT_STATE archive checksum mismatch: ${archive}`);
+      continue;
+    }
+    try {
+      if (gunzipSync(readFileSync(absolute)).length === 0) errors.push(`PROJECT_STATE archive is empty: ${archive}`);
+    } catch {
+      errors.push(`PROJECT_STATE archive is not valid gzip: ${archive}`);
     }
   }
 

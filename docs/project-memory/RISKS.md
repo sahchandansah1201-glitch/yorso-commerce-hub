@@ -2,9 +2,46 @@
 
 ## Active Risks
 
-- Risk: A new chat may confuse `yorso-commerce-hub` with `yorso_new`.
-  Impact: Work may be applied in the wrong repository or evaluated against the wrong product surface.
-  Mitigation: Always verify cwd, read `PROJECT_STATE.yaml`, and use `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub` as the project root unless the user explicitly asks for another repository.
+- Risk: A new task may confuse the product name `yorso_new`, an older local
+  folder and the actual Git repository.
+  Impact: Work may be applied in the wrong repository or pushed to the wrong
+  remote.
+  Mitigation: `check:project-memory` verifies
+  `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main` and the active
+  `local-lab/agent-capability-foundation` branch. The manifest pins the canonical
+  `sahchandansah1201-glitch/yorso-commerce-hub` remote.
+
+- Risk: Stage A governance success could be misreported as a measured quality
+  improvement.
+  Impact: Experimental skills may be promoted without evidence that they find
+  more real defects or produce better product outcomes.
+  Mitigation: Keep experimental statuses in the manifest; require the blind
+  Stage B protocol and independent review before any quantified claim or main
+  promotion.
+
+- Risk: External skill metadata could name a real repository and SHA while the
+  vendored instructions differ from that revision.
+  Impact: Provenance appears valid while reviewed content is not the content
+  actually executed.
+  Mitigation: Governance fetches the registered upstream file at the exact SHA,
+  hashes the content and compares it with the local lock. External evidence must
+  also name the repository, revision and license.
+
+- Risk: A pilot or promotion could be marked passed by changing one status
+  field without attaching review evidence.
+  Impact: Experimental capabilities could reach `main` without blind comparison
+  or independent approval.
+  Mitigation: Stage B and main-promotion evidence have versioned JSON schemas,
+  bounded metrics, artifact checks and independent approver requirements.
+
+- Risk: Verification commands can hide policy violations by deleting generated
+  files before checking.
+  Impact: CI appears green while the repository is not reproducible and checks
+  mutate developer state.
+  Mitigation: Cleanup is explicit and removed from `prebuild` and
+  provider-boundary prehooks. `check:gate-mutation` proves only that a command
+  leaves Git-visible tracked and nonignored untracked state unchanged; ignored
+  build artifacts and external state require separate verification.
 
 - Risk: Old chat context may be missing, stale or mixed with another Yorso chat.
   Impact: The assistant may infer product status incorrectly.
@@ -46,6 +83,12 @@
   policy before broad production rollout.
 
 ## Resolved Risks
+
+- Risk: Compacting project-memory could remove durable access to the expanded
+  pre-foundation state.
+  Resolution: Added checksum-pinned gzip archives under
+  `docs/project-memory/archive/2026-08-21-pre-capability/`; the memory gate checks
+  containment, symlink safety, gzip validity and exact SHA-256 checksums.
 
 - Risk: No project-memory black box existed.
   Resolution: Added `docs/project-memory/` and `AGENTS.md`.
