@@ -1,21 +1,47 @@
 # Context Health
 
-Updated: 2026-06-18
+Updated: 2026-08-21
 
 ## Current Status
 
 ```yaml
-context_risk: "medium"
-last_checkpoint: "2026-06-18"
+context_risk: "low"
+last_checkpoint: "2026-08-21"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
-active_branch: "codex/p1i-meta-regions-country-picker-fix"
-head_commit: "see PR #196; P1I defect fix pending GitHub checks"
-latest_merged_batch: 141
-active_workstream: "p1i_meta_regions_country_picker_defect_fix"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/196"
-recommended_action: "Wait for PR #196 checks, then merge/sync Lovable only if CI is green."
-why_medium: "Long chat, prior false acceptance of P1I and cross-project naming risk; local validation is green, but GitHub CI is the merge gate."
+active_branch: "local-lab/workflow-foundation"
+base_commit: "0f71847b7150f5ed5358c418f4fb3509109b7b82"
+active_workstream: "local_lab_workflow_foundation"
+pull_request: null
+recommended_action: "Verify, commit and push local-lab/workflow-foundation, then connect Lovable to that exact branch."
+why_low: "Official remote, isolated worktree, branch rule and next action are explicit and the starting tree was clean."
+```
+
+## Authoritative Recovery Override
+
+Use `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-local-lab-workflow-foundation`
+and branch `local-lab/workflow-foundation` for this checkpoint. The older P1I
+recovery text below is historical evidence, not the current action. New scopes
+must use one `local-lab/<scope>` branch shared by Codex and Lovable; `main`
+remains the server source of truth.
+
+## Current Recovery Prompt
+
+```text
+Continue the Yorso commerce hub project from repository files, not from old chat memory.
+
+Project name: yorso_new.
+GitHub repository: sahchandansah1201-glitch/yorso-commerce-hub.
+Project root: /Users/istokdmgmail.com/Documents/yorso-commerce-hub-local-lab-workflow-foundation.
+Active branch: local-lab/workflow-foundation.
+Base: origin/main at 0f71847b7150f5ed5358c418f4fb3509109b7b82.
+
+Read AGENTS.md and docs/project-memory/{CONTEXT_HEALTH.md,PROJECT_STATE.yaml,HANDOFF.md,NEXT_ACTIONS.md} first.
+Codex and Lovable must use the same local-lab/<scope> branch.
+Do not create codex/<scope> or lovable/test/<scope> branches.
+Do not merge or push directly to main. Main is the server source of truth and only receives a reviewed PR after the Acceptance Gate and explicit user approval.
+
+Current action: verify and publish local-lab/workflow-foundation, then connect Lovable to that exact branch for sync-only verification.
 ```
 
 ## Risk Levels
@@ -35,7 +61,7 @@ why_medium: "Long chat, prior false acceptance of P1I and cross-project naming r
 - after a compact, stream disconnect or similar failure;
 - after any meaningful production, frontend, backend, persistence or runtime change.
 
-## Recovery Prompt
+## Historical Recovery Prompt (do not use)
 
 ```text
 Continue the Yorso commerce hub project from repository files, not from old chat memory.

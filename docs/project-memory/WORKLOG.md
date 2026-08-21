@@ -4169,3 +4169,41 @@ Keep this file factual and append-only.
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-latin-first-desktop-current.png`;
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-latin-first-mobile-current.png`;
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-delete-short-copy-ru-mobile-current.png`.
+
+# 2026-08-21 Local-Lab Workflow Foundation
+
+- Created isolated branch `local-lab/workflow-foundation` from official
+  `origin/main` commit `0f71847b7150f5ed5358c418f4fb3509109b7b82` in a clean
+  worktree.
+- Confirmed official remote:
+  `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub.git`.
+- Recorded the accepted rule that Codex and Lovable share one
+  `local-lab/<scope>` branch and do not create parallel `codex/<scope>` or
+  `lovable/test/<scope>` branches.
+- Rewrote the Acceptance Gate to separate local automation, human-like browser
+  verification, independent role reviews, Lovable sync, PR/main approval and
+  post-deploy server proof.
+- Verified Exa MCP availability and local fallback slot presence without
+  exposing keys.
+- Researched primary GitHub sources for product, engineering, React, QA,
+  accessibility and skill-security capabilities. Kept Yorso-specific local
+  skills as the authoritative role layer and classified external projects as
+  reference, pilot or scanner candidates.
+- Plan / fact:
+
+| План | Сделано | Осталось | Проверка |
+|---|---|---|---|
+| Одна ветка local-lab | Branch/worktree созданы от official main | Commit/push | git identity checks |
+| Агентный конвейер | Роли и handoff определены | Применять в новых scopes | workflow doc |
+| Acceptance Gate | Переписан под local-lab + human QA + server proof | Применять до merge | gate doc |
+| External skills | Exa/GitHub evaluation зафиксирован | Secure selective pilots | research report |
+
+- Verification:
+  - `npm run clean:supabase-scaffold` — passed; stale scaffold absent;
+  - `npm exec -- tsc -b --noEmit` — passed after deterministic `npm ci`;
+  - `npm run check:provider-boundary` — passed, 365 production files;
+  - `npm run check:engineering-lessons` — passed;
+  - `npm run build` — passed; existing stale Browserslist warning preserved;
+  - `git diff --check` and YAML parse — passed;
+  - `npm audit --omit=dev` found an existing baseline of 11 advisories (10
+    high, 1 moderate); no automatic dependency mutation was performed.

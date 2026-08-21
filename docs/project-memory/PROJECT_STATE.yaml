@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-06-18"
+updated_at: "2026-08-21"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -9,14 +9,29 @@ source_policy:
   uncertainty_rule: "Mark unsupported claims as hypotheses."
 
 repository:
-  cwd: "/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub"
-  git_status_confirmed_at: "2026-06-18"
-  active_branch: "codex/p1i-meta-regions-country-picker-fix"
-  head_commit: "see PR #196; P1I defect fix pending GitHub checks"
-  head_summary: "P1I meta-regions country picker defect fix is locally verified and open in PR #196."
-  dirty_worktree_before_project_memory: true
-  dirty_worktree_reason:
-    - "Owned P1A.2 stabilization edits: account product delete e2e coverage, provider-free remediation, project-memory update."
+  cwd: "/Users/istokdmgmail.com/Documents/yorso-commerce-hub-local-lab-workflow-foundation"
+  remote: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub.git"
+  git_status_confirmed_at: "2026-08-21"
+  active_branch: "local-lab/workflow-foundation"
+  base_commit: "0f71847b7150f5ed5358c418f4fb3509109b7b82"
+  head_summary: "Workflow foundation branch created from current origin/main; branch policy, Acceptance Gate and agent skill research are being recorded."
+  dirty_worktree_before_project_memory: false
+
+delivery_policy:
+  server_source_of_truth: "main in sahchandansah1201-glitch/yorso-commerce-hub"
+  experimental_branch_pattern: "local-lab/<scope>"
+  lovable_branch: "the same local-lab/<scope> branch used by Codex"
+  forbidden_parallel_branch_patterns:
+    - "codex/<scope>"
+    - "lovable/test/<scope>"
+  merge_rule: "PR local-lab/<scope> to main only after Acceptance Gate and explicit user approval"
+
+current_workstream:
+  id: "local_lab_workflow_foundation"
+  summary: "Establish the single local-lab branch model, Codex role pipeline, Exa-backed external skill evaluation and rewritten Acceptance Gate."
+  status: "verification_passed_commit_pending"
+  branch: "local-lab/workflow-foundation"
+  next_gate: "commit and push the branch for Lovable connection"
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
@@ -35,7 +50,7 @@ project_identity:
     - "e2e/"
     - "docs/"
 
-active_workstream:
+historical_workstream_snapshot:
   id: "p1i_meta_regions_country_picker_defect_fix"
   summary: "Account meta-regions require at least two countries and support repeated country selection in the same form session."
   status: "pr_open_local_validation_passed_waiting_for_github_checks"

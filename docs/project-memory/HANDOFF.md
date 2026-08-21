@@ -2,7 +2,7 @@
 
 Project: `yorso-commerce-hub`
 
-Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
+Root: `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-local-lab-workflow-foundation`
 
 ## Read First
 
@@ -14,7 +14,30 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 6. `docs/project-memory/ARTIFACTS.md`
 7. `docs/project-memory/RISKS.md`
 
-## Current Goal
+## Authoritative Current Goal
+
+Establish and publish the accepted delivery model:
+
+- `main` in `sahchandansah1201-glitch/yorso-commerce-hub` is the server source
+  of truth;
+- one `local-lab/<scope>` branch contains all experimental Codex and Lovable
+  work for that scope;
+- no parallel `codex/<scope>` or `lovable/test/<scope>` branches;
+- PR to `main` only after the rewritten Acceptance Gate and user approval.
+
+Current branch: `local-lab/workflow-foundation`.
+Base commit: `0f71847b7150f5ed5358c418f4fb3509109b7b82`.
+Verification passed. Next action: commit and push this branch, then connect
+Lovable to the exact remote branch and confirm the same HEAD.
+
+Read:
+
+- `docs/workflow/local-lab-delivery-workflow.ru.md`
+- `docs/workflow/local-lab-acceptance-gate.ru.md`
+- `docs/research/agent-role-skill-evaluation-2026-08-21.md`
+- `docs/project-memory/DECISIONS/2026-08-21-local-lab-delivery-model.md`
+
+## Historical June 2026 Goal
 
 P1I meta-regions defect fix is in GitHub PR #196 and must be accepted only
 after GitHub checks are green.
@@ -45,7 +68,7 @@ and schema unchanged, but fixes the real user flow:
 | Delete copy | Keep delete confirmation short and unambiguous. | EN/RU/ES title/description shortened while context remains visible. | Preserve safe context in future refactors. |
 | Provider-free | Do not reintroduce hosted BaaS/Supabase runtime. | P1A.3 adds no backend/provider dependency. | Run provider-free tests on every Lovable sync. |
 
-## Current Status
+## Historical Status (do not use for current routing)
 
 - Repository branch: `main`.
 - Active local checkpoint: P1A.3 Products Catalog Picker And Latin-First Product Identity.

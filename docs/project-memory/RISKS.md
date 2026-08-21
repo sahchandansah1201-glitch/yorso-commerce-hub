@@ -1,5 +1,33 @@
 # Risks
 
+## Active 2026-08-21 Workflow Risks
+
+- Risk: Codex and Lovable operate on different branches or commits.
+  Impact: reports can describe code that is absent locally or will never reach
+  the server.
+  Mitigation: one `local-lab/<scope>` branch, Gate 0 HEAD verification, then PR
+  to `main` only after user approval.
+
+- Risk: External skills contain unsafe scripts, hidden instructions, unclear
+  licenses or create false confidence.
+  Impact: supply-chain exposure and lower-quality automated decisions.
+  Mitigation: pin exact commits, scan with SkillSpector, manually review, pilot
+  one skill at a time and retain local Yorso-specific gates as authoritative.
+
+- Risk: Automated tests pass while the repeated human interaction is broken.
+  Impact: defects such as a picker failing on the second selection escape.
+  Mitigation: Gate 3 requires real mouse/keyboard flow, repeated action,
+  edit/cancel/save/reload, errors, desktop/mobile and console/network checks.
+
+- Risk: The current production dependency graph has 11 known advisories in
+  `npm audit --omit=dev` (10 high, 1 moderate), including direct dependencies
+  `react-router-dom` and `postcss`.
+  Impact: a future release can inherit known security exposure even when the
+  current documentation-only scope passes build and provider checks.
+  Mitigation: open a dedicated dependency remediation scope, upgrade with
+  targeted regression tests, and require the conditional dependency audit in
+  Acceptance Gate 2. Do not run a broad automatic audit fix in unrelated work.
+
 ## Active Risks
 
 - Risk: A new chat may confuse `yorso-commerce-hub` with `yorso_new`.

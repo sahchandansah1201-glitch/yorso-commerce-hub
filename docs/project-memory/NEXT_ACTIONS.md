@@ -1,5 +1,19 @@
 # Next Actions
 
+## Current 2026-08-21
+
+1. Verify the workflow foundation diff and provider-free boundary.
+2. Commit and push `local-lab/workflow-foundation` to the official remote.
+3. Connect Lovable to the exact remote branch and confirm the same HEAD.
+4. Use `docs/workflow/local-lab-acceptance-gate.ru.md` for the next product
+   scope.
+5. Before installing external skills, pin commits, run SkillSpector, review
+   licenses/scripts and pilot one skill per role in `local-lab/*`.
+
+Do not create `codex/<scope>` or `lovable/test/<scope>` for new work.
+
+## Historical Actions
+
 ## Current Next Action
 
 P1I meta-regions defect fix is the active GitHub handoff.

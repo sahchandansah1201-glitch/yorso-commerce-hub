@@ -1,5 +1,18 @@
 # Artifacts
 
+## Local-Lab Workflow Foundation (2026-08-21)
+
+- `docs/workflow/local-lab-delivery-workflow.ru.md`: one-branch delivery cycle
+  and Codex role pipeline.
+- `docs/workflow/local-lab-acceptance-gate.ru.md`: automated, human-like,
+  independent, Lovable, PR and server acceptance gates.
+- `docs/research/agent-role-skill-evaluation-2026-08-21.md`: Exa-backed GitHub
+  skill evaluation and safe pilot decisions.
+- `docs/project-memory/DECISIONS/2026-08-21-local-lab-delivery-model.md`:
+  accepted branch ADR.
+- Project KB entry `2561`: durable copy of the external skill evaluation under
+  the `yorso-new` namespace (no API keys or secret values stored).
+
 ## Project Memory
 
 - `AGENTS.md`: project-level agent rules.
