@@ -2,6 +2,364 @@
 
 Keep this file factual and append-only.
 
+## 2026-08-21 (self-hosted compose host binding hardening)
+
+- Hardened `infra/docker-compose.yml` so API, Postgres, PgBouncer, Redis and
+  MinIO host-published ports default to `127.0.0.1` via explicit bind-host env
+  variables.
+- Added bind-host/port defaults to `.env.example` and `.env.production.example`.
+- Updated self-hosted infra and production-runtime guards to require the
+  loopback mappings and reject wildcard-style regressions such as
+  `"6379:6379"`, `"9000:9000"` and port mappings without explicit host.
+- Updated server-transfer docs and project-memory; Linux firewall,
+  reverse-proxy, secrets and live server smokes remain the next cutover gates.
+
+## 2026-08-13 (Batch T9B1 — live adapters + local rehearsal)
+
+- Live adapters: Postgres + Twenty metadata + LiveTenantIsolationStore.
+- CLI: `crm:t9:live:plan|apply|verify` (localhost-only; dual opt-in for apply).
+- Local rehearsal: plan→apply→verify→idempotent re-apply→Twenty outage/resume→
+  Alice/Bob isolation proof; `.env.local` flags restored to false.
+- Non-UUID Twenty yorsoIds treated as orphan (no PG uuid cast crash).
+- VPS/production untouched. T9B2 not started.
+
+## 2026-08-13 (Batch T9A — backfill/rollout artifacts)
+
+- Added tenant isolation backfill engine
+  (`tenant-isolation-backfill.ts` + memory fixtures/tests): plan/apply/verify,
+  ambiguous/orphan never auto-assigned, company before person, sanitized
+  counters only, production dual opt-in guard.
+- CLI `crm:t9a:plan|apply|verify` (synthetic fixture), preflight
+  `crm:t9a:preflight`, backup command printer `crm:t9a:backup:print`.
+- Runbook: `docs/backend/twenty-crm-tenant-isolation-t9-rollout.runbook.ru.md`.
+- Env examples: `TWENTY_CRM_BACKFILL_ENABLED=false`,
+  `CRM_TENANT_ISOLATION_ROLLOUT_ENABLED=false`. Isolation/writes still false.
+- Production/VPS untouched. T9B not started.
+
+## 2026-08-13 (Batch T8 — adversarial security suite)
+
+- Added deterministic Alice/Bob/Alex/Admin A/B/C fixtures and adversarial API
+  tests (headers, foreign UUID, cursor, roles/flags, revoke mid-session, audit).
+- Hardened `list*ByTenant` + `TenantCrmRecordsService` to fail closed on
+  mixed/missing `yorsoTenantId` (`twenty_tenant_conflict` /
+  `twenty_invalid_response`).
+- Ambiguous `x-yorso-company-id` (multi/comma) → `crm_company_not_found`.
+- Dedicated e2e `smoke:e2e:user-crm-tenant-security` and live proof
+  `crm:t8:live-proof`. Production flags untouched. T9 not started.
+
+## 2026-08-13 (Batch T7 — frontend active company UX /crm)
+
+- Frontend loads `GET /v1/account/companies/available` with session headers.
+- Active company: auto-select one membership; multi requires selector before
+  any `/v1/crm/*` records request; preference in React state only.
+- Workspace CRM client sends `x-yorso-company-id`; admin CRM never sends it.
+- Company/people hooks include `companyId` in cache key, clear data on switch,
+  and ignore late responses from a previous companyId/generation.
+- Role badge + read-only for member/viewer; workspace company PATCH `{crmTags}`
+  only; person `{leadStatus,crmTags}`; no accountOwner / Open Twenty / owners.
+- Errors: `crm_company_not_found` clears selection; `crm_record_not_found`
+  closes detail; isolation disabled has no `/admin/crm` fallback.
+- Dedicated e2e `e2e/user-crm-tenant.spec.ts` + `smoke:e2e:user-crm-tenant`
+  (Alice/Bob/Alex). Admin CRM e2e still green. Backend/DB/VPS untouched.
+- T8 not started.
+
+## 2026-08-13 (Batch T6 — tenant-aware CRM writes /v1/crm/*)
+
+- Enabled user CRM PATCH behind `CRM_TENANT_ISOLATION_ENABLED` +
+  `CRM_USER_WRITES_ENABLED` + owner/manager `crmWrite`.
+- `TenantCrmRecordsService.updateCompany/updatePerson`: require write →
+  user allowlist → tenant GET → Admin CRM `*ForTenant` PATCH → response tenant
+  check; mismatch → `twenty_tenant_conflict` (502); no compensating PATCH.
+- User allowlist: Company `{crmTags}` only (no `accountOwnerId`); Person
+  `{leadStatus,crmTags}`. Admin CRM keep `accountOwnerId` for companies.
+- Audit success reason `fields:<names>` (values never logged). Owners remain
+  disabled. Live proof `scripts/twenty-t6-live-proof.mjs`. React/production/VPS
+  untouched; flags still default false in examples. T7 not started.
+
+## 2026-08-13 (Batch T5 — tenant-isolated read /v1/crm/*)
+
+- Added `TenantCrmRecordsService` using only `list*ByTenant` / `get*ForTenant`.
+- Rewired `/v1/crm/*`: isolation=false → 503 `crm_tenant_isolation_disabled`
+  (no Twenty call, no AdminCrmRecordsService fallback); isolation=true →
+  explicit `crm_user` (admin alone insufficient) + TenantContext + tenant reads.
+- PATCH always `403 crm_write_disabled`; owners `403 crm_owner_assignment_unavailable`.
+- Contracts: `packages/contracts/src/crm-user-errors.ts`.
+- Live proof: `scripts/twenty-t5-live-proof.mjs` (Alice/Bob A/B, foreign 404,
+  PATCH/owners disabled). `/v1/admin/crm/*` unchanged. React/production/VPS
+  untouched. T6 not started.
+
+## 2026-08-13 (Batch T4 — tenant-aware links, outbox, mapper, worker)
+
+- Migration `0041_twenty_crm_tenant_scope`: `tenant_company_id` on
+  `yorso_twenty_record_links` / `yorso_twenty_sync_outbox` with FK to
+  `yorso_companies`; safe resolved backfill; orphan/ambiguous moved to
+  quarantine tables (no data deletion); NOT NULL after resolution.
+- New uniqueness: links PK `(tenant_company_id, entity_type, yorso_entity_id)`,
+  unique `(tenant_company_id, entity_type, twenty_record_id)`; pending
+  coalescing `(tenant_company_id, entity_type, entity_id, event_type)`.
+- Repository/mapper/worker/client/backfill require tenant; recovery via
+  `yorsoRecordKey` + tenant check; permanent `twenty_tenant_conflict`.
+- Enqueue call sites: account + auth (memory/postgres) pass tenantCompanyId.
+- Local apply: 4 links + 5 outbox all resolved; quarantine empty.
+- Flags unchanged; `/v1/crm/*` not wired; production/VPS untouched; T5 not started.
+
+## 2026-08-13 (Batch T3 — Twenty tenant fields and verified filters)
+
+- Idempotent local setup `scripts/twenty-t3-tenant-fields-setup.mjs` /
+  `npm run crm:t3:setup`: Company+Person `yorsoTenantId` (TEXT, not unique) and
+  `yorsoRecordKey` (TEXT, unique); verification artifact under gitignored `.data/`.
+- Twenty client: `listCompaniesByTenant`, `listPeopleByTenant`,
+  `getCompanyForTenant`, `getPersonForTenant` with provider-side filter
+  `yorsoTenantId[eq]:"<tenantId>"` and post-GET tenant equality check.
+- Live A/B fixtures + cross-tenant negatives + pagination + allowlist rejection
+  of tenant fields; contract doc updated with verified calls only.
+- Flags unchanged; `/v1/crm/*` not wired; production/VPS untouched; T4 not started.
+
+## 2026-08-13 (Batch T2 — TenantContext and available companies)
+
+- Added tenancy policy/service: TenantContext from session + membership only;
+  no admin bypass; owner/manager write, member/viewer read-only; selection /
+  access / not-found error codes.
+- Added `GET /v1/account/companies/available` with shared Zod contracts; returns
+  only the caller's eligible companies (bounded, deterministic).
+- Wired TenantContextService into API server for the account endpoint only;
+  did not attach TenantContext to `/v1/crm/*`. Flags unchanged. Stopped before T3.
+
+## 2026-08-13 (Batch T1 — company membership storage)
+
+- Migration `0040_crm_company_tenancy`: table `yorso_company_memberships` with
+  role/status checks, user/company indexes, idempotent owner backfill from
+  `yorso_companies.owner_user_id`.
+- API module `apps/api/src/modules/tenancy`: types, memory/postgres repositories,
+  bounded deterministic active membership reads; contract parity tests.
+- Manifest/cli/migrator/db-contract tests updated for 0040. No Twenty, `/v1/crm/*`,
+  React, or feature-flag changes. Isolation still not enabled. Stopped before T2.
+
+## 2026-08-13 (Batch T0 — CRM company isolation security freeze)
+
+- Added `CRM_TENANT_ISOLATION_ENABLED` and `CRM_USER_WRITES_ENABLED` (default
+  false) to Twenty CRM env contracts, API config, `.env.example`,
+  `.env.production.example`, and docker-compose.
+- Production guard rejects `CRM_USER_WRITES_ENABLED=true` while isolation is
+  false (even when sync is disabled).
+- Baseline/known-gap route test: two `crm_user` sessions share one unscoped
+  `/v1/crm/companies` service call (documents current unsafe behavior).
+- Deploy/runbook warnings: `crm_user` and full Twenty UI internal-only until
+  isolation is proven. Runtime `/v1/crm/*` unchanged. Stopped before T1.
+
+## 2026-08-09 (user-facing CRM workspace and RBAC split)
+
+- Added explicit `crm_user` role and session capabilities (`crm`,
+  `adminConsole`); admin implies CRM access, ordinary buyer does not.
+- Added `/v1/crm/companies|people|owners` and detail/PATCH routes. These expose
+  only record work; status, sync events and retry remain under admin routes.
+- Added `/crm`, Companies/People-only UI mode, capability-gated desktop/mobile
+  account-menu links and safe same-origin sign-in redirect handling.
+- Applied migration `0039_crm_user_role` locally and restarted the API with
+  backend-only sync/admin CRM credentials.
+- Live proof: auth capabilities true for local admin, 5 Company and 5 Person
+  records returned from user routes, admin CRM reachable.
+- Gates: DB migrations 16/16; focused API 5/5; CRM frontend 36/36; TypeScript,
+  API/production builds, provider boundary and lint pass. Full API has only the
+  two known Windows file-mode failures (`0o666` reported vs expected `0o600`).
+
+## 2026-08-09 (local full-admin workspace repair)
+
+- Added a local-only Company workspace and `company_admin`/`buyer` roles to the
+  existing `admin@example.com`; enqueued bounded Company/Person Twenty sync.
+- Fixed PostgreSQL one-query workspace mapping to normalize nested user/company
+  timestamps before shared-contract validation.
+- Live proof: readiness 200, sign-in 200, account workspace 200, CRM status 200;
+  repository tests 19/19, API build and engineering-lessons guard pass.
+
+## 2026-08-09 (Iteration E2B2 — React CRM-owned field editing)
+
+- Frontend API: `listOwners`, `updateCompany`, `updatePerson` on admin-crm-api
+  (YORSO `/v1/admin/crm/*` only).
+- Detail Sheet Edit/Save/Cancel for Company `crmTags`/`accountOwnerId` and Person
+  `leadStatus`/`crmTags`; lazy owners load on company edit; Save sends only
+  changed allowlist fields; Cancel restores draft; no Person owner; no optimistic
+  update.
+- EN/RU/ES copy for edit CRM labels and save errors; list/sheet update via
+  `replaceCompany` / `replacePerson`.
+- Frontend tests cover patch body, lazy owners, cancel, disabled save, 403/503.
+- Out of scope: Notes/Tasks/Opportunities/Activity; backend/worker/metadata.
+
+## 2026-08-09 (Iteration E2B1 — Admin CRM write API)
+
+- Contracts: CRM fields on company/person DTOs; strict PATCH allowlist schemas;
+  owners list response; leadStatus/crmTags enums from E2A.
+- `TwentyClient` Admin CRM methods: `listWorkspaceMembers`,
+  `updateCompanyCrmFields`, `updatePersonCrmFields` (separate from sync writes).
+- `AdminCrmRecordsService` + routes: `GET /v1/admin/crm/owners`,
+  `PATCH /companies/:id`, `PATCH /people/:id` using only
+  `TWENTY_ADMIN_CRM_API_KEY`; sync key still used for list/get reads.
+- Audit: `admin.crm_owners.read` / `admin.crm_company.update` /
+  `admin.crm_person.update` without field values or CRM payload.
+- Tests cover 401/403/503 missing credential, invalid tag/status/owner,
+  forbidden fields, success path, upstream error, no secret/CRM data in logs.
+- Out of scope (E2B2): React edit UI.
+
+## 2026-08-09 (Iteration E2A.1 — YORSO Admin CRM API key)
+
+- Created Twenty role `YORSO Admin CRM` (API-key only; no settings/metadata/
+  soft-delete/destroy). Object update on company/person; field-deny YORSO-
+  owned/identity updates. Did **not** expand YORSO Sync.
+- Gitignored key `.data/twenty-local-admin-crm-api-key` via
+  `scripts/twenty-e2a1-admin-crm-key-setup.mjs` (`npm run crm:e2a1:setup`).
+- Live verified: `GET /rest/workspaceMembers`, PATCH company
+  `crmTags`+`accountOwnerId`, PATCH person `leadStatus`+`crmTags`; denied
+  YORSO-owned PATCH, DELETE, metadata. Sync key still denied `accountOwnerId`.
+- Backend env `TWENTY_ADMIN_CRM_API_KEY` in contracts/config/compose/examples;
+  frontend + log guards forbid the new secret name; production rejects
+  placeholder / same-as-sync key when set.
+- Out of scope still: E2B write routes + React edit UI.
+
+## 2026-08-09 (Iteration E2A — CRM-owned Twenty fields + verified API)
+
+- Created custom fields via admin Metadata GraphQL (idempotent script
+  `scripts/twenty-e2a-crm-fields-setup.mjs`): Person `leadStatus` (SELECT),
+  Person/Company `crmTags` (MULTI_SELECT).
+- Verified live GET/PATCH with admin token: `leadStatus`, `crmTags`,
+  Company owner via flat `accountOwnerId`. Person has no standard assignee.
+- YORSO Sync API key can PATCH `crmTags`/`leadStatus` but gets
+  PERMISSION_DENIED on `accountOwnerId` (existing field restriction).
+- Documented Admin CRM allowlist + forbidden YORSO-owned fields in
+  `docs/backend/twenty-workspace-api-contract.md`; runbook note added.
+- Out of scope (E2B): YORSO backend write endpoints, React edit UI, mapper/
+  worker/outbox changes, SSO.
+
+## 2026-08-09 (Iteration D — CRM tables inside YORSO)
+
+- D1: shared `admin-crm-records` contracts; TwentyClient `listCompanies` /
+  `listPeople` with verified `starting_after`; Admin CRM records service +
+  `GET /v1/admin/crm/companies|people` (+ detail); focused twenty vitest.
+- D2: React tabs Overview / Companies / People / Sync events; hooks load only
+  when tab opens; desktop tables + 390px cards; detail Sheet; Open full Twenty
+  CRM + separate-login hint; EN/RU/ES; frontend tests green.
+- D3: updated `e2e/admin-crm.spec.ts` (sync tab, records, pagination, 390px,
+  no `:3020/rest/*`); live proof script
+  `scripts/smoke-live-admin-crm-records.mjs` + `e2e/admin-crm-live-records.spec.ts`
+  against real Twenty (13 companies / 14 people, relation verified, cursor
+  advanced). Docs/runbook/project memory updated.
+- Out of scope still: search, edit, SSO, Opportunities/Tasks/Workflows, Linux
+  cutover.
+
+## 2026-08-09 (local YORSO + Twenty full-stack proof)
+
+- Created gitignored `.env.local`; kept the Twenty API key only in
+  `.data/twenty-local-api-key` and injected it into the API process.
+- Started YORSO PostgreSQL/PgBouncer/Redis/MinIO, Twenty server/worker/db/redis,
+  YORSO API and Vite React.
+- Corrected nonexistent MinIO/PgBouncer image tags with verified pinned image
+  references; enabled SCRAM auth for PostgreSQL 17.
+- Corrected migrations 0004/0006 generated search columns and migration 0023
+  invalid index; applied all 39 migrations to local PostgreSQL 17.
+- Corrected readiness PgBouncer compatibility, outbox INSERT alias and the
+  production Twenty sync repository's missing PostgreSQL pool.
+- Live core proof: backfill enqueued synthetic Company + Person; worker
+  completed both; Twenty returned exactly one of each with the correct
+  Person-to-Company relation. Local admin sign-in and `/v1/admin/crm/status`
+  passed with Twenty reachable.
+- Added `docs/backend/local-full-stack-runbook.ru.md` and regression guards.
+- Gates: Twenty API 66/66, admin CRM frontend 10/10, DB migrations 16/16, DB
+  contract 38/38, infra/API policy tests, provider boundary, TypeScript and
+  production build passed.
+
+## 2026-08-05 (Iteration C1/C2)
+
+- Added Twenty CRM backfill (`backfill.ts` + tests): keyset company pages,
+  company-before-person enqueue, link/active skip, plan/apply counters.
+- Added CLI `scripts/twenty-crm-backfill.mjs` and `crm:backfill:plan|apply`.
+- Added opt-in `scripts/smoke-twenty-crm-staging.mjs` +
+  `smoke:twenty-crm:staging` (requires `TWENTY_CRM_SMOKE_ENABLED=true`).
+- Updated deploy runbook (`self-hosted-production-deploy.md`), Twenty README,
+  `infra/reverse-proxy.example.md`, `.env.production.example` notes, gitignore
+  for `.env.production` / backups; extended `check:twenty-infra` production
+  guards.
+- Verified: twenty vitest 64/64; twenty-infra; provider-boundary;
+  test:admin-crm-frontend 10/10; smoke:e2e:admin-crm 3/3; api:build; tsc; lint
+  warnings only; git diff --check; staging smoke correctly refuses without
+  opt-in. `crm:backfill:plan` exit 2 without DATABASE_URL (expected).
+- Did **not** run `crm:backfill:apply` on user DB, live staging smoke, or C3
+  Linux cutover (no SSH/domains/secrets provided).
+
+## 2026-08-05 (Iteration B)
+
+- Added Admin CRM API: `admin-crm-service.ts`, `admin-routes.ts` (status, list,
+  retry), wired through `server.ts`; admin session + role + audit actions.
+- Added React `/admin/crm`: `admin-crm-api`, `use-admin-crm`, `AdminCrm` page,
+  nav gated by `VITE_TWENTY_CRM_ENABLED`, EN/RU/ES copy, retry dialog, safe
+  external Twenty link.
+- Added `e2e/admin-crm.spec.ts` and `smoke:e2e:admin-crm` (flag on at build).
+- Documented enqueue-disabled catch-up risk in `RISKS.md`.
+- Verified: twenty vitest 55/55; `test:admin-crm-frontend` 10/10;
+  `check:self-hosted-api`; `smoke:self-hosted-admin-audit`; provider-boundary;
+  lint warnings only; `tsc -b --noEmit`; `build`; `smoke:e2e:admin-crm` 3/3.
+- Did not start Iteration C backfill/deploy.
+
+## 2026-08-05 (Iteration A)
+
+- Added `failSyncEventPermanently`, source repositories (`owner_user_id` join),
+  sync worker/service with recovery + error policy, scheduler with
+  `stopAndDrain`, runtime/factory, and Prometheus twenty-sync metrics.
+- Wired atomic outbox enqueue into registration CTE and account profile
+  updates (memory parity); request path does not call Twenty HTTP.
+- Wired `TWENTY_*` into ApiConfig / `.env*` / compose (defaults disabled).
+- Verified: twenty vitest 51/51; db-contract; api:build; auth/metrics smokes;
+  tsc; provider-boundary; lint warnings only.
+- `smoke:self-hosted-graceful-shutdown` still fails on Windows (`child.kill
+  ('SIGTERM')` does not run drain handlers); lifecycle unit tests pass.
+- Did not start Iteration B admin/React or Iteration C deploy.
+
+## 2026-08-05 (Batch 4.1)
+
+- Replaced `arrayBuffer()` body read with streaming `getReader()` and hard
+  256 KiB limit; Content-Length still rejected early; chunk cancel verified.
+- Verified REST equality filter `yorsoId[eq]:"..."` / `yorsoUserId[eq]:"..."`
+  against two live records (`totalCount=1`, exact match only).
+- Added `findCompanyByYorsoId` / `findPersonByYorsoUserId` with explicit id
+  compare and `twenty_lookup_conflict`.
+- Observed (not required in client API yet): Company `POST ?upsert=true`
+  updated same unique yorsoId without duplicate.
+- Verified: twenty module vitest 32/32; api:build; tsc; provider-boundary; lint.
+
+## 2026-08-05 (Batch 4)
+
+- Added Twenty mapper (`mapCompanyToTwenty`, `mapPersonToTwenty`) and HTTP client
+  for verified GET/POST/PATCH `/rest/companies` and `/rest/people`.
+- Person `phones` omitted until freeform phone → PHONES mapping is confirmed.
+- Fake-fetch tests cover CRUD, auth header, errors, Retry-After, body limit and
+  credential redaction. No live Twenty calls.
+- Verified: twenty module vitest 28/28; api:build; tsc; provider-boundary; lint.
+- Did not start worker, scheduler, admin routes or React.
+
+## 2026-08-05 (Batch 3)
+
+- Added migration `0038_twenty_crm_sync.sql` with `yorso_twenty_record_links` and
+  `yorso_twenty_sync_outbox` (no PII/payload columns).
+- Implemented Twenty sync repository layer: types, memory, postgres, 13 focused tests.
+- Verified: db migrations/contract/check, api:build, tsc, lint.
+- Did not start HTTP client, worker, admin routes or React.
+
+## 2026-08-05 (Batch 2)
+
+- Completed Twenty CRM integration **Batch 2** (local workspace):
+  - Twenty v2.6.0 healthy at `http://localhost:3020`; PostgreSQL/Redis not
+    published to host; compose image pinned by tag + digest.
+  - Verified Company/Person custom fields (`yorsoId`, `yorsoUserId` unique).
+  - Configured **YORSO Sync** role (API-key only; no delete/admin/metadata).
+  - Created API key stored only in gitignored `.data/twenty-local-api-key`.
+  - Ran 13 verified REST calls via `scripts/twenty-batch2-setup.mjs`; redacted
+    log in gitignored `.data/twenty-batch2-verification.json`.
+  - Added `docs/backend/twenty-workspace-api-contract.md`.
+  - Added `scripts/check-twenty-infra.mjs`, `scripts/lib/twenty-infra-policy.mjs`,
+    `npm run check:twenty-infra`, `src/test/twenty-infra-guard.test.ts`.
+  - Updated `infra/twenty/README.md`, integration plan Batch 2 status,
+    `ENGINEERING_LESSONS.md` (RandomNumberGenerator.Fill Windows fix).
+- Did **not** start Batch 3 migration 0038, HTTP client, worker, outbox or
+  React `/admin/crm`.
+
 ## 2026-06-18
 
 - Re-opened P1I meta-regions after user-reported acceptance failure: adding a
@@ -4169,3 +4527,92 @@ Keep this file factual and append-only.
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-latin-first-desktop-current.png`;
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-latin-first-mobile-current.png`;
   - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-delete-short-copy-ru-mobile-current.png`.
+# 2026-08-13 — User CRM full Twenty UI link
+
+- Returned **Open full Twenty CRM** to the tenant user `/crm` surface.
+- Added authenticated `GET /v1/crm/full-ui`: isolation flag, `crm_user` and
+  active company membership are checked before returning `TWENTY_PUBLIC_CRM_URL`.
+- The response contains only `ok`, `crmUrl`, and `requestId`; no provider keys,
+  tenant metadata, record payload, or admin endpoint fallback.
+- Frontend loads the URL through YORSO API for the active company and opens it
+  with `target=_blank` + `rel="noopener noreferrer"`.
+- This is navigation, not SSO. Twenty retains its own authentication and
+  workspace permissions.
+- Validation: CRM route 26/26; user CRM frontend 52/52; Playwright tenant 5/5;
+  contracts/API/TypeScript/build/provider/API guards passed.
+# 2026-08-14 — Docker-only clean-PC local onboarding
+
+- Added Docker frontend (multi-stage Vite -> nginx), DB migrator image, local
+  compose overlays and shared `yorso-local` network for YORSO API -> Twenty.
+- Added `setup/start/stop/status-local.ps1`; all secrets are generated into
+  ignored `.env.local` / `infra/twenty/.env`; stop preserves named volumes.
+- Added `configure-local-crm.ps1` and metadata-only
+  `twenty-workspace-fields-setup.mjs` (no Company/Person fixtures).
+- Added `get-local-code.ps1` for local email/phone OTP testing without an
+  external delivery provider.
+- Added `check:local-one-click`, README and Russian runbook documentation.
+- Production/VPS not changed.
+- Added root `SETUP_LOCAL.cmd`, `START_LOCAL.cmd` and `STOP_LOCAL.cmd` so a
+  clean Windows host can use double-click entry points without changing the
+  machine execution policy or installing host Node.js.
+- `configure-local-crm.ps1` now waits up to two minutes for the initial outbox
+  to drain and fails closed on failed events/timeout before enabling isolation.
+- Validation passed: PowerShell parser, env helper runtime test, local one-click
+  guard, YORSO/Twenty Compose config, contracts/API/TypeScript/React builds,
+  provider/Twenty/self-hosted guards and lint (0 errors, 6 existing warnings).
+
+# 2026-08-19 — Local yorso_new Git + Docker/Twenty verification
+
+- Target working folder is now
+  `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`; `yorso_new` is
+  the project/product name, not the active local folder.
+- Initialized a standalone local Git repository in that folder to track local
+  development before later server transfer.
+- Verified Docker Desktop is available and running Docker Engine 29.7.2 with
+  Docker Compose v5.4.0.
+- Verified local Yorso/Twenty runtime:
+  - Yorso frontend: `http://127.0.0.1:8080/` returned HTTP 200.
+  - Yorso API readiness: `http://127.0.0.1:3000/health/ready` returned HTTP 200.
+  - Twenty health: `http://127.0.0.1:3020/healthz` returned HTTP 200.
+  - Compose configs for `infra/docker-compose*.yml` and
+    `infra/twenty/docker-compose*.yml` passed config validation.
+  - Yorso API/frontend and Twenty server/db/redis/worker containers were up;
+    relevant API/frontend/Twenty server/worker log tails had no
+    error/fail/exception/panic/fatal matches.
+- Verified project checks:
+  - `npm run clean:supabase-scaffold` passed.
+  - `npx tsc -b --noEmit` passed.
+  - `npm run check:provider-boundary` passed and scanned 443 production files.
+  - `npm run test:twenty-infra` passed.
+  - `npm run check:twenty-infra` passed.
+  - `npm run build` passed with the known stale Browserslist warning.
+- Fixed local dependency/tooling drift before checks: restored executable bits
+  on `node_modules/.bin/*` and ran `npm install` to install the missing Rollup
+  optional native package required by the local macOS build.
+- Production `npm audit --omit=dev --audit-level=moderate` still reports 11
+  non-dev vulnerabilities. Do not run `npm audit fix` without a separate scoped
+  dependency-remediation plan.
+- Server-transfer risk: the core local compose currently exposes
+  Postgres/Redis/MinIO/PgBouncer on `0.0.0.0`; this is acceptable only for the
+  local trusted machine and must be hardened before any VPS/server deployment.
+
+# 2026-08-21 — Self-hosted auth outbox lease SQL runtime fix
+
+- Runtime Docker smoke in `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`
+  found Postgres repeating `column reference "id" is ambiguous` from registration
+  and password-recovery delivery lease workers.
+- Root cause: auth outbox lease queries used `UPDATE ... FROM candidates ...
+  RETURNING id...`; `id` was ambiguous between target alias `outbox` and CTE
+  `candidates`.
+- Fixed `PostgresAuthRepository` returning SQL helpers so lease queries return
+  `outbox.*` columns while non-lease insert/update paths keep the unqualified
+  returning contract.
+- Added targeted SQL regression tests for registration and password-recovery
+  delivery lease queries.
+- Validation passed: targeted API Vitest 2/2; `npm run api:build`;
+  `npx tsc -b --noEmit`; `npm run check:provider-boundary`; `npm run build`;
+  `git diff --check`.
+- Runtime validation: rebuilt/recreated the API container; after
+  `2026-08-21T11:38:35Z`, Postgres/API log scan had no `ambiguous`, `ERROR`,
+  `FATAL` or `PANIC`; `/health/live`, `/health/ready` and `/metrics` passed,
+  with worker metrics reporting success counters.
