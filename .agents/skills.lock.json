@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "skills": [
+    {
+      "id": "yorso-access-state-ux",
+      "path": ".agents/skills/yorso-access-state-ux",
+      "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+      "contentSha256": "7d7c26c5819d0739e83705158c2e959ff4963217afcf152996f3a3f43138b14e"
+    },
+    {
+      "id": "yorso-api-contract-gate-agent",
+      "path": ".agents/skills/yorso-api-contract-gate-agent",
+      "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+      "contentSha256": "372a2cf015d56635bcc03ff3bfe5273381e633f9d53e8d4c3f705a31f5487bb7"
+    },
+    {
+      "id": "yorso-component-patterns",
+      "path": ".agents/skills/yorso-component-patterns",
+      "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+      "contentSha256": "3f7254cf84b199c18bec8edd39c32213ec07766968cffd15457ba627edc6e7e7"
+    },
+    {
+      "id": "yorso-engineering-quality-gate-agent",
+      "path": ".agents/skills/yorso-engineering-quality-gate-agent",
+      "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+      "contentSha256": "48c3b1c1f590fe4f47501c184ba182d0ef3702f9170a4cf99bae8e3dd7e6dbf5"
+    },
+    {
+      "id": "yorso-lovable-component-brief-agent",
+      "path": ".agents/skills/yorso-lovable-component-brief-agent",
+      "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+      "contentSha256": "30f763ef53dd0d3f37464fc1db26a769e40b915111576bb070542ecab3741151"
+    },
+    {
+      "id": "yorso-multilingual-ux-copywriter-agent",
+      "path": ".agents/skills/yorso-multilingual-ux-copywriter-agent",
+      "sourceRevision": "98cacde4ba2dd10ed28df43a8d53eef1e321c539",
+      "contentSha256": "85c451298ce0c4db6a304201cad90d4e637d82d02832c80bd1462c8176887665"
+    },
+    {
+      "id": "yorso-release-reliability-agent",
+      "path": ".agents/skills/yorso-release-reliability-agent",
+      "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+      "contentSha256": "2cc4a9836995092f6c89f4a019014ccb3fefe7d644b29a2cab69ad08341a2249"
+    },
+    {
+      "id": "yorso-service-architecture-agent",
+      "path": ".agents/skills/yorso-service-architecture-agent",
+      "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+      "contentSha256": "e7b772139610f1db5a7c0505b61c678b22c19b655ffa3d6cf9222047b5230971"
+    },
+    {
+      "id": "yorso-testing-quality-gate-agent",
+      "path": ".agents/skills/yorso-testing-quality-gate-agent",
+      "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+      "contentSha256": "8646b5bd27531f47a69f72aac75083afb8188ffe3f3338553692120ceedfb3fc"
+    },
+    {
+      "id": "yorso-usability-audit",
+      "path": ".agents/skills/yorso-usability-audit",
+      "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+      "contentSha256": "11c0597725c4c10769abbcf7abdad1c5b1351e840bc54ade2e93f4b33de92071"
+    },
+    {
+      "id": "yorso-ux-ui-quality-agent",
+      "path": ".agents/skills/yorso-ux-ui-quality-agent",
+      "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+      "contentSha256": "b75262e744d90857b751c7d8f34d2d10779e7364f5bc238216a5611d4bcd4615"
+    }
+  ]
+}
