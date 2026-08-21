@@ -1,22 +1,118 @@
 # Context Health
 
-Updated: 2026-06-18
+Updated: 2026-08-21
 
 ## Current Status
 
 ```yaml
 context_risk: "medium"
-last_checkpoint: "2026-06-18"
+last_checkpoint: "2026-08-21"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
-active_branch: "codex/p1i-meta-regions-country-picker-fix"
-head_commit: "see PR #196; P1I defect fix pending GitHub checks"
+local_onboarding: "Docker runtime verified locally: frontend :8080, API :3000, Twenty :3020"
+active_branch: "main"
+head_commit: "see git log -1 for latest local commit"
 latest_merged_batch: 141
-active_workstream: "p1i_meta_regions_country_picker_defect_fix"
-pull_request: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/pull/196"
-recommended_action: "Wait for PR #196 checks, then merge/sync Lovable only if CI is green."
-why_medium: "Long chat, prior false acceptance of P1I and cross-project naming risk; local validation is green, but GitHub CI is the merge gate."
+active_workstream: "self_hosted_compose_host_binding_hardening"
+pull_request: "none for Twenty CRM track"
+recommended_action: "Use /Users/istokdmgmail.com/Documents/yorso-commerce-hub-main for local yorso_new development; next server-transfer step is Linux firewall/reverse-proxy/secrets cutover planning and live server smokes."
+why_medium: "Context was corrected from old yorso_new/GitHub paths to the current local folder; compose host-publishing hardening is now guarded, but Linux production cutover and dependency audit remain open."
 ```
+
+## 2026-08-21 Auth Outbox Runtime Checkpoint
+
+- Active repo/path: `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`.
+- Current unresolved external issue: none for auth outbox lease runtime; npm
+  audit non-dev vulnerabilities remain separate deferred remediation.
+- Latest runtime proof timestamp: `2026-08-21T11:38:35Z`.
+- API worker logs after that timestamp showed no ambiguous `id`, `ERROR`,
+  `FATAL` or `PANIC` entries.
+
+## Local yorso_new repository checkpoint (2026-08-19)
+
+- Active local folder:
+  `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`.
+- `yorso_new` is the project/product name, not the local folder path.
+- Standalone local Git repository initialized on branch `main`.
+- Docker Desktop verified running. Yorso frontend, Yorso API and Twenty health
+  endpoints returned HTTP 200 locally.
+- Twenty is the default self-hosted CRM/backoffice component; Yorso
+  API/PostgreSQL remains the source of truth.
+- Core compose host exposure is hardened by default: API, Postgres,
+  PgBouncer, Redis and MinIO host-published ports bind to `127.0.0.1` unless an
+  operator explicitly overrides `*_BIND_HOST`.
+- Guard scripts reject old wildcard-style mappings such as `"6379:6379"`,
+  `"9000:9000"` and service port mappings without explicit bind hosts.
+- Before VPS/server transfer, keep these loopback defaults unless firewall,
+  private-network or reverse-proxy controls are ready.
+
+## Twenty CRM checkpoint (2026-08-13)
+
+## Local one-click checkpoint (2026-08-14)
+
+- Clean Windows setup now requires only Docker Desktop + PowerShell:
+  `scripts/setup-local.ps1` generates ignored secrets, applies migrations in a
+  container, starts YORSO API/frontend and Twenty, and waits for readiness.
+- `start-local.ps1`, `stop-local.ps1`, and `status-local.ps1` own normal local
+  lifecycle without deleting persistent volumes.
+- `get-local-code.ps1` retrieves the latest local email/phone registration code
+  from the encrypted delivery outbox for environments without SMTP/SMS.
+- `configure-local-crm.ps1` accepts both Twenty tokens with hidden input,
+  creates required metadata fields without fixtures, grants current active
+  company members `crm_user`, runs initial outbox backfill, and then enables
+  tenant-isolated local CRM writes.
+- Production/VPS configuration is unchanged by this iteration.
+
+- User `/crm` can open the full Twenty UI through tenant-authorized
+  `GET /v1/crm/full-ui`; browser receives only the public URL, never API keys.
+  Twenty authentication/permissions remain separate; this is not SSO.
+
+- Batch T9B1 complete: live Postgres/Twenty adapters + local plan/apply/verify/
+  idempotent retry/outage resume/Alice-Bob proof; `.env.local` flags restored
+  false; production/VPS untouched.
+- Batch T9A complete: tenant isolation backfill plan/apply/verify engine +
+  synthetic CLI, preflight, backup command printer, T9B runbook; dual opt-in
+  guard; production/VPS untouched.
+- Batch T8 complete: adversarial Alice/Bob/Alex/Admin suite; mixed-list and
+  multi-header fail-closed; contracts split so browser bundle has no Twenty
+  key names; `smoke:e2e:user-crm-tenant-security` + `crm:t8:live-proof` green.
+- Batch T7 complete: `/crm` loads available companies, selects active company,
+  sends `x-yorso-company-id`, companyId cache keys, clears UI on switch, hides
+  Edit for read-only roles; admin CRM unchanged.
+- Batch T6 complete: tenant-aware PATCH on `/v1/crm/companies|people/:id`;
+  owner/manager only; Company allowlist `crmTags`; Person `leadStatus`/`crmTags`;
+  GET→PATCH→response tenant check; `accountOwnerId` denied on user CRM; admin
+  CRM regression green; live proof `scripts/twenty-t6-live-proof.mjs`.
+- Batch T5 complete: `TenantCrmRecordsService` + `/v1/crm/*` fail-closed without
+  isolation flag; with flag: explicit `crm_user` + TenantContext + tenant-only
+  Twenty reads; no AdminCrmRecordsService fallback; owners disabled.
+- Batch T4 complete: migration `0041_twenty_crm_tenant_scope`, tenant-aware
+  links/outbox/mapper/worker, `yorsoRecordKey` recovery, quarantine for
+  orphan/ambiguous rows; local apply resolved all existing rows (0 quarantine).
+- Batch T3 complete: local Twenty `yorsoTenantId`/`yorsoRecordKey` on
+  Company+Person; client list/get-by-tenant; live filter
+  `yorsoTenantId[eq]:"<tenantId>"` A/B proof; `npm run crm:t3:setup`.
+- Batch T2 complete: TenantContext/policy, available companies endpoint, no
+  admin bypass.
+- Batch T1 complete: migration `0040_crm_company_tenancy`, memberships repo.
+- Batch T0 complete: isolation flags default false; production guard; known-gap
+  baseline replaced by T5 fail-closed/isolation behavior.
+- Plan: `docs/backend/twenty-crm-company-isolation-implementation-plan.ru.md`
+- Next: Batch T9B2 only on explicit command. Production flags remain false.
+
+## Prior Twenty CRM checkpoint (2026-08-09)
+
+- Batch 1–4.1, Iteration A–C2 complete; C3 still blocked.
+- Iteration D complete: in-app Companies/People tables, records API, e2e +
+  live local proof (`smoke-live-admin-crm-records.mjs`).
+- E1/E2 complete: page filters and CRM-owned edits for lead status, tags and
+  company owner. Local admin now has an account workspace and CRM access.
+- User-facing CRM complete: explicit `crm_user` role/capability, `/v1/crm/*`
+  records boundary, `/crm` workspace and capability-gated desktop/mobile nav.
+- Technical status/outbox/retry remain admin-only under `/admin/crm`.
+- Not started: SSO, Opportunities/Tasks/Workflows/Activity.
+
+## Prior checkpoint (2026-06-18)
 
 ## Risk Levels
 
@@ -48,7 +144,7 @@ Read first:
 5. docs/project-memory/NEXT_ACTIONS.md
 6. docs/project-memory/WORKLOG.md
 
-Use /Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub as the project root.
+Use /Users/istokdmgmail.com/Documents/yorso-commerce-hub-main as the project root.
 Do not mix this with /Users/istokdmgmail.com/yorso_new unless explicitly asked.
 Current branch: codex/p1i-meta-regions-country-picker-fix.
 Current workstream: p1i_meta_regions_country_picker_defect_fix.

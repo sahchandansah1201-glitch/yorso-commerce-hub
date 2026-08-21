@@ -2,7 +2,7 @@
 
 Project: `yorso-commerce-hub`
 
-Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
+Root: `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`
 
 ## Read First
 
@@ -13,8 +13,100 @@ Root: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
 5. `docs/project-memory/WORKLOG.md`
 6. `docs/project-memory/ARTIFACTS.md`
 7. `docs/project-memory/RISKS.md`
+8. `docs/backend/twenty-crm-backoffice-integration-plan.ru.md`
+9. `docs/backend/twenty-workspace-api-contract.md`
 
-## Current Goal
+## Current Goal (Server Transfer Hardening)
+
+As of 2026-08-21, the next concrete local step before VPS/server transfer is
+closed: `infra/docker-compose.yml` defaults API, Postgres, PgBouncer, Redis and
+MinIO host-published ports to `127.0.0.1` through explicit `*_BIND_HOST`
+variables. The self-hosted infra and production-runtime guards reject
+wildcard-style mappings and old service port mappings without explicit bind
+hosts.
+
+Next server-transfer gates are still separate: choose Linux firewall/private
+network/reverse-proxy exposure, replace all `change-me` secrets, run live server
+Docker smokes, and handle production dependency-audit remediation in its own
+batch.
+
+## 2026-08-21 Self-hosted API outbox lease runtime fix
+
+- Work from `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`.
+- Auth outbox lease SQL ambiguity is fixed in
+  `apps/api/src/modules/auth/postgres-repository.ts`.
+- Regression test:
+  `npx vitest run --config apps/api/vitest.config.ts apps/api/src/modules/auth/postgres-repository.test.ts`.
+- Runtime proof: after API rebuild, logs since `2026-08-21T11:38:35Z` contain
+  no ambiguous id / ERROR / FATAL / PANIC entries; `/health/ready` returns ok.
+- Continue preserving provider-free guard and loopback compose bindings.
+
+## Prior Goal (Twenty CRM)
+
+### Docker-only local onboarding (2026-08-14)
+
+For a clean Windows machine use `scripts/setup-local.ps1`; host Node.js is no
+longer required. After the human creates the first Twenty workspace and two API
+tokens, `scripts/configure-local-crm.ps1` completes fields, roles, backfill and
+local isolation. See `docs/backend/local-full-stack-runbook.ru.md`.
+
+This work did not change VPS/production env, containers, flags, databases or
+Twenty workspace.
+
+Local full-stack proof completed on Windows on 2026-08-09. React, API, YORSO
+PostgreSQL/PgBouncer/Redis/MinIO and Twenty are runnable together.
+
+Local `admin@example.com` now has both the admin role and a complete YORSO
+Company workspace. Live `/v1/account/workspace` and `/v1/admin/crm/status`
+return 200. PostgreSQL workspace JSON timestamps are normalized to UTC ISO
+before shared-contract validation.
+
+**User-facing CRM workspace is complete locally:**
+
+- `/crm` is a normal YORSO workspace with Companies/People and CRM-owned edits;
+- desktop/mobile account menus show CRM when the auth session capability is true;
+- `crm_user` grants `/v1/crm/*`; `admin` implies the same capability;
+- `/v1/admin/crm/*` still requires admin and owns status/sync-events/retry;
+- migration `0039_crm_user_role` is applied locally (40 total migrations);
+- live proof returned 5 Company and 5 Person records through `/v1/crm/*`.
+
+Do not grant `crm_user` to external customer accounts yet until isolation is
+enabled in the target environment. Batch T0–T5 complete: memberships,
+TenantContext, Twenty tenant fields, tenant-aware sync, and read-only
+`/v1/crm/*` cutover via `TenantCrmRecordsService` (fail-closed when isolation
+flag is false). Default env examples still keep
+`CRM_TENANT_ISOLATION_ENABLED=false` / `CRM_USER_WRITES_ENABLED=false`.
+Isolation plan:
+`docs/backend/twenty-crm-company-isolation-implementation-plan.ru.md`.
+Next batch on command: T6 tenant-aware CRM writes.
+
+**Iteration D (CRM tables inside YORSO)** is complete:
+
+- Backend read API for Companies/People via server Twenty API key;
+- React `/admin/crm` tabs Overview / Companies / People / Sync events;
+- Live local proof: React → YORSO API → Twenty, relation verified, no browser
+  calls to `:3020/rest/*`;
+- Cursor pagination uses verified Twenty `starting_after`.
+
+Server/Linux cutover (Iteration C3) remains blocked until the operator provides
+SSH/domains/secrets. Search/edit/SSO are **not** started.
+
+Do **not** invent server addresses or credentials. Live
+`smoke:twenty-crm:staging` and `crm:backfill:apply` require explicit staging
+credentials / disposable DB.
+
+Verified local Twenty (dev):
+
+- URL: `http://localhost:3020`
+- Image: `twentycrm/twenty:v2.6.0` + pinned digest
+- API contract: `docs/backend/twenty-workspace-api-contract.md`
+- Infra guard: `npm run check:twenty-infra`
+- Local CRM UI proof: `node --env-file=.env.local scripts/smoke-live-admin-crm-records.mjs`
+
+Integration credential and admin secrets live only in gitignored files under
+`.data/` and `infra/twenty/.env`. Never commit or paste them.
+
+## Prior Goal (P1I meta-regions)
 
 P1I meta-regions defect fix is in GitHub PR #196 and must be accepted only
 after GitHub checks are green.
@@ -721,6 +813,30 @@ Concrete first scope:
 - if owner/admin document management is selected, define ownership, upload,
   edit/delete validation, audit events and file lifecycle first;
 - do not start both in one batch.
+
+## 2026-08-14 Local Clean-PC Handoff
+
+- Double-click entry point: `SETUP_LOCAL.cmd`; only running Docker Desktop is
+  required on Windows. Host Node/Postgres/Redis/nginx are not required.
+- PowerShell entry points remain under `scripts/*-local.ps1`; stop preserves
+  all named volumes.
+- First-run manual boundary: initialize the Twenty workspace and create two
+  distinct tokens, then run `scripts/configure-local-crm.ps1`.
+- CRM configuration creates metadata, backfills records, waits for outbox
+  completion, and only then enables tenant isolation/user writes.
+- This work does not alter VPS/production or its capacity baseline.
+
+## 2026-08-19 Local Development Handoff
+
+- Work from `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`.
+  `yorso_new` is the project/product name; do not switch to the old
+  `/Users/istokdmgmail.com/yorso_new` path.
+- Local Docker runtime is verified: frontend `:8080`, API `:3000`, Twenty
+  `:3020`. Twenty is the default self-hosted CRM/backoffice component, while
+  Yorso API/PostgreSQL remains the system of record.
+- Before server deployment, harden local compose exposure for Postgres, Redis,
+  MinIO and PgBouncer. The current host bindings are for trusted local
+  development only.
 
 ## Preserve
 

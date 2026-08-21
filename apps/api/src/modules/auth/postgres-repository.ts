@@ -287,37 +287,46 @@ function mapPasswordRecoveryDeliveryJob(
   };
 }
 
-const deliveryReturningSql = `
-  id::text as delivery_id,
-  draft_id as delivery_draft_id,
-  purpose as delivery_purpose,
-  channel as delivery_channel,
-  status as delivery_status,
-  destination_preview as delivery_destination_preview,
-  template_key as delivery_template_key,
-  attempt_count as delivery_attempt_count,
-  max_attempts as delivery_max_attempts,
-  available_at as delivery_available_at,
-  locked_at as delivery_locked_at,
-  locked_by as delivery_locked_by,
-  created_at as delivery_created_at,
-  updated_at as delivery_updated_at
-`;
+const deliveryReturningSql = deliveryReturningSqlFrom();
+const passwordRecoveryDeliveryReturningSql = passwordRecoveryDeliveryReturningSqlFrom();
 
-const passwordRecoveryDeliveryReturningSql = `
-  id::text as delivery_id,
-  recovery_id::text as delivery_recovery_id,
-  status as delivery_status,
-  destination_preview as delivery_destination_preview,
-  template_key as delivery_template_key,
-  attempt_count as delivery_attempt_count,
-  max_attempts as delivery_max_attempts,
-  available_at as delivery_available_at,
-  locked_at as delivery_locked_at,
-  locked_by as delivery_locked_by,
-  created_at as delivery_created_at,
-  updated_at as delivery_updated_at
+function deliveryReturningSqlFrom(alias = "") {
+  const prefix = alias ? `${alias}.` : "";
+  return `
+  ${prefix}id::text as delivery_id,
+  ${prefix}draft_id as delivery_draft_id,
+  ${prefix}purpose as delivery_purpose,
+  ${prefix}channel as delivery_channel,
+  ${prefix}status as delivery_status,
+  ${prefix}destination_preview as delivery_destination_preview,
+  ${prefix}template_key as delivery_template_key,
+  ${prefix}attempt_count as delivery_attempt_count,
+  ${prefix}max_attempts as delivery_max_attempts,
+  ${prefix}available_at as delivery_available_at,
+  ${prefix}locked_at as delivery_locked_at,
+  ${prefix}locked_by as delivery_locked_by,
+  ${prefix}created_at as delivery_created_at,
+  ${prefix}updated_at as delivery_updated_at
 `;
+}
+
+function passwordRecoveryDeliveryReturningSqlFrom(alias = "") {
+  const prefix = alias ? `${alias}.` : "";
+  return `
+  ${prefix}id::text as delivery_id,
+  ${prefix}recovery_id::text as delivery_recovery_id,
+  ${prefix}status as delivery_status,
+  ${prefix}destination_preview as delivery_destination_preview,
+  ${prefix}template_key as delivery_template_key,
+  ${prefix}attempt_count as delivery_attempt_count,
+  ${prefix}max_attempts as delivery_max_attempts,
+  ${prefix}available_at as delivery_available_at,
+  ${prefix}locked_at as delivery_locked_at,
+  ${prefix}locked_by as delivery_locked_by,
+  ${prefix}created_at as delivery_created_at,
+  ${prefix}updated_at as delivery_updated_at
+`;
+}
 
 function mapDraftDelivery(row: RegistrationDraftDeliveryRow): RegistrationDraftDeliveryResult {
   return {
@@ -939,7 +948,7 @@ export class PostgresAuthRepository implements AuthRepository {
               updated_at = now()
           from candidates
           where outbox.id = candidates.id
-          returning ${deliveryReturningSql}
+          returning ${deliveryReturningSqlFrom("outbox")}
         )
         select
           leased.*,
@@ -1196,7 +1205,7 @@ export class PostgresAuthRepository implements AuthRepository {
               updated_at = now()
           from candidates
           where outbox.id = candidates.id
-          returning ${passwordRecoveryDeliveryReturningSql}
+          returning ${passwordRecoveryDeliveryReturningSqlFrom("outbox")}
         )
         select
           leased.*,

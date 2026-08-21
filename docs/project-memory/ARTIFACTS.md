@@ -1,5 +1,153 @@
 # Artifacts
 
+## 2026-08-21 Self-hosted API outbox lease fix
+
+- `apps/api/src/modules/auth/postgres-repository.test.ts`: targeted regression
+  for registration and password-recovery lease SQL.
+- Docker runtime evidence: API `/health/live` and `/health/ready` responses,
+  `/metrics` worker success counters, and clean Postgres/API logs after
+  `2026-08-21T11:38:35Z`.
+
+## Twenty CRM company isolation Batch T9B1
+
+- Postgres adapter: `tenant-isolation-backfill-postgres.ts`
+- Twenty adapter: `tenant-isolation-backfill-twenty.ts`
+- Live store + guards: `tenant-isolation-backfill-live.ts`
+- Tests: `tenant-isolation-backfill-live.test.ts`
+- CLI: `scripts/twenty-tenant-isolation-backfill-live.mjs`
+- Rehearsal: `scripts/twenty-t9b1-local-rehearsal.mjs`
+- npm: `crm:t9:live:plan|apply|verify`, `crm:t9b1:rehearsal`,
+  `test:crm-tenant-isolation-live`
+- Reports/checkpoint: `.data/t9b1-backfill-report-*.json`,
+  `.data/t9b1-checkpoint.json` (gitignored)
+
+## Twenty CRM company isolation Batch T9A
+
+- Engine: `apps/api/src/modules/twenty/tenant-isolation-backfill.ts`
+- Memory fixtures: `tenant-isolation-backfill-memory.ts`
+- Tests: `tenant-isolation-backfill.test.ts`
+- CLI: `scripts/twenty-tenant-isolation-backfill.mjs`
+- Preflight: `scripts/crm-tenant-isolation-preflight.mjs`
+- Backup helpers: `scripts/crm-tenant-isolation-backup.mjs`
+- Runbook: `docs/backend/twenty-crm-tenant-isolation-t9-rollout.runbook.ru.md`
+- npm: `crm:t9a:plan|apply|verify`, `crm:t9a:preflight`, `crm:t9a:backup:print`,
+  `test:crm-tenant-isolation-backfill`
+- Reports: `.data/t9a-backfill-report-*.json` (gitignored)
+- Opt-in env (default false): `TWENTY_CRM_BACKFILL_ENABLED`,
+  `CRM_TENANT_ISOLATION_ROLLOUT_ENABLED`
+
+## Twenty CRM company isolation Batch T8
+
+- Fixtures: `apps/api/src/modules/twenty/t8-adversarial-fixtures.ts`
+- API suite: `t8-adversarial-crm-routes.test.ts`,
+  `t8-adversarial-records-service.test.ts`
+- E2E: `e2e/user-crm-tenant-security.spec.ts`,
+  `scripts/smoke-e2e-user-crm-tenant-security.mjs`
+- Live proof: `scripts/twenty-t8-live-proof.mjs` (`npm run crm:t8:live-proof`)
+- npm: `test:crm-tenant-adversarial`, `smoke:e2e:user-crm-tenant-security`
+
+## Twenty CRM company isolation Batch T7
+
+- Available companies client/hook: `src/lib/account-available-companies-api.ts`,
+  `src/lib/use-account-available-companies.ts`
+- Active company: `src/lib/crm-active-company.ts`, `src/lib/use-crm-active-company.ts`
+- Shared headers: `src/lib/yorso-session-headers.ts`
+- Workspace CRM headers + cache keys + late-response guard:
+  `src/lib/admin-crm-api.ts`, `src/lib/use-admin-crm-companies.ts`,
+  `src/lib/use-admin-crm-people.ts`
+- UX: `src/pages/admin/AdminCrm.tsx` (`surface="workspace"`), edit canWrite in
+  `AdminCrmRecordEdit.tsx`
+- E2E: `e2e/user-crm-tenant.spec.ts`, `scripts/smoke-e2e-user-crm-tenant.mjs`,
+  `npm run smoke:e2e:user-crm-tenant` / `npm run test:user-crm-frontend`
+- Tests: `AdminCrm.test.tsx`, `crm-active-company.test.ts`,
+  `account-available-companies-api.test.ts`, `yorso-session-headers.test.ts`
+
+## Twenty CRM company isolation Batch T6
+
+- Service writes: `apps/api/src/modules/twenty/tenant-crm-records-service.ts`
+  (`updateCompany` / `updatePerson`)
+- Client: `updateCompanyCrmFieldsForTenant` / `updatePersonCrmFieldsForTenant`
+- Routes: `apps/api/src/modules/twenty/crm-routes.ts` (PATCH gates + audit field names)
+- Contracts: `userCrmCompanyPatchRequestSchema`, `crm_write_forbidden`,
+  `twenty_tenant_conflict`
+- Live proof: `scripts/twenty-t6-live-proof.mjs`
+- Tests: `tenant-crm-records-service.test.ts`, `crm-routes.test.ts`, `client.test.ts`,
+  admin CRM regression in `admin-routes.test.ts`
+
+## Twenty CRM company isolation Batch T5
+
+- Service: `apps/api/src/modules/twenty/tenant-crm-records-service.ts`
+- Routes: `apps/api/src/modules/twenty/crm-routes.ts` (tenant cutover, no unscoped fallback)
+- Contracts: `packages/contracts/src/crm-user-errors.ts`
+- Live proof: `scripts/twenty-t5-live-proof.mjs`
+- Tests: `tenant-crm-records-service.test.ts`, `crm-routes.test.ts`
+
+## Twenty CRM company isolation Batch T4
+
+- Migration: `packages/db/migrations/0041_twenty_crm_tenant_scope.sql`
+- Quarantine tables: `yorso_twenty_record_links_tenant_quarantine`,
+  `yorso_twenty_sync_outbox_tenant_quarantine`
+- Tenant-aware sync: `apps/api/src/modules/twenty/{types,memory-repository,postgres-repository,mapper,client,sync-worker,backfill}.ts`
+- Enqueue sites: `apps/api/src/modules/account/{repository,postgres-repository}.ts`,
+  `apps/api/src/modules/auth/{repository,postgres-repository}.ts`
+
+## Twenty CRM company isolation Batch T3
+
+- Setup/verify: `scripts/twenty-t3-tenant-fields-setup.mjs` (`npm run crm:t3:setup`)
+- Client methods: `apps/api/src/modules/twenty/client.ts` (`list*ByTenant`, `get*ForTenant`)
+- Contract: `docs/backend/twenty-workspace-api-contract.md` (tenant fields + equality filter)
+- Live verification (gitignored): `.data/twenty-t3-tenant-fields-verification.json`
+- Confirmed filter syntax: `filter=yorsoTenantId[eq]:"<tenantId>"`
+
+## Local full-admin workspace repair
+
+- Runtime fix: `apps/api/src/modules/account/postgres-repository.ts`
+- Guard: `apps/api/src/modules/account/__tests__/repository.test.ts`
+- Learning: `docs/project-memory/ENGINEERING_LESSONS.md`
+
+## Twenty CRM (Batch 2)
+
+- User-facing CRM RBAC/API/UI:
+  `packages/db/migrations/0039_crm_user_role.sql`,
+  `apps/api/src/modules/twenty/crm-routes.ts`, `src/pages/Crm.tsx`,
+  `src/components/landing/Header.tsx`, auth session capabilities and focused
+  route/header/workspace tests.
+
+- Full local Windows runbook:
+  `docs/backend/local-full-stack-runbook.ru.md`
+
+- Plan: `docs/backend/twenty-crm-backoffice-integration-plan.ru.md`
+- Verified API contract: `docs/backend/twenty-workspace-api-contract.md`
+- Infra: `infra/twenty/docker-compose.yml`, `.env.example`, `start-local.ps1`,
+  `README.md`
+- Guards: `scripts/check-twenty-infra.mjs`, `scripts/lib/twenty-infra-policy.mjs`,
+  `npm run check:twenty-infra`, `src/test/twenty-infra-guard.test.ts`
+- Local setup/verify: `scripts/twenty-batch2-setup.mjs`
+- Batch 3 storage: `packages/db/migrations/0038_twenty_crm_sync.sql`,
+  `apps/api/src/modules/twenty/{types,repository,memory-repository,postgres-repository}.ts`,
+  `apps/api/src/modules/twenty/repository.test.ts`
+- Batch 4 mapper/client: `apps/api/src/modules/twenty/{mapper,client}.ts`,
+  `apps/api/src/modules/twenty/{mapper,client}.test.ts`
+- Iteration A worker/runtime: `apps/api/src/modules/twenty/{source-repository,postgres-source-repository,sync-worker,sync-scheduler,runtime,factory,service}.ts`,
+  related tests, metrics/lifecycle/config/auth/account enqueue wiring
+- Iteration B admin UI/API: `apps/api/src/modules/twenty/{admin-crm-service,admin-routes}.ts`,
+  `src/lib/{admin-crm-api,use-admin-crm}.ts`, `src/pages/admin/AdminCrm.tsx`,
+  `e2e/admin-crm.spec.ts`, `npm run test:admin-crm-frontend`, `npm run smoke:e2e:admin-crm`
+- Iteration D CRM records inside YORSO:
+  `packages/contracts/src/admin-crm-records.ts`,
+  `apps/api/src/modules/twenty/admin-crm-records-service.ts`,
+  `src/lib/{use-admin-crm-companies,use-admin-crm-people}.ts`,
+  `e2e/admin-crm-live-records.spec.ts`,
+  `scripts/smoke-live-admin-crm-records.mjs`
+- Iteration C backfill/deploy artifacts:
+  `apps/api/src/modules/twenty/backfill.ts`,
+  `scripts/twenty-crm-backfill.mjs`, `scripts/smoke-twenty-crm-staging.mjs`,
+  `infra/reverse-proxy.example.md`, deploy runbook Twenty section,
+  `npm run crm:backfill:plan|apply`, `npm run smoke:twenty-crm:staging`
+- Contracts (Batch 1): `packages/contracts/src/admin-crm.ts`,
+  `packages/contracts/src/twenty-crm-env.ts`
+- Gitignored local state only: `infra/twenty/.env`, `.data/twenty-local-*`
+
 ## Project Memory
 
 - `AGENTS.md`: project-level agent rules.
@@ -1919,3 +2067,14 @@
   mobile 390px product card screenshot with Latin-first display.
 - `/Users/istokdmgmail.com/yorso_new/output/playwright/account-products-delete-short-copy-ru-mobile-current.png`:
   mobile 390px short delete confirmation screenshot.
+# 2026-08-14 — Local one-click artifacts
+
+- `SETUP_LOCAL.cmd`, `START_LOCAL.cmd`, `STOP_LOCAL.cmd`, `STATUS_LOCAL.cmd`,
+  `CONFIGURE_CRM_LOCAL.cmd`
+- `scripts/setup-local.ps1`, `start-local.ps1`, `stop-local.ps1`,
+  `status-local.ps1`, `configure-local-crm.ps1`, `get-local-code.ps1`
+- `scripts/twenty-workspace-fields-setup.mjs`,
+  `get-local-verification-code.mjs`, `check-local-one-click.mjs`
+- `infra/docker-compose.local.yml`, `infra/twenty/docker-compose.local.yml`
+- `infra/frontend/Dockerfile`, `infra/frontend/nginx.conf`
+- `infra/db-migrator/Dockerfile`, `.dockerignore`
