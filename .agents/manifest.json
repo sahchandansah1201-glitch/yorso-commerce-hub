@@ -6,6 +6,8 @@
     "productionSourceOfTruth": "main",
     "experimentalPattern": "local-lab/<scope>",
     "currentExperimentalBranch": "local-lab/agent-capability-foundation",
+    "baseRef": "origin/main",
+    "baseCommit": "0f71847b7150f5ed5358c418f4fb3509109b7b82",
     "stageBPilotStatus": "pending",
     "promotionRequires": [
       "independent-review",

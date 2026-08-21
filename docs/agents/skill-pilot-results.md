@@ -1,6 +1,6 @@
 # Yorso Skill Pilot Results
 
-Last updated: 2026-08-21
+Last updated: 2026-08-22
 
 ## Current verdict
 
@@ -26,9 +26,17 @@ Stage B comparative qualification is not complete.
 - 13 accountable agent profiles with explicit reviewer separation.
 - 11 registered skills with provenance and content hashes.
 - Governance verifier passes and fails closed on hash drift, false provenance,
-  self-review, dependency cycles, unsafe paths and unregistered role/skill paths.
+  self-review, dependency cycles, unsafe paths, symlinks and unregistered
+  role/skill paths.
+- External-source provenance is verified against the exact upstream file
+  content at the pinned commit SHA, not only against a declared repository URL.
+- Stage B evidence and any future main-promotion evidence have versioned,
+  fail-closed schemas. A status flag alone cannot mark a pilot or promotion as
+  passed.
 - External candidate matrix records license/SHA/overlap/rejection decisions.
 - Five fixed Stage B fixtures are versioned under `docs/agents/pilots/fixtures/`.
+- Expanded pre-foundation project-memory snapshots are preserved as
+  checksum-pinned gzip archives and are checked for tampering.
 - Baseline project build, typecheck and provider boundary were green before governance changes.
 
 ## What this does not prove
@@ -37,5 +45,5 @@ Stage B comparative qualification is not complete.
 - It does not prove lower token use or faster delivery.
 - It does not authorize merge to `main`.
 
-Those claims require the 30-run-per-finalist Stage B protocol. Keeping the skills
-experimental is the fail-closed result, not an incomplete installation.
+Those claims require the 30-run-per-finalist Stage B protocol. Keeping the
+skills experimental is the fail-closed result, not an incomplete installation.
