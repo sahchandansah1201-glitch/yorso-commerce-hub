@@ -13,7 +13,7 @@ active_branch: "local-lab/workflow-foundation"
 base_commit: "0f71847b7150f5ed5358c418f4fb3509109b7b82"
 active_workstream: "local_lab_workflow_foundation"
 pull_request: null
-recommended_action: "Verify, commit and push local-lab/workflow-foundation, then connect Lovable to that exact branch."
+recommended_action: "Connect Lovable to origin/local-lab/workflow-foundation and confirm the same repository, branch and HEAD without product-code changes."
 why_low: "Official remote, isolated worktree, branch rule and next action are explicit and the starting tree was clean."
 ```
 
@@ -41,7 +41,7 @@ Codex and Lovable must use the same local-lab/<scope> branch.
 Do not create codex/<scope> or lovable/test/<scope> branches.
 Do not merge or push directly to main. Main is the server source of truth and only receives a reviewed PR after the Acceptance Gate and explicit user approval.
 
-Current action: verify and publish local-lab/workflow-foundation, then connect Lovable to that exact branch for sync-only verification.
+Current action: connect Lovable to the already published local-lab/workflow-foundation branch for sync-only verification. Lovable must confirm the official repository, branch and identical HEAD and must not create another branch.
 ```
 
 ## Risk Levels

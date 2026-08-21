@@ -2,13 +2,18 @@
 
 ## Current 2026-08-21
 
-1. Verify the workflow foundation diff and provider-free boundary.
-2. Commit and push `local-lab/workflow-foundation` to the official remote.
-3. Connect Lovable to the exact remote branch and confirm the same HEAD.
-4. Use `docs/workflow/local-lab-acceptance-gate.ru.md` for the next product
+1. Connect Lovable to `local-lab/workflow-foundation` in the official
+   `sahchandansah1201-glitch/yorso-commerce-hub` repository.
+2. Confirm Lovable reports the same branch and HEAD without creating another
+   branch or changing product code.
+3. Use `docs/workflow/local-lab-acceptance-gate.ru.md` for the next product
    scope.
-5. Before installing external skills, pin commits, run SkillSpector, review
+4. Before installing external skills, pin commits, run SkillSpector, review
    licenses/scripts and pilot one skill per role in `local-lab/*`.
+
+Completed in this checkpoint: workflow verification, commit
+`5f6a2a587615bd4699d58fe9a30e404a39634595` and publication of
+`origin/local-lab/workflow-foundation`.
 
 Do not create `codex/<scope>` or `lovable/test/<scope>` for new work.
 

@@ -27,8 +27,11 @@ Establish and publish the accepted delivery model:
 
 Current branch: `local-lab/workflow-foundation`.
 Base commit: `0f71847b7150f5ed5358c418f4fb3509109b7b82`.
-Verification passed. Next action: commit and push this branch, then connect
-Lovable to the exact remote branch and confirm the same HEAD.
+Verification passed and the branch was published to the official remote.
+Workflow implementation commit: `5f6a2a587615bd4699d58fe9a30e404a39634595`.
+Next action: connect Lovable to the exact remote branch and confirm repository,
+branch and identical HEAD without creating another branch or changing product
+code.
 
 Read:
 

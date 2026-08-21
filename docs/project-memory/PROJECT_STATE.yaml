@@ -14,7 +14,7 @@ repository:
   git_status_confirmed_at: "2026-08-21"
   active_branch: "local-lab/workflow-foundation"
   base_commit: "0f71847b7150f5ed5358c418f4fb3509109b7b82"
-  head_summary: "Workflow foundation branch created from current origin/main; branch policy, Acceptance Gate and agent skill research are being recorded."
+  head_summary: "Workflow foundation is committed and published to origin/local-lab/workflow-foundation; branch policy, Acceptance Gate and agent skill research are recorded."
   dirty_worktree_before_project_memory: false
 
 delivery_policy:
@@ -29,9 +29,9 @@ delivery_policy:
 current_workstream:
   id: "local_lab_workflow_foundation"
   summary: "Establish the single local-lab branch model, Codex role pipeline, Exa-backed external skill evaluation and rewritten Acceptance Gate."
-  status: "verification_passed_commit_pending"
+  status: "branch_published_waiting_for_lovable_sync"
   branch: "local-lab/workflow-foundation"
-  next_gate: "commit and push the branch for Lovable connection"
+  next_gate: "connect Lovable to origin/local-lab/workflow-foundation and confirm repository, branch and identical HEAD without product-code changes"
 
 project_identity:
   summary: "Yorso frontend/backend prototype and commerce hub for B2B seafood procurement, supplier access, account flows and self-hosted admin/operator tooling."
