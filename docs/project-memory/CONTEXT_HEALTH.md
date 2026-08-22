@@ -17,7 +17,7 @@ last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
 recommended_action: "Finish exact-HEAD acceptance and independent review, then push the local-lab branch; do not merge main."
-why_medium: "Governance is repository-backed and adversarially tested, but Stage B comparative pilots, exact upstream blob verification and promotion approval remain open."
+why_medium: "Governance is repository-backed and adversarially tested with a fixture oracle, registered-actor contract and computed metrics, but no real actors are registered and Stage B, exact upstream blob verification and promotion approval remain open."
 ```
 
 ## Confirmed Boundaries
@@ -31,6 +31,8 @@ why_medium: "Governance is repository-backed and adversarially tested, but Stage
   part of this workstream.
 - No quantified improvement claim is allowed until the Stage B pilot protocol
   passes.
+- `.agents/actors.json` is intentionally empty; real independent reviewers and
+  approvers must be registered before Stage B or promotion can pass.
 
 ## Recovery Prompt
 

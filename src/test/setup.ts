@@ -1,4 +1,11 @@
 import "@testing-library/jest-dom";
+import { beforeEach, vi } from "vitest";
+
+// Unit tests must not inherit a developer's tracked `.env.local` API URL.
+// API-backed cases opt in explicitly with `vi.stubEnv` in their own setup.
+beforeEach(() => {
+  vi.stubEnv("VITE_YORSO_API_URL", "");
+});
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,

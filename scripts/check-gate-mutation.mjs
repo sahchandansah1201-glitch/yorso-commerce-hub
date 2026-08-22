@@ -20,8 +20,24 @@ const runGit = (args) => {
 
 const gitStatus = () => runGit(["status", "--porcelain=v1", "--untracked-files=all"]);
 
+const repositoryIdentity = () => {
+  const head = runGit(["rev-parse", "--verify", "HEAD"]).trim();
+  const branch = spawnSync("git", ["symbolic-ref", "--quiet", "HEAD"], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+  });
+  const refs = runGit(["for-each-ref", "--format=%(refname)%00%(objectname)"])
+    .split("\n")
+    .filter(Boolean)
+    .sort()
+    .join("\n");
+  return `${head}\0${branch.status === 0 ? branch.stdout.trim() : "(detached)"}\0${refs}`;
+};
+
 const worktreeFingerprint = () => {
   const hash = createHash("sha256");
+  hash.update(repositoryIdentity());
+  hash.update("\0");
   hash.update(runGit(["diff", "--binary", "--no-ext-diff", "HEAD", "--"]));
 
   const untracked = runGit(["ls-files", "--others", "--exclude-standard", "-z"])
@@ -45,7 +61,7 @@ const after = worktreeFingerprint();
 
 if (before !== after) {
   console.error(
-    "Gate mutation check failed: the command changed Git-visible tracked or nonignored untracked state.",
+    "Gate mutation check failed: the command changed HEAD, branch, refs, tracked files or nonignored untracked state.",
   );
   console.error("--- before ---");
   console.error(beforeStatus || "(clean)");
@@ -55,5 +71,5 @@ if (before !== after) {
 }
 if (result.status !== 0) process.exit(result.status ?? 1);
 console.log(
-  `Gate mutation check passed for Git-visible tracked and nonignored untracked state: ${command.join(" ")}`,
+  `Gate mutation check passed for HEAD, branch, refs, tracked and nonignored untracked state: ${command.join(" ")}`,
 );

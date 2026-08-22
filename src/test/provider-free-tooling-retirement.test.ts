@@ -19,6 +19,7 @@ describe("provider-free tooling retirement", () => {
     const env = readTrackedFileIfPresent(".env");
     const envExample = readFileSync(".env.example", "utf8");
     const gitignore = readFileSync(".gitignore", "utf8");
+    const tsconfig = readFileSync("tsconfig.app.json", "utf8");
 
     expect(existsSync("src/integrations/supabase")).toBe(false);
     expect(existsSync("supabase")).toBe(false);
@@ -36,6 +37,7 @@ describe("provider-free tooling retirement", () => {
 
     expect(pkg.scripts.prebuild).toBeUndefined();
     expect(Object.keys(pkg.scripts).join("\n")).not.toMatch(/supabase/i);
+    expect(tsconfig).not.toMatch(/supabase/i);
     expect(JSON.stringify(pkg.dependencies ?? {})).not.toMatch(/supabase/i);
     expect(JSON.stringify(pkg.devDependencies ?? {})).not.toMatch(/supabase/i);
     expect(lockfile).not.toMatch(/@supabase/i);

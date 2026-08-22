@@ -122,3 +122,14 @@ test("a symlinked archive root fails closed", () => {
     assert.match(validateProjectMemory(fixture).errors.join("\n"), /archive is missing or unsafe/);
   });
 });
+
+test("a required project-memory file symlinked outside the repository fails closed", () => {
+  withRepository((fixture) => {
+    const required = path.join(fixture, "docs/project-memory/NEXT_ACTIONS.md");
+    const outside = path.join(fixture, "outside-next-actions.md");
+    writeFileSync(outside, "external replacement\n");
+    rmSync(required);
+    symlinkSync(outside, required, "file");
+    assert.match(validateProjectMemory(fixture).errors.join("\n"), /NEXT_ACTIONS\.md/);
+  });
+});

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "fixtures": [
+    {
+      "id": "F1",
+      "path": "docs/agents/pilots/fixtures/F1-meta-region-repeat-flow.md",
+      "sha256": "a992b759a152807f03b198e36e5007c914c6ace647eff48b2598a9370ef22c21",
+      "criticalDefectIds": [
+        "listbox-unavailable-after-first-add",
+        "duplicate-country-accepted",
+        "selected-country-removal-fails",
+        "reload-persistence-loss",
+        "keyboard-or-390-overflow"
+      ]
+    },
+    {
+      "id": "F2",
+      "path": "docs/agents/pilots/fixtures/F2-multilingual-copy.md",
+      "sha256": "5514d4f2636ae16f45c256843821d7e1072da25f35b75beffe3ed2eb85ec215a",
+      "criticalDefectIds": [
+        "raw-enum-leak",
+        "literal-translation",
+        "cross-locale-semantic-drift",
+        "plural-rule-break",
+        "inaccessible-or-truncated-copy"
+      ]
+    },
+    {
+      "id": "F3",
+      "path": "docs/agents/pilots/fixtures/F3-react-interaction.md",
+      "sha256": "040409f382eb39a084832e9fa25b874faaad24d400ef4c23cac1eb3180d91636",
+      "criticalDefectIds": [
+        "unstable-list-key",
+        "nested-interactive-control",
+        "focus-steal-after-save",
+        "sticky-mobile-overlap",
+        "repeated-flow-not-verified"
+      ]
+    },
+    {
+      "id": "F4",
+      "path": "docs/agents/pilots/fixtures/F4-api-contract-drift.md",
+      "sha256": "717bdb8681e4b7edc80097145de60e87251a622af41fcc1aae86498ebb3ee9c1",
+      "criticalDefectIds": [
+        "ui-api-field-mismatch",
+        "persistence-nullability-drift",
+        "unstable-error-envelope",
+        "missing-migration-compatibility",
+        "pagination-indexing-gap"
+      ]
+    },
+    {
+      "id": "F5",
+      "path": "docs/agents/pilots/fixtures/F5-release-evidence.md",
+      "sha256": "282f6af7ef67d48c21cd5cb273952b04fe9eb60a7b6380013d71aade3ca27461",
+      "criticalDefectIds": [
+        "unsupported-build-claim",
+        "unsupported-browser-claim",
+        "unsupported-sync-claim",
+        "local-remote-evidence-conflation",
+        "missing-no-go-verdict"
+      ]
+    }
+  ]
+}

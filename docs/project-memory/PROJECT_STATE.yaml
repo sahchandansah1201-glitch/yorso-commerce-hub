@@ -41,15 +41,23 @@ active_workstream:
     - "Added a non-mutating gate verifier and project-memory freshness check."
     - "Pinned external repository/revision/license declarations and local adaptation hashes; exact upstream blob-byte verification remains open."
     - "Added structured Stage B and main-promotion evidence gates."
+    - "Upgraded Stage B and promotion evidence to schemaVersion 4 with fixture-oracle binding, candidate-bound reviewer sheets and recomputed metrics."
+    - "Added an actor registry and independence-group enforcement; the empty real registry keeps Stage B and promotion closed until human actors are registered."
+    - "Expanded freshness checks to the complete governance surface and rejected canonical-identity aliases, reviewer-supplied denominators, cross-skill artifact reuse and project-memory symlink escapes."
+    - "Expanded non-mutation checks to reject gate-created commits, branch switches and any ref mutation."
     - "Archived expanded pre-foundation state and handoff with SHA-256 plus byte-for-byte source-commit verification."
   open_gates:
     - "Run the complete Stage B blind comparative pilot before claiming a measured quality uplift."
-    - "Obtain independent review before promotion to main."
+    - "Register real human reviewers and approvers with distinct independence groups before Stage B evidence can pass."
+    - "Resolve independent exact-HEAD review findings before publishing the experimental branch."
+    - "Obtain a separate independent promotion review before any merge to main."
     - "Run feature-specific tests when a role or skill is first used on product code."
 
 governance:
   manifest: ".agents/manifest.json"
   lock: ".agents/skills.lock.json"
+  actor_registry: ".agents/actors.json"
+  fixture_oracle: "docs/agents/pilots/fixture-oracle.json"
   role_profiles: 13
   registered_skills: 11
   copywriter_status: "experimental-with-human-review"

@@ -77,7 +77,21 @@ export const validateProjectMemory = (candidateRoot, env = process.env) => {
 
   for (const name of REQUIRED_FILES) {
     const file = path.join(memoryRoot, name);
-    if (!existsSync(file) || !statSync(file).isFile() || statSync(file).size === 0) {
+    let safe = false;
+    try {
+      safe =
+        existsSync(file) &&
+        !containsSymbolicLinkInPath(root, memoryRoot) &&
+        !containsSymbolicLinkInPath(root, file) &&
+        !lstatSync(file).isSymbolicLink() &&
+        lstatSync(file).isFile() &&
+        lstatSync(file).size > 0 &&
+        isWithin(realpathSync(root), realpathSync(memoryRoot)) &&
+        isWithin(realpathSync(memoryRoot), realpathSync(file));
+    } catch {
+      safe = false;
+    }
+    if (!safe) {
       errors.push(`required project-memory file is missing or empty: ${name}`);
     }
   }

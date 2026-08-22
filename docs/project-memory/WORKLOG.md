@@ -4254,3 +4254,27 @@ Keep this file factual and append-only.
 | Prevent PR-to-main bypass | PR base branch drives branch policy | Independent exact-HEAD review | PR-target adversarial test |
 | Bind memory archives to history | Expanded bytes compared with source commit | Keep source commit reachable | Project-memory tests |
 | Report provenance honestly | Removed exact-upstream-content claim | Optional future upstream blob verification | Docs review |
+
+## 2026-08-22 — Independent Governance Review Remediation
+
+- Converted critical-defect recall from reviewer-supplied counts to an
+  immutable checksum-bound fixture oracle covering F1-F5.
+- Added `.agents/actors.json` and required registered reviewers/approvers with
+  the correct role and distinct independence groups. The real registry remains
+  empty, so Stage B and production promotion intentionally fail closed.
+- Upgraded Stage B and promotion reports to schema version 4 and reviewer sheets
+  to version 2, binding reviewer evidence to the candidate skill and oracle.
+- Rejected undefined Cohen's kappa, unknown defect ids, cross-skill artifact
+  byte reuse and any dirty governed surface during commit freshness checks.
+- Expanded non-mutation verification from HEAD/branch/worktree to all Git refs.
+- Corrected the pilot scale to 0-100 per reviewed run and aligned protocol,
+  handoff, state, artifacts and next actions with the enforced contracts.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Make recall denominator independent | Fixture oracle is checksum-bound and reviewer counts are rejected | Run real blind pilots | Governance adversarial tests |
+| Make actor independence enforceable | Registry, allowed roles and independence groups are checked | Register real humans | Governance actor tests |
+| Prevent cross-skill evidence reuse | Artifact paths and bytes are globally unique | Produce real artifacts | Multi-skill promotion test |
+| Prevent hidden Git mutation | All refs are fingerprinted | Keep gates read-only | Mutation ref test |

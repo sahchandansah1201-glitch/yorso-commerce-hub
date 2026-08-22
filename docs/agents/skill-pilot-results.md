@@ -33,11 +33,16 @@ Stage B comparative qualification is not complete.
   protected by its own content hash. The gate does not currently re-fetch and
   compare upstream blob bytes, so metadata provenance must not be described as
   exact upstream-content verification.
-- Stage B evidence and any future main-promotion evidence use version 2,
-  fail-closed schemas with complete run tuples, required numeric metrics,
-  checksum-bound unique artifacts, distinct reviewers/approvers and commit
-  freshness checks. A status flag alone cannot mark a pilot or promotion as
-  passed.
+- Stage B evidence and any future main-promotion evidence use version 4,
+  fail-closed schemas. Qualification is per skill and binds the skill id and
+  locked content hash to a checksum-bound fixture oracle, complete run tuples,
+  candidate-bound reviewer sheets and independently recomputed metrics.
+  Registered reviewers/approvers must come from distinct independence groups;
+  artifact paths and bytes are unique across skills; the complete governed
+  surface must be committed and fresh. A status flag, reviewer-supplied
+  denominator or hand-entered metric cannot mark a pilot or promotion passed.
+- `.agents/actors.json` is intentionally empty. Until real human reviewers and
+  approvers are registered, Stage B and promotion fail closed.
 - External candidate matrix records license/SHA/overlap/rejection decisions.
 - Five fixed Stage B fixtures are versioned under `docs/agents/pilots/fixtures/`.
 - Expanded pre-foundation project-memory snapshots are preserved as

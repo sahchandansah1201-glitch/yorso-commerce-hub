@@ -29,10 +29,10 @@ multilingual UX copywriter and non-mutating verification gates.
 | Define accountable team | 13 role profiles created | Independent exact-HEAD review and later promotion review | `npm run check:agent-governance` |
 | Register project-wide skills | 11 skills registered and locked | Stage B comparative pilots | governance tests |
 | Add copywriter | EN/RU/ES-ES UX copy gate with independent human review | Pilot with real interface strings | pilot protocol |
-| Prevent silent gate mutation | cleanup removed from prehooks; Git-visible mutation checker added | Keep ignored/generated outputs outside this proof claim | `check:gate-mutation` |
+| Prevent silent gate mutation | cleanup removed from prehooks; mutation checker covers HEAD, branch, all refs, tracked files and nonignored untracked files | Keep ignored/generated outputs outside this proof claim | `check:gate-mutation` |
 | Protect handoff state | compact structural memory and freshness checker added | Semantic accuracy still requires review | `check:project-memory` |
 | Preserve prior evidence | Expanded state and handoff archives are checksum-bound and compared with their recorded source commit | Keep archives immutable | `check:project-memory` |
-| Prevent evidence-only promotion | Stage B and main-promotion v2 evidence requires full run tuples, unique checksum artifacts and distinct reviewers | Produce real Stage B results later | governance adversarial tests |
+| Prevent evidence-only promotion | Stage B and main-promotion v4 evidence binds each skill to the fixture oracle, registered independent actors, complete reviewer sheets and globally unique artifacts; metrics are recomputed and dirty governed surfaces fail closed | Register real actors and produce Stage B results later | governance adversarial tests |
 | Protect production PRs | CI validates the PR base branch; a PR targeting `main` must satisfy main policy | Keep `main` unchanged until promotion | governance PR-target test |
 
 ## Evidence Already Established
@@ -43,6 +43,8 @@ multilingual UX copywriter and non-mutating verification gates.
 - Stage A structural/provenance pilot passed.
 - Full Stage B evidence is not complete; therefore no `30%`, `200%` or other
   quantified improvement claim is made.
+- `.agents/actors.json` has no real registered humans yet; this intentionally
+  keeps Stage B and promotion closed.
 - External source metadata is pinned, but exact upstream blob-byte comparison is
   not implemented. Local Yorso adaptations are protected by project content
   hashes instead.
@@ -59,5 +61,7 @@ npm run check:gate-mutation -- npm run check:provider-boundary
 npm run check:gate-mutation -- npm run check:agent-governance
 ```
 
-Then create the final hardening and memory commits, run an independent review
-of the exact HEAD and push only `local-lab/agent-capability-foundation`.
+Then create the final hardening commit, run acceptance and independent review
+of the exact committed HEAD, and push only
+`local-lab/agent-capability-foundation`.
+Stage B and any merge to `main` remain separate closed gates.

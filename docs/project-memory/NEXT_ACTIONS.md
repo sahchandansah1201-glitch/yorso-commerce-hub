@@ -21,12 +21,16 @@ Branch: `local-lab/agent-capability-foundation`
 
 1. Execute the Stage B protocol in `docs/agents/skill-pilot-protocol.md`:
    five fixtures, two arms, three repeats, blind independent review.
-2. Record raw outcomes and reviewer disagreements.
-3. Require critical finding recall of 100%, score at least 85, inter-reviewer
+2. Register real reviewers and promotion approvers in `.agents/actors.json`;
+   reviewers and approvers must have the required role and distinct
+   independence groups.
+3. Record raw outcomes and reviewer disagreements against the immutable fixture
+   oracle; reviewers cannot supply defect denominators.
+4. Require critical finding recall of 100%, score at least 85, inter-reviewer
    agreement at least 0.75 and bounded overhead.
-4. Run a real product-code pilot for every experimental skill promoted to
+5. Run a real product-code pilot for every experimental skill promoted to
    active.
-5. Obtain a separate user-approved merge decision.
+6. Obtain a separate user-approved merge decision.
 
 ## Explicit Non-Goals
 

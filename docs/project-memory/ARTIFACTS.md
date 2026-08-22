@@ -6,6 +6,8 @@
   reviewer and dependency registry.
 - `.agents/skills.lock.json`: content hashes and pinned source revisions for all
   registered project-wide skills.
+- `.agents/actors.json`: canonical reviewer/approver registry. It is currently
+  empty, so Stage B and promotion remain fail-closed.
 - `.agents/agents/`: 13 accountable Yorso role profiles.
 - `.agents/skills/yorso-multilingual-ux-copywriter-agent/`: project-wide EN,
   RU and ES-ES interface-copy workflow with independent human review.
@@ -15,15 +17,20 @@
 - `docs/agents/skill-pilot-protocol.md`: Stage A and Stage B evaluation protocol.
 - `docs/agents/skill-pilot-results.md`: current evidence and explicit open gate.
 - `docs/agents/pilots/fixtures/`: five reusable adversarial pilot fixtures.
+- `docs/agents/pilots/fixture-oracle.json`: checksum-bound fixture list and
+  critical-defect ids used as the only Stage B recall denominator.
 - `scripts/check-agent-governance.mjs`: manifest, role, source, reviewer and lock
   validation entrypoint.
 - `scripts/check-agent-governance.test.mjs`: fail-closed drift, self-review,
-  incomplete Stage B, checksum reuse, symlink-root and PR-to-main policy tests.
+  incomplete Stage B, per-skill evidence, reviewer-sheet coverage, computed
+  metrics, canonical identities, checksum reuse, symlink-root and PR-to-main
+  policy tests.
 - `scripts/check-project-memory.mjs`: repository/branch identity, structural
   freshness and source-commit-bound recovery archive verification; it does not
   prove semantic completeness.
 - `scripts/check-gate-mutation.mjs`: verifies a gate command leaves Git-visible
-  tracked and nonignored untracked state unchanged.
+  tracked and nonignored untracked state, HEAD, active branch and all refs
+  unchanged.
 - `docs/project-memory/DECISIONS/ADR-0002-agent-capability-governance.md`:
   durable governance decision.
 
