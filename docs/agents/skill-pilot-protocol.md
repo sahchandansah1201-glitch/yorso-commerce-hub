@@ -56,3 +56,27 @@ Stage B evidence must include prompts, outputs, reviewer sheets, disagreement
 resolution and cost. Without it, the status remains `experimental`. A
 human-review requirement limits pilot risk but does not
 replace Stage B qualification.
+
+### Machine-enforced evidence contract
+
+`schemaVersion: 2` is required. The evidence file must bind all of the
+following to one evaluated Git commit:
+
+- fixtures `F1` through `F5`, arms `baseline` and `candidate`, and repeats 1-3;
+- all 30 unique fixture/arm/repeat run tuples;
+- five prompt artifacts, 30 distinct output artifacts, two distinct reviewer
+  sheets, disagreement resolution and a cost report;
+- a SHA-256 checksum and unique repository path for every artifact;
+- two unique reviewer identities whose records reference checksum-bound sheets;
+- explicit empty `hardFailures` and `regressions` arrays;
+- baseline/candidate score and recall, Cohen's kappa and median overhead.
+
+The governance gate rejects missing metrics, reused placeholder files, checksum
+drift, path/symlink escapes, stale evaluated commits and skill changes made
+after the evaluated commit.
+
+Main promotion uses a separate `schemaVersion: 2` record. It requires two
+unique approvers and distinct checksum-bound evidence for independent review,
+governance, project memory, relevant product tests and non-mutating gates. A
+pull request targeting `main` is evaluated under this production policy even
+when its head branch is `local-lab/*`.

@@ -23,16 +23,20 @@
   vendored instructions differ from that revision.
   Impact: Provenance appears valid while reviewed content is not the content
   actually executed.
-  Mitigation: Governance fetches the registered upstream file at the exact SHA,
-  hashes the content and compares it with the local lock. External evidence must
-  also name the repository, revision and license.
+  Mitigation: Governance allowlists the external repository, revision and
+  license, requires the evidence file to name them and independently locks the
+  local adapted skill content. Exact upstream blob-byte comparison is not yet
+  implemented and remains an explicit limitation rather than a completed gate.
 
 - Risk: A pilot or promotion could be marked passed by changing one status
   field without attaching review evidence.
   Impact: Experimental capabilities could reach `main` without blind comparison
   or independent approval.
   Mitigation: Stage B and main-promotion evidence have versioned JSON schemas,
-  bounded metrics, artifact checks and independent approver requirements.
+  complete run matrices, required metrics, checksum-bound unique artifacts,
+  commit freshness checks and distinct reviewer/approver requirements. CI uses
+  the pull-request base branch so a PR targeting `main` cannot inherit the
+  weaker experimental-branch policy.
 
 - Risk: Verification commands can hide policy violations by deleting generated
   files before checking.
@@ -88,7 +92,9 @@
   pre-foundation state.
   Resolution: Added checksum-pinned gzip archives under
   `docs/project-memory/archive/2026-08-21-pre-capability/`; the memory gate checks
-  containment, symlink safety, gzip validity and exact SHA-256 checksums.
+  containment, ancestor symlink safety, gzip validity, exact SHA-256 checksums
+  and byte equality with `PROJECT_STATE.yaml` / `HANDOFF.md` at the recorded
+  source commit.
 
 - Risk: No project-memory black box existed.
   Resolution: Added `docs/project-memory/` and `AGENTS.md`.

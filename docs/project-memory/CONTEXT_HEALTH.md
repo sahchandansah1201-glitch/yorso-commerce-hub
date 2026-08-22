@@ -17,7 +17,7 @@ last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
 recommended_action: "Finish exact-HEAD acceptance and independent review, then push the local-lab branch; do not merge main."
-why_medium: "The implementation is repository-backed, but Stage B comparative pilots and independent promotion review remain open."
+why_medium: "Governance is repository-backed and adversarially tested, but Stage B comparative pilots, exact upstream blob verification and promotion approval remain open."
 ```
 
 ## Confirmed Boundaries

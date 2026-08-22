@@ -23,6 +23,16 @@ const REQUIRED_PROMOTION_GATES = [
   "relevant-product-tests",
   "non-mutating-gates",
 ];
+const REQUIRED_STAGE_B_FIXTURES = ["F1", "F2", "F3", "F4", "F5"];
+const REQUIRED_STAGE_B_ARMS = ["baseline", "candidate"];
+const STAGE_B_ARTIFACT_MINIMUMS = {
+  prompts: 5,
+  outputs: 30,
+  reviewerSheets: 2,
+  disagreementResolution: 1,
+  costReport: 1,
+};
+const SHA256_PATTERN = /^[0-9a-f]{64}$/;
 const REQUIRED_ROLES = [
   "founder-product-orchestrator",
   "human-steering-delivery",
@@ -42,6 +52,8 @@ const REQUIRED_ROLES = [
 const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
 
 const readJson = (file) => JSON.parse(readFileSync(file, "utf8"));
+
+const hashFile = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
 
 const filesBelow = (root) => {
   const files = [];
@@ -67,9 +79,35 @@ const containsSymbolicLink = (target) => {
 
 const isWithin = (parent, candidate) => candidate === parent || candidate.startsWith(`${parent}${path.sep}`);
 
+const containsSymbolicLinkInPath = (root, target) => {
+  const lexicalRoot = path.resolve(root);
+  const lexicalTarget = path.resolve(target);
+  if (!isWithin(lexicalRoot, lexicalTarget)) return true;
+  const relative = path.relative(lexicalRoot, lexicalTarget);
+  let current = lexicalRoot;
+  for (const part of relative.split(path.sep).filter(Boolean)) {
+    current = path.join(current, part);
+    if (!existsSync(current) || lstatSync(current).isSymbolicLink()) return true;
+  }
+  return false;
+};
+
 const resolvesWithin = (root, candidate, allowedRoot) => {
   try {
-    return isWithin(realpathSync(path.join(root, allowedRoot)), realpathSync(candidate));
+    const lexicalRoot = path.resolve(root);
+    const lexicalAllowedRoot = path.resolve(root, allowedRoot);
+    const lexicalCandidate = path.resolve(candidate);
+    if (!isWithin(lexicalRoot, lexicalAllowedRoot) || !isWithin(lexicalAllowedRoot, lexicalCandidate)) return false;
+    if (
+      containsSymbolicLinkInPath(lexicalRoot, lexicalAllowedRoot) ||
+      containsSymbolicLinkInPath(lexicalRoot, lexicalCandidate)
+    ) {
+      return false;
+    }
+    const physicalRoot = realpathSync(lexicalRoot);
+    const physicalAllowedRoot = realpathSync(lexicalAllowedRoot);
+    const physicalCandidate = realpathSync(lexicalCandidate);
+    return isWithin(physicalRoot, physicalAllowedRoot) && isWithin(physicalAllowedRoot, physicalCandidate);
   } catch {
     return false;
   }
@@ -163,7 +201,31 @@ const validateEvidenceFile = ({ root, evidence, source, skillId, errors }) => {
   }
 };
 
-const validateStageBEvidence = ({ root, branchPolicy, errors }) => {
+const validateBoundArtifact = ({ root, artifact, allowedRoot, label, errors }) => {
+  if (!artifact || typeof artifact !== "object" || !isSafeRelativePath(artifact.path ?? "")) {
+    errors.push(`${label} must provide a safe path and SHA-256`);
+    return null;
+  }
+  if (!SHA256_PATTERN.test(artifact.sha256 ?? "")) {
+    errors.push(`${label} must provide a lowercase SHA-256`);
+    return null;
+  }
+  const absolute = path.join(root, artifact.path);
+  if (
+    !existsSync(absolute) ||
+    !resolvesWithin(root, absolute, allowedRoot) ||
+    containsSymbolicLink(absolute) ||
+    !statSync(absolute).isFile()
+  ) {
+    errors.push(`${label} must be a non-symlink file inside ${allowedRoot}: ${artifact.path}`);
+    return null;
+  }
+  if (statSync(absolute).size < 20) errors.push(`${label} is too small to be reviewable: ${artifact.path}`);
+  if (hashFile(absolute) !== artifact.sha256) errors.push(`${label} SHA-256 mismatch: ${artifact.path}`);
+  return artifact.path;
+};
+
+const validateStageBEvidence = ({ root, branchPolicy, errors, skipRepositoryInspection = false }) => {
   if (branchPolicy?.stageBPilotStatus !== "passed") return;
   const evidence = branchPolicy.stageBEvidence;
   if (!isSafeRelativePath(evidence ?? "")) {
@@ -184,38 +246,131 @@ const validateStageBEvidence = ({ root, branchPolicy, errors }) => {
   }
   const metrics = report.metrics ?? {};
   const artifacts = report.artifacts ?? {};
-  if (report.schemaVersion !== 1) errors.push("Stage B evidence schemaVersion must be 1");
-  if (report.fixtureCount !== 5 || report.arms !== 2 || report.repeatsPerArm !== 3) {
-    errors.push("Stage B evidence must record five fixtures, two arms and three repeats per arm");
+  if (report.schemaVersion !== 2) errors.push("Stage B evidence schemaVersion must be 2");
+  if (!/^[0-9a-f]{40}$/.test(report.evaluatedCommit ?? "") || /^0+$/.test(report.evaluatedCommit ?? "")) {
+    errors.push("Stage B evidence requires a non-zero evaluatedCommit");
+  } else if (!skipRepositoryInspection) {
+    if (git(root, ["cat-file", "-e", `${report.evaluatedCommit}^{commit}`]) === null) {
+      errors.push(`Stage B evaluatedCommit does not exist: ${report.evaluatedCommit}`);
+    } else if (git(root, ["merge-base", "--is-ancestor", report.evaluatedCommit, "HEAD"]) === null) {
+      errors.push("Stage B evaluatedCommit must be an ancestor of HEAD");
+    } else if (git(root, ["diff", "--quiet", report.evaluatedCommit, "HEAD", "--", ".agents/skills"]) === null) {
+      errors.push("Stage B evidence is stale because skill content changed after evaluatedCommit");
+    }
   }
-  if (report.independentReviewerCount < 2) errors.push("Stage B evidence requires at least two independent reviewers");
-  if (metrics.meanScore < 85 || metrics.criticalDefectRecall !== 1 || metrics.cohensKappa < 0.75) {
+  if (
+    !Array.isArray(report.fixtureIds) ||
+    report.fixtureIds.length !== REQUIRED_STAGE_B_FIXTURES.length ||
+    REQUIRED_STAGE_B_FIXTURES.some((fixture) => !report.fixtureIds.includes(fixture))
+  ) {
+    errors.push("Stage B evidence must name fixtures F1 through F5 exactly once");
+  }
+  if (!Array.isArray(report.arms) || report.arms.length !== 2 || REQUIRED_STAGE_B_ARMS.some((arm) => !report.arms.includes(arm))) {
+    errors.push("Stage B evidence must name baseline and candidate arms");
+  }
+  if (report.repeatsPerArm !== 3) errors.push("Stage B evidence requires three repeats per arm");
+
+  const runs = Array.isArray(report.runs) ? report.runs : [];
+  const runKeys = new Set();
+  for (const run of runs) {
+    const key = `${run.fixtureId}:${run.arm}:${run.repeat}`;
+    if (
+      !REQUIRED_STAGE_B_FIXTURES.includes(run.fixtureId) ||
+      !REQUIRED_STAGE_B_ARMS.includes(run.arm) ||
+      !Number.isInteger(run.repeat) ||
+      run.repeat < 1 ||
+      run.repeat > 3
+    ) {
+      errors.push(`invalid Stage B run tuple: ${key}`);
+    }
+    if (runKeys.has(key)) errors.push(`duplicate Stage B run tuple: ${key}`);
+    runKeys.add(key);
+    if (!isSafeRelativePath(run.promptArtifact ?? "") || !isSafeRelativePath(run.outputArtifact ?? "")) {
+      errors.push(`Stage B run must reference prompt and output artifacts: ${key}`);
+    }
+  }
+  const expectedRunKeys = REQUIRED_STAGE_B_FIXTURES.flatMap((fixture) =>
+    REQUIRED_STAGE_B_ARMS.flatMap((arm) => [1, 2, 3].map((repeat) => `${fixture}:${arm}:${repeat}`)),
+  );
+  if (runs.length !== 30 || expectedRunKeys.some((key) => !runKeys.has(key))) {
+    errors.push("Stage B evidence must contain all 30 unique fixture/arm/repeat runs");
+  }
+
+  const reviewers = Array.isArray(report.reviewers) ? report.reviewers : [];
+  const reviewerIds = reviewers.map((reviewer) => reviewer?.id).filter((id) => typeof id === "string" && id.trim());
+  if (reviewerIds.length < 2 || new Set(reviewerIds).size !== reviewerIds.length) {
+    errors.push("Stage B evidence requires at least two unique independent reviewers");
+  }
+  if (!Array.isArray(report.hardFailures) || report.hardFailures.length !== 0) {
+    errors.push("Stage B evidence must explicitly record zero hard failures");
+  }
+  if (!Array.isArray(report.regressions) || report.regressions.length !== 0) {
+    errors.push("Stage B evidence must explicitly record zero regressions");
+  }
+  const requiredMetrics = [
+    "baselineMean",
+    "candidateMean",
+    "baselineCriticalDefectRecall",
+    "candidateCriticalDefectRecall",
+    "cohensKappa",
+    "medianOverheadRatio",
+  ];
+  if (requiredMetrics.some((metric) => !Number.isFinite(metrics[metric]))) {
+    errors.push("Stage B evidence requires all numeric metrics");
+  } else if (
+    metrics.candidateMean < 85 ||
+    metrics.candidateCriticalDefectRecall !== 1 ||
+    metrics.cohensKappa < 0.75
+  ) {
     errors.push("Stage B evidence does not meet score, recall or reviewer-agreement thresholds");
   }
-  if (metrics.medianOverheadRatio > 0.25) errors.push("Stage B evidence exceeds the median overhead threshold");
-  for (const key of ["prompts", "outputs", "reviewerSheets", "disagreementResolution", "costReport"]) {
-    if (!Array.isArray(artifacts[key]) || artifacts[key].length === 0) {
-      errors.push(`Stage B evidence artifact list is missing: ${key}`);
+  if (Number.isFinite(metrics.medianOverheadRatio) && metrics.medianOverheadRatio > 0.25) {
+    errors.push("Stage B evidence exceeds the median overhead threshold");
+  }
+  const scoreDelta = metrics.candidateMean - metrics.baselineMean;
+  const recallDelta = metrics.candidateCriticalDefectRecall - metrics.baselineCriticalDefectRecall;
+  if (!Number.isFinite(scoreDelta) || !Number.isFinite(recallDelta) || (scoreDelta < 8 && recallDelta < 0.2)) {
+    errors.push("Stage B evidence does not meet the baseline improvement threshold");
+  }
+
+  const artifactPaths = new Set();
+  const artifactPathsByCategory = new Map();
+  for (const [key, minimum] of Object.entries(STAGE_B_ARTIFACT_MINIMUMS)) {
+    if (!Array.isArray(artifacts[key]) || artifacts[key].length < minimum) {
+      errors.push(`Stage B evidence artifact list is incomplete: ${key}`);
       continue;
     }
+    const categoryPaths = new Set();
     for (const artifact of artifacts[key]) {
-      if (!isSafeRelativePath(artifact ?? "")) {
-        errors.push(`Stage B evidence artifact path is unsafe: ${artifact}`);
-        continue;
-      }
-      const artifactPath = path.join(root, artifact);
-      if (
-        !existsSync(artifactPath) ||
-        !resolvesWithin(root, artifactPath, "docs/agents/pilots/results") ||
-        containsSymbolicLink(artifactPath)
-      ) {
-        errors.push(`Stage B evidence artifact must be a non-symlink file inside docs/agents/pilots/results: ${artifact}`);
-      }
+      const artifactPath = validateBoundArtifact({
+        root,
+        artifact,
+        allowedRoot: "docs/agents/pilots/results",
+        label: `Stage B ${key} artifact`,
+        errors,
+      });
+      if (!artifactPath) continue;
+      if (artifactPaths.has(artifactPath)) errors.push(`Stage B artifact path is reused: ${artifactPath}`);
+      artifactPaths.add(artifactPath);
+      categoryPaths.add(artifactPath);
+    }
+    artifactPathsByCategory.set(key, categoryPaths);
+  }
+  const promptPaths = artifactPathsByCategory.get("prompts") ?? new Set();
+  const outputPaths = artifactPathsByCategory.get("outputs") ?? new Set();
+  for (const run of runs) {
+    if (!promptPaths.has(run.promptArtifact)) errors.push(`Stage B run prompt is not checksum-bound: ${run.promptArtifact}`);
+    if (!outputPaths.has(run.outputArtifact)) errors.push(`Stage B run output is not checksum-bound: ${run.outputArtifact}`);
+  }
+  const reviewerSheetPaths = artifactPathsByCategory.get("reviewerSheets") ?? new Set();
+  for (const reviewer of reviewers) {
+    if (!reviewerSheetPaths.has(reviewer?.sheetArtifact)) {
+      errors.push(`Stage B reviewer sheet is not checksum-bound: ${reviewer?.sheetArtifact}`);
     }
   }
 };
 
-const validatePromotionEvidence = ({ root, branchPolicy, errors }) => {
+const validatePromotionEvidence = ({ root, branchPolicy, errors, skipRepositoryInspection = false }) => {
   const evidence = branchPolicy?.promotionEvidence;
   if (!isSafeRelativePath(evidence ?? "")) {
     errors.push("main requires branchPolicy.promotionEvidence");
@@ -233,13 +388,44 @@ const validatePromotionEvidence = ({ root, branchPolicy, errors }) => {
     errors.push("branchPolicy.promotionEvidence must contain valid JSON");
     return;
   }
-  if (report.schemaVersion !== 1) errors.push("promotion evidence schemaVersion must be 1");
-  if (!Array.isArray(report.approvedBy) || report.approvedBy.length < 2) {
-    errors.push("promotion evidence requires two independent approvers");
+  if (report.schemaVersion !== 2) errors.push("promotion evidence schemaVersion must be 2");
+  const approvedBy = Array.isArray(report.approvedBy) ? report.approvedBy.filter((id) => typeof id === "string" && id.trim()) : [];
+  if (approvedBy.length < 2 || new Set(approvedBy).size !== approvedBy.length) {
+    errors.push("promotion evidence requires two unique independent approvers");
   }
-  const gates = new Set(report.gates ?? []);
+  if (!/^[0-9a-f]{40}$/.test(report.reviewedCommit ?? "") || /^0+$/.test(report.reviewedCommit ?? "")) {
+    errors.push("promotion evidence requires a non-zero reviewedCommit");
+  } else if (!skipRepositoryInspection) {
+    if (git(root, ["cat-file", "-e", `${report.reviewedCommit}^{commit}`]) === null) {
+      errors.push(`promotion reviewedCommit does not exist: ${report.reviewedCommit}`);
+    } else if (git(root, ["merge-base", "--is-ancestor", report.reviewedCommit, "HEAD"]) === null) {
+      errors.push("promotion reviewedCommit must be an ancestor of HEAD");
+    } else if (git(root, ["diff", "--quiet", report.reviewedCommit, "HEAD", "--", ".agents/skills"]) === null) {
+      errors.push("promotion evidence is stale because skill content changed after reviewedCommit");
+    }
+  }
+  if (report.stageBEvidence !== branchPolicy.stageBEvidence) {
+    errors.push("promotion evidence must reference branchPolicy.stageBEvidence");
+  }
+  const gateResults = report.gateResults ?? {};
+  const gateArtifactPaths = new Set();
   for (const required of REQUIRED_PROMOTION_GATES) {
-    if (!gates.has(required)) errors.push(`promotion evidence gate is missing: ${required}`);
+    const result = gateResults[required];
+    if (!result || result.status !== "passed" || typeof result.command !== "string" || result.command.trim().length === 0) {
+      errors.push(`promotion evidence gate is missing or not passed: ${required}`);
+      continue;
+    }
+    const artifactPath = validateBoundArtifact({
+      root,
+      artifact: result.artifact,
+      allowedRoot: "docs/agents/pilots/results",
+      label: `promotion ${required} artifact`,
+      errors,
+    });
+    if (artifactPath && gateArtifactPaths.has(artifactPath)) {
+      errors.push(`promotion gate artifact path is reused: ${artifactPath}`);
+    }
+    if (artifactPath) gateArtifactPaths.add(artifactPath);
   }
 };
 
@@ -395,7 +581,12 @@ export const validateAgentGovernance = (root, overrides = {}) => {
   if (!ALLOWED_STAGE_B_STATUSES.has(branchPolicy?.stageBPilotStatus)) {
     errors.push("branchPolicy.stageBPilotStatus must be pending or passed");
   }
-  validateStageBEvidence({ root, branchPolicy, errors });
+  validateStageBEvidence({
+    root,
+    branchPolicy,
+    errors,
+    skipRepositoryInspection: overrides.skipRepositoryInspection,
+  });
   const promotionGates = new Set(branchPolicy?.promotionRequires ?? []);
   for (const required of REQUIRED_PROMOTION_GATES) {
     if (!promotionGates.has(required)) errors.push(`branchPolicy promotion gate is missing: ${required}`);
@@ -405,23 +596,31 @@ export const validateAgentGovernance = (root, overrides = {}) => {
       ? overrides.currentBranch
       : git(root, ["branch", "--show-current"]);
     const ciBranch = overrides.ciBranchName ?? process.env.GITHUB_HEAD_REF ?? process.env.GITHUB_REF_NAME ?? "";
-    const branchToValidate = currentBranch || ciBranch;
+    const ciTargetBranch = overrides.ciTargetBranch ?? process.env.GITHUB_BASE_REF ?? "";
+    const branchToValidate = ciTargetBranch || currentBranch || ciBranch;
     if (!branchToValidate) {
       errors.push("detached HEAD requires an explicit CI branch name");
     } else if (branchToValidate === branchPolicy?.productionSourceOfTruth) {
       if (branchPolicy?.stageBPilotStatus !== "passed" || skills.some((skill) => skill.status !== "active")) {
         errors.push("main cannot use pending Stage B evidence or experimental skills");
       }
-      validatePromotionEvidence({ root, branchPolicy, errors });
+      validatePromotionEvidence({
+        root,
+        branchPolicy,
+        errors,
+        skipRepositoryInspection: overrides.skipRepositoryInspection,
+      });
     } else if (branchToValidate !== branchPolicy?.currentExperimentalBranch) {
       errors.push(`current branch does not match branchPolicy: ${branchToValidate}`);
     }
-    if (git(root, ["cat-file", "-e", `${branchPolicy?.baseCommit}^{commit}`]) === null) {
-      errors.push(`branchPolicy.baseCommit does not exist: ${branchPolicy?.baseCommit ?? "missing"}`);
-    } else if (git(root, ["merge-base", "--is-ancestor", branchPolicy.baseCommit, "HEAD"]) === null) {
-      errors.push(`branchPolicy.baseCommit is not an ancestor of HEAD: ${branchPolicy.baseCommit}`);
-    } else if (git(root, ["merge-base", "--is-ancestor", branchPolicy.baseCommit, branchPolicy.baseRef]) === null) {
-      errors.push(`branchPolicy.baseCommit is not an ancestor of ${branchPolicy.baseRef}`);
+    if (!overrides.skipRepositoryInspection) {
+      if (git(root, ["cat-file", "-e", `${branchPolicy?.baseCommit}^{commit}`]) === null) {
+        errors.push(`branchPolicy.baseCommit does not exist: ${branchPolicy?.baseCommit ?? "missing"}`);
+      } else if (git(root, ["merge-base", "--is-ancestor", branchPolicy.baseCommit, "HEAD"]) === null) {
+        errors.push(`branchPolicy.baseCommit is not an ancestor of HEAD: ${branchPolicy.baseCommit}`);
+      } else if (git(root, ["merge-base", "--is-ancestor", branchPolicy.baseCommit, branchPolicy.baseRef]) === null) {
+        errors.push(`branchPolicy.baseCommit is not an ancestor of ${branchPolicy.baseRef}`);
+      }
     }
   }
 

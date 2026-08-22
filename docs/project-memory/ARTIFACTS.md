@@ -17,10 +17,11 @@
 - `docs/agents/pilots/fixtures/`: five reusable adversarial pilot fixtures.
 - `scripts/check-agent-governance.mjs`: manifest, role, source, reviewer and lock
   validation entrypoint.
-- `scripts/check-agent-governance.test.mjs`: fail-closed drift and self-review
-  regression tests.
-- `scripts/check-project-memory.mjs`: repository/branch identity plus structural
-  memory freshness check; it does not prove semantic completeness.
+- `scripts/check-agent-governance.test.mjs`: fail-closed drift, self-review,
+  incomplete Stage B, checksum reuse, symlink-root and PR-to-main policy tests.
+- `scripts/check-project-memory.mjs`: repository/branch identity, structural
+  freshness and source-commit-bound recovery archive verification; it does not
+  prove semantic completeness.
 - `scripts/check-gate-mutation.mjs`: verifies a gate command leaves Git-visible
   tracked and nonignored untracked state unchanged.
 - `docs/project-memory/DECISIONS/ADR-0002-agent-capability-governance.md`:

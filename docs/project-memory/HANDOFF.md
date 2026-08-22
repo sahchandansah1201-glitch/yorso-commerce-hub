@@ -31,8 +31,9 @@ multilingual UX copywriter and non-mutating verification gates.
 | Add copywriter | EN/RU/ES-ES UX copy gate with independent human review | Pilot with real interface strings | pilot protocol |
 | Prevent silent gate mutation | cleanup removed from prehooks; Git-visible mutation checker added | Keep ignored/generated outputs outside this proof claim | `check:gate-mutation` |
 | Protect handoff state | compact structural memory and freshness checker added | Semantic accuracy still requires review | `check:project-memory` |
-| Preserve prior evidence | Expanded state and handoff archived with SHA-256 locks | Keep archives immutable | `check:project-memory` |
-| Prevent evidence-only promotion | Stage B and main-promotion JSON evidence is schema-checked | Produce real Stage B results later | governance tests |
+| Preserve prior evidence | Expanded state and handoff archives are checksum-bound and compared with their recorded source commit | Keep archives immutable | `check:project-memory` |
+| Prevent evidence-only promotion | Stage B and main-promotion v2 evidence requires full run tuples, unique checksum artifacts and distinct reviewers | Produce real Stage B results later | governance adversarial tests |
+| Protect production PRs | CI validates the PR base branch; a PR targeting `main` must satisfy main policy | Keep `main` unchanged until promotion | governance PR-target test |
 
 ## Evidence Already Established
 
@@ -42,6 +43,9 @@ multilingual UX copywriter and non-mutating verification gates.
 - Stage A structural/provenance pilot passed.
 - Full Stage B evidence is not complete; therefore no `30%`, `200%` or other
   quantified improvement claim is made.
+- External source metadata is pinned, but exact upstream blob-byte comparison is
+  not implemented. Local Yorso adaptations are protected by project content
+  hashes instead.
 
 ## Next Commands
 

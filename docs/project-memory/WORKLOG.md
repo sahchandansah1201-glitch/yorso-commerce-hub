@@ -4203,8 +4203,9 @@ Keep this file factual and append-only.
 
 ## 2026-08-22 — Capability Governance Hardening
 
-- Changed external-skill verification from declaration-only checks to exact
-  upstream-content verification at the pinned commit SHA.
+- Changed external-skill verification from declaration-only checks to an
+  allowlisted repository/revision/license contract plus a locked hash of the
+  reviewed local adaptation. Exact upstream blob-byte comparison remains open.
 - Added fail-closed path and symlink checks for role profiles, source files,
   pilot artifacts and promotion evidence.
 - Added structured Stage B and main-promotion evidence validation so a status
@@ -4222,7 +4223,34 @@ Keep this file factual and append-only.
 
 | Plan | Fact | Remaining | Verification |
 |---|---|---|---|
-| Verify exact external content | Upstream file content is hashed at pinned SHA | Network availability remains required for external verification | Governance tests |
+| Bind reviewed skill inputs | Source repository/revision/license and local adaptation hash are locked | Add optional exact upstream blob verification | Governance tests |
 | Fail closed on false pilot status | Stage B requires structured metrics and artifacts | Run real Stage B | Governance gate |
 | Fail closed on main promotion | Two approvers and all required gates are mandatory | Separate user approval | Governance gate |
 | Preserve historical memory | Deterministic checksum-pinned archives added | Keep immutable | Project-memory tests |
+
+## 2026-08-22 — Evidence And Promotion Fail-Closed Remediation
+
+- Replaced permissive Stage B checks with a complete 30-run schema requiring
+  baseline/candidate evidence, required metrics, two unique reviewers, zero
+  hard failures/regressions and checksum-bound unique artifacts.
+- Required distinct approvers and separate checksum-bound gate evidence for
+  main promotion.
+- Made pull requests targeting `main` use the production policy through the CI
+  base branch instead of the head branch.
+- Rejected symlinked allowed roots, not only symlink descendants.
+- Bound compacted project-memory archives to the exact source files in the
+  recorded Git commit, in addition to archive SHA-256 checks.
+- Corrected documentation that previously overstated external upstream
+  blob-byte verification. Repository/SHA/license allowlisting and local adapted
+  content locking are implemented; upstream byte comparison remains open.
+- Removed duplicate capability/provider execution from `ci:core`; the
+  capability foundation remains a single `pre` gate for the CI script.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Prevent placeholder Stage B evidence | Full matrix, metrics and unique checksum artifacts enforced | Run real Stage B | Governance tests |
+| Prevent PR-to-main bypass | PR base branch drives branch policy | Independent exact-HEAD review | PR-target adversarial test |
+| Bind memory archives to history | Expanded bytes compared with source commit | Keep source commit reachable | Project-memory tests |
+| Report provenance honestly | Removed exact-upstream-content claim | Optional future upstream blob verification | Docs review |

@@ -32,7 +32,35 @@ const git = (root, args) =>
     stdio: ["ignore", "pipe", "pipe"],
   }).trim();
 
+const gitBuffer = (root, args) =>
+  execFileSync("git", args, {
+    cwd: root,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
+const gitSucceeds = (root, args) => {
+  try {
+    gitBuffer(root, args);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 const isWithin = (parent, candidate) => candidate === parent || candidate.startsWith(`${parent}${path.sep}`);
+
+const containsSymbolicLinkInPath = (root, target) => {
+  const lexicalRoot = path.resolve(root);
+  const lexicalTarget = path.resolve(target);
+  if (!isWithin(lexicalRoot, lexicalTarget)) return true;
+  const relative = path.relative(lexicalRoot, lexicalTarget);
+  let current = lexicalRoot;
+  for (const part of relative.split(path.sep).filter(Boolean)) {
+    current = path.join(current, part);
+    if (!existsSync(current) || lstatSync(current).isSymbolicLink()) return true;
+  }
+  return false;
+};
 
 const isSafeRelativePath = (value) => {
   if (typeof value !== "string" || value.length === 0 || path.isAbsolute(value)) return false;
@@ -87,9 +115,19 @@ export const validateProjectMemory = (candidateRoot, env = process.env) => {
   }
 
   const archiveRoot = path.join(memoryRoot, "archive");
-  for (const [pathKey, hashKey] of [
-    ["previous_expanded_state_archive", "previous_expanded_state_archive_sha256"],
-    ["previous_expanded_handoff_archive", "previous_expanded_handoff_archive_sha256"],
+  const previousExpandedCommit = value("previous_expanded_state_commit");
+  const previousCommitIsValid =
+    /^[0-9a-f]{40}$/.test(previousExpandedCommit ?? "") &&
+    !/^0+$/.test(previousExpandedCommit ?? "") &&
+    gitSucceeds(root, ["cat-file", "-e", `${previousExpandedCommit}^{commit}`]) &&
+    gitSucceeds(root, ["merge-base", "--is-ancestor", previousExpandedCommit, "HEAD"]);
+  if (!previousCommitIsValid) {
+    errors.push(`PROJECT_STATE previous_expanded_state_commit is missing, unknown or not an ancestor: ${previousExpandedCommit ?? "missing"}`);
+  }
+
+  for (const [pathKey, hashKey, sourcePath] of [
+    ["previous_expanded_state_archive", "previous_expanded_state_archive_sha256", "docs/project-memory/PROJECT_STATE.yaml"],
+    ["previous_expanded_handoff_archive", "previous_expanded_handoff_archive_sha256", "docs/project-memory/HANDOFF.md"],
   ]) {
     const archive = value(pathKey);
     const expectedHash = value(hashKey);
@@ -98,11 +136,17 @@ export const validateProjectMemory = (candidateRoot, env = process.env) => {
       continue;
     }
     const absolute = path.join(root, archive);
-    if (!existsSync(absolute) || !lstatSync(absolute).isFile() || lstatSync(absolute).isSymbolicLink()) {
+    if (
+      !existsSync(absolute) ||
+      containsSymbolicLinkInPath(root, archiveRoot) ||
+      containsSymbolicLinkInPath(root, absolute) ||
+      !lstatSync(absolute).isFile() ||
+      lstatSync(absolute).isSymbolicLink()
+    ) {
       errors.push(`PROJECT_STATE archive is missing or unsafe: ${archive}`);
       continue;
     }
-    if (!isWithin(realpathSync(archiveRoot), realpathSync(absolute))) {
+    if (!isWithin(realpathSync(root), realpathSync(archiveRoot)) || !isWithin(realpathSync(archiveRoot), realpathSync(absolute))) {
       errors.push(`PROJECT_STATE archive resolves outside project-memory archive: ${archive}`);
       continue;
     }
@@ -111,7 +155,15 @@ export const validateProjectMemory = (candidateRoot, env = process.env) => {
       continue;
     }
     try {
-      if (gunzipSync(readFileSync(absolute)).length === 0) errors.push(`PROJECT_STATE archive is empty: ${archive}`);
+      const expanded = gunzipSync(readFileSync(absolute));
+      if (expanded.length === 0) {
+        errors.push(`PROJECT_STATE archive is empty: ${archive}`);
+      } else if (previousCommitIsValid) {
+        const sourceAtCommit = gitBuffer(root, ["show", `${previousExpandedCommit}:${sourcePath}`]);
+        if (!expanded.equals(sourceAtCommit)) {
+          errors.push(`PROJECT_STATE archive does not match source commit ${previousExpandedCommit}: ${archive}`);
+        }
+      }
     } catch {
       errors.push(`PROJECT_STATE archive is not valid gzip: ${archive}`);
     }

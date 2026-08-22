@@ -525,19 +525,20 @@ comparative pilot.
 ## Declared skill provenance is not evidence of exact source content
 
 Symptom: a local skill could declare a valid repository, commit and license
-while its executable instructions differed from the upstream file at that
-revision.
+without proving that its adapted local instructions were the same bytes as an
+upstream file at that revision.
 
 Root cause: governance validated metadata and the local content lock separately
 but did not bind the local bytes to the pinned upstream bytes.
 
-Fix: fetch the registered source file at the exact commit SHA, hash its content
-and compare it with the local lock. Keep a repository evidence document that
-names repository, revision and license.
+Fix: allowlist the registered repository, revision and license, lock the
+reviewed local adaptation by content hash and state the remaining limitation
+explicitly. Keep a repository evidence document that names repository,
+revision and license.
 
-Guard: reject unsafe paths, symlinks, incomplete evidence and upstream-content
-hash drift. A network failure must fail the external-source check rather than
-silently trust stale metadata.
+Guard: reject unsafe paths, symlinks, incomplete evidence and local-content
+hash drift. Do not claim exact upstream-byte verification until a separate
+network-backed verifier exists and fails closed when upstream is unavailable.
 
 ## Compact project memory needs a verifiable recovery path
 

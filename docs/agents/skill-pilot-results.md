@@ -28,10 +28,15 @@ Stage B comparative qualification is not complete.
 - Governance verifier passes and fails closed on hash drift, false provenance,
   self-review, dependency cycles, unsafe paths, symlinks and unregistered
   role/skill paths.
-- External-source provenance is verified against the exact upstream file
-  content at the pinned commit SHA, not only against a declared repository URL.
-- Stage B evidence and any future main-promotion evidence have versioned,
-  fail-closed schemas. A status flag alone cannot mark a pilot or promotion as
+- External-source declarations are pinned to an allowlisted repository,
+  40-character revision and verified license. The local Yorso adaptation is
+  protected by its own content hash. The gate does not currently re-fetch and
+  compare upstream blob bytes, so metadata provenance must not be described as
+  exact upstream-content verification.
+- Stage B evidence and any future main-promotion evidence use version 2,
+  fail-closed schemas with complete run tuples, required numeric metrics,
+  checksum-bound unique artifacts, distinct reviewers/approvers and commit
+  freshness checks. A status flag alone cannot mark a pilot or promotion as
   passed.
 - External candidate matrix records license/SHA/overlap/rejection decisions.
 - Five fixed Stage B fixtures are versioned under `docs/agents/pilots/fixtures/`.
@@ -44,6 +49,8 @@ Stage B comparative qualification is not complete.
 - It does not prove a 30% improvement for every role.
 - It does not prove lower token use or faster delivery.
 - It does not authorize merge to `main`.
+- It does not prove the local adaptation is byte-identical to an upstream skill
+  file; the local adaptation is intentionally project-specific.
 
 Those claims require the 30-run-per-finalist Stage B protocol. Keeping the
 skills experimental is the fail-closed result, not an incomplete installation.

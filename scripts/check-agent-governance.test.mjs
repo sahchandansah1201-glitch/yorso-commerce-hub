@@ -1,11 +1,116 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { loadAgentGovernance, validateAgentGovernance } from "./lib/agent-governance.mjs";
 
 const root = process.cwd();
+
+const sha256 = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
+
+const writeArtifact = (fixture, relativePath, content) => {
+  const absolute = path.join(fixture, relativePath);
+  mkdirSync(path.dirname(absolute), { recursive: true });
+  writeFileSync(absolute, `${content}\n`.repeat(2));
+  return { path: relativePath, sha256: sha256(absolute) };
+};
+
+const prepareValidStageBEvidence = (fixture) => {
+  const resultRoot = "docs/agents/pilots/results/stage-b-fixture";
+  const fixtureIds = ["F1", "F2", "F3", "F4", "F5"];
+  const prompts = fixtureIds.map((fixtureId) =>
+    writeArtifact(fixture, `${resultRoot}/prompts/${fixtureId}.md`, `Prompt evidence for ${fixtureId}`),
+  );
+  const outputs = [];
+  const runs = [];
+  for (const [fixtureIndex, fixtureId] of fixtureIds.entries()) {
+    for (const arm of ["baseline", "candidate"]) {
+      for (const repeat of [1, 2, 3]) {
+        const output = writeArtifact(
+          fixture,
+          `${resultRoot}/outputs/${fixtureId}-${arm}-${repeat}.md`,
+          `Output evidence for ${fixtureId} ${arm} repeat ${repeat}`,
+        );
+        outputs.push(output);
+        runs.push({
+          fixtureId,
+          arm,
+          repeat,
+          promptArtifact: prompts[fixtureIndex].path,
+          outputArtifact: output.path,
+        });
+      }
+    }
+  }
+  const reviewerSheets = ["reviewer-a", "reviewer-b"].map((reviewer) =>
+    writeArtifact(fixture, `${resultRoot}/reviews/${reviewer}.md`, `Independent review sheet for ${reviewer}`),
+  );
+  const report = {
+    schemaVersion: 2,
+    evaluatedCommit: "1".repeat(40),
+    fixtureIds,
+    arms: ["baseline", "candidate"],
+    repeatsPerArm: 3,
+    runs,
+    reviewers: [
+      { id: "reviewer-a", sheetArtifact: reviewerSheets[0].path },
+      { id: "reviewer-b", sheetArtifact: reviewerSheets[1].path },
+    ],
+    hardFailures: [],
+    regressions: [],
+    metrics: {
+      baselineMean: 75,
+      candidateMean: 85,
+      baselineCriticalDefectRecall: 0.7,
+      candidateCriticalDefectRecall: 1,
+      cohensKappa: 0.8,
+      medianOverheadRatio: 0.2,
+    },
+    artifacts: {
+      prompts,
+      outputs,
+      reviewerSheets,
+      disagreementResolution: [
+        writeArtifact(fixture, `${resultRoot}/reviews/disagreement-resolution.md`, "Resolved reviewer disagreements"),
+      ],
+      costReport: [writeArtifact(fixture, `${resultRoot}/cost/report.md`, "Measured token and latency overhead")],
+    },
+  };
+  const relativePath = `${resultRoot}/stage-b.json`;
+  const absolutePath = path.join(fixture, relativePath);
+  writeFileSync(absolutePath, `${JSON.stringify(report, null, 2)}\n`);
+  return { absolutePath, relativePath, report, resultRoot };
+};
+
+const prepareValidPromotionEvidence = (fixture, stage) => {
+  const gateResults = {};
+  for (const gate of [
+    "independent-review",
+    "governance-check",
+    "project-memory-check",
+    "relevant-product-tests",
+    "non-mutating-gates",
+  ]) {
+    gateResults[gate] = {
+      status: "passed",
+      command: `verify ${gate}`,
+      artifact: writeArtifact(fixture, `${stage.resultRoot}/promotion/${gate}.md`, `Evidence for ${gate}`),
+    };
+  }
+  const report = {
+    schemaVersion: 2,
+    reviewedCommit: "1".repeat(40),
+    stageBEvidence: stage.relativePath,
+    approvedBy: ["approver-a", "approver-b"],
+    gateResults,
+  };
+  const relativePath = `${stage.resultRoot}/promotion.json`;
+  const absolutePath = path.join(fixture, relativePath);
+  writeFileSync(absolutePath, `${JSON.stringify(report, null, 2)}\n`);
+  return { absolutePath, relativePath, report };
+};
 
 const validateFixture = (mutate, prepare, validationOverrides = {}) => {
   const fixture = mkdtempSync(path.join(os.tmpdir(), "yorso-agent-governance-"));
@@ -172,6 +277,17 @@ test("a skill symlink escaping the registered skills root fails closed", () => {
   assert.match(errors.join("\n"), /resolves outside \.agents\/skills/);
 });
 
+test("a symlinked registered skills root fails closed", () => {
+  const errors = validateFixture(undefined, (fixture) => {
+    const skillsRoot = path.join(fixture, ".agents/skills");
+    const outside = path.join(fixture, "outside-skills-root");
+    cpSync(skillsRoot, outside, { recursive: true });
+    rmSync(skillsRoot, { recursive: true, force: true });
+    symlinkSync(outside, skillsRoot, "dir");
+  });
+  assert.match(errors.join("\n"), /resolves outside \.agents\/skills/);
+});
+
 test("a duplicate lock id fails closed", () => {
   const errors = validateFixture((_manifest, lock) => {
     lock.skills.push(structuredClone(lock.skills[0]));
@@ -216,6 +332,104 @@ test("Stage B cannot pass without a structured evidence file", () => {
   assert.match(errors.join("\n"), /stageBEvidence is required/);
 });
 
+test("a complete checksum-bound Stage B run matrix is accepted", () => {
+  let stage;
+  const errors = validateFixture(
+    (manifest) => {
+      manifest.branchPolicy.stageBPilotStatus = "passed";
+      manifest.branchPolicy.stageBEvidence = stage.relativePath;
+    },
+    (fixture) => {
+      stage = prepareValidStageBEvidence(fixture);
+    },
+  );
+  assert.deepEqual(errors.filter((error) => error.startsWith("Stage B")), []);
+});
+
+test("Stage B rejects reused placeholder artifacts", () => {
+  let stage;
+  const errors = validateFixture(
+    (manifest) => {
+      const shared = stage.report.artifacts.prompts[0];
+      stage.report.artifacts.outputs[0] = shared;
+      writeFileSync(stage.absolutePath, `${JSON.stringify(stage.report, null, 2)}\n`);
+      manifest.branchPolicy.stageBPilotStatus = "passed";
+      manifest.branchPolicy.stageBEvidence = stage.relativePath;
+    },
+    (fixture) => {
+      stage = prepareValidStageBEvidence(fixture);
+    },
+  );
+  assert.match(errors.join("\n"), /Stage B artifact path is reused/);
+});
+
+test("Stage B rejects an incomplete run matrix", () => {
+  let stage;
+  const errors = validateFixture(
+    (manifest) => {
+      stage.report.runs.pop();
+      writeFileSync(stage.absolutePath, `${JSON.stringify(stage.report, null, 2)}\n`);
+      manifest.branchPolicy.stageBPilotStatus = "passed";
+      manifest.branchPolicy.stageBEvidence = stage.relativePath;
+    },
+    (fixture) => {
+      stage = prepareValidStageBEvidence(fixture);
+    },
+  );
+  assert.match(errors.join("\n"), /all 30 unique/);
+});
+
+test("Stage B rejects missing improvement and hard failures", () => {
+  let stage;
+  const errors = validateFixture(
+    (manifest) => {
+      stage.report.metrics.baselineMean = 84;
+      stage.report.metrics.baselineCriticalDefectRecall = 0.9;
+      stage.report.hardFailures = ["false release claim"];
+      writeFileSync(stage.absolutePath, `${JSON.stringify(stage.report, null, 2)}\n`);
+      manifest.branchPolicy.stageBPilotStatus = "passed";
+      manifest.branchPolicy.stageBEvidence = stage.relativePath;
+    },
+    (fixture) => {
+      stage = prepareValidStageBEvidence(fixture);
+    },
+  );
+  assert.match(errors.join("\n"), /zero hard failures/);
+  assert.match(errors.join("\n"), /baseline improvement threshold/);
+});
+
+test("Stage B rejects a missing required metric", () => {
+  let stage;
+  const errors = validateFixture(
+    (manifest) => {
+      delete stage.report.metrics.cohensKappa;
+      writeFileSync(stage.absolutePath, `${JSON.stringify(stage.report, null, 2)}\n`);
+      manifest.branchPolicy.stageBPilotStatus = "passed";
+      manifest.branchPolicy.stageBEvidence = stage.relativePath;
+    },
+    (fixture) => {
+      stage = prepareValidStageBEvidence(fixture);
+    },
+  );
+  assert.match(errors.join("\n"), /requires all numeric metrics/);
+});
+
+test("Stage B rejects an artifact checksum mismatch", () => {
+  let stage;
+  const errors = validateFixture(
+    (manifest) => {
+      stage.report.artifacts.outputs[0].sha256 = "0".repeat(64);
+      writeFileSync(stage.absolutePath, `${JSON.stringify(stage.report, null, 2)}\n`);
+      manifest.branchPolicy.stageBPilotStatus = "passed";
+      manifest.branchPolicy.stageBEvidence = stage.relativePath;
+    },
+    (fixture) => {
+      stage = prepareValidStageBEvidence(fixture);
+    },
+  );
+  assert.match(errors.join("\n"), /SHA-256 mismatch/);
+});
+
 test("an unrelated branch cannot use the experimental manifest", () => {
   const errors = validateFixture(undefined, undefined, { currentBranch: "codex/unrelated" });
   assert.match(errors.join("\n"), /current branch does not match branchPolicy/);
@@ -225,4 +439,56 @@ test("main rejects pending Stage B and missing promotion evidence", () => {
   const errors = validateFixture(undefined, undefined, { currentBranch: "main" });
   assert.match(errors.join("\n"), /main cannot use pending Stage B/);
   assert.match(errors.join("\n"), /main requires branchPolicy\.promotionEvidence/);
+});
+
+test("a pull request targeting main is evaluated by main policy", () => {
+  const errors = validateFixture(undefined, undefined, {
+    currentBranch: "local-lab/agent-capability-foundation",
+    ciTargetBranch: "main",
+  });
+  assert.match(errors.join("\n"), /main cannot use pending Stage B/);
+  assert.match(errors.join("\n"), /main requires branchPolicy\.promotionEvidence/);
+});
+
+test("complete Stage B and promotion evidence satisfy main policy", () => {
+  let stage;
+  let promotion;
+  const errors = validateFixture(
+    (manifest) => {
+      manifest.branchPolicy.stageBPilotStatus = "passed";
+      manifest.branchPolicy.stageBEvidence = stage.relativePath;
+      manifest.branchPolicy.promotionEvidence = promotion.relativePath;
+      for (const skill of manifest.skills) skill.status = "active";
+    },
+    (fixture) => {
+      stage = prepareValidStageBEvidence(fixture);
+      promotion = prepareValidPromotionEvidence(fixture, stage);
+    },
+    { currentBranch: "main" },
+  );
+  assert.deepEqual(errors, []);
+});
+
+test("main promotion rejects duplicate approvers and reused gate artifacts", () => {
+  let stage;
+  let promotion;
+  const errors = validateFixture(
+    (manifest) => {
+      manifest.branchPolicy.stageBPilotStatus = "passed";
+      manifest.branchPolicy.stageBEvidence = stage.relativePath;
+      manifest.branchPolicy.promotionEvidence = promotion.relativePath;
+      for (const skill of manifest.skills) skill.status = "active";
+      promotion.report.approvedBy = ["same-approver", "same-approver"];
+      promotion.report.gateResults["project-memory-check"].artifact =
+        promotion.report.gateResults["governance-check"].artifact;
+      writeFileSync(promotion.absolutePath, `${JSON.stringify(promotion.report, null, 2)}\n`);
+    },
+    (fixture) => {
+      stage = prepareValidStageBEvidence(fixture);
+      promotion = prepareValidPromotionEvidence(fixture, stage);
+    },
+    { currentBranch: "main" },
+  );
+  assert.match(errors.join("\n"), /two unique independent approvers/);
+  assert.match(errors.join("\n"), /promotion gate artifact path is reused/);
 });

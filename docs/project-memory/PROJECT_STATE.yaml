@@ -39,9 +39,9 @@ active_workstream:
     - "Documented role-to-skill provenance matrix, routing, pilot protocol and Stage A results."
     - "Removed hidden mutating cleanup from build and provider-boundary prehooks."
     - "Added a non-mutating gate verifier and project-memory freshness check."
-    - "Pinned external-source content at exact upstream revisions and rejected symlink/path escapes."
+    - "Pinned external repository/revision/license declarations and local adaptation hashes; exact upstream blob-byte verification remains open."
     - "Added structured Stage B and main-promotion evidence gates."
-    - "Archived expanded pre-foundation state and handoff with verified SHA-256 checksums."
+    - "Archived expanded pre-foundation state and handoff with SHA-256 plus byte-for-byte source-commit verification."
   open_gates:
     - "Run the complete Stage B blind comparative pilot before claiming a measured quality uplift."
     - "Obtain independent review before promotion to main."
