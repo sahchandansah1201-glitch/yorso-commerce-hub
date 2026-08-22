@@ -27,27 +27,16 @@ const REQUIRED_STAGE_B_FIXTURES = ["F1", "F2", "F3", "F4", "F5"];
 const REQUIRED_STAGE_B_ARMS = ["baseline", "candidate"];
 const STAGE_B_EVIDENCE_SCHEMA_VERSION = 5;
 const PROMOTION_EVIDENCE_SCHEMA_VERSION = 5;
-const REVIEWER_SHEET_SCHEMA_VERSION = 3;
+const REVIEWER_SHEET_SCHEMA_VERSION = 4;
 const ACTOR_REGISTRY_SCHEMA_VERSION = 2;
 const FIXTURE_ORACLE_SCHEMA_VERSION = 1;
 const STAGE_B_OUTPUT_SCHEMA_VERSION = 1;
 const PROMOTION_GATE_ARTIFACT_SCHEMA_VERSION = 1;
-const GOVERNANCE_SURFACE_PATHS = [
-  ".agents",
-  ".github",
-  "AGENTS.md",
-  "apps",
-  "docs/agents",
-  "docs/project-memory",
-  "e2e",
-  "package.json",
-  "package-lock.json",
-  "packages",
-  "scripts",
-  "src",
-  "tsconfig.app.json",
-  "tsconfig.json",
-  "tsconfig.node.json",
+const GOVERNANCE_SURFACE_PATHS = ["."];
+const REVIEWED_SURFACE_PATHS = [
+  ".",
+  ":(exclude)docs/agents/pilots/results",
+  ":(exclude)docs/project-memory",
 ];
 const STAGE_B_ARTIFACT_MINIMUMS = {
   prompts: 5,
@@ -451,22 +440,25 @@ const validateFixtureOracle = ({ root, fixtureOracle, errors }) => {
 export const getDirtyGovernedSurface = (root) =>
   git(root, ["status", "--porcelain=v1", "--untracked-files=all", "--", ...GOVERNANCE_SURFACE_PATHS]) ?? "";
 
-const validateGovernedCommit = ({ root, commit, label, errors, skipRepositoryInspection }) => {
+const getDirtyReviewedSurface = (root) =>
+  git(root, ["status", "--porcelain=v1", "--untracked-files=all", "--", ...REVIEWED_SURFACE_PATHS]) ?? "";
+
+export const validateReviewedCommit = ({ root, commit, label, errors, skipRepositoryInspection }) => {
   if (!/^[0-9a-f]{40}$/.test(commit ?? "") || /^0+$/.test(commit ?? "")) {
     errors.push(`${label} requires a non-zero commit`);
     return;
   }
   if (skipRepositoryInspection) return;
-  if (getDirtyGovernedSurface(root)) {
-    errors.push(`${label} cannot be validated while the governed surface has uncommitted changes`);
+  if (getDirtyReviewedSurface(root)) {
+    errors.push(`${label} cannot be validated while the reviewed candidate surface has uncommitted changes`);
     return;
   }
   if (git(root, ["cat-file", "-e", `${commit}^{commit}`]) === null) {
     errors.push(`${label} commit does not exist: ${commit}`);
   } else if (git(root, ["merge-base", "--is-ancestor", commit, "HEAD"]) === null) {
     errors.push(`${label} commit must be an ancestor of HEAD`);
-  } else if (git(root, ["diff", "--quiet", commit, "HEAD", "--", ...GOVERNANCE_SURFACE_PATHS]) === null) {
-    errors.push(`${label} is stale because the governed surface changed after ${commit}`);
+  } else if (git(root, ["diff", "--quiet", commit, "HEAD", "--", ...REVIEWED_SURFACE_PATHS]) === null) {
+    errors.push(`${label} is stale because the reviewed candidate surface changed after ${commit}`);
   }
 };
 
@@ -475,6 +467,10 @@ const readReviewerSheet = ({
   artifactPath,
   reviewerId,
   candidateSkillId,
+  evaluatedCommit,
+  candidateSkillContentSha256,
+  fixtureOracleSha256,
+  outputBindingsByRunKey,
   runKeys,
   outputDefectsByRunKey,
   fixtureOracleById,
@@ -491,9 +487,21 @@ const readReviewerSheet = ({
   if (
     sheet.schemaVersion !== REVIEWER_SHEET_SCHEMA_VERSION ||
     sheet.reviewerId !== reviewerId ||
-    sheet.candidateSkillId !== candidateSkillId
+    sheet.candidateSkillId !== candidateSkillId ||
+    sheet.evaluatedCommit !== evaluatedCommit ||
+    sheet.candidateSkillContentSha256 !== candidateSkillContentSha256 ||
+    sheet.fixtureOracleSha256 !== fixtureOracleSha256
   ) {
     errors.push(`Stage B reviewer sheet identity mismatch: ${artifactPath}`);
+  }
+  const expectedOutputBindings = [...runKeys]
+    .sort()
+    .map((runKey) => outputBindingsByRunKey.get(runKey));
+  if (
+    expectedOutputBindings.some((binding) => !binding) ||
+    canonicalJson(sheet.outputBindings) !== canonicalJson(expectedOutputBindings)
+  ) {
+    errors.push(`Stage B reviewer sheet output bindings mismatch: ${artifactPath}`);
   }
   const actor = actors.get(reviewerId);
   if (actor) {
@@ -636,7 +644,7 @@ const validateStageBEvidenceFile = ({
   if (report.fixtureOracleSha256 !== fixtureOracleSha256) {
     errors.push(`Stage B evidence fixture oracle hash mismatch for ${skill.id}`);
   }
-  validateGovernedCommit({
+  validateReviewedCommit({
     root,
     commit: report.evaluatedCommit,
     label: `Stage B evidence for ${skill.id}`,
@@ -709,6 +717,7 @@ const validateStageBEvidenceFile = ({
   const artifactPaths = new Set();
   const artifactHashes = new Set();
   const artifactPathsByCategory = new Map();
+  const artifactsByPath = new Map();
   for (const [key, minimum] of Object.entries(STAGE_B_ARTIFACT_MINIMUMS)) {
     if (!Array.isArray(artifacts[key]) || artifacts[key].length < minimum) {
       errors.push(`Stage B evidence artifact list is incomplete: ${key}`);
@@ -734,6 +743,7 @@ const validateStageBEvidenceFile = ({
       }
       artifactPaths.add(artifactPath);
       artifactHashes.add(artifact.sha256);
+      artifactsByPath.set(artifactPath, artifact);
       globalArtifactPaths.add(artifactPath);
       globalArtifactHashes.add(artifact.sha256);
       categoryPaths.add(artifactPath);
@@ -747,8 +757,18 @@ const validateStageBEvidenceFile = ({
     if (!outputPaths.has(run.outputArtifact)) errors.push(`Stage B run output is not checksum-bound: ${run.outputArtifact}`);
   }
   const outputDefectsByRunKey = new Map();
+  const outputBindingsByRunKey = new Map();
   for (const run of runs) {
     if (!outputPaths.has(run.outputArtifact)) continue;
+    const runKey = `${run.fixtureId}:${run.arm}:${run.repeat}`;
+    const boundOutput = artifactsByPath.get(run.outputArtifact);
+    if (boundOutput) {
+      outputBindingsByRunKey.set(runKey, {
+        runKey,
+        outputArtifact: run.outputArtifact,
+        outputSha256: boundOutput.sha256,
+      });
+    }
     const defects = readStageBOutput({
       root,
       artifactPath: run.outputArtifact,
@@ -759,7 +779,7 @@ const validateStageBEvidenceFile = ({
       fixtureOracleById,
       errors,
     });
-    if (defects) outputDefectsByRunKey.set(`${run.fixtureId}:${run.arm}:${run.repeat}`, defects);
+    if (defects) outputDefectsByRunKey.set(runKey, defects);
   }
   const reviewerSheetPaths = artifactPathsByCategory.get("reviewerSheets") ?? new Set();
   const reviewerReviews = [];
@@ -773,6 +793,10 @@ const validateStageBEvidenceFile = ({
       artifactPath: reviewer.sheetArtifact,
       reviewerId: reviewer.id,
       candidateSkillId: report.candidateSkillId,
+      evaluatedCommit: report.evaluatedCommit,
+      candidateSkillContentSha256: skillContentSha256,
+      fixtureOracleSha256,
+      outputBindingsByRunKey,
       runKeys,
       outputDefectsByRunKey,
       fixtureOracleById,
@@ -923,7 +947,7 @@ const validatePromotionEvidence = ({ root, branchPolicy, actors, errors, skipRep
       });
     }
   }
-  validateGovernedCommit({
+  validateReviewedCommit({
     root,
     commit: report.reviewedCommit,
     label: "promotion evidence",

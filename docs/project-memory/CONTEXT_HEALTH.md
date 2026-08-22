@@ -17,7 +17,7 @@ last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
 recommended_action: "Run exact-HEAD acceptance and independent review, then push only the local-lab branch; do not merge main."
-why_medium: "Governance now verifies signed actors, structured run and gate evidence, broad source freshness and non-mutating gates, but no real trusted actors are registered and Stage B, exact upstream blob verification and promotion approval remain open."
+why_medium: "Governance now binds signed reviewers to exact output hashes, separates candidate freshness from evidence attestations, covers the tracked candidate repository surface and fingerprints ignored regular files, but no real trusted actors are registered and Stage B, exact upstream blob verification, remote CI attestation and promotion approval remain open."
 ```
 
 ## Confirmed Boundaries

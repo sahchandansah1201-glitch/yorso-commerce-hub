@@ -27,14 +27,17 @@
   incomplete Stage B, per-skill evidence, reviewer-sheet coverage, computed
   metrics, canonical identities/groups, signed actors, structured output/gate
   evidence, trusted registry, checksum reuse, symlink-root and PR-to-main policy
-  tests.
+  tests, including reviewer-sheet output-replay rejection and repository-backed
+  candidate/evidence commit validation without inspection bypass.
 - `scripts/check-project-memory.mjs`: repository/branch identity, structural
   freshness and source-commit-bound recovery archive verification; it does not
   prove semantic completeness.
-- `scripts/check-gate-mutation.mjs`: safely fingerprints regular files and
-  verifies a gate command leaves tracked/untracked state, forbidden ignored
-  provider scaffold, HEAD, active branch and all refs unchanged; symlinks,
-  FIFOs and oversized observer inputs fail closed.
+- `scripts/check-gate-mutation.mjs`: safely fingerprints non-excluded regular
+  files, including ordinary ignored files, and verifies a gate command leaves
+  repository state, HEAD, active branch and all refs unchanged; symlinks, FIFOs
+  and oversized observer inputs fail closed.
+- `.github/workflows/ci.yml`: validates pushes to `main` and `local-lab/**`, plus
+  pull requests, while main-targeting PRs remain subject to production policy.
 - `package.json` script `check:governance-gates-nonmutating`: makes governance,
   project-memory and provider-boundary checks pass through the mutation wrapper
   before `ci:core` proceeds.

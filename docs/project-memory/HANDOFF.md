@@ -32,8 +32,9 @@ multilingual UX copywriter and non-mutating verification gates.
 | Prevent silent gate mutation | cleanup removed from prehooks; mutation checker covers HEAD, branch, all refs, tracked/untracked files, ignored provider scaffold, symlinks and special files | Keep verification commands observer-only | `check:governance-gates-nonmutating` |
 | Protect handoff state | compact structural memory and freshness checker added | Semantic accuracy still requires review | `check:project-memory` |
 | Preserve prior evidence | Expanded state and handoff archives are checksum-bound and compared with their recorded source commit | Keep archives immutable | `check:project-memory` |
-| Prevent evidence-only promotion | Stage B/main-promotion v5 binds each skill to signed actors, structured outputs, fixture oracle, exact commit and structured gate artifacts; metrics are recomputed and the broad governed source surface must be fresh | Register real trusted actors and produce Stage B results later | 52 governance adversarial tests |
+| Prevent evidence-only promotion | Stage B/main-promotion v5 plus reviewer-sheet v4 bind each skill to signed actors, structured outputs, fixture oracle, exact commit, each output SHA and structured gate artifacts; the tracked candidate surface is fresh while evidence/project-memory use later attestations | Register real trusted actors and produce Stage B results later | governance adversarial and real-Git integration tests |
 | Protect production PRs | CI validates the PR base branch; a PR targeting `main` must satisfy main policy | Keep `main` unchanged until promotion | governance PR-target test |
+| Validate experimental pushes | GitHub CI now runs for `local-lab/**` pushes | Verify remote workflow result after first push | `.github/workflows/ci.yml` |
 
 ## Evidence Already Established
 
@@ -49,6 +50,8 @@ multilingual UX copywriter and non-mutating verification gates.
 - External source metadata is pinned, but exact upstream blob-byte comparison is
   not implemented. Local Yorso adaptations are protected by project content
   hashes instead.
+- Local promotion-gate fixtures prove validation logic, not that GitHub CI was
+  executed. Verifiable remote CI attestation remains required before `main`.
 
 ## Next Commands
 

@@ -24,6 +24,11 @@ from current component and access APIs.
 - Require structured Stage B outputs, signed reviewer sheets and signed
   promotion approvals. A passed result trusts `.agents/actors.json` only when
   its digest matches an out-of-band trust anchor.
+- Bind each reviewer signature to the evaluated commit, candidate skill hash,
+  fixture-oracle hash and exact output path/SHA mapping.
+- Separate the reviewed candidate commit from later evidence/project-memory
+  attestations. Any later tracked change outside those two recording layers
+  invalidates the reviewed candidate commit.
 - Keep verification commands non-mutating. Cleanup is an explicit maintenance
   action, never a hidden pre-check or pre-build side effect.
 - Develop and pilot in `local-lab/<scope>`. `main` remains the server source of
@@ -32,6 +37,8 @@ from current component and access APIs.
 ## Consequences
 
 The project can detect unregistered roles, skill content drift, missing source
-provenance, self-review and stale handoff state. Stage A structural validation
-is automated. Stage B comparative quality pilots remain a human-reviewed gate;
-no percentage improvement is claimed until those pilots pass.
+provenance, self-review, reviewer-output replay and stale candidate content.
+Stage A structural validation is automated. Stage B comparative quality pilots
+remain a human-reviewed gate; no percentage improvement is claimed until those
+pilots pass. Repository-backed validator fixtures do not substitute for real
+CI execution, Stage B runs or trusted human approval.

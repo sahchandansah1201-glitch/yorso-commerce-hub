@@ -39,16 +39,34 @@
   pull-request base branch so a PR targeting `main` cannot inherit the weaker
   experimental-branch policy.
 
+- Risk: A reviewer signature could be replayed after a run output changes, or a
+  freshness rule could make valid post-candidate evidence impossible to commit.
+  Impact: Review appears independent while covering different bytes, or the
+  production gate can never pass without bypassing repository inspection.
+  Mitigation: Reviewer-sheet schema 4 signs the evaluated commit, candidate
+  content hash, fixture-oracle hash and every run output path plus SHA-256.
+  Candidate freshness covers all tracked repository paths except the signed
+  evidence-results and project-memory attestation layers. Real Git integration
+  tests accept later evidence commits and reject later candidate changes.
+
+- Risk: Local synthetic promotion fixtures could be mistaken for proof that
+  remote CI and human review actually ran.
+  Impact: `main` could be promoted on internally generated evidence rather than
+  external execution and accountable approval.
+  Mitigation: Treat repository-backed fixtures only as validator tests. Keep
+  `main` closed until exact-commit remote CI attestation, trusted human actors,
+  Stage B evidence and separate promotion approval exist.
+
 - Risk: Verification commands can hide policy violations by deleting generated
   files before checking.
   Impact: CI appears green while the repository is not reproducible and checks
   mutate developer state.
   Mitigation: Cleanup is explicit and removed from `prebuild` and
   provider-boundary prehooks. Required governance gates run through
-  `check:gate-mutation`, which fingerprints refs, tracked/untracked files and
-  forbidden ignored provider scaffold and rejects symlinks and special files.
-  Unrelated ignored build artifacts and external state still require separate
-  verification.
+  `check:gate-mutation`, which fingerprints refs, tracked/untracked files,
+  regular ignored files (including `.env.local`) and rejects symlinks and
+  special files. Explicit heavy generated directories remain excluded and
+  external state still requires separate verification.
 
 - Risk: Old chat context may be missing, stale or mixed with another Yorso chat.
   Impact: The assistant may infer product status incorrectly.

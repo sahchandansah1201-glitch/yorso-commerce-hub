@@ -120,6 +120,7 @@ const hashSpecialEntries = (hash, relativeDirectory = ".") => {
     if (!stats.isFile()) {
       throw new Error(`Gate mutation snapshot refuses non-regular files: ${relativePath}`);
     }
+    hashSafePath(hash, relativePath);
   }
 };
 
@@ -151,7 +152,7 @@ const after = worktreeFingerprint();
 
 if (before !== after) {
   console.error(
-    "Gate mutation check failed: the command changed HEAD, branch, refs, tracked files, untracked files or forbidden ignored scaffold state.",
+    "Gate mutation check failed: the command changed HEAD, branch, refs or non-excluded repository file state.",
   );
   console.error("--- before ---");
   console.error(beforeStatus || "(clean)");
@@ -161,5 +162,5 @@ if (before !== after) {
 }
 if (result.status !== 0) process.exit(result.status ?? 1);
 console.log(
-  `Gate mutation check passed for HEAD, branch, refs, tracked, untracked and forbidden ignored scaffold state: ${command.join(" ")}`,
+  `Gate mutation check passed for HEAD, branch, refs and non-excluded repository file state: ${command.join(" ")}`,
 );

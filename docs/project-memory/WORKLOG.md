@@ -4307,3 +4307,35 @@ Keep this file factual and append-only.
 | Establish actor trust | Signed identities plus external registry digest enforced | Register real humans and trust digest | Forgery/trust-anchor tests |
 | Bind promotion gates | Commit/command/status/stdout digest required | Produce exact-HEAD artifacts during promotion | Promotion mismatch test |
 | Make CI observers non-mutating | Required governance gates use mutation wrapper | Keep external state separately audited | Focused capability suite |
+
+## 2026-08-22 — Reviewer Binding And Candidate Freshness Remediation
+
+- Upgraded reviewer sheets from schema version 3 to 4 and bound every signed
+  sheet to the evaluated commit, candidate skill content hash, fixture-oracle
+  hash and exact run-output path/SHA mapping.
+- Added a replay regression proving that changing an output and its manifest
+  checksum does not make the old reviewer signatures valid.
+- Replaced the self-referential freshness surface with a two-level Git model:
+  all tracked candidate paths are reviewed, while signed evidence results and
+  project-memory attestations may be committed later. Any later candidate
+  source or configuration change is rejected.
+- Added real temporary-Git integration tests for evidence-after-candidate
+  freshness and complete repository-backed Stage B/main validation without the
+  repository-inspection bypass used by isolated unit fixtures.
+- Expanded the mutation fingerprint to ordinary ignored regular files, including
+  `.env.local`, and added a regression that catches ignored-file mutation.
+- Added `local-lab/**` to GitHub CI push branches so publishing the experimental
+  branch produces a remote workflow signal.
+- Focused governance/mutation verification passed 65/65. This proves the gate
+  implementation tests only; real Stage B, trusted actors, remote CI attestation
+  and main promotion remain open.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Prevent reviewer-sheet replay | Signed output bindings enforced | Produce real signed sheets | Replay adversarial test |
+| Make reviewed commits achievable | Candidate and evidence attestations separated | Run real Stage B | Temporary-Git freshness test |
+| Cover repository configuration | Candidate freshness starts at repository root | Keep evidence/project-memory as recording layers only | Candidate-change rejection test |
+| Detect ignored-file mutation | Ordinary ignored files are fingerprinted | External state remains separate | `.env.local` mutation test |
+| Validate experimental push | CI listens on `local-lab/**` | Push and verify remote run | GitHub Actions |

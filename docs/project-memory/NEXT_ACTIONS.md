@@ -15,7 +15,8 @@ Branch: `local-lab/agent-capability-foundation`
 2. Obtain independent exact-HEAD code/QA review.
 3. Push only `local-lab/agent-capability-foundation` to `origin`.
 4. Verify the remote experimental hash and prove remote `main` is unchanged.
-5. Keep `main` unchanged until Stage B and a separate promotion approval.
+5. Verify the GitHub CI run triggered by the `local-lab/**` push.
+6. Keep `main` unchanged until Stage B and a separate promotion approval.
 
 ## Required Before Main Promotion
 
@@ -34,6 +35,8 @@ Branch: `local-lab/agent-capability-foundation`
 5. Run a real product-code pilot for every experimental skill promoted to
    active.
 6. Obtain a separate user-approved merge decision.
+7. Replace synthetic promotion gate fixtures with verifiable exact-commit CI
+   attestation and real independent-review artifacts.
 
 ## Explicit Non-Goals
 

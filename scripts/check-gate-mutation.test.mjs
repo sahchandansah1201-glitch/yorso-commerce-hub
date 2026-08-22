@@ -42,7 +42,7 @@ test("detects content mutation in an already-dirty tracked file", () => {
     appendFileSync(path.join(root, "tracked.txt"), "dirty-before\n");
     const result = check(root, "require('node:fs').appendFileSync('tracked.txt', 'mutated\\n')");
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /changed HEAD, branch, refs, tracked files/);
+    assert.match(result.stderr, /non-excluded repository file state/);
   });
 });
 
@@ -51,7 +51,7 @@ test("detects content mutation in an existing untracked file", () => {
     writeFileSync(path.join(root, "untracked.txt"), "before\n");
     const result = check(root, "require('node:fs').appendFileSync('untracked.txt', 'mutated\\n')");
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /changed HEAD, branch, refs, tracked files/);
+    assert.match(result.stderr, /non-excluded repository file state/);
   });
 });
 
@@ -65,7 +65,7 @@ test("detects a commit created by a gate", () => {
     ].join(";");
     const result = check(root, script);
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /changed HEAD, branch, refs, tracked files/);
+    assert.match(result.stderr, /non-excluded repository file state/);
   });
 });
 
@@ -76,7 +76,7 @@ test("detects a branch switch by a gate", () => {
       "require('node:child_process').execFileSync('git',['checkout','-qb','other-branch'])",
     );
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /changed HEAD, branch, refs, tracked files/);
+    assert.match(result.stderr, /non-excluded repository file state/);
   });
 });
 
@@ -87,7 +87,7 @@ test("detects a ref created by a gate", () => {
       "require('node:child_process').execFileSync('git',['update-ref','refs/heads/gate-created','HEAD'])",
     );
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /changed HEAD, branch, refs, tracked files/);
+    assert.match(result.stderr, /non-excluded repository file state/);
   });
 });
 
@@ -103,7 +103,22 @@ test("detects mutation inside ignored Supabase scaffold", () => {
       "require('node:fs').appendFileSync('src/integrations/supabase/client.ts','mutated\\n')",
     );
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /forbidden ignored scaffold state/);
+    assert.match(result.stderr, /non-excluded repository file state/);
+  });
+});
+
+test("detects mutation in an ordinary ignored environment file", () => {
+  withRepository((root) => {
+    writeFileSync(path.join(root, ".gitignore"), "*.local\n");
+    execFileSync("git", ["add", ".gitignore"], { cwd: root });
+    execFileSync("git", ["commit", "-qm", "ignore local environment files"], { cwd: root });
+    writeFileSync(path.join(root, ".env.local"), "FEATURE_FLAG=before\n");
+    const result = check(
+      root,
+      "require('node:fs').writeFileSync('.env.local','FEATURE_FLAG=after\\n')",
+    );
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /non-excluded repository file state/);
   });
 });
 

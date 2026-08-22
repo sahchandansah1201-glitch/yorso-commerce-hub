@@ -60,7 +60,7 @@ replace Stage B qualification.
 ### Machine-enforced evidence contract
 
 Stage B reports require `schemaVersion: 5`; reviewer sheets require
-`schemaVersion: 3`. Each active adapted skill must have its own
+`schemaVersion: 4`. Each active adapted skill must have its own
 evidence file, and the manifest must map the skill id to that file through
 `branchPolicy.stageBEvidenceBySkill`. The same evidence file cannot qualify two
 skills. Each report binds all of the following to one evaluated Git commit:
@@ -75,8 +75,9 @@ skills. Each report binds all of the following to one evaluated Git commit:
   output artifacts used exactly once; every output binds its run tuple,
   evaluated commit, skill id and content hash and records the oracle defect ids
   it actually found with bounded excerpts;
-- exactly two JSON reviewer sheets bound to the candidate skill and covering
-  every run tuple exactly once,
+- exactly two JSON reviewer sheets bound to the evaluated commit, candidate
+  skill content hash, fixture-oracle hash and every run output path plus
+  SHA-256, covering every run tuple exactly once,
   disagreement resolution and a cost report;
 - a SHA-256 checksum, unique repository path and unique content hash for every
   evidence artifact;
@@ -93,11 +94,19 @@ signatures over their canonical payloads. IDs are canonical:
 lowercase, trimmed and limited to ASCII letters, digits, `.`, `_` and `-`.
 The governance gate rejects aliases, reviewer-supplied defect denominators,
 unknown defect ids, undefined agreement, missing or manually altered metrics,
-incomplete reviewer coverage, and artifact path or byte reuse within or across
-skills. It also rejects checksum drift, path/symlink escapes, stale evidence and
-any uncommitted change on the governed surface. Freshness covers all of
-`docs/agents`, `.agents`, project memory, CI, package scripts and governance,
-mutation, provider-boundary and memory checks/tests.
+incomplete reviewer coverage, reviewer-sheet replay after an output changes,
+and artifact path or byte reuse within or across skills. It also rejects
+checksum drift, path/symlink escapes, stale evidence and any uncommitted change
+on the reviewed candidate surface.
+
+Candidate freshness and evidence attestation are separate commits by design.
+The reviewed candidate surface covers every tracked repository path except
+`docs/agents/pilots/results` and `docs/project-memory`. Those two recording
+layers may be committed after the candidate commit, while all evidence bytes
+remain checksum-bound and reviewer sheets remain signature-bound. Any later
+change elsewhere in the repository invalidates the reviewed candidate commit.
+The governance test suite exercises this two-level model in a real temporary
+Git repository without bypassing repository inspection.
 
 When Stage B or promotion is evaluated as passed, the actor registry itself must
 match the trusted SHA-256 supplied out-of-band through

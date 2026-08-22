@@ -9,6 +9,7 @@ import {
   getDirtyGovernedSurface,
   loadAgentGovernance,
   validateAgentGovernance,
+  validateReviewedCommit,
 } from "./lib/agent-governance.mjs";
 
 const root = process.cwd();
@@ -67,7 +68,7 @@ const writeJsonArtifact = (fixture, relativePath, value) => {
   return { path: relativePath, sha256: sha256(absolute) };
 };
 
-const prepareValidStageBEvidence = (fixture, requestedSkillId) => {
+const prepareValidStageBEvidence = (fixture, requestedSkillId, options = {}) => {
   const { manifest, lock, fixtureOracle } = loadAgentGovernance(fixture);
   const candidateSkill = manifest.skills.find(
     (skill) => skill.id === requestedSkillId || (!requestedSkillId && skill.source.type !== "project-internal"),
@@ -75,7 +76,8 @@ const prepareValidStageBEvidence = (fixture, requestedSkillId) => {
   const candidateLock = lock.skills.find((skill) => skill.id === candidateSkill.id);
   const resultRoot = `docs/agents/pilots/results/stage-b-${candidateSkill.id}`;
   const fixtureIds = ["F1", "F2", "F3", "F4", "F5"];
-  const evaluatedCommit = "1".repeat(40);
+  const evaluatedCommit = options.evaluatedCommit ?? "1".repeat(40);
+  const fixtureOracleSha256 = sha256(path.join(fixture, "docs/agents/pilots/fixture-oracle.json"));
   const oracleById = new Map(fixtureOracle.fixtures.map((entry) => [entry.id, entry]));
   const prompts = fixtureIds.map((fixtureId) =>
     writeArtifact(
@@ -130,10 +132,22 @@ const prepareValidStageBEvidence = (fixture, requestedSkillId) => {
       }
     }
   }
+  const outputByPath = new Map(outputs.map((output) => [output.path, output]));
+  const outputBindings = runs
+    .map((run) => ({
+      runKey: `${run.fixtureId}:${run.arm}:${run.repeat}`,
+      outputArtifact: run.outputArtifact,
+      outputSha256: outputByPath.get(run.outputArtifact).sha256,
+    }))
+    .sort((left, right) => left.runKey.localeCompare(right.runKey));
   const reviewerSheets = ["reviewer-a", "reviewer-b"].map((reviewer, reviewerIndex) => {
     const sheet = {
-      schemaVersion: 3,
+      schemaVersion: 4,
       candidateSkillId: candidateSkill.id,
+      evaluatedCommit,
+      candidateSkillContentSha256: candidateLock.contentSha256,
+      fixtureOracleSha256,
+      outputBindings,
       reviewerId: reviewer,
       reviews: runs.map((run) => ({
         runKey: `${run.fixtureId}:${run.arm}:${run.repeat}`,
@@ -152,7 +166,7 @@ const prepareValidStageBEvidence = (fixture, requestedSkillId) => {
     schemaVersion: 5,
     candidateSkillId: candidateSkill.id,
     candidateSkillContentSha256: candidateLock.contentSha256,
-    fixtureOracleSha256: sha256(path.join(fixture, "docs/agents/pilots/fixture-oracle.json")),
+    fixtureOracleSha256,
     evaluatedCommit,
     fixtureIds,
     arms: ["baseline", "candidate"],
@@ -209,17 +223,17 @@ const applyStageB = (manifest, stages) => {
   }
 };
 
-const prepareAllStageBEvidence = (fixture) => {
+const prepareAllStageBEvidence = (fixture, options = {}) => {
   const { manifest } = loadAgentGovernance(fixture);
   return manifest.skills
     .filter((skill) => skill.source.type !== "project-internal")
-    .map((skill) => prepareValidStageBEvidence(fixture, skill.id));
+    .map((skill) => prepareValidStageBEvidence(fixture, skill.id, options));
 };
 
-const prepareValidPromotionEvidence = (fixture, stages) => {
+const prepareValidPromotionEvidence = (fixture, stages, options = {}) => {
   const stageList = Array.isArray(stages) ? stages : [stages];
   const resultRoot = stageList[0].resultRoot;
-  const reviewedCommit = "1".repeat(40);
+  const reviewedCommit = options.reviewedCommit ?? "1".repeat(40);
   const gateResults = {};
   for (const gate of [
     "independent-review",
@@ -552,6 +566,28 @@ test("Stage B rejects a forged reviewer signature", () => {
     },
   );
   assert.match(errors.join("\n"), /reviewer sheet reviewer-a signature is invalid/);
+});
+
+test("Stage B rejects replayed reviewer sheets after an output artifact changes", () => {
+  let stage;
+  const errors = validateFixture(
+    (manifest) => {
+      const artifact = stage.report.artifacts.outputs[0];
+      const absolute = path.join(manifest.__fixtureRoot, artifact.path);
+      const output = JSON.parse(readFileSync(absolute, "utf8"));
+      output.outputText = `${output.outputText}\nAdditional evidence added after review.`;
+      writeFileSync(absolute, `${JSON.stringify(output, null, 2)}\n`);
+      artifact.sha256 = sha256(absolute);
+      writeFileSync(stage.absolutePath, `${JSON.stringify(stage.report, null, 2)}\n`);
+      delete manifest.__fixtureRoot;
+      applyStageB(manifest, stage);
+    },
+    (fixture, manifest) => {
+      manifest.__fixtureRoot = fixture;
+      stage = prepareValidStageBEvidence(fixture);
+    },
+  );
+  assert.match(errors.join("\n"), /reviewer sheet output bindings mismatch/);
 });
 
 test("Stage B rejects reused placeholder artifacts", () => {
@@ -919,6 +955,55 @@ test("a pull request targeting main is evaluated by main policy", () => {
   assert.match(errors.join("\n"), /main requires branchPolicy\.promotionEvidence/);
 });
 
+test("reviewed commit freshness allows later evidence commits but rejects later candidate changes", () => {
+  const fixture = mkdtempSync(path.join(os.tmpdir(), "yorso-reviewed-commit-"));
+  try {
+    execFileSync("git", ["init", "-q"], { cwd: fixture });
+    execFileSync("git", ["config", "user.email", "gate@example.test"], { cwd: fixture });
+    execFileSync("git", ["config", "user.name", "Gate Test"], { cwd: fixture });
+    mkdirSync(path.join(fixture, "src"), { recursive: true });
+    writeFileSync(path.join(fixture, "src/candidate.ts"), "export const candidate = true;\n");
+    execFileSync("git", ["add", "."], { cwd: fixture });
+    execFileSync("git", ["commit", "-qm", "candidate"], { cwd: fixture });
+    const candidateCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd: fixture,
+      encoding: "utf8",
+    }).trim();
+
+    mkdirSync(path.join(fixture, "docs/agents/pilots/results"), { recursive: true });
+    mkdirSync(path.join(fixture, "docs/project-memory"), { recursive: true });
+    writeFileSync(path.join(fixture, "docs/agents/pilots/results/evidence.json"), "{}\n");
+    writeFileSync(path.join(fixture, "docs/project-memory/WORKLOG.md"), "Evidence recorded.\n");
+    execFileSync("git", ["add", "."], { cwd: fixture });
+    execFileSync("git", ["commit", "-qm", "evidence attestation"], { cwd: fixture });
+
+    const evidenceErrors = [];
+    validateReviewedCommit({
+      root: fixture,
+      commit: candidateCommit,
+      label: "real Git evidence",
+      errors: evidenceErrors,
+      skipRepositoryInspection: false,
+    });
+    assert.deepEqual(evidenceErrors, []);
+
+    writeFileSync(path.join(fixture, "src/candidate.ts"), "export const candidate = false;\n");
+    execFileSync("git", ["add", "."], { cwd: fixture });
+    execFileSync("git", ["commit", "-qm", "candidate changed after review"], { cwd: fixture });
+    const staleErrors = [];
+    validateReviewedCommit({
+      root: fixture,
+      commit: candidateCommit,
+      label: "real Git evidence",
+      errors: staleErrors,
+      skipRepositoryInspection: false,
+    });
+    assert.match(staleErrors.join("\n"), /reviewed candidate surface changed/);
+  } finally {
+    rmSync(fixture, { force: true, recursive: true });
+  }
+});
+
 test("complete Stage B and promotion evidence satisfy main policy", () => {
   let stages;
   let promotion;
@@ -935,6 +1020,74 @@ test("complete Stage B and promotion evidence satisfy main policy", () => {
     { currentBranch: "main" },
   );
   assert.deepEqual(errors, []);
+});
+
+test("repository-backed Stage B and promotion evidence satisfy main policy without inspection bypass", () => {
+  const fixture = mkdtempSync(path.join(os.tmpdir(), "yorso-main-promotion-"));
+  try {
+    cpSync(path.join(root, ".agents"), path.join(fixture, ".agents"), { recursive: true });
+    mkdirSync(path.join(fixture, "docs/agents/pilots"), { recursive: true });
+    cpSync(
+      path.join(root, "docs/agents/role-skill-provenance-matrix.md"),
+      path.join(fixture, "docs/agents/role-skill-provenance-matrix.md"),
+    );
+    cpSync(path.join(root, "docs/agents/pilots/fixtures"), path.join(fixture, "docs/agents/pilots/fixtures"), {
+      recursive: true,
+    });
+    cpSync(
+      path.join(root, "docs/agents/pilots/fixture-oracle.json"),
+      path.join(fixture, "docs/agents/pilots/fixture-oracle.json"),
+    );
+    execFileSync("git", ["init", "-q"], { cwd: fixture });
+    execFileSync("git", ["config", "user.email", "gate@example.test"], { cwd: fixture });
+    execFileSync("git", ["config", "user.name", "Gate Test"], { cwd: fixture });
+    execFileSync("git", ["remote", "add", "origin", "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub.git"], {
+      cwd: fixture,
+    });
+    execFileSync("git", ["add", "."], { cwd: fixture });
+    execFileSync("git", ["commit", "-qm", "base"], { cwd: fixture });
+    const baseCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: fixture, encoding: "utf8" }).trim();
+    execFileSync("git", ["update-ref", "refs/remotes/origin/main", baseCommit], { cwd: fixture });
+
+    const { manifest, actors } = loadAgentGovernance(fixture);
+    Object.assign(actors, structuredClone(TEST_ACTORS));
+    const adaptedSkills = manifest.skills.filter((skill) => skill.source.type !== "project-internal");
+    manifest.branchPolicy.baseCommit = baseCommit;
+    manifest.branchPolicy.stageBPilotStatus = "passed";
+    manifest.branchPolicy.stageBEvidenceBySkill = Object.fromEntries(
+      adaptedSkills.map((skill) => [
+        skill.id,
+        `docs/agents/pilots/results/stage-b-${skill.id}/stage-b.json`,
+      ]),
+    );
+    manifest.branchPolicy.promotionEvidence =
+      `docs/agents/pilots/results/stage-b-${adaptedSkills[0].id}/promotion.json`;
+    for (const skill of manifest.skills) skill.status = "active";
+    writeFileSync(path.join(fixture, ".agents/manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+    writeFileSync(path.join(fixture, ".agents/actors.json"), `${JSON.stringify(actors, null, 2)}\n`);
+    execFileSync("git", ["add", "."], { cwd: fixture });
+    execFileSync("git", ["commit", "-qm", "reviewed candidate"], { cwd: fixture });
+    const reviewedCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd: fixture,
+      encoding: "utf8",
+    }).trim();
+
+    const stages = prepareAllStageBEvidence(fixture, { evaluatedCommit: reviewedCommit });
+    prepareValidPromotionEvidence(fixture, stages, { reviewedCommit });
+    execFileSync("git", ["add", "."], { cwd: fixture });
+    execFileSync("git", ["commit", "-qm", "signed evidence attestation"], { cwd: fixture });
+
+    const loaded = loadAgentGovernance(fixture);
+    const errors = validateAgentGovernance(fixture, {
+      ...loaded,
+      currentBranch: "main",
+      trustedActorRegistrySha256: canonicalSha256(loaded.actors),
+      skipSourceCommitVerification: true,
+    });
+    assert.deepEqual(errors, []);
+  } finally {
+    rmSync(fixture, { force: true, recursive: true });
+  }
 });
 
 test("passed Stage B rejects an untrusted actor registry", () => {

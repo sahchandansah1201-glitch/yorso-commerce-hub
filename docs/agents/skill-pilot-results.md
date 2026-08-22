@@ -40,11 +40,18 @@ Stage B comparative qualification is not complete.
   independently recomputed metrics. Registered reviewers/approvers must come
   from distinct canonical independence groups and be validated against an
   out-of-band trusted actor-registry digest;
-  artifact paths and bytes are unique across skills; the complete governed
-  surface must be committed and fresh. A status flag, reviewer-supplied
+  artifact paths and bytes are unique across skills. Reviewer sheet schema 4
+  signs the evaluated commit, candidate content hash, fixture-oracle hash and
+  every run output path plus SHA-256. The complete tracked candidate surface,
+  excluding only the evidence-results and project-memory recording layers,
+  must be committed and fresh. A status flag, reviewer-supplied
   denominator, placeholder output, unsigned approval or hand-entered metric
   cannot mark a pilot or promotion passed. Promotion gate artifacts bind the
   exact reviewed commit, command, zero exit status and stdout digest.
+- Real Git integration tests prove that later signed evidence/project-memory
+  commits are accepted while any later candidate-source or configuration change
+  makes the reviewed commit stale. These tests are synthetic gate tests, not
+  real Stage B qualification evidence.
 - `.agents/actors.json` is intentionally empty. Until real human reviewers and
   approvers are registered, Stage B and promotion fail closed.
 - External candidate matrix records license/SHA/overlap/rejection decisions.
