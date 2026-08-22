@@ -4278,3 +4278,32 @@ Keep this file factual and append-only.
 | Make actor independence enforceable | Registry, allowed roles and independence groups are checked | Register real humans | Governance actor tests |
 | Prevent cross-skill evidence reuse | Artifact paths and bytes are globally unique | Produce real artifacts | Multi-skill promotion test |
 | Prevent hidden Git mutation | All refs are fingerprinted | Keep gates read-only | Mutation ref test |
+
+## 2026-08-22 — Exact-HEAD Governance Audit Remediation
+
+- Upgraded Stage B reports and promotion reports to schema version 5, reviewer
+  sheets to version 3 and the actor registry to version 2.
+- Bound each run to structured output evidence with the exact run tuple,
+  evaluated commit, skill/content hash and oracle defect observations.
+- Required Ed25519 signatures for reviewer sheets and promotion approvals and
+  required a passed evaluation to match an out-of-band actor-registry SHA-256.
+- Replaced generic promotion logs with structured gate artifacts bound to the
+  reviewed commit, exact command, zero exit status and stdout digest.
+- Expanded freshness from governance-only paths to product/runtime, tests,
+  packages, CI and project-memory paths governed by the capability decision.
+- Hardened the mutation verifier against ignored Supabase scaffold, symlinks,
+  FIFOs, non-regular files and oversized observer inputs.
+- Made governance, project-memory and provider-boundary checks run through the
+  mutation verifier in `preci:core`; added provider-retirement and self-hosted
+  policy tests to the mandatory tooling suite.
+- Focused verification passed: governance 52/52, mutation 9/9, project-memory
+  8/8 and tooling 16/16. Stage B and production promotion remain closed.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Bind evidence to actual findings | Structured output observations and signed reviewer sheets enforced | Produce real blind outputs | Governance adversarial tests |
+| Establish actor trust | Signed identities plus external registry digest enforced | Register real humans and trust digest | Forgery/trust-anchor tests |
+| Bind promotion gates | Commit/command/status/stdout digest required | Produce exact-HEAD artifacts during promotion | Promotion mismatch test |
+| Make CI observers non-mutating | Required governance gates use mutation wrapper | Keep external state separately audited | Focused capability suite |

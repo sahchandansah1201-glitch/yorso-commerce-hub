@@ -29,10 +29,10 @@ multilingual UX copywriter and non-mutating verification gates.
 | Define accountable team | 13 role profiles created | Independent exact-HEAD review and later promotion review | `npm run check:agent-governance` |
 | Register project-wide skills | 11 skills registered and locked | Stage B comparative pilots | governance tests |
 | Add copywriter | EN/RU/ES-ES UX copy gate with independent human review | Pilot with real interface strings | pilot protocol |
-| Prevent silent gate mutation | cleanup removed from prehooks; mutation checker covers HEAD, branch, all refs, tracked files and nonignored untracked files | Keep ignored/generated outputs outside this proof claim | `check:gate-mutation` |
+| Prevent silent gate mutation | cleanup removed from prehooks; mutation checker covers HEAD, branch, all refs, tracked/untracked files, ignored provider scaffold, symlinks and special files | Keep verification commands observer-only | `check:governance-gates-nonmutating` |
 | Protect handoff state | compact structural memory and freshness checker added | Semantic accuracy still requires review | `check:project-memory` |
 | Preserve prior evidence | Expanded state and handoff archives are checksum-bound and compared with their recorded source commit | Keep archives immutable | `check:project-memory` |
-| Prevent evidence-only promotion | Stage B and main-promotion v4 evidence binds each skill to the fixture oracle, registered independent actors, complete reviewer sheets and globally unique artifacts; metrics are recomputed and dirty governed surfaces fail closed | Register real actors and produce Stage B results later | governance adversarial tests |
+| Prevent evidence-only promotion | Stage B/main-promotion v5 binds each skill to signed actors, structured outputs, fixture oracle, exact commit and structured gate artifacts; metrics are recomputed and the broad governed source surface must be fresh | Register real trusted actors and produce Stage B results later | 52 governance adversarial tests |
 | Protect production PRs | CI validates the PR base branch; a PR targeting `main` must satisfy main policy | Keep `main` unchanged until promotion | governance PR-target test |
 
 ## Evidence Already Established
@@ -44,7 +44,8 @@ multilingual UX copywriter and non-mutating verification gates.
 - Full Stage B evidence is not complete; therefore no `30%`, `200%` or other
   quantified improvement claim is made.
 - `.agents/actors.json` has no real registered humans yet; this intentionally
-  keeps Stage B and promotion closed.
+  keeps Stage B and promotion closed. Passed evidence additionally requires the
+  out-of-band trusted registry digest `YORSO_TRUSTED_ACTOR_REGISTRY_SHA256`.
 - External source metadata is pinned, but exact upstream blob-byte comparison is
   not implemented. Local Yorso adaptations are protected by project content
   hashes instead.
@@ -53,12 +54,11 @@ multilingual UX copywriter and non-mutating verification gates.
 
 ```bash
 npm run check:capability-foundation
+npm run test:tooling
 npx tsc -b --noEmit
 npm run lint
 npm run build
 git diff --check
-npm run check:gate-mutation -- npm run check:provider-boundary
-npm run check:gate-mutation -- npm run check:agent-governance
 ```
 
 Then create the final hardening commit, run acceptance and independent review

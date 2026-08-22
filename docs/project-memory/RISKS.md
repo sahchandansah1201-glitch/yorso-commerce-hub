@@ -33,19 +33,22 @@
   Impact: Experimental capabilities could reach `main` without blind comparison
   or independent approval.
   Mitigation: Stage B and main-promotion evidence have versioned JSON schemas,
-  complete run matrices, required metrics, checksum-bound unique artifacts,
-  commit freshness checks and distinct reviewer/approver requirements. CI uses
-  the pull-request base branch so a PR targeting `main` cannot inherit the
-  weaker experimental-branch policy.
+  structured run outputs, signed reviewer/approver payloads, complete run
+  matrices, required metrics, checksum-bound unique artifacts, broad source
+  freshness checks and an out-of-band trusted actor-registry digest. CI uses the
+  pull-request base branch so a PR targeting `main` cannot inherit the weaker
+  experimental-branch policy.
 
 - Risk: Verification commands can hide policy violations by deleting generated
   files before checking.
   Impact: CI appears green while the repository is not reproducible and checks
   mutate developer state.
   Mitigation: Cleanup is explicit and removed from `prebuild` and
-  provider-boundary prehooks. `check:gate-mutation` proves only that a command
-  leaves Git-visible tracked and nonignored untracked state unchanged; ignored
-  build artifacts and external state require separate verification.
+  provider-boundary prehooks. Required governance gates run through
+  `check:gate-mutation`, which fingerprints refs, tracked/untracked files and
+  forbidden ignored provider scaffold and rejects symlinks and special files.
+  Unrelated ignored build artifacts and external state still require separate
+  verification.
 
 - Risk: Old chat context may be missing, stale or mixed with another Yorso chat.
   Impact: The assistant may infer product status incorrectly.

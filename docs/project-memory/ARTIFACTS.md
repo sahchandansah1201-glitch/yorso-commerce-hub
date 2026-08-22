@@ -7,7 +7,9 @@
 - `.agents/skills.lock.json`: content hashes and pinned source revisions for all
   registered project-wide skills.
 - `.agents/actors.json`: canonical reviewer/approver registry. It is currently
-  empty, so Stage B and promotion remain fail-closed.
+  schema version 2 and currently empty, so Stage B and promotion remain
+  fail-closed. Passed evidence requires Ed25519 signatures and an out-of-band
+  trusted registry digest.
 - `.agents/agents/`: 13 accountable Yorso role profiles.
 - `.agents/skills/yorso-multilingual-ux-copywriter-agent/`: project-wide EN,
   RU and ES-ES interface-copy workflow with independent human review.
@@ -23,14 +25,19 @@
   validation entrypoint.
 - `scripts/check-agent-governance.test.mjs`: fail-closed drift, self-review,
   incomplete Stage B, per-skill evidence, reviewer-sheet coverage, computed
-  metrics, canonical identities, checksum reuse, symlink-root and PR-to-main
-  policy tests.
+  metrics, canonical identities/groups, signed actors, structured output/gate
+  evidence, trusted registry, checksum reuse, symlink-root and PR-to-main policy
+  tests.
 - `scripts/check-project-memory.mjs`: repository/branch identity, structural
   freshness and source-commit-bound recovery archive verification; it does not
   prove semantic completeness.
-- `scripts/check-gate-mutation.mjs`: verifies a gate command leaves Git-visible
-  tracked and nonignored untracked state, HEAD, active branch and all refs
-  unchanged.
+- `scripts/check-gate-mutation.mjs`: safely fingerprints regular files and
+  verifies a gate command leaves tracked/untracked state, forbidden ignored
+  provider scaffold, HEAD, active branch and all refs unchanged; symlinks,
+  FIFOs and oversized observer inputs fail closed.
+- `package.json` script `check:governance-gates-nonmutating`: makes governance,
+  project-memory and provider-boundary checks pass through the mutation wrapper
+  before `ci:core` proceeds.
 - `docs/project-memory/DECISIONS/ADR-0002-agent-capability-governance.md`:
   durable governance decision.
 

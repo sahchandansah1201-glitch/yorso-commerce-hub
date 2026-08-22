@@ -19,8 +19,11 @@ from current component and access APIs.
 - Register every role and skill in `.agents/manifest.json`.
 - Pin skill contents and source revisions in `.agents/skills.lock.json`.
 - Require different owner and reviewer roles.
-- Run `check:agent-governance`, `test:agent-governance` and
-  `check:project-memory` before core CI.
+- Run governance, project-memory and provider-boundary checks through
+  `check:gate-mutation` before core CI, then run their adversarial tests.
+- Require structured Stage B outputs, signed reviewer sheets and signed
+  promotion approvals. A passed result trusts `.agents/actors.json` only when
+  its digest matches an out-of-band trust anchor.
 - Keep verification commands non-mutating. Cleanup is an explicit maintenance
   action, never a hidden pre-check or pre-build side effect.
 - Develop and pilot in `local-lab/<scope>`. `main` remains the server source of

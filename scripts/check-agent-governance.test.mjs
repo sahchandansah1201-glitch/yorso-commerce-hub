@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
+import { createHash, generateKeyPairSync, sign } from "node:crypto";
 import { appendFileSync, cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import os from "node:os";
@@ -13,31 +13,43 @@ import {
 
 const root = process.cwd();
 
+const canonicalJson = (value) => {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+};
+
+const TEST_PRIVATE_KEYS = new Map();
+const testActor = (id, independenceGroup, allowedRoles) => {
+  const { publicKey, privateKey } = generateKeyPairSync("ed25519");
+  TEST_PRIVATE_KEYS.set(id, privateKey);
+  return {
+    id,
+    independenceGroup,
+    allowedRoles,
+    publicKeyPem: publicKey.export({ format: "pem", type: "spki" }),
+  };
+};
+
 const TEST_ACTORS = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   actors: [
-    {
-      id: "reviewer-a",
-      independenceGroup: "review-organization-a",
-      allowedRoles: ["stage-b-reviewer"],
-    },
-    {
-      id: "reviewer-b",
-      independenceGroup: "review-organization-b",
-      allowedRoles: ["stage-b-reviewer"],
-    },
-    {
-      id: "approver-a",
-      independenceGroup: "approval-organization-a",
-      allowedRoles: ["promotion-approver"],
-    },
-    {
-      id: "approver-b",
-      independenceGroup: "approval-organization-b",
-      allowedRoles: ["promotion-approver"],
-    },
+    testActor("reviewer-a", "review-organization-a", ["stage-b-reviewer"]),
+    testActor("reviewer-b", "review-organization-b", ["stage-b-reviewer"]),
+    testActor("approver-a", "approval-organization-a", ["promotion-approver"]),
+    testActor("approver-b", "approval-organization-b", ["promotion-approver"]),
   ],
 };
+
+const signPayload = (actorId, payload) =>
+  sign(null, Buffer.from(canonicalJson(payload)), TEST_PRIVATE_KEYS.get(actorId)).toString("base64");
+
+const canonicalSha256 = (value) => createHash("sha256").update(canonicalJson(value)).digest("hex");
 
 const sha256 = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
 
@@ -63,6 +75,7 @@ const prepareValidStageBEvidence = (fixture, requestedSkillId) => {
   const candidateLock = lock.skills.find((skill) => skill.id === candidateSkill.id);
   const resultRoot = `docs/agents/pilots/results/stage-b-${candidateSkill.id}`;
   const fixtureIds = ["F1", "F2", "F3", "F4", "F5"];
+  const evaluatedCommit = "1".repeat(40);
   const oracleById = new Map(fixtureOracle.fixtures.map((entry) => [entry.id, entry]));
   const prompts = fixtureIds.map((fixtureId) =>
     writeArtifact(
@@ -76,10 +89,34 @@ const prepareValidStageBEvidence = (fixture, requestedSkillId) => {
   for (const [fixtureIndex, fixtureId] of fixtureIds.entries()) {
     for (const arm of ["baseline", "candidate"]) {
       for (const repeat of [1, 2, 3]) {
-        const output = writeArtifact(
+        const runKey = `${fixtureId}:${arm}:${repeat}`;
+        const detectedDefects =
+          arm === "baseline"
+            ? oracleById.get(fixtureId).criticalDefectIds.slice(0, 3)
+            : oracleById.get(fixtureId).criticalDefectIds;
+        const findingLines = detectedDefects.map(
+          (defectId, index) =>
+            `Finding ${index + 1} ${defectId}: observed evidence for ${candidateSkill.id} in ${runKey}.`,
+        );
+        const outputText = findingLines.join("\n");
+        let cursor = 0;
+        const observations = findingLines.map((excerpt, index) => {
+          const start = cursor;
+          cursor += excerpt.length + 1;
+          return { defectId: detectedDefects[index], start, end: start + excerpt.length, excerpt };
+        });
+        const output = writeJsonArtifact(
           fixture,
-          `${resultRoot}/outputs/${fixtureId}-${arm}-${repeat}.md`,
-          `Output evidence for ${candidateSkill.id} ${fixtureId} ${arm} repeat ${repeat}`,
+          `${resultRoot}/outputs/${fixtureId}-${arm}-${repeat}.json`,
+          {
+            schemaVersion: 1,
+            runKey,
+            evaluatedCommit,
+            candidateSkillId: candidateSkill.id,
+            candidateSkillContentSha256: candidateLock.contentSha256,
+            outputText,
+            observations,
+          },
         );
         outputs.push(output);
         runs.push({
@@ -93,9 +130,9 @@ const prepareValidStageBEvidence = (fixture, requestedSkillId) => {
       }
     }
   }
-  const reviewerSheets = ["reviewer-a", "reviewer-b"].map((reviewer, reviewerIndex) =>
-    writeJsonArtifact(fixture, `${resultRoot}/reviews/${reviewer}.json`, {
-      schemaVersion: 2,
+  const reviewerSheets = ["reviewer-a", "reviewer-b"].map((reviewer, reviewerIndex) => {
+    const sheet = {
+      schemaVersion: 3,
       candidateSkillId: candidateSkill.id,
       reviewerId: reviewer,
       reviews: runs.map((run) => ({
@@ -107,14 +144,16 @@ const prepareValidStageBEvidence = (fixture, requestedSkillId) => {
             : oracleById.get(run.fixtureId).criticalDefectIds,
         pass: run.arm === "candidate",
       })),
-    }),
-  );
+    };
+    sheet.signature = signPayload(reviewer, sheet);
+    return writeJsonArtifact(fixture, `${resultRoot}/reviews/${reviewer}.json`, sheet);
+  });
   const report = {
-    schemaVersion: 4,
+    schemaVersion: 5,
     candidateSkillId: candidateSkill.id,
     candidateSkillContentSha256: candidateLock.contentSha256,
     fixtureOracleSha256: sha256(path.join(fixture, "docs/agents/pilots/fixture-oracle.json")),
-    evaluatedCommit: "1".repeat(40),
+    evaluatedCommit,
     fixtureIds,
     arms: ["baseline", "candidate"],
     repeatsPerArm: 3,
@@ -180,6 +219,7 @@ const prepareAllStageBEvidence = (fixture) => {
 const prepareValidPromotionEvidence = (fixture, stages) => {
   const stageList = Array.isArray(stages) ? stages : [stages];
   const resultRoot = stageList[0].resultRoot;
+  const reviewedCommit = "1".repeat(40);
   const gateResults = {};
   for (const gate of [
     "independent-review",
@@ -188,21 +228,37 @@ const prepareValidPromotionEvidence = (fixture, stages) => {
     "relevant-product-tests",
     "non-mutating-gates",
   ]) {
+    const command = `verify ${gate}`;
+    const stdout = `Verified ${gate} successfully for reviewed commit ${reviewedCommit}.`;
     gateResults[gate] = {
       status: "passed",
-      command: `verify ${gate}`,
-      artifact: writeArtifact(fixture, `${resultRoot}/promotion/${gate}.md`, `Evidence for ${gate}`),
+      command,
+      artifact: writeJsonArtifact(fixture, `${resultRoot}/promotion/${gate}.json`, {
+        schemaVersion: 1,
+        gateId: gate,
+        reviewedCommit,
+        command,
+        exitCode: 0,
+        startedAt: "2026-08-22T10:00:00.000Z",
+        finishedAt: "2026-08-22T10:00:01.000Z",
+        stdout,
+        stdoutSha256: createHash("sha256").update(stdout).digest("hex"),
+      }),
     };
   }
   const report = {
-    schemaVersion: 4,
-    reviewedCommit: "1".repeat(40),
+    schemaVersion: 5,
+    reviewedCommit,
     stageBEvidenceBySkill: Object.fromEntries(
       stageList.map((stage) => [stage.candidateSkill.id, stage.relativePath]),
     ),
-    approvedBy: ["approver-a", "approver-b"],
     gateResults,
   };
+  const approvalPayload = structuredClone(report);
+  report.approvals = ["approver-a", "approver-b"].map((actorId) => ({
+    actorId,
+    signature: signPayload(actorId, approvalPayload),
+  }));
   const relativePath = `${resultRoot}/promotion.json`;
   const absolutePath = path.join(fixture, relativePath);
   writeFileSync(absolutePath, `${JSON.stringify(report, null, 2)}\n`);
@@ -229,6 +285,7 @@ const validateFixture = (mutate, prepare, validationOverrides = {}) => {
     );
     const { manifest, lock, actors, fixtureOracle } = loadAgentGovernance(fixture);
     Object.assign(actors, structuredClone(TEST_ACTORS));
+    const trustedActorRegistrySha256 = canonicalSha256(actors);
     prepare?.(fixture, manifest, lock, actors, fixtureOracle);
     mutate?.(manifest, lock, actors, fixtureOracle);
     return validateAgentGovernance(fixture, {
@@ -236,6 +293,7 @@ const validateFixture = (mutate, prepare, validationOverrides = {}) => {
       lock,
       actors,
       fixtureOracle,
+      trustedActorRegistrySha256,
       skipRepositoryInspection: true,
       skipSourceCommitVerification: true,
       ...validationOverrides,
@@ -454,6 +512,48 @@ test("a complete checksum-bound Stage B run matrix is accepted", () => {
   assert.deepEqual(errors.filter((error) => error.startsWith("Stage B")), []);
 });
 
+test("Stage B rejects placeholder text instead of structured output evidence", () => {
+  let stage;
+  const errors = validateFixture(
+    (manifest) => {
+      const artifact = stage.report.artifacts.outputs[0];
+      const absolute = path.join(manifest.__fixtureRoot, artifact.path);
+      writeFileSync(absolute, "Generic output evidence with no structured defect observations.\n");
+      artifact.sha256 = sha256(absolute);
+      writeFileSync(stage.absolutePath, `${JSON.stringify(stage.report, null, 2)}\n`);
+      delete manifest.__fixtureRoot;
+      applyStageB(manifest, stage);
+    },
+    (fixture, manifest) => {
+      manifest.__fixtureRoot = fixture;
+      stage = prepareValidStageBEvidence(fixture);
+    },
+  );
+  assert.match(errors.join("\n"), /output must contain structured JSON/);
+});
+
+test("Stage B rejects a forged reviewer signature", () => {
+  let stage;
+  const errors = validateFixture(
+    (manifest) => {
+      const artifact = stage.report.artifacts.reviewerSheets[0];
+      const absolute = path.join(manifest.__fixtureRoot, artifact.path);
+      const sheet = JSON.parse(readFileSync(absolute, "utf8"));
+      sheet.signature = Buffer.from("forged-review").toString("base64");
+      writeFileSync(absolute, `${JSON.stringify(sheet, null, 2)}\n`);
+      artifact.sha256 = sha256(absolute);
+      writeFileSync(stage.absolutePath, `${JSON.stringify(stage.report, null, 2)}\n`);
+      delete manifest.__fixtureRoot;
+      applyStageB(manifest, stage);
+    },
+    (fixture, manifest) => {
+      manifest.__fixtureRoot = fixture;
+      stage = prepareValidStageBEvidence(fixture);
+    },
+  );
+  assert.match(errors.join("\n"), /reviewer sheet reviewer-a signature is invalid/);
+});
+
 test("Stage B rejects reused placeholder artifacts", () => {
   let stage;
   const errors = validateFixture(
@@ -536,6 +636,13 @@ test("Stage B rejects reviewers from the same independence group", () => {
   assert.match(errors.join("\n"), /distinct independence groups/);
 });
 
+test("actor registry rejects whitespace aliases for independence groups", () => {
+  const errors = validateFixture((_manifest, _lock, actors) => {
+    actors.actors[1].independenceGroup = ` ${actors.actors[1].independenceGroup} `;
+  });
+  assert.match(errors.join("\n"), /actor registry independenceGroup is missing/);
+});
+
 test("fixture oracle rejects a critical-defect-free fixture", () => {
   const errors = validateFixture((_manifest, _lock, _actors, fixtureOracle) => {
     fixtureOracle.fixtures[0].criticalDefectIds = [];
@@ -571,10 +678,13 @@ test("dirty governed surface detection includes tracked and untracked governance
     appendFileSync(path.join(fixture, ".agents", "tracked.json"), "dirty\n");
     mkdirSync(path.join(fixture, "docs", "agents"), { recursive: true });
     writeFileSync(path.join(fixture, "docs", "agents", "untracked.md"), "untracked\n");
+    mkdirSync(path.join(fixture, "src"), { recursive: true });
+    writeFileSync(path.join(fixture, "src", "product-runtime.ts"), "export const dirty = true;\n");
 
     const dirty = getDirtyGovernedSurface(fixture);
     assert.match(dirty, /\.agents\/tracked\.json/);
     assert.match(dirty, /docs\/agents\/untracked\.md/);
+    assert.match(dirty, /src\/product-runtime\.ts/);
   } finally {
     rmSync(fixture, { force: true, recursive: true });
   }
@@ -827,6 +937,45 @@ test("complete Stage B and promotion evidence satisfy main policy", () => {
   assert.deepEqual(errors, []);
 });
 
+test("passed Stage B rejects an untrusted actor registry", () => {
+  let stage;
+  const errors = validateFixture(
+    (manifest) => applyStageB(manifest, stage),
+    (fixture) => {
+      stage = prepareValidStageBEvidence(fixture);
+    },
+    { trustedActorRegistrySha256: undefined },
+  );
+  assert.match(errors.join("\n"), /trusted actor registry SHA-256 is required/);
+});
+
+test("main promotion rejects gate output not bound to the declared command", () => {
+  let stages;
+  let promotion;
+  const errors = validateFixture(
+    (manifest) => {
+      applyStageB(manifest, stages);
+      manifest.branchPolicy.promotionEvidence = promotion.relativePath;
+      for (const skill of manifest.skills) skill.status = "active";
+      const result = promotion.report.gateResults["governance-check"];
+      const absolute = path.join(manifest.__fixtureRoot, result.artifact.path);
+      const artifact = JSON.parse(readFileSync(absolute, "utf8"));
+      artifact.command = "different command";
+      writeFileSync(absolute, `${JSON.stringify(artifact, null, 2)}\n`);
+      result.artifact.sha256 = sha256(absolute);
+      writeFileSync(promotion.absolutePath, `${JSON.stringify(promotion.report, null, 2)}\n`);
+      delete manifest.__fixtureRoot;
+    },
+    (fixture, manifest) => {
+      manifest.__fixtureRoot = fixture;
+      stages = prepareAllStageBEvidence(fixture);
+      promotion = prepareValidPromotionEvidence(fixture, stages);
+    },
+    { currentBranch: "main" },
+  );
+  assert.match(errors.join("\n"), /artifact is not bound to its commit, command and successful output/);
+});
+
 test("main promotion rejects duplicate approvers and reused gate artifacts", () => {
   let stages;
   let promotion;
@@ -835,7 +984,10 @@ test("main promotion rejects duplicate approvers and reused gate artifacts", () 
       applyStageB(manifest, stages);
       manifest.branchPolicy.promotionEvidence = promotion.relativePath;
       for (const skill of manifest.skills) skill.status = "active";
-      promotion.report.approvedBy = ["same-approver", "same-approver "];
+      promotion.report.approvals = [
+        { actorId: "same-approver", signature: "invalid" },
+        { actorId: "same-approver ", signature: "invalid" },
+      ];
       promotion.report.gateResults["project-memory-check"].artifact =
         promotion.report.gateResults["governance-check"].artifact;
       writeFileSync(promotion.absolutePath, `${JSON.stringify(promotion.report, null, 2)}\n`);

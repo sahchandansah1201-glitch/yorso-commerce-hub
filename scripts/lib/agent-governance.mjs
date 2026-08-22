@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, verify } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
@@ -25,28 +25,29 @@ const REQUIRED_PROMOTION_GATES = [
 ];
 const REQUIRED_STAGE_B_FIXTURES = ["F1", "F2", "F3", "F4", "F5"];
 const REQUIRED_STAGE_B_ARMS = ["baseline", "candidate"];
-const STAGE_B_EVIDENCE_SCHEMA_VERSION = 4;
-const PROMOTION_EVIDENCE_SCHEMA_VERSION = 4;
-const REVIEWER_SHEET_SCHEMA_VERSION = 2;
-const ACTOR_REGISTRY_SCHEMA_VERSION = 1;
+const STAGE_B_EVIDENCE_SCHEMA_VERSION = 5;
+const PROMOTION_EVIDENCE_SCHEMA_VERSION = 5;
+const REVIEWER_SHEET_SCHEMA_VERSION = 3;
+const ACTOR_REGISTRY_SCHEMA_VERSION = 2;
 const FIXTURE_ORACLE_SCHEMA_VERSION = 1;
+const STAGE_B_OUTPUT_SCHEMA_VERSION = 1;
+const PROMOTION_GATE_ARTIFACT_SCHEMA_VERSION = 1;
 const GOVERNANCE_SURFACE_PATHS = [
   ".agents",
-  ".github/workflows/ci.yml",
+  ".github",
   "AGENTS.md",
+  "apps",
   "docs/agents",
   "docs/project-memory",
+  "e2e",
   "package.json",
-  "scripts/check-agent-governance.mjs",
-  "scripts/check-agent-governance.test.mjs",
-  "scripts/check-gate-mutation.mjs",
-  "scripts/check-gate-mutation.test.mjs",
-  "scripts/check-project-memory.mjs",
-  "scripts/check-project-memory.test.mjs",
-  "scripts/check-provider-production-boundary.mjs",
-  "scripts/lib/agent-governance.mjs",
-  "src/test/provider-free-tooling-retirement.test.ts",
-  "src/test/self-hosted-backend-policy.test.ts",
+  "package-lock.json",
+  "packages",
+  "scripts",
+  "src",
+  "tsconfig.app.json",
+  "tsconfig.json",
+  "tsconfig.node.json",
 ];
 const STAGE_B_ARTIFACT_MINIMUMS = {
   prompts: 5,
@@ -73,10 +74,14 @@ const REQUIRED_ROLES = [
   "orders-logistics",
 ];
 const REQUIRED_ACTOR_ROLES = new Set(["stage-b-reviewer", "promotion-approver"]);
+const PUBLIC_KEY_PATTERN = /^-----BEGIN PUBLIC KEY-----[\s\S]+-----END PUBLIC KEY-----\n?$/;
 
 const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
 
 const canonicalActorId = (value) =>
+  typeof value === "string" ? value.normalize("NFKC").trim().toLowerCase() : "";
+
+const canonicalIndependenceGroup = (value) =>
   typeof value === "string" ? value.normalize("NFKC").trim().toLowerCase() : "";
 
 const isCanonicalActorId = (value) =>
@@ -102,6 +107,29 @@ const canonicalJson = (value) => {
       .join(",")}}`;
   }
   return JSON.stringify(value);
+};
+
+const canonicalSha256 = (value) => createHash("sha256").update(canonicalJson(value)).digest("hex");
+
+const withoutKeys = (value, keys) =>
+  Object.fromEntries(Object.entries(value ?? {}).filter(([key]) => !keys.includes(key)));
+
+const verifyActorSignature = ({ actor, payload, signature, label, errors }) => {
+  if (typeof signature !== "string" || signature.length === 0) {
+    errors.push(`${label} signature is missing`);
+    return;
+  }
+  try {
+    const valid = verify(
+      null,
+      Buffer.from(canonicalJson(payload)),
+      actor.publicKeyPem,
+      Buffer.from(signature, "base64"),
+    );
+    if (!valid) errors.push(`${label} signature is invalid`);
+  } catch {
+    errors.push(`${label} signature is invalid`);
+  }
 };
 
 const readJson = (file) => JSON.parse(readFileSync(file, "utf8"));
@@ -289,7 +317,8 @@ const validateActorRegistry = (registry, errors) => {
       errors.push(`actor registry contains a duplicate or non-canonical id: ${actor?.id ?? "missing"}`);
     }
     actorIds.add(actor?.id);
-    if (typeof actor?.independenceGroup !== "string" || actor.independenceGroup.trim().length === 0) {
+    const group = canonicalIndependenceGroup(actor?.independenceGroup);
+    if (!group || actor.independenceGroup !== group || !CANONICAL_ACTOR_ID_PATTERN.test(group)) {
       errors.push(`actor registry independenceGroup is missing for ${actor?.id ?? "missing"}`);
     }
     if (
@@ -298,6 +327,9 @@ const validateActorRegistry = (registry, errors) => {
       actor.allowedRoles.some((role) => !REQUIRED_ACTOR_ROLES.has(role))
     ) {
       errors.push(`actor registry allowedRoles are invalid for ${actor?.id ?? "missing"}`);
+    }
+    if (typeof actor?.publicKeyPem !== "string" || !PUBLIC_KEY_PATTERN.test(actor.publicKeyPem)) {
+      errors.push(`actor registry publicKeyPem is invalid for ${actor?.id ?? "missing"}`);
     }
   }
   return new Map(actors.filter((actor) => isCanonicalActorId(actor?.id)).map((actor) => [actor.id, actor]));
@@ -309,10 +341,76 @@ const validateActorsForRole = ({ ids, role, actors, label, errors }) => {
     if (!resolved[index]) errors.push(`${label} actor is not registered: ${id}`);
     else if (!resolved[index].allowedRoles.includes(role)) errors.push(`${label} actor lacks ${role}: ${id}`);
   });
-  const groups = resolved.filter(Boolean).map((actor) => actor.independenceGroup);
+  const groups = resolved.filter(Boolean).map((actor) => canonicalIndependenceGroup(actor.independenceGroup));
   if (groups.length === ids.length && new Set(groups).size !== groups.length) {
     errors.push(`${label} actors must belong to distinct independence groups`);
   }
+};
+
+const validateTrustedActorRegistry = ({ actorRegistry, expectedSha256, required, errors }) => {
+  const actual = canonicalSha256(actorRegistry);
+  if (!required && !expectedSha256) return actual;
+  if (!SHA256_PATTERN.test(expectedSha256 ?? "")) {
+    errors.push("trusted actor registry SHA-256 is required for passed Stage B and main promotion");
+  } else if (expectedSha256 !== actual) {
+    errors.push("trusted actor registry SHA-256 does not match .agents/actors.json");
+  }
+  return actual;
+};
+
+const readStageBOutput = ({
+  root,
+  artifactPath,
+  run,
+  evaluatedCommit,
+  candidateSkillId,
+  skillContentSha256,
+  fixtureOracleById,
+  errors,
+}) => {
+  let output;
+  try {
+    output = readJson(path.join(root, artifactPath));
+  } catch {
+    errors.push(`Stage B output must contain structured JSON: ${artifactPath}`);
+    return null;
+  }
+  const runKey = `${run.fixtureId}:${run.arm}:${run.repeat}`;
+  if (
+    output.schemaVersion !== STAGE_B_OUTPUT_SCHEMA_VERSION ||
+    output.runKey !== runKey ||
+    output.evaluatedCommit !== evaluatedCommit ||
+    output.candidateSkillId !== candidateSkillId ||
+    output.candidateSkillContentSha256 !== skillContentSha256 ||
+    typeof output.outputText !== "string" ||
+    output.outputText.trim().length < 20
+  ) {
+    errors.push(`Stage B output identity is invalid: ${artifactPath}`);
+    return null;
+  }
+  const observations = Array.isArray(output.observations) ? output.observations : [];
+  const defectIds = new Set();
+  for (const observation of observations) {
+    const { defectId, start, end, excerpt } = observation ?? {};
+    if (
+      !isCanonicalActorId(defectId) ||
+      defectIds.has(defectId) ||
+      !Number.isInteger(start) ||
+      !Number.isInteger(end) ||
+      start < 0 ||
+      end <= start ||
+      output.outputText.slice(start, end) !== excerpt
+    ) {
+      errors.push(`Stage B output observation is invalid for ${runKey}: ${defectId ?? "missing"}`);
+      continue;
+    }
+    defectIds.add(defectId);
+  }
+  const expectedDefects = new Set(fixtureOracleById.get(run.fixtureId)?.criticalDefectIds ?? []);
+  if ([...defectIds].some((defectId) => !expectedDefects.has(defectId))) {
+    errors.push(`Stage B output cites defects absent from the fixture oracle: ${runKey}`);
+  }
+  return defectIds;
 };
 
 const validateFixtureOracle = ({ root, fixtureOracle, errors }) => {
@@ -378,7 +476,9 @@ const readReviewerSheet = ({
   reviewerId,
   candidateSkillId,
   runKeys,
+  outputDefectsByRunKey,
   fixtureOracleById,
+  actors,
   errors,
 }) => {
   let sheet;
@@ -395,6 +495,16 @@ const readReviewerSheet = ({
   ) {
     errors.push(`Stage B reviewer sheet identity mismatch: ${artifactPath}`);
   }
+  const actor = actors.get(reviewerId);
+  if (actor) {
+    verifyActorSignature({
+      actor,
+      payload: withoutKeys(sheet, ["signature"]),
+      signature: sheet.signature,
+      label: `Stage B reviewer sheet ${reviewerId}`,
+      errors,
+    });
+  }
   const reviews = Array.isArray(sheet.reviews) ? sheet.reviews : [];
   const seen = new Set();
   for (const review of reviews) {
@@ -406,10 +516,12 @@ const readReviewerSheet = ({
     }
     const fixtureId = key?.split(":")[0];
     const expectedDefects = new Set(fixtureOracleById.get(fixtureId)?.criticalDefectIds ?? []);
+    const outputDefects = outputDefectsByRunKey.get(key) ?? new Set();
     const foundDefects = Array.isArray(review?.criticalDefectIdsFound) ? review.criticalDefectIdsFound : [];
     if (
       foundDefects.length !== new Set(foundDefects).size ||
       foundDefects.some((id) => !expectedDefects.has(id)) ||
+      foundDefects.some((id) => !outputDefects.has(id)) ||
       hasOwn(review ?? {}, "criticalDefectsExpected") ||
       hasOwn(review ?? {}, "criticalDefectsFound")
     ) {
@@ -634,6 +746,21 @@ const validateStageBEvidenceFile = ({
     if (!promptPaths.has(run.promptArtifact)) errors.push(`Stage B run prompt is not checksum-bound: ${run.promptArtifact}`);
     if (!outputPaths.has(run.outputArtifact)) errors.push(`Stage B run output is not checksum-bound: ${run.outputArtifact}`);
   }
+  const outputDefectsByRunKey = new Map();
+  for (const run of runs) {
+    if (!outputPaths.has(run.outputArtifact)) continue;
+    const defects = readStageBOutput({
+      root,
+      artifactPath: run.outputArtifact,
+      run,
+      evaluatedCommit: report.evaluatedCommit,
+      candidateSkillId: report.candidateSkillId,
+      skillContentSha256,
+      fixtureOracleById,
+      errors,
+    });
+    if (defects) outputDefectsByRunKey.set(`${run.fixtureId}:${run.arm}:${run.repeat}`, defects);
+  }
   const reviewerSheetPaths = artifactPathsByCategory.get("reviewerSheets") ?? new Set();
   const reviewerReviews = [];
   for (const reviewer of reviewers) {
@@ -647,7 +774,9 @@ const validateStageBEvidenceFile = ({
       reviewerId: reviewer.id,
       candidateSkillId: report.candidateSkillId,
       runKeys,
+      outputDefectsByRunKey,
       fixtureOracleById,
+      actors,
       errors,
     });
     if (reviews) reviewerReviews.push(reviews);
@@ -765,7 +894,8 @@ const validatePromotionEvidence = ({ root, branchPolicy, actors, errors, skipRep
   if (report.schemaVersion !== PROMOTION_EVIDENCE_SCHEMA_VERSION) {
     errors.push(`promotion evidence schemaVersion must be ${PROMOTION_EVIDENCE_SCHEMA_VERSION}`);
   }
-  const approvedBy = Array.isArray(report.approvedBy) ? report.approvedBy : [];
+  const approvals = Array.isArray(report.approvals) ? report.approvals : [];
+  const approvedBy = approvals.map((approval) => approval?.actorId);
   if (
     approvedBy.length < 2 ||
     approvedBy.some((id) => !isCanonicalActorId(id)) ||
@@ -780,6 +910,19 @@ const validatePromotionEvidence = ({ root, branchPolicy, actors, errors, skipRep
     label: "promotion approver",
     errors,
   });
+  const approvalPayload = withoutKeys(report, ["approvals"]);
+  for (const approval of approvals) {
+    const actor = actors.get(approval?.actorId);
+    if (actor) {
+      verifyActorSignature({
+        actor,
+        payload: approvalPayload,
+        signature: approval.signature,
+        label: `promotion approval ${approval.actorId}`,
+        errors,
+      });
+    }
+  }
   validateGovernedCommit({
     root,
     commit: report.reviewedCommit,
@@ -814,6 +957,29 @@ const validatePromotionEvidence = ({ root, branchPolicy, actors, errors, skipRep
     }
     if (artifactPath) gateArtifactPaths.add(artifactPath);
     if (artifactPath) gateArtifactHashes.add(result.artifact.sha256);
+    if (artifactPath) {
+      let gateArtifact;
+      try {
+        gateArtifact = readJson(path.join(root, artifactPath));
+      } catch {
+        errors.push(`promotion ${required} artifact must contain structured JSON`);
+        continue;
+      }
+      if (
+        gateArtifact.schemaVersion !== PROMOTION_GATE_ARTIFACT_SCHEMA_VERSION ||
+        gateArtifact.gateId !== required ||
+        gateArtifact.reviewedCommit !== report.reviewedCommit ||
+        gateArtifact.command !== result.command ||
+        gateArtifact.exitCode !== 0 ||
+        typeof gateArtifact.startedAt !== "string" ||
+        typeof gateArtifact.finishedAt !== "string" ||
+        typeof gateArtifact.stdout !== "string" ||
+        gateArtifact.stdout.trim().length < 20 ||
+        gateArtifact.stdoutSha256 !== createHash("sha256").update(gateArtifact.stdout).digest("hex")
+      ) {
+        errors.push(`promotion ${required} artifact is not bound to its commit, command and successful output`);
+      }
+    }
   }
 };
 
@@ -976,6 +1142,13 @@ export const validateAgentGovernance = (root, overrides = {}) => {
   if (!ALLOWED_STAGE_B_STATUSES.has(branchPolicy?.stageBPilotStatus)) {
     errors.push("branchPolicy.stageBPilotStatus must be pending or passed");
   }
+  validateTrustedActorRegistry({
+    actorRegistry,
+    expectedSha256:
+      overrides.trustedActorRegistrySha256 ?? process.env.YORSO_TRUSTED_ACTOR_REGISTRY_SHA256,
+    required: branchPolicy?.stageBPilotStatus === "passed",
+    errors,
+  });
   validateStageBEvidence({
     root,
     branchPolicy,

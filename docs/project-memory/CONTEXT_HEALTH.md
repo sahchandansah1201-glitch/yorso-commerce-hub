@@ -16,8 +16,8 @@ last_checkpoint: "2026-08-22"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Finish exact-HEAD acceptance and independent review, then push the local-lab branch; do not merge main."
-why_medium: "Governance is repository-backed and adversarially tested with a fixture oracle, registered-actor contract and computed metrics, but no real actors are registered and Stage B, exact upstream blob verification and promotion approval remain open."
+recommended_action: "Run exact-HEAD acceptance and independent review, then push only the local-lab branch; do not merge main."
+why_medium: "Governance now verifies signed actors, structured run and gate evidence, broad source freshness and non-mutating gates, but no real trusted actors are registered and Stage B, exact upstream blob verification and promotion approval remain open."
 ```
 
 ## Confirmed Boundaries
@@ -32,7 +32,8 @@ why_medium: "Governance is repository-backed and adversarially tested with a fix
 - No quantified improvement claim is allowed until the Stage B pilot protocol
   passes.
 - `.agents/actors.json` is intentionally empty; real independent reviewers and
-  approvers must be registered before Stage B or promotion can pass.
+  approvers with Ed25519 keys must be registered and the registry digest must
+  be trusted out-of-band before Stage B or promotion can pass.
 
 ## Recovery Prompt
 
@@ -42,5 +43,6 @@ Repository: /Users/istokdmgmail.com/Documents/yorso-commerce-hub-main
 Branch: local-lab/agent-capability-foundation
 Read AGENTS.md, PROJECT_STATE.yaml, HANDOFF.md and NEXT_ACTIONS.md.
 Verify git status and agent governance before editing.
-Do not merge main. The next open evidence gate is Stage B comparative pilots.
+Do not merge main. First finish exact-HEAD acceptance and push only this
+experimental branch. Stage B remains the next external evidence gate.
 ```

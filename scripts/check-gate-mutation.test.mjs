@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { appendFileSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -88,5 +88,40 @@ test("detects a ref created by a gate", () => {
     );
     assert.equal(result.status, 1);
     assert.match(result.stderr, /changed HEAD, branch, refs, tracked files/);
+  });
+});
+
+test("detects mutation inside ignored Supabase scaffold", () => {
+  withRepository((root) => {
+    writeFileSync(path.join(root, ".gitignore"), "src/integrations/supabase/\nsupabase/\n");
+    execFileSync("git", ["add", ".gitignore"], { cwd: root });
+    execFileSync("git", ["commit", "-qm", "ignore generated scaffold"], { cwd: root });
+    mkdirSync(path.join(root, "src/integrations/supabase"), { recursive: true });
+    writeFileSync(path.join(root, "src/integrations/supabase/client.ts"), "before\n");
+    const result = check(
+      root,
+      "require('node:fs').appendFileSync('src/integrations/supabase/client.ts','mutated\\n')",
+    );
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /forbidden ignored scaffold state/);
+  });
+});
+
+test("fails closed when a command creates an untracked symbolic link", () => {
+  withRepository((root) => {
+    const result = check(root, "require('node:fs').symlinkSync('tracked.txt','unsafe-link')");
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /refuses symbolic links/);
+  });
+});
+
+test("fails closed when a command creates an untracked FIFO", { skip: process.platform === "win32" }, () => {
+  withRepository((root) => {
+    const result = check(
+      root,
+      "require('node:child_process').execFileSync('mkfifo',['unsafe-fifo'])",
+    );
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /refuses non-regular files/);
   });
 });
