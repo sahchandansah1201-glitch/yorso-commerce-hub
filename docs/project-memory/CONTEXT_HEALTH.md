@@ -16,8 +16,8 @@ last_checkpoint: "2026-08-22"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Run exact-HEAD acceptance and independent review, then push only the local-lab branch; do not merge main."
-why_medium: "Governance now binds signed reviewers to exact output hashes, separates candidate freshness from evidence attestations, covers the tracked candidate repository surface and fingerprints ignored regular files, but no real trusted actors are registered and Stage B, exact upstream blob verification, remote CI attestation and promotion approval remain open."
+recommended_action: "Commit and verify the Stage B operator tooling, initialize the copywriter pilot from clean HEAD, then collect real outputs and signed independent review; do not merge main."
+why_medium: "Stage B is now operationally executable and fail-closed, but no real trusted actors, executor outputs, signed reviewer sheets, remote CI attestation or promotion approval exist yet."
 ```
 
 ## Confirmed Boundaries
@@ -34,6 +34,8 @@ why_medium: "Governance now binds signed reviewers to exact output hashes, separ
 - `.agents/actors.json` is intentionally empty; real independent reviewers and
   approvers with Ed25519 keys must be registered and the registry digest must
   be trusted out-of-band before Stage B or promotion can pass.
+- Stage B workspaces are ignored under `.data/stage-b/`; reviewers must receive
+  only `review-packet/`, never coordinator/task arm mappings.
 
 ## Recovery Prompt
 

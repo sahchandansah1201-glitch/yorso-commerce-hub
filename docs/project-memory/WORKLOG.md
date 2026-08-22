@@ -4339,3 +4339,29 @@ Keep this file factual and append-only.
 | Cover repository configuration | Candidate freshness starts at repository root | Keep evidence/project-memory as recording layers only | Candidate-change rejection test |
 | Detect ignored-file mutation | Ordinary ignored files are fingerprinted | External state remains separate | `.env.local` mutation test |
 | Validate experimental push | CI listens on `local-lab/**` | Push and verify remote run | GitHub Actions |
+
+## 2026-08-22 — Executable Stage B Blind-Pilot Workflow
+
+- Added a Stage B operator CLI that creates all 30 randomized fixture/arm/repeat
+  tasks from a clean committed candidate surface.
+- Bound every executor task to its run key, evaluated commit, candidate skill
+  id and locked skill content hash so valid structured outputs can be produced
+  without coordinator-side reconstruction.
+- Added blind review packet generation that rejects incomplete or mismatched
+  outputs and omits skill identity, arm labels and run keys from reviewer-facing
+  artifacts.
+- Added Ed25519 public-key-only actor enrollment; private key creation and
+  storage remain outside the repository.
+- Added fail-closed status, Stage B qualification and separate main-promotion
+  readiness commands. No command fabricates scores, signatures or promotion.
+- Added focused tests for the 30-run matrix, reviewer packet redaction, actor
+  registry safety and empty-pilot blockers.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Make Stage B runnable | Deterministic contracts and operator commands added | Execute real outputs | `scripts/stage-b-pilot.mjs` |
+| Preserve reviewer blindness | Reviewer manifest omits skill/arm/run identity | Human reviewers still required | Stage B redaction test |
+| Keep identity trust external | Only public keys enter the registry | Register real humans and trust digest | Actor enrollment test |
+| Prevent false qualification | Empty pilot reports concrete blockers | Produce signed v5 evidence | Status/qualification commands |

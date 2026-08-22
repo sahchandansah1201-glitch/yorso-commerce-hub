@@ -35,6 +35,7 @@ multilingual UX copywriter and non-mutating verification gates.
 | Prevent evidence-only promotion | Stage B/main-promotion v5 plus reviewer-sheet v4 bind each skill to signed actors, structured outputs, fixture oracle, exact commit, each output SHA and structured gate artifacts; the tracked candidate surface is fresh while evidence/project-memory use later attestations | Register real trusted actors and produce Stage B results later | governance adversarial and real-Git integration tests |
 | Protect production PRs | CI validates the PR base branch; a PR targeting `main` must satisfy main policy | Keep `main` unchanged until promotion | governance PR-target test |
 | Validate experimental pushes | GitHub CI now runs for `local-lab/**` pushes | Verify remote workflow result after first push | `.github/workflows/ci.yml` |
+| Make Stage B executable | CLI creates 30 randomized tasks, validates identity-bound outputs, builds a blind reviewer packet, enrols public keys only and fails closed until real evidence exists | Run real executor outputs and signed independent review | `npm run test:agent-governance`; `docs/agents/stage-b-operator-runbook.md` |
 
 ## Evidence Already Established
 
@@ -64,7 +65,8 @@ npm run build
 git diff --check
 ```
 
-Then create the final hardening commit, run acceptance and independent review
-of the exact committed HEAD, and push only
-`local-lab/agent-capability-foundation`.
-Stage B and any merge to `main` remain separate closed gates.
+Then commit the Stage B operator tooling and initialize the pilot from that
+clean committed HEAD. Stage B stays blocked until all 30 real outputs, two
+registered independent reviewers, exactly two valid signed sheets and the
+out-of-band trusted actor-registry digest exist. Any merge to `main` remains a
+separate closed gate.

@@ -121,3 +121,25 @@ project memory, relevant product tests and non-mutating gates. Every gate
 artifact is structured and binds the reviewed commit, exact command, zero exit
 code, timestamps and stdout digest. A pull request targeting `main` is evaluated
 under this production policy even when its head branch is `local-lab/*`.
+
+### Operational tooling
+
+The executable workflow is documented in
+`docs/agents/stage-b-operator-runbook.md`. The supported commands are:
+
+- `npm run stage-b:init -- --pilot <id> --skill <id>`: create 30 randomized
+  executor tasks in ignored `.data/stage-b/<id>` from a clean committed HEAD;
+- `npm run stage-b:prepare-review -- --pilot <id>`: reject incomplete or
+  identity-mismatched outputs and create a reviewer packet without skill/arm
+  identity;
+- `npm run stage-b:register-actor -- ...`: enrol only an Ed25519 public key;
+- `npm run stage-b:status -- --pilot <id>`: report concrete blockers and return
+  exit code 2 while qualification is incomplete;
+- `npm run stage-b:qualify -- --pilot <id>`: require real workspace evidence,
+  signed independent review, an out-of-band trusted registry digest and a fully
+  valid repository evidence mapping;
+- `npm run check:main-promotion`: evaluate the separate production policy
+  without mutating the repository.
+
+Tooling never creates a reviewer identity, private key, score, signature or
+promotion decision. Missing human evidence remains a hard blocker.

@@ -52,6 +52,7 @@ active_workstream:
     - "Added real Git integration tests for post-candidate evidence commits and repository-backed promotion validation without repository-inspection bypass."
     - "Expanded mutation fingerprints to regular ignored files such as .env.local while retaining explicit exclusions for generated heavy directories."
     - "Configured GitHub CI push validation for local-lab/** branches."
+    - "Added an executable Stage B blind-pilot CLI with 30 randomized task files, identity-bound outputs, reviewer-facing arm redaction, public-key-only actor enrollment, fail-closed status and separate qualification/main-promotion checks."
   open_gates:
     - "Run the complete Stage B blind comparative pilot before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before Stage B evidence can pass."
@@ -86,4 +87,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Complete exact-HEAD acceptance and independent review, push only local-lab/agent-capability-foundation, then run Stage B pilots before any main promotion."
+next_action: "Commit the Stage B operator tooling, initialize the copywriter pilot on the clean committed HEAD, then obtain real independent executors/reviewers and signed evidence before qualification."

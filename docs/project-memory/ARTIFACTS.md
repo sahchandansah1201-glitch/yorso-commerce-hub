@@ -1973,3 +1973,17 @@
   - SHA-256: `eedd4fe9b12b64e878e8b18e1b4dce94c0c972c2d34a9f77e1da919944e182ad`
 - `docs/project-memory/archive/2026-08-21-pre-capability/README.md`
   - provenance and deterministic restore commands.
+
+## Stage B Blind-Pilot Operator Tooling
+
+- `scripts/lib/stage-b-pilot.mjs`: 30-run plan generation, workspace status,
+  blind reviewer packet generation, actor enrollment and qualification gate.
+- `scripts/stage-b-pilot.mjs`: operator CLI for init, status, prepare-review,
+  qualify and register-actor.
+- `scripts/check-main-promotion.mjs`: separate non-mutating main-policy check.
+- `scripts/stage-b-pilot.test.mjs`: regression coverage for run completeness,
+  reviewer blindness, public-key-only registry records and fail-closed status.
+- `docs/agents/stage-b-operator-runbook.md`: security boundary and exact
+  operating commands.
+- `.data/stage-b/<pilot-id>`: ignored runtime workspace created only after a
+  clean candidate commit; not a repository artifact.
