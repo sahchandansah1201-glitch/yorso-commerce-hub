@@ -10,14 +10,16 @@ Branch: `local-lab/agent-capability-foundation`
 
 ## Immediate
 
-1. Commit the Stage B operator tooling and run exact-HEAD acceptance.
-2. Initialize `copywriter-2026-08` from that clean committed HEAD with
-   `npm run stage-b:init -- --pilot copywriter-2026-08 --skill yorso-multilingual-ux-copywriter-agent`.
-3. Assign all 30 task files to controlled baseline/candidate executor runs.
-4. Register two real reviewers from distinct independence groups using only
+1. Use the initialized `.data/stage-b/copywriter-2026-08` workspace, which is
+   bound to candidate commit `dc86aae5331d84836ab428929ba602d0420f35a9`.
+2. Assign all 30 task files to controlled baseline/candidate executor runs and
+   write one identity-bound JSON output per task.
+3. Register two real reviewers from distinct independence groups using only
    their Ed25519 public keys; retain private keys outside the repository.
-5. Prepare the blind review packet after all outputs exist and collect two
+4. Prepare the blind review packet after all outputs exist and collect two
    signed reviewer sheets.
+5. Record schema-version-5 evidence only after the score/recall/agreement gates
+   pass; do not infer or fabricate missing results.
 6. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
    `main` unchanged until Stage B and separate promotion approval pass.
 

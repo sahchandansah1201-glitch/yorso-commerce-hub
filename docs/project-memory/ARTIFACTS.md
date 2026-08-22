@@ -1987,3 +1987,7 @@
   operating commands.
 - `.data/stage-b/<pilot-id>`: ignored runtime workspace created only after a
   clean candidate commit; not a repository artifact.
+- `.data/stage-b/copywriter-2026-08`: initialized local runtime workspace with
+  30 tasks bound to exact commit
+  `dc86aae5331d84836ab428929ba602d0420f35a9`; contains no completed outputs or
+  reviewer evidence yet and is intentionally ignored by Git.

@@ -20,6 +20,7 @@ repository:
 
 history:
   governance_hardening_commit: "8644060a"
+  stage_b_operator_commit: "dc86aae5331d84836ab428929ba602d0420f35a9"
   previous_expanded_state_commit: "8ca08ffbc10d01ce53572ff874f711bba9d8e012"
   previous_expanded_state_archive: "docs/project-memory/archive/2026-08-21-pre-capability/PROJECT_STATE.yaml.gz"
   previous_expanded_state_archive_sha256: "daae307ea510d59a0a7b13d80af45b830196683ae91155d310b91e6182d40b04"
@@ -53,6 +54,7 @@ active_workstream:
     - "Expanded mutation fingerprints to regular ignored files such as .env.local while retaining explicit exclusions for generated heavy directories."
     - "Configured GitHub CI push validation for local-lab/** branches."
     - "Added an executable Stage B blind-pilot CLI with 30 randomized task files, identity-bound outputs, reviewer-facing arm redaction, public-key-only actor enrollment, fail-closed status and separate qualification/main-promotion checks."
+    - "Initialized ignored pilot workspace copywriter-2026-08 against exact commit dc86aae5331d84836ab428929ba602d0420f35a9 with 30 tasks and a reviewer queue that omits arm mappings."
   open_gates:
     - "Run the complete Stage B blind comparative pilot before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before Stage B evidence can pass."
@@ -69,6 +71,23 @@ governance:
   registered_skills: 11
   copywriter_status: "experimental-with-human-review"
   automatic_main_promotion: false
+
+stage_b_pilot:
+  id: "copywriter-2026-08"
+  candidate_skill: "yorso-multilingual-ux-copywriter-agent"
+  evaluated_commit: "dc86aae5331d84836ab428929ba602d0420f35a9"
+  workspace: ".data/stage-b/copywriter-2026-08"
+  task_count: 30
+  output_count: 0
+  reviewer_count: 0
+  reviewer_sheet_count: 0
+  qualification: "blocked"
+  blockers:
+    - "missing outputs: 30"
+    - "missing registered Stage B reviewers: 2"
+    - "Stage B reviewers must use distinct independence groups"
+    - "missing signed reviewer sheets: 2"
+    - "YORSO_TRUSTED_ACTOR_REGISTRY_SHA256 is not set"
 
 validation:
   initial_baseline:
@@ -87,4 +106,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Commit the Stage B operator tooling, initialize the copywriter pilot on the clean committed HEAD, then obtain real independent executors/reviewers and signed evidence before qualification."
+next_action: "Execute the 30 initialized copywriter pilot tasks, then obtain two real independent reviewers and signed evidence before qualification."

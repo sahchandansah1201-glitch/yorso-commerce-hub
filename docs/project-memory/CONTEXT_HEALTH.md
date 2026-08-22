@@ -16,8 +16,8 @@ last_checkpoint: "2026-08-22"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Commit and verify the Stage B operator tooling, initialize the copywriter pilot from clean HEAD, then collect real outputs and signed independent review; do not merge main."
-why_medium: "Stage B is now operationally executable and fail-closed, but no real trusted actors, executor outputs, signed reviewer sheets, remote CI attestation or promotion approval exist yet."
+recommended_action: "Execute the initialized copywriter Stage B tasks, then collect two real independent reviewers and signed evidence; do not merge main."
+why_medium: "The exact-commit Stage B workspace exists and is fail-closed, but it has 0/30 outputs, no real trusted actors, no signed reviewer sheets, no remote CI attestation and no promotion approval."
 ```
 
 ## Confirmed Boundaries

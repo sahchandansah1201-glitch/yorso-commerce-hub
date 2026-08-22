@@ -36,6 +36,7 @@ multilingual UX copywriter and non-mutating verification gates.
 | Protect production PRs | CI validates the PR base branch; a PR targeting `main` must satisfy main policy | Keep `main` unchanged until promotion | governance PR-target test |
 | Validate experimental pushes | GitHub CI now runs for `local-lab/**` pushes | Verify remote workflow result after first push | `.github/workflows/ci.yml` |
 | Make Stage B executable | CLI creates 30 randomized tasks, validates identity-bound outputs, builds a blind reviewer packet, enrols public keys only and fails closed until real evidence exists | Run real executor outputs and signed independent review | `npm run test:agent-governance`; `docs/agents/stage-b-operator-runbook.md` |
+| Initialize the first real workspace | `copywriter-2026-08` contains 30 tasks bound to exact commit `dc86aae5331d84836ab428929ba602d0420f35a9`; reviewer queue omits arm mappings | Produce 30 outputs and enrol two real reviewers | `npm run stage-b:status -- --pilot copywriter-2026-08` returns blocked exit 2 |
 
 ## Evidence Already Established
 
@@ -65,8 +66,8 @@ npm run build
 git diff --check
 ```
 
-Then commit the Stage B operator tooling and initialize the pilot from that
-clean committed HEAD. Stage B stays blocked until all 30 real outputs, two
+The Stage B operator tooling is committed at `dc86aae5`, and the pilot is
+initialized from that clean exact HEAD. Stage B stays blocked until all 30 real outputs, two
 registered independent reviewers, exactly two valid signed sheets and the
 out-of-band trusted actor-registry digest exist. Any merge to `main` remains a
 separate closed gate.

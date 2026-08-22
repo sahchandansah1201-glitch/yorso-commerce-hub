@@ -4365,3 +4365,25 @@ Keep this file factual and append-only.
 | Preserve reviewer blindness | Reviewer manifest omits skill/arm/run identity | Human reviewers still required | Stage B redaction test |
 | Keep identity trust external | Only public keys enter the registry | Register real humans and trust digest | Actor enrollment test |
 | Prevent false qualification | Empty pilot reports concrete blockers | Produce signed v5 evidence | Status/qualification commands |
+
+## 2026-08-22 — First Stage B Workspace Initialized
+
+- Committed the executable Stage B tooling as
+  `dc86aae5331d84836ab428929ba602d0420f35a9`.
+- Initialized ignored workspace `.data/stage-b/copywriter-2026-08` against that
+  exact commit with 30 randomized tasks.
+- Verified that the reviewer queue exposes fixture and output references but
+  no baseline/candidate arm mapping.
+- Verified fail-closed status: `0/30` outputs, `0/2` reviewers, `0/2` signed
+  sheets and no trusted actor-registry digest; command exit code is `2`.
+- Verified separate main promotion gate remains blocked with exit code `1`.
+- No quality-uplift claim is made: the pilot is initialized, not completed.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Bind pilot to exact candidate | Workspace evaluates `dc86aae5` | Keep candidate surface unchanged | `coordinator.json` |
+| Create complete run matrix | 30 task files created | Execute all tasks | task count = 30 |
+| Keep review blind | Queue omits arm mapping | Generate packet after outputs | queue key inspection |
+| Keep promotion fail-closed | Stage B/main checks return 2/1 | Real humans and signed evidence | status commands |
