@@ -12,15 +12,20 @@ Branch: `local-lab/agent-capability-foundation`
 
 1. Use the initialized `.data/stage-b/copywriter-2026-08` workspace, which is
    bound to candidate commit `dc86aae5331d84836ab428929ba602d0420f35a9`.
-2. Assign all 30 task files to controlled baseline/candidate executor runs and
-   write one identity-bound JSON output per task.
-3. Register two real reviewers from distinct independence groups using only
+2. Assign real canonical executors and use `npm run stage-b:next -- --pilot
+   copywriter-2026-08` to issue one arm-isolated, exact-commit packet at a time.
+3. Submit each raw executor response only through `npm run
+   stage-b:submit-output -- --pilot copywriter-2026-08 --task <task-id>
+   --executor <executor-id> --response-file <path>`. The command records the
+   packet and response SHA-256 and rejects unknown executors, duplicate outputs
+   and tampered packets.
+4. Register two real reviewers from distinct independence groups using only
    their Ed25519 public keys; retain private keys outside the repository.
-4. Prepare the blind review packet after all outputs exist and collect two
+5. Prepare the blind review packet after all outputs exist and collect two
    signed reviewer sheets.
-5. Record schema-version-5 evidence only after the score/recall/agreement gates
+6. Record schema-version-5 evidence only after the score/recall/agreement gates
    pass; do not infer or fabricate missing results.
-6. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
+7. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
    `main` unchanged until Stage B and separate promotion approval pass.
 
 ## Required Before Main Promotion

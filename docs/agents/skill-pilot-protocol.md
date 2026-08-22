@@ -129,6 +129,12 @@ The executable workflow is documented in
 
 - `npm run stage-b:init -- --pilot <id> --skill <id>`: create 30 randomized
   executor tasks in ignored `.data/stage-b/<id>` from a clean committed HEAD;
+- `npm run stage-b:next -- --pilot <id> [--task <task-id>]`: create an isolated
+  executor packet from the evaluated commit; baseline packets omit all candidate
+  identity and skill material;
+- `npm run stage-b:submit-output -- --pilot <id> --task <task-id> --executor
+  <id> --response-file <file>`: reject packet tampering or overwrite and wrap a
+  raw executor response with verified identity and SHA-256 provenance;
 - `npm run stage-b:prepare-review -- --pilot <id>`: reject incomplete or
   identity-mismatched outputs and create a reviewer packet without skill/arm
   identity;

@@ -4,9 +4,11 @@ import path from "node:path";
 import {
   getStageBPilotStatus,
   initializeStageBPilot,
+  prepareNextStageBExecutorTask,
   prepareBlindReviewPacket,
   qualifyStageBPilot,
   registerActor,
+  submitStageBOutput,
 } from "./lib/stage-b-pilot.mjs";
 
 const args = process.argv.slice(2);
@@ -43,6 +45,26 @@ try {
     const status = getStageBPilotStatus({ root, workspace });
     printStatus(status);
     if (!status.readyForQualification) process.exitCode = 2;
+  } else if (command === "next") {
+    if (!workspace) throw new Error("usage: stage-b:next -- --pilot <id> [--task <task-id>]");
+    const result = prepareNextStageBExecutorTask({ root, workspace, taskId: value("--task") });
+    console.log(`Executor packet: ${result.packetPath}`);
+    console.log(`Task: ${result.task.taskId} (${result.task.sequence}/30)`);
+    console.log(`Packet SHA-256: ${result.packetSha256}`);
+    console.log("Give only this packet to the executor. Do not give tasks/, coordinator.json or another arm packet.");
+  } else if (command === "submit-output") {
+    const taskId = value("--task");
+    const executorId = value("--executor");
+    const responseFile = value("--response-file");
+    if (!workspace || !taskId || !executorId || !responseFile) {
+      throw new Error(
+        "usage: stage-b:submit-output -- --pilot <id> --task <task-id> --executor <id> --response-file <file>",
+      );
+    }
+    const result = submitStageBOutput({ root, workspace, taskId, executorId, responseFile });
+    console.log(`Stage B output accepted: ${result.outputPath}`);
+    console.log(`Executor: ${result.output.executor.id}`);
+    console.log(`Response SHA-256: ${result.output.executor.responseSha256}`);
   } else if (command === "prepare-review") {
     if (!workspace) throw new Error("usage: stage-b:prepare-review -- --pilot <id>");
     const packet = prepareBlindReviewPacket({ root, workspace, force: args.includes("--force") });
@@ -68,7 +90,7 @@ try {
     console.log(`Actor registry SHA-256: ${result.registrySha256}`);
     console.log("Store this digest out-of-band; no private key was read or stored.");
   } else {
-    throw new Error("commands: init, status, prepare-review, qualify, register-actor");
+    throw new Error("commands: init, next, submit-output, status, prepare-review, qualify, register-actor");
   }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));

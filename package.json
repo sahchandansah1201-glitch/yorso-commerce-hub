@@ -10,6 +10,8 @@
     "check:main-promotion": "node scripts/check-main-promotion.mjs",
     "lock:agent-skills": "node scripts/lock-agent-skills.mjs",
     "stage-b:init": "node scripts/stage-b-pilot.mjs init",
+    "stage-b:next": "node scripts/stage-b-pilot.mjs next",
+    "stage-b:submit-output": "node scripts/stage-b-pilot.mjs submit-output",
     "stage-b:status": "node scripts/stage-b-pilot.mjs status",
     "stage-b:prepare-review": "node scripts/stage-b-pilot.mjs prepare-review",
     "stage-b:qualify": "node scripts/stage-b-pilot.mjs qualify",

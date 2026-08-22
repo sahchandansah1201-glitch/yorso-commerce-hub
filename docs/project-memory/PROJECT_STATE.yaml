@@ -55,6 +55,7 @@ active_workstream:
     - "Configured GitHub CI push validation for local-lab/** branches."
     - "Added an executable Stage B blind-pilot CLI with 30 randomized task files, identity-bound outputs, reviewer-facing arm redaction, public-key-only actor enrollment, fail-closed status and separate qualification/main-promotion checks."
     - "Initialized ignored pilot workspace copywriter-2026-08 against exact commit dc86aae5331d84836ab428929ba602d0420f35a9 with 30 tasks and a reviewer queue that omits arm mappings."
+    - "Added a reproducible Stage B executor workflow: stage-b:next emits one commit-bound arm-isolated packet, and stage-b:submit-output records canonical executor identity plus packet and response SHA-256 without exposing coordinator arm mappings."
   open_gates:
     - "Run the complete Stage B blind comparative pilot before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before Stage B evidence can pass."
@@ -82,6 +83,10 @@ stage_b_pilot:
   reviewer_count: 0
   reviewer_sheet_count: 0
   qualification: "blocked"
+  executor_workflow: "implemented_and_locally_verified"
+  executor_commands:
+    - "npm run stage-b:next -- --pilot copywriter-2026-08"
+    - "npm run stage-b:submit-output -- --pilot copywriter-2026-08 --task <task-id> --executor <executor-id> --response-file <path>"
   blockers:
     - "missing outputs: 30"
     - "missing registered Stage B reviewers: 2"
@@ -106,4 +111,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Execute the 30 initialized copywriter pilot tasks, then obtain two real independent reviewers and signed evidence before qualification."
+next_action: "Assign real canonical executors and collect all 30 responses through stage-b:next and stage-b:submit-output, then obtain two real independent reviewers and signed evidence before qualification."

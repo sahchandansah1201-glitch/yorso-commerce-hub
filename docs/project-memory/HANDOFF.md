@@ -37,6 +37,7 @@ multilingual UX copywriter and non-mutating verification gates.
 | Validate experimental pushes | GitHub CI now runs for `local-lab/**` pushes | Verify remote workflow result after first push | `.github/workflows/ci.yml` |
 | Make Stage B executable | CLI creates 30 randomized tasks, validates identity-bound outputs, builds a blind reviewer packet, enrols public keys only and fails closed until real evidence exists | Run real executor outputs and signed independent review | `npm run test:agent-governance`; `docs/agents/stage-b-operator-runbook.md` |
 | Initialize the first real workspace | `copywriter-2026-08` contains 30 tasks bound to exact commit `dc86aae5331d84836ab428929ba602d0420f35a9`; reviewer queue omits arm mappings | Produce 30 outputs and enrol two real reviewers | `npm run stage-b:status -- --pilot copywriter-2026-08` returns blocked exit 2 |
+| Make executor runs reproducible | `stage-b:next` emits arm-isolated exact-commit packets and `stage-b:submit-output` binds canonical executor identity, packet SHA-256 and response SHA-256; baseline packets contain no candidate skill material | Assign real executors and collect 30 genuine responses | `npm run test:agent-governance`; manual packet leak check; fail-closed pilot status |
 
 ## Evidence Already Established
 
@@ -46,6 +47,9 @@ multilingual UX copywriter and non-mutating verification gates.
 - Stage A structural/provenance pilot passed.
 - Full Stage B evidence is not complete; therefore no `30%`, `200%` or other
   quantified improvement claim is made.
+- The executor transport is locally verified, but the real pilot still has
+  `0/30` outputs, `0/2` reviewers and `0/2` signed sheets. Tooling readiness is
+  not skill qualification.
 - `.agents/actors.json` has no real registered humans yet; this intentionally
   keeps Stage B and promotion closed. Passed evidence additionally requires the
   out-of-band trusted registry digest `YORSO_TRUSTED_ACTOR_REGISTRY_SHA256`.
@@ -66,8 +70,9 @@ npm run build
 git diff --check
 ```
 
-The Stage B operator tooling is committed at `dc86aae5`, and the pilot is
-initialized from that clean exact HEAD. Stage B stays blocked until all 30 real outputs, two
+The Stage B pilot remains initialized from clean exact HEAD `dc86aae5`; the
+executor packet/submission workflow was added later on the experimental branch.
+Stage B stays blocked until all 30 real outputs, two
 registered independent reviewers, exactly two valid signed sheets and the
 out-of-band trusted actor-registry digest exist. Any merge to `main` remains a
 separate closed gate.

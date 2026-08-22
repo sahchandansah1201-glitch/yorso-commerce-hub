@@ -16,8 +16,8 @@ last_checkpoint: "2026-08-22"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Execute the initialized copywriter Stage B tasks, then collect two real independent reviewers and signed evidence; do not merge main."
-why_medium: "The exact-commit Stage B workspace exists and is fail-closed, but it has 0/30 outputs, no real trusted actors, no signed reviewer sheets, no remote CI attestation and no promotion approval."
+recommended_action: "Assign real executors and collect the 30 copywriter responses through the packet/submission CLI, then collect two real independent reviewers and signed evidence; do not merge main."
+why_medium: "The exact-commit Stage B workspace and reproducible executor transport exist and fail closed, but the real pilot has 0/30 outputs, no real trusted actors, no signed reviewer sheets and no promotion approval."
 ```
 
 ## Confirmed Boundaries
@@ -36,6 +36,8 @@ why_medium: "The exact-commit Stage B workspace exists and is fail-closed, but i
   be trusted out-of-band before Stage B or promotion can pass.
 - Stage B workspaces are ignored under `.data/stage-b/`; reviewers must receive
   only `review-packet/`, never coordinator/task arm mappings.
+- Executors must receive only generated `executor-packets/<task-id>/`; they must
+  not receive `coordinator.json`, raw `tasks/` arm mappings or the opposite arm.
 
 ## Recovery Prompt
 

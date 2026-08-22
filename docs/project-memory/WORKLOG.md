@@ -2,6 +2,25 @@
 
 Keep this file factual and append-only.
 
+## 2026-08-22 — Stage B executor workflow
+
+- Added `stage-b:next` to generate one exact-commit, arm-isolated executor
+  packet without exposing coordinator arm mappings. Baseline packets omit all
+  candidate skill identifiers, paths, hashes and content.
+- Added `stage-b:submit-output` to accept a raw response from a canonical
+  executor and persist packet SHA-256, response SHA-256 and executor identity;
+  duplicate outputs, unknown executors and tampered packets fail closed.
+- Tightened blind-review packet preparation so every output must match its
+  generated executor packet and provenance hashes before reviewers can receive
+  it.
+- Test-driven evidence: the focused test initially failed because
+  `prepareNextStageBExecutorTask` did not exist; after implementation the agent
+  governance suite passed 61/61. The complete capability foundation passed 61
+  governance, 10 mutation and 8 project-memory tests; lint passed with six
+  pre-existing warnings, production build passed and `git diff --check` passed.
+- The real `copywriter-2026-08` pilot remains blocked with 0/30 outputs, 0/2
+  reviewers and 0/2 signed sheets. No quality-uplift or promotion claim is made.
+
 ## 2026-06-18
 
 - Re-opened P1I meta-regions after user-reported acceptance failure: adding a

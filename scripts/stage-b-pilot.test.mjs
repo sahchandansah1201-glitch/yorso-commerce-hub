@@ -9,8 +9,10 @@ import {
   buildStageBPlan,
   canonicalSha256,
   getStageBPilotStatus,
+  prepareNextStageBExecutorTask,
   prepareBlindReviewPacket,
   registerActor,
+  submitStageBOutput,
 } from "./lib/stage-b-pilot.mjs";
 
 const root = process.cwd();
@@ -21,6 +23,43 @@ const candidate = {
 const candidateSkillContentSha256 = "a".repeat(64);
 const evaluatedCommit = "b".repeat(40);
 const fixtures = ["F1", "F2", "F3", "F4", "F5"].map((id) => ({ id, path: `fixtures/${id}.md` }));
+
+const actualGovernance = {
+  manifest: JSON.parse(readFileSync(path.join(root, ".agents/manifest.json"), "utf8")),
+  lock: JSON.parse(readFileSync(path.join(root, ".agents/skills.lock.json"), "utf8")),
+  fixtureOracle: JSON.parse(readFileSync(path.join(root, "docs/agents/pilots/fixture-oracle.json"), "utf8")),
+};
+const actualCandidate = actualGovernance.manifest.skills.find(
+  (skill) => skill.id === "yorso-multilingual-ux-copywriter-agent",
+);
+const actualCandidateHash = actualGovernance.lock.skills.find(
+  (skill) => skill.id === actualCandidate.id,
+).contentSha256;
+const actualCommit = String(
+  await import("node:child_process").then(({ execFileSync }) =>
+    execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim(),
+  ),
+);
+
+const createExecutorWorkspace = () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "yorso-stage-b-executor-"));
+  const plan = buildStageBPlan({
+    pilotId: "pilot-executor",
+    candidateSkill: actualCandidate,
+    candidateSkillContentSha256: actualCandidateHash,
+    evaluatedCommit: actualCommit,
+    fixtures: actualGovernance.fixtureOracle.fixtures,
+    randomBytesFn: deterministicBytes,
+  });
+  mkdirSync(path.join(workspace, "tasks"));
+  mkdirSync(path.join(workspace, "outputs"));
+  mkdirSync(path.join(workspace, "reviews"));
+  writeFileSync(path.join(workspace, "coordinator.json"), `${JSON.stringify(plan.coordinator, null, 2)}\n`);
+  for (const task of plan.tasks) {
+    writeFileSync(path.join(workspace, "tasks", `${task.taskId}.json`), `${JSON.stringify(task, null, 2)}\n`);
+  }
+  return { workspace, plan };
+};
 
 const deterministicBytes = (() => {
   let value = 0;
@@ -61,25 +100,72 @@ test("buildStageBPlan creates 30 unique randomized arm tuples with executable ou
   }
 });
 
-test("prepareBlindReviewPacket strips candidate and arm identity while retaining oracle defects", () => {
-  const workspace = mkdtempSync(path.join(os.tmpdir(), "yorso-stage-b-review-"));
-  const plan = buildStageBPlan({
-    pilotId: "pilot-review",
-    candidateSkill: candidate,
-    candidateSkillContentSha256,
-    evaluatedCommit,
-    fixtures,
+test("executor packets isolate baseline from candidate metadata and pin candidate materials to the evaluated commit", () => {
+  const { workspace, plan } = createExecutorWorkspace();
+  const baselineTask = plan.tasks.find((task) => task.setup.mode === "baseline");
+  const candidateTask = plan.tasks.find((task) => task.setup.mode === "candidate");
+
+  const baseline = prepareNextStageBExecutorTask({ root, workspace, taskId: baselineTask.taskId });
+  const baselineText = readFileSync(baseline.packetPath, "utf8");
+  assert.equal(baselineText.includes(actualCandidate.id), false);
+  assert.equal(baselineText.includes(actualCandidate.path), false);
+  assert.equal(baselineText.includes(actualCandidateHash), false);
+  assert.equal(baselineText.toLowerCase().includes("candidate"), false);
+  assert.equal(baselineText.toLowerCase().includes("experiment"), false);
+  assert.equal(baseline.packet.skillBundle, undefined);
+  assert.match(baseline.packet.fixture.prompt, /Given an existing region/);
+
+  const candidatePacket = prepareNextStageBExecutorTask({ root, workspace, taskId: candidateTask.taskId });
+  assert.equal(candidatePacket.packet.skillBundle.skillId, actualCandidate.id);
+  assert.equal(candidatePacket.packet.skillBundle.contentSha256, actualCandidateHash);
+  assert.equal(candidatePacket.packet.skillBundle.files.some((file) => file.path === "SKILL.md"), true);
+  assert.equal(candidatePacket.packet.skillBundle.files.some((file) => file.path === "references/ui-copy-matrix.md"), true);
+});
+
+test("submission wraps raw executor text with verified identity and rejects packet tampering or overwrite", () => {
+  const { workspace, plan } = createExecutorWorkspace();
+  const task = plan.tasks[0];
+  const prepared = prepareNextStageBExecutorTask({ root, workspace, taskId: task.taskId });
+  const responseFile = path.join(workspace, "response.txt");
+  writeFileSync(responseFile, "A complete executor response with enough detail for independent review.\n");
+
+  const submitted = submitStageBOutput({
+    root,
+    workspace,
+    taskId: task.taskId,
+    executorId: "executor.one",
+    responseFile,
   });
-  const fixtureOracle = JSON.parse(readFileSync(path.join(root, "docs/agents/pilots/fixture-oracle.json"), "utf8"));
-  writeFileSync(
-    path.join(workspace, "coordinator.json"),
-    `${JSON.stringify({ ...plan.coordinator, fixtureOracleSha256: "c".repeat(64) }, null, 2)}\n`,
+  const output = JSON.parse(readFileSync(submitted.outputPath, "utf8"));
+  assert.equal(output.runKey, task.runKey);
+  assert.equal(output.executor.id, "executor.one");
+  assert.match(output.executor.packetSha256, /^[0-9a-f]{64}$/);
+  assert.match(output.executor.responseSha256, /^[0-9a-f]{64}$/);
+
+  assert.throws(
+    () => submitStageBOutput({ root, workspace, taskId: task.taskId, executorId: "executor.one", responseFile }),
+    /already exists/,
   );
+
+  const secondTask = plan.tasks[1];
+  const second = prepareNextStageBExecutorTask({ root, workspace, taskId: secondTask.taskId });
+  const tampered = JSON.parse(readFileSync(second.packetPath, "utf8"));
+  tampered.fixture.prompt = "Tampered fixture";
+  writeFileSync(second.packetPath, `${JSON.stringify(tampered, null, 2)}\n`);
+  assert.throws(
+    () => submitStageBOutput({ root, workspace, taskId: secondTask.taskId, executorId: "executor.two", responseFile }),
+    /executor packet does not match evaluated commit/,
+  );
+});
+
+test("prepareBlindReviewPacket strips candidate and arm identity while retaining oracle defects", () => {
+  const { workspace, plan } = createExecutorWorkspace();
+  const fixtureOracle = JSON.parse(readFileSync(path.join(root, "docs/agents/pilots/fixture-oracle.json"), "utf8"));
   writeFileSync(
     path.join(workspace, "review-queue.json"),
     `${JSON.stringify({
       schemaVersion: 1,
-      pilotId: "pilot-review",
+      pilotId: plan.coordinator.pilotId,
       items: plan.tasks.map((task) => ({
         reviewItemId: task.taskId,
         fixtureId: task.fixtureId,
@@ -88,29 +174,20 @@ test("prepareBlindReviewPacket strips candidate and arm identity while retaining
       })),
     }, null, 2)}\n`,
   );
-  mkdirSync(path.join(workspace, "outputs"));
-  mkdirSync(path.join(workspace, "reviews"));
   for (const task of plan.tasks) {
-    writeFileSync(
-      path.join(workspace, task.outputPath),
-      `${JSON.stringify({
-        schemaVersion: 1,
-        runKey: task.runKey,
-        evaluatedCommit,
-        candidateSkillId: candidate.id,
-        candidateSkillContentSha256,
-        outputText: `Detailed independent response for ${task.fixtureId} and task ${task.taskId}.`,
-      }, null, 2)}\n`,
-    );
+    prepareNextStageBExecutorTask({ root, workspace, taskId: task.taskId });
+    const responseFile = path.join(workspace, `${task.taskId}.txt`);
+    writeFileSync(responseFile, `Detailed independent response for ${task.fixtureId} and task ${task.taskId}.`);
+    submitStageBOutput({ root, workspace, taskId: task.taskId, executorId: "executor.review", responseFile });
   }
 
   const packet = prepareBlindReviewPacket({ root, workspace });
   const serialized = readFileSync(path.join(packet, "manifest.json"), "utf8");
   const manifest = JSON.parse(serialized);
-  assert.equal(serialized.includes(candidate.id), false);
+  assert.equal(serialized.includes(actualCandidate.id), false);
   assert.equal(serialized.includes("baseline"), false);
   assert.equal(serialized.includes("candidate"), false);
-  assert.equal(serialized.includes(evaluatedCommit), false);
+  assert.equal(serialized.includes(actualCommit), false);
   assert.equal(serialized.includes("runKey"), false);
   assert.equal(manifest.items.length, 30);
   assert.deepEqual(

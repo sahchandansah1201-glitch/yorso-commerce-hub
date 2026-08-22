@@ -19,6 +19,7 @@ import {
 const PILOT_SCHEMA_VERSION = 1;
 const TASK_SCHEMA_VERSION = 1;
 const REVIEW_PACKET_SCHEMA_VERSION = 1;
+const EXECUTOR_PACKET_SCHEMA_VERSION = 1;
 const ACTOR_REGISTRY_SCHEMA_VERSION = 2;
 const FIXTURE_IDS = ["F1", "F2", "F3", "F4", "F5"];
 const ARMS = ["baseline", "candidate"];
@@ -42,6 +43,7 @@ export const canonicalSha256 = (value) =>
   createHash("sha256").update(canonicalJson(value)).digest("hex");
 
 const fileSha256 = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
+const textSha256 = (value) => createHash("sha256").update(value).digest("hex");
 
 const readJson = (file) => JSON.parse(readFileSync(file, "utf8"));
 
@@ -57,6 +59,13 @@ const git = (root, args) =>
     stdio: ["ignore", "pipe", "pipe"],
   }).trim();
 
+const gitBuffer = (root, args) =>
+  execFileSync("git", args, {
+    cwd: root,
+    encoding: "buffer",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
 const shuffle = (items, randomBytesFn = randomBytes) => {
   const shuffled = [...items];
   for (let index = shuffled.length - 1; index > 0; index -= 1) {
@@ -71,6 +80,138 @@ const assertCanonicalId = (value, label) => {
   if (typeof value !== "string" || !CANONICAL_ID.test(value)) {
     throw new Error(`${label} must use lowercase ASCII letters, digits, '.', '_' or '-'`);
   }
+};
+
+const readPilotTask = ({ workspace, taskId }) => {
+  assertCanonicalId(taskId, "taskId");
+  const taskFile = path.join(workspace, "tasks", `${taskId}.json`);
+  if (!existsSync(taskFile)) throw new Error(`unknown Stage B task: ${taskId}`);
+  return readJson(taskFile);
+};
+
+const assertTaskIdentity = ({ coordinator, task }) => {
+  const run = coordinator.runMap.find((entry) => entry.taskId === task.taskId);
+  if (
+    task.schemaVersion !== TASK_SCHEMA_VERSION ||
+    !run ||
+    run.runKey !== task.runKey ||
+    run.arm !== task.setup?.mode ||
+    task.evaluatedCommit !== coordinator.evaluatedCommit ||
+    task.candidateSkillId !== coordinator.candidateSkillId ||
+    task.candidateSkillContentSha256 !== coordinator.candidateSkillContentSha256
+  ) {
+    throw new Error(`invalid Stage B task identity: ${task.taskId}`);
+  }
+};
+
+const filesAtRevision = ({ root, revision, directory }) => {
+  const listing = git(root, ["ls-tree", "-r", "--name-only", revision, "--", directory]);
+  if (!listing) throw new Error(`no files found at ${revision}:${directory}`);
+  return listing.split("\n").filter(Boolean).sort().map((file) => ({
+    path: path.posix.relative(directory, file),
+    content: gitBuffer(root, ["show", `${revision}:${file}`]).toString("utf8"),
+  }));
+};
+
+const hashRevisionFiles = (files) => {
+  const hash = createHash("sha256");
+  for (const file of files) {
+    hash.update(file.path);
+    hash.update("\0");
+    hash.update(file.content);
+    hash.update("\0");
+  }
+  return hash.digest("hex");
+};
+
+const buildExecutorPacket = ({ root, coordinator, task }) => {
+  assertTaskIdentity({ coordinator, task });
+  const prompt = gitBuffer(root, ["show", `${coordinator.evaluatedCommit}:${task.promptPath}`]).toString("utf8");
+  const packet = {
+    schemaVersion: EXECUTOR_PACKET_SCHEMA_VERSION,
+    taskId: task.taskId,
+    fixture: { id: task.fixtureId, prompt },
+    execution: {
+      instruction:
+        task.setup.mode === "candidate"
+          ? "Complete the fixture using the supplied candidate skill bundle. Return only the complete response."
+          : "Complete the fixture using only general capabilities and the materials in this packet. Return only the complete response.",
+      minimumResponseCharacters: 20,
+    },
+  };
+
+  if (task.setup.mode === "candidate") {
+    const files = filesAtRevision({
+      root,
+      revision: coordinator.evaluatedCommit,
+      directory: coordinator.candidateSkillPath,
+    });
+    const contentSha256 = hashRevisionFiles(files);
+    if (contentSha256 !== coordinator.candidateSkillContentSha256) {
+      throw new Error("candidate skill bundle does not match the locked evaluated commit");
+    }
+    packet.skillBundle = {
+      skillId: coordinator.candidateSkillId,
+      contentSha256,
+      files,
+    };
+  }
+  return packet;
+};
+
+export const prepareNextStageBExecutorTask = ({ root, workspace, taskId }) => {
+  const coordinator = readJson(path.join(workspace, "coordinator.json"));
+  const tasks = readdirSync(path.join(workspace, "tasks"))
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => readJson(path.join(workspace, "tasks", name)))
+    .sort((left, right) => left.sequence - right.sequence);
+  const task = taskId
+    ? readPilotTask({ workspace, taskId })
+    : tasks.find((entry) => !existsSync(path.join(workspace, entry.outputPath)));
+  if (!task) throw new Error("all Stage B executor tasks already have outputs");
+  if (existsSync(path.join(workspace, task.outputPath))) throw new Error(`Stage B output already exists: ${task.outputPath}`);
+
+  const packet = buildExecutorPacket({ root, coordinator, task });
+  const packetPath = path.join(workspace, "executor-packets", `${task.taskId}.json`);
+  if (existsSync(packetPath)) {
+    const existing = readJson(packetPath);
+    if (canonicalSha256(existing) !== canonicalSha256(packet)) {
+      throw new Error(`executor packet does not match evaluated commit: ${task.taskId}`);
+    }
+  } else {
+    writeJson(packetPath, packet);
+  }
+  return { task, packet, packetPath, packetSha256: canonicalSha256(packet) };
+};
+
+export const submitStageBOutput = ({ root, workspace, taskId, executorId, responseFile }) => {
+  assertCanonicalId(executorId, "executor id");
+  const task = readPilotTask({ workspace, taskId });
+  const outputPath = path.join(workspace, task.outputPath);
+  if (existsSync(outputPath)) throw new Error(`Stage B output already exists: ${task.outputPath}`);
+  const prepared = prepareNextStageBExecutorTask({ root, workspace, taskId });
+  const existingPacket = readJson(prepared.packetPath);
+  if (canonicalSha256(existingPacket) !== prepared.packetSha256) {
+    throw new Error(`executor packet does not match evaluated commit: ${taskId}`);
+  }
+  const outputText = readFileSync(responseFile, "utf8").trim();
+  if (outputText.length < 20) throw new Error("Stage B executor response must contain at least 20 characters");
+
+  const output = {
+    schemaVersion: 1,
+    runKey: task.runKey,
+    evaluatedCommit: task.evaluatedCommit,
+    candidateSkillId: task.candidateSkillId,
+    candidateSkillContentSha256: task.candidateSkillContentSha256,
+    outputText,
+    executor: {
+      id: executorId,
+      packetSha256: prepared.packetSha256,
+      responseSha256: textSha256(outputText),
+    },
+  };
+  writeJson(outputPath, output);
+  return { output, outputPath };
 };
 
 const findCandidate = ({ manifest, lock }, skillId) => {
@@ -137,6 +278,7 @@ export const buildStageBPlan = ({
           "candidateSkillId",
           "candidateSkillContentSha256",
           "outputText",
+          "executor",
         ],
       },
     };
@@ -206,11 +348,12 @@ export const initializeStageBPilot = ({ root, skillId, pilotId, workspaceRoot })
     path.join(workspace, "README.md"),
     `# Stage B workspace: ${pilotId}\n\n` +
       `Candidate: ${skillId}\nEvaluated commit: ${evaluatedCommit}\nTasks: 30\n\n` +
-      "1. Give executors only the task files they need.\n" +
-      "2. Store one structured JSON output per task under outputs/.\n" +
-      "3. Run prepare-review only after all 30 outputs exist.\n" +
-      "4. Give reviewers only review-packet/, never coordinator.json or tasks/.\n" +
-      "5. Private signing keys must remain outside this repository and workspace.\n",
+      "1. Never give executors tasks/ or coordinator.json.\n" +
+      "2. Use stage-b:next to create one isolated executor packet.\n" +
+      "3. Use stage-b:submit-output to wrap the raw response with verified identity and provenance.\n" +
+      "4. Run prepare-review only after all 30 outputs exist.\n" +
+      "5. Give reviewers only review-packet/, never coordinator.json, tasks/ or executor-packets/.\n" +
+      "6. Private signing keys must remain outside this repository and workspace.\n",
   );
   return { workspace, plan };
 };
@@ -284,6 +427,10 @@ export const prepareBlindReviewPacket = ({ root, workspace, force = false }) => 
   for (const queued of queue.items) {
     const output = readJson(path.join(workspace, queued.expectedOutputPath));
     const run = runByTask.get(queued.reviewItemId);
+    const task = readPilotTask({ workspace, taskId: queued.reviewItemId });
+    const expectedPacket = buildExecutorPacket({ root, coordinator, task });
+    const packetPath = path.join(workspace, "executor-packets", `${task.taskId}.json`);
+    const packet = existsSync(packetPath) ? readJson(packetPath) : undefined;
     if (
       output.schemaVersion !== 1 ||
       output.runKey !== run.runKey ||
@@ -291,7 +438,13 @@ export const prepareBlindReviewPacket = ({ root, workspace, force = false }) => 
       output.candidateSkillId !== coordinator.candidateSkillId ||
       output.candidateSkillContentSha256 !== coordinator.candidateSkillContentSha256 ||
       typeof output.outputText !== "string" ||
-      output.outputText.trim().length < 20
+      output.outputText.trim().length < 20 ||
+      !packet ||
+      canonicalSha256(packet) !== canonicalSha256(expectedPacket) ||
+      !output.executor ||
+      !CANONICAL_ID.test(output.executor.id ?? "") ||
+      output.executor.packetSha256 !== canonicalSha256(expectedPacket) ||
+      output.executor.responseSha256 !== textSha256(output.outputText)
     ) {
       throw new Error(`invalid Stage B output identity: ${queued.expectedOutputPath}`);
     }
