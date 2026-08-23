@@ -10,32 +10,21 @@ Branch: `local-lab/agent-capability-foundation`
 
 ## Immediate
 
-1. Use the initialized `.data/stage-b/copywriter-2026-08` workspace, which is
-   bound to candidate commit `dc86aae5331d84836ab428929ba602d0420f35a9`.
-2. Continue with the registered `codex-local-executor-a`; only its Ed25519
-   public key is tracked. Keep its private key outside the repository and pilot
-   workspace.
-3. Run each executor in an empty temporary `CODEX_HOME` and empty working
-   directory. Copy in authentication only for the process lifetime; do not
-   expose user skills, rules, memory, the repository or another task packet.
-4. Assign each remaining task once with `npm run stage-b:next -- --pilot
-   copywriter-2026-08 --executor codex-local-executor-a` to issue one
-   arm-isolated, exact-commit packet at a time.
-5. Generate and externally sign the canonical payload with `npm run
-   stage-b:prepare-submission -- --pilot copywriter-2026-08 --task <task-id>
-   --executor <executor-id> --response-file <path> --payload-file <path>`.
-6. Submit each signed executor response only through `npm run
-   stage-b:submit-output -- --pilot copywriter-2026-08 --task <task-id>
-   --executor <executor-id> --response-file <path> --signature-file <path>`.
-   Submission, status and blind-review preparation reject executor,
-   assignment, packet, response, public-key or signature drift.
-7. Register two real reviewers from distinct independence groups using only
+1. Preserve the completed `.data/stage-b/copywriter-2026-08` execution
+   workspace: 30/30 immutable assignments, 30/30 valid signed outputs and 0
+   invalid signed outputs.
+2. Register two real reviewers from distinct independence groups using only
    their Ed25519 public keys; retain private keys outside the repository.
-8. Prepare the blind review packet after all signed outputs exist and collect two
-   signed reviewer sheets.
-9. Record schema-version-5 evidence only after the score/recall/agreement gates
-   pass; do not infer or fabricate missing results.
-10. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
+3. Give reviewers only `.data/stage-b/copywriter-2026-08/review-packet/`.
+   Never disclose coordinator, task arm mappings, candidate identity or
+   executor/operator artifacts.
+4. Collect exactly two signed reviewer sheets and re-run fail-closed status.
+5. Store the accepted actor-registry SHA-256 out of band and provide it through
+   `YORSO_TRUSTED_ACTOR_REGISTRY_SHA256` only during qualification.
+6. Record schema-version-5 evidence only after score, critical-recall,
+   agreement and overhead gates pass; do not infer or fabricate missing
+   results.
+7. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
    `main` unchanged until Stage B and separate promotion approval pass.
 
 ## Required Before Main Promotion

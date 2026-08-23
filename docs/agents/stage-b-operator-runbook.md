@@ -88,6 +88,12 @@ each run. Copy only the minimum authentication material into that temporary
 home for the process lifetime, and remove the temporary home after retaining
 the response outside the repository.
 
+The temporary `CODEX_HOME`, executor working directory and operator artifacts
+(event trace, raw response, canonical payload and detached signature) must use
+separate physical roots. Do not place them in sibling directories under one
+shared parent. A read-only sandbox may still allow the executor to discover or
+read sibling files that the operator assumed were private.
+
 The executor process must be ephemeral, use a read-only sandbox and receive
 only the assigned packet content. It must not receive repository access, user
 skills, rules, memory, another task packet or coordinator files. Never commit
@@ -97,6 +103,14 @@ or signatures into the repository or pilot workspace.
 Treat any run that reads external skills, rules, memory or project files as
 contaminated. Interrupt it and do not sign or submit its response. Start again
 with a fresh isolated home and empty working directory.
+
+Inspect the complete Codex JSON event trace before signing. Reject the run if
+any command or tool access mentions repository paths, user skills, memory,
+coordinator/task mappings, another executor packet, operator logs,
+authentication material or private keys. A sandbox denial proves that access
+was blocked, not that the whole run is valid: retain the denial in the operator
+audit, then accept the response only when the remaining trace and response are
+free of forbidden context.
 
 ## 5. Prepare and sign the canonical submission payload
 

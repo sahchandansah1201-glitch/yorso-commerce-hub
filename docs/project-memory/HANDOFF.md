@@ -35,10 +35,10 @@ multilingual UX copywriter and non-mutating verification gates.
 | Prevent evidence-only promotion | Stage B/main-promotion v5 plus reviewer-sheet v4 bind each skill to signed actors, structured outputs, fixture oracle, exact commit, each output SHA and structured gate artifacts; the tracked candidate surface is fresh while evidence/project-memory use later attestations | Register real trusted actors and produce Stage B results later | governance adversarial and real-Git integration tests |
 | Protect production PRs | CI validates the PR base branch; a PR targeting `main` must satisfy main policy | Keep `main` unchanged until promotion | governance PR-target test |
 | Validate experimental pushes | GitHub CI now runs for `local-lab/**` pushes | Verify remote workflow result after first push | `.github/workflows/ci.yml` |
-| Make Stage B executable | CLI creates 30 randomized tasks, validates identity-bound outputs, builds a blind reviewer packet, enrols public keys only and fails closed until real evidence exists | Run real executor outputs and signed independent review | `npm run test:agent-governance`; `docs/agents/stage-b-operator-runbook.md` |
-| Initialize the first real workspace | `copywriter-2026-08` contains 30 tasks bound to exact commit `dc86aae5331d84836ab428929ba602d0420f35a9`; reviewer queue omits arm mappings | Produce 30 outputs and enrol two real reviewers | `npm run stage-b:status -- --pilot copywriter-2026-08` returns blocked exit 2 |
-| Make executor runs reproducible | `stage-b:next` immutably assigns an arm-isolated exact-commit packet to a registered executor; `stage-b:prepare-submission` emits a canonical payload; `stage-b:submit-output` verifies an Ed25519 signature and binds assignment, packet, response and payload hashes | Register real executors and collect 30 genuine signed responses | `npm run test:agent-governance`; signature/tamper tests; fail-closed pilot status |
-| Execute the first genuine Stage B task | Registered `codex-local-executor-a` with a public key only, assigned task `a93017b304142d7845e8` and accepted one externally signed isolated response | Run the remaining 29 tasks, then obtain two independent human reviews | status reports 1/30 assignments, 1/30 outputs and 0 invalid signatures |
+| Make Stage B executable | CLI creates 30 randomized tasks, validates identity-bound outputs, builds a blind reviewer packet, enrols public keys only and fails closed until real evidence exists | Collect signed independent review | `npm run test:agent-governance`; `docs/agents/stage-b-operator-runbook.md` |
+| Initialize the first real workspace | `copywriter-2026-08` contains 30 tasks bound to exact commit `dc86aae5331d84836ab428929ba602d0420f35a9`; reviewer queue omits arm mappings | Enrol two real reviewers | `npm run stage-b:status -- --pilot copywriter-2026-08` returns blocked exit 2 only for human review/trust gates |
+| Make executor runs reproducible | `stage-b:next` immutably assigns an arm-isolated exact-commit packet to a registered executor; `stage-b:prepare-submission` emits a canonical payload; `stage-b:submit-output` verifies an Ed25519 signature and binds assignment, packet, response and payload hashes | Preserve the completed execution evidence | `npm run test:agent-governance`; signature/tamper tests; fail-closed pilot status |
+| Complete the Stage B execution campaign | `codex-local-executor-a` produced 30/30 immutable, externally signed and valid outputs; one shared-parent attempt was rejected before signing and rerun with physically separated roots | Obtain two independent human reviews and the out-of-band trusted registry digest | status reports 30/30 assignments, 30/30 outputs and 0 invalid signatures; blind manifest contains 30 items |
 
 ## Evidence Already Established
 
@@ -48,10 +48,13 @@ multilingual UX copywriter and non-mutating verification gates.
 - Stage A structural/provenance pilot passed.
 - Full Stage B evidence is not complete; therefore no `30%`, `200%` or other
   quantified improvement claim is made.
-- The real pilot has `1/30` immutable assignments, `1/30` valid signed outputs,
-  `1` registered executor, `0/2` reviewers and `0/2` signed sheets. The first
-  attempt was rejected because the normal Codex home exposed user skills; only
-  the rerun with an empty isolated Codex home was signed and submitted.
+- The real pilot has `30/30` immutable assignments, `30/30` valid signed
+  outputs, `0` invalid signed outputs, `1` registered executor, `0/2`
+  reviewers and `0/2` signed sheets. Contaminated attempts were rejected before
+  signing; accepted runs used fresh isolated homes and physically separated
+  executor/operator roots.
+- The blind reviewer packet contains 30 outputs and its manifest exposes no
+  candidate skill, baseline/arm, run key, evaluated commit or candidate hash.
 - `.agents/actors.json` contains one public-key-only Codex executor and no real
   registered humans. This intentionally keeps Stage B and promotion closed.
   Passed evidence additionally requires two independent human reviewers and
@@ -76,7 +79,6 @@ git diff --check
 
 The Stage B pilot remains initialized from clean exact HEAD `dc86aae5`; the
 executor packet/submission workflow was added later on the experimental branch.
-Stage B stays blocked until the remaining 29 real outputs, two
-registered independent reviewers, exactly two valid signed sheets and the
-out-of-band trusted actor-registry digest exist. Any merge to `main` remains a
-separate closed gate.
+Execution is complete. Stage B stays blocked until two registered independent
+reviewers, exactly two valid signed sheets and the out-of-band trusted
+actor-registry digest exist. Any merge to `main` remains a separate closed gate.

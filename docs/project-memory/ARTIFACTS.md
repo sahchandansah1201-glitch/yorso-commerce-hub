@@ -2002,5 +2002,9 @@
   clean candidate commit; not a repository artifact.
 - `.data/stage-b/copywriter-2026-08`: initialized local runtime workspace with
   30 tasks bound to exact commit
-  `dc86aae5331d84836ab428929ba602d0420f35a9`; contains 1/30 valid signed
-  outputs, no reviewer evidence yet and is intentionally ignored by Git.
+  `dc86aae5331d84836ab428929ba602d0420f35a9`; contains 30/30 immutable
+  assignments, 30/30 valid signed outputs, 0 invalid signed outputs and no
+  reviewer evidence yet; it is intentionally ignored by Git.
+- `.data/stage-b/copywriter-2026-08/review-packet/manifest.json` plus 30 text
+  outputs: generated blind human-review input. The manifest omits candidate
+  skill, arm/baseline, run key, evaluated commit and candidate hash identities.

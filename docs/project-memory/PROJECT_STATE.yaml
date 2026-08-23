@@ -58,6 +58,8 @@ active_workstream:
     - "Added a reproducible Stage B executor workflow: stage-b:next emits one commit-bound arm-isolated packet, and stage-b:submit-output records canonical executor identity plus packet and response SHA-256 without exposing coordinator arm mappings."
     - "Hardened Stage B executor provenance: every task has an immutable assignment to a registered stage-b-executor, every response is bound to a canonical payload and Ed25519 signature, and status plus blind-review preparation reject assignment, packet, response, key or signature drift."
     - "Accepted the first genuine isolated Stage B executor response for task a93017b304142d7845e8 after external Ed25519 signing; one earlier run that exposed user skills was rejected and never submitted."
+    - "Completed the Stage B execution campaign with 30/30 immutable assignments, 30/30 valid Ed25519-signed outputs and 0 invalid signed outputs, then generated a 30-item blind reviewer packet without candidate, arm, run-key or evaluated-commit identity leakage."
+    - "Hardened the operator runbook after rejecting an unsigned shared-parent attempt whose event trace exposed operator files: executor work, temporary CODEX_HOME and operator logs/signing artifacts must use separate physical roots and every trace must be inspected before signing."
   open_gates:
     - "Run the complete Stage B blind comparative pilot before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before Stage B evidence can pass."
@@ -81,14 +83,14 @@ stage_b_pilot:
   evaluated_commit: "dc86aae5331d84836ab428929ba602d0420f35a9"
   workspace: ".data/stage-b/copywriter-2026-08"
   task_count: 30
-  assignment_count: 1
-  output_count: 1
+  assignment_count: 30
+  output_count: 30
   invalid_signed_output_count: 0
   executor_count: 1
   reviewer_count: 0
   reviewer_sheet_count: 0
   qualification: "blocked"
-  executor_workflow: "first_real_signed_output_accepted"
+  executor_workflow: "complete_signed_execution_campaign"
   actor_registry_sha256: "5d05c9bda5dffa92fe9d2614e88fd70ec1611af0009e87a23a3689f703bb38ec"
   first_accepted_task_id: "a93017b304142d7845e8"
   first_accepted_packet_sha256: "73e5cf4007b006f5ed47c7ff40f8dda65f289e0996618851a66049d960e27161"
@@ -100,8 +102,6 @@ stage_b_pilot:
     - "npm run stage-b:prepare-submission -- --pilot copywriter-2026-08 --task <task-id> --executor <executor-id> --response-file <path> --payload-file <path>"
     - "npm run stage-b:submit-output -- --pilot copywriter-2026-08 --task <task-id> --executor <executor-id> --response-file <path> --signature-file <path>"
   blockers:
-    - "missing executor assignments: 29"
-    - "missing outputs: 29"
     - "missing registered Stage B reviewers: 2"
     - "Stage B reviewers must use distinct independence groups"
     - "missing signed reviewer sheets: 2"
@@ -124,4 +124,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Continue the remaining 29 isolated assignments and Ed25519-signed responses through stage-b:prepare-submission and stage-b:submit-output, then obtain two real independent human reviewers and signed evidence before qualification."
+next_action: "Give only the generated blind review packet to two real reviewers from distinct independence groups, collect exactly two signed reviewer sheets and supply the trusted actor-registry digest out of band before qualification."

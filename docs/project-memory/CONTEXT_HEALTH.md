@@ -16,8 +16,8 @@ last_checkpoint: "2026-08-23"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Continue the remaining 29 isolated executor tasks and externally signed responses, then collect two real independent human reviewers and signed evidence; do not merge main."
-why_medium: "The exact-commit Stage B workspace now has 1/30 immutable assignments and 1/30 valid signed outputs, but it still has no human reviewers, no signed reviewer sheets, no trusted final registry digest and no promotion approval."
+recommended_action: "Give the completed blind review packet to two real reviewers from distinct independence groups, collect exactly two signed reviewer sheets and supply the trusted registry digest out of band; do not merge main."
+why_medium: "The exact-commit Stage B execution campaign has 30/30 immutable assignments, 30/30 valid signed outputs and 0 invalid signed outputs, but it still has no human reviewers, no signed reviewer sheets, no trusted final registry digest and no promotion approval."
 ```
 
 ## Confirmed Boundaries
@@ -45,6 +45,9 @@ why_medium: "The exact-commit Stage B workspace now has 1/30 immutable assignmen
 - A valid Codex executor run uses an empty temporary `CODEX_HOME` and empty
   working directory. A run that reads user skills, rules, memory or repository
   files is contaminated and must be rejected without submission.
+- Executor work, temporary `CODEX_HOME` and operator logs/signing artifacts use
+  separate physical roots. One shared-parent attempt was rejected before
+  signing after its event trace showed access to operator files.
 
 ## Recovery Prompt
 

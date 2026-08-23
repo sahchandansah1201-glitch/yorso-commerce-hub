@@ -2,6 +2,22 @@
 
 Keep this file factual and append-only.
 
+## 2026-08-23 — Stage B signed execution campaign complete
+
+- Completed `copywriter-2026-08` with 30/30 immutable task assignments, 30/30
+  valid Ed25519-signed outputs and 0 invalid signed outputs using the registered
+  public-key-only actor `codex-local-executor-a`.
+- Rejected one shared-parent attempt before signing after its Codex JSON event
+  trace showed the executor reading operator files. The same immutable task was
+  rerun with separate physical roots for temporary `CODEX_HOME`, executor work
+  and operator logs/signing artifacts.
+- Prepared a 30-item blind reviewer packet. Its manifest contains no candidate
+  skill, baseline/arm, run key, evaluated commit or candidate hash identity.
+- Fresh fail-closed status is blocked only by human evidence: 0/2 registered
+  reviewers, reviewers not yet in distinct independence groups, 0/2 signed
+  reviewer sheets and no out-of-band trusted actor-registry digest.
+- No reviewer, score, quality uplift or promotion evidence was fabricated.
+
 ## 2026-08-23 — First genuine signed Stage B executor output
 
 - Registered `codex-local-executor-a` as a `stage-b-executor` with only its
