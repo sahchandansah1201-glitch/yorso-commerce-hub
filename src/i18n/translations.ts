@@ -1834,6 +1834,10 @@ type TranslationKeys = {
   account_company_description_label: string;
   account_company_productFocus: string;
   account_company_certificates: string;
+  account_company_certificates_help: string;
+  account_company_certificates_searchPlaceholder: string;
+  account_company_certificates_empty: string;
+  account_company_certificates_remove: string;
   account_company_paymentTerms: string;
   account_company_listHelp: string;
   account_company_whatsapp: string;
@@ -3808,7 +3812,11 @@ const en: TranslationKeys = {
   account_company_description_title: "Company description",
   account_company_description_label: "Description",
   account_company_productFocus: "Product focus",
-  account_company_certificates: "Certificates",
+  account_company_certificates: "Certifications and approvals",
+  account_company_certificates_help: "Pick from the catalog",
+  account_company_certificates_searchPlaceholder: "Search certifications",
+  account_company_certificates_empty: "No matching certifications",
+  account_company_certificates_remove: "Remove certification",
   account_company_paymentTerms: "Payment terms",
   account_company_listHelp: "Comma separated values",
   account_company_whatsapp: "WhatsApp",
@@ -5771,7 +5779,11 @@ const ru: TranslationKeys = {
   account_company_description_title: "Описание компании",
   account_company_description_label: "Описание",
   account_company_productFocus: "Продуктовый фокус",
-  account_company_certificates: "Сертификаты",
+  account_company_certificates: "Сертификаты и допуски",
+  account_company_certificates_help: "Выберите из справочника",
+  account_company_certificates_searchPlaceholder: "Поиск сертификатов",
+  account_company_certificates_empty: "Ничего не найдено",
+  account_company_certificates_remove: "Удалить сертификат",
   account_company_paymentTerms: "Условия оплаты",
   account_company_listHelp: "Значения через запятую",
   account_company_whatsapp: "WhatsApp",
@@ -7733,7 +7745,11 @@ const es: TranslationKeys = {
   account_company_description_title: "Descripción de la empresa",
   account_company_description_label: "Descripción",
   account_company_productFocus: "Foco de producto",
-  account_company_certificates: "Certificados",
+  account_company_certificates: "Certificaciones y autorizaciones",
+  account_company_certificates_help: "Elija del catálogo",
+  account_company_certificates_searchPlaceholder: "Buscar certificaciones",
+  account_company_certificates_empty: "Sin resultados",
+  account_company_certificates_remove: "Eliminar certificación",
   account_company_paymentTerms: "Condiciones de pago",
   account_company_listHelp: "Valores separados por comas",
   account_company_whatsapp: "WhatsApp",
