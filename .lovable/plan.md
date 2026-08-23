@@ -22,39 +22,60 @@ Backend, API, auth, provider-free policy, другие вкладки и `main` 
 
 Данные в mock-профиле содержат значения вне справочника: `"IFS Food"`, `"EU Approval Number"`, у филиалов — `"BAP"`, `"EU Health Mark"`.
 
-## 2. Изменяемые файлы
+## 2. Канонизация кодов
+
+Единый helper (в `src/data/certifications.ts`), используемый рендерингом, проверкой дублей и сохранением:
+
+- `"IFS Food"` → `IFS`, `"EU Approval Number"` → `EU` (алиас-таблица известных синонимов);
+- известные алиасы отображаются и сохраняются как канонические коды справочника;
+- неизвестные legacy-строки (`"BAP"`, `"EU Health Mark"`) остаются как есть, видимы и удаляемы;
+- дубли исключаются по каноническому коду, а не по сырому тексту.
+
+## 3. Изменяемые файлы
 
 | Файл | Изменение |
 |---|---|
-| `src/components/account/AccountCertificationPicker.tsx` | новый компонент: компактный multi-select по справочнику + chips выбранного |
-| `src/pages/account/Account.tsx` | из карточки Trust убрать блок «Продуктовый фокус» (read + edit), сертификаты — через новый picker |
-| `src/i18n/translations.ts` | ключи EN/RU/ES: заголовок карточки-подписи, «Добавить сертификат», «Удалить {code}», пустое состояние, поиск/подсказка; без сырых enum |
-| `src/components/account/SupplierProfilePreview.tsx` | убрать блок `productFocus` (если он там рендерится) и оставить сертификаты как badges |
-| `e2e/p1s-company-certifications.spec.ts` | новый сценарий (см. п.4) |
-| `e2e/account-company-edit-contract.spec.ts` | обновить старый кейс: убрать ввод product-focus, ввод сертификатов заменить на выбор из picker |
-| `src/pages/account/Account.test.tsx`, `Account.editable.test.tsx` | обновить ожидания по карточке Trust |
+| `src/data/certifications.ts` | алиас-таблица + `canonicalizeCertificationCode()`, список доступных кодов |
+| `src/components/account/AccountCertificationPicker.tsx` | новый компонент: компактный multi-select со поиском, клавиатурой и chips |
+| `src/pages/account/Account.tsx` | убрать `productFocus` из карточки Trust (read + edit), сертификаты через picker |
+| `src/i18n/translations.ts` | EN/RU/ES ключи, заголовок карточки: «Сертификаты и допуски» / «Certifications and approvals» / «Certificaciones y autorizaciones»; без сырых enum |
+| `src/components/account/SupplierProfilePreview.tsx` | убрать блок `productFocus`, сертификаты остаются badges |
+| `e2e/p1s-company-certifications.spec.ts` | новый сценарий (п.5) |
+| `e2e/account-company-edit-contract.spec.ts` | обновить кейс: без product-focus, сертификаты через picker |
+| `src/pages/account/Account.test.tsx`, `Account.editable.test.tsx` | обновить ожидания карточки Trust и новый контейнер вместо Input |
 
-Модель данных `CompanyProfile.productFocus` и `certificates` остаются без изменений — поле `productFocus` просто не редактируется и не показывается на этой вкладке.
+Scope: `productFocus` убирается только из account Trust card и account `SupplierProfilePreview`. Публичный `SupplierProfile`, каталог `Suppliers`, API и backend не трогаем. Новых пакетов и внешних логотипов не добавляем.
 
-## 3. Обратная совместимость
+## 4. Обратная совместимость
 
-- Тип и local prototype storage не меняются: сохраняем `certificates: string[]` с кодами справочника.
-- Значения вне справочника (`"IFS Food"`, `"EU Approval Number"`, `"BAP"`) не удаляются: `getCertificationInfo` возвращает fallback, chip рендерится с исходной строкой и остаётся удаляемым. Новых сертификатов picker не придумывает — добавить можно только из справочника.
-- `productFocus` сохраняется в объекте при save (не обнуляется), поэтому счётчик completion и другие поверхности не ломаются.
-- `s_certificates` в `account-store.ts` продолжает считать `certificates.length >= 1` — логику не меняем.
-- testid `account-company-certificates` остаётся на контейнере picker, чтобы контракт не рвался; для элементов добавляются `account-company-certificate-chip-<CODE>`, `-remove-<CODE>`, `-add`.
+- `CompanyProfile.productFocus` и данные в storage не меняются; поле сохраняется при save, completion-счётчик и `s_certificates` работают как раньше.
+- `certificates: string[]` — тот же тип; сохраняются канонические коды, неизвестные значения — без изменений.
+- testid `account-company-certificates` остаётся, но теперь на контейнере picker; все unit/e2e потребители, ожидавшие `Input`, обновляются.
+- Поведение Save/Cancel в `EditableCard` не меняется.
+- Дополнительные testid: `account-company-certificate-chip-<CODE>`, `-remove-<CODE>`, `account-company-certificates-search`, `-option-<CODE>`, `-empty`.
 
-## 4. Playwright-сценарии (`e2e/p1s-company-certifications.spec.ts`)
+## 5. Playwright-сценарии (`e2e/p1s-company-certifications.spec.ts`)
 
-1. Read-режим: карточка Trust не содержит блока «Продуктовый фокус»; сертификаты — badges с аббревиатурой.
-2. Добавление: открыть edit → picker → выбрать MSC и ASC → chips появились; уже выбранные в списке недоступны.
-3. Удаление: удалить ASC → chip исчез, ASC снова доступен в списке.
-4. Сохранение и повторное открытие: Save → read показывает MSC → перезагрузка `/account/company` → значение сохранилось; повторный вход в edit префилл сохранённых chips.
-5. Legacy-значение: `"EU Approval Number"` из mock остаётся chip и удаляется.
-6. Mobile 390px: отсутствие horizontal overflow (`scrollWidth <= clientWidth`), touch targets ≥44px, отсутствие nested interactive (кнопка удаления не внутри другой кнопки).
-7. Локали EN/RU/ES: подписи и aria-label не содержат сырых enum-значений.
+Фикстура — изолированный детерминированный профиль (сертификаты предварительно очищаются), поэтому добавляются заведомо невыбранные коды `HACCP` и `GLOBALG.A.P.`.
 
-## 5. Verification (после утверждения)
+1. Read: в карточке Trust нет блока «Продуктовый фокус»; сертификаты — badges с аббревиатурой.
+2. Добавление подряд второго и третьего сертификата без повторного открытия формы; picker остаётся пригодным для следующего выбора.
+3. Выбранный сертификат недоступен в списке; после удаления снова доступен.
+4. Удаление и повторное добавление в одной сессии редактирования.
+5. Клавиатура: ArrowDown/ArrowUp, Enter, Escape.
+6. Пустой поиск / состояние «ничего не найдено».
+7. Фокус остаётся на picker (или возвращается к нему) после выбора и удаления.
+8. Save → reload → повторный вход в edit: выбранные chips префилл.
+9. Legacy: `"IFS Food"` и `"EU Approval Number"` отображаются как `IFS`/`EU`; `"BAP"` остаётся как есть и удаляется.
+10. Mobile 390px: нет horizontal overflow, все действия ≥44px, нет nested interactive.
 
-`npx tsc -p tsconfig.app.json --noEmit`, `npm run check:provider-boundary`, `npm run build`,
-vitest по затронутым файлам, Playwright по новому и обновлённому спекам, скриншоты desktop read / mobile read / mobile edit в `test-results/p1s-company-certifications/`.
+## 6. Acceptance
+
+`npx tsc -p tsconfig.app.json --noEmit`, `npm run check:provider-boundary`, `npm run build`, focused Vitest, Playwright.
+
+Скриншоты в `test-results/p1s-company-certifications/`: desktop read, desktop edit с открытым picker, mobile 390 read, mobile 390 edit с открытым picker, mobile legacy chip state.
+
+Программно: отсутствие horizontal overflow, отсутствие nested interactive controls, mobile-действия ≥44px, отсутствие console/page errors, отсутствие provider-free scaffold.
+
+Стоп после `/account/company`.
+
