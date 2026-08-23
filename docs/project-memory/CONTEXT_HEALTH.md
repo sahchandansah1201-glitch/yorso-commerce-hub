@@ -16,8 +16,8 @@ last_checkpoint: "2026-08-23"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Use the owner-qualified copywriter skill in local-lab product work with feature-specific verification; keep independent quality measurement and main promotion as separate gates."
-why_medium: "Stage B operational qualification is complete from 30/30 valid signed outputs and a checksum-bound owner directive, but independent quality uplift and production promotion are intentionally not established."
+recommended_action: "Run the next product scope through the executable local-lab cycle, pilot the QA/release candidate narrowly, and keep release Gates 4-7 closed until exact evidence exists."
+why_medium: "All 13 roles were researched and local cycle Gates 0-3 are executable and tested, but independent review, Lovable exact-HEAD verification, PR approval and server proof are still absent."
 ```
 
 ## Confirmed Boundaries
@@ -29,6 +29,12 @@ why_medium: "Stage B operational qualification is complete from 30/30 valid sign
 - Current changes are governance, project skills, verification tooling and
   project-memory only. No product runtime or production deployment changes are
   part of this workstream.
+- Deep search was repeated for all 13 accountable roles through Exa and the
+  Codex skills index. Candidates are references or pilots until their exact
+  content passes Yorso-specific evaluation; popularity is not an install gate.
+- `check:local-lab-cycle:working-tree` is the implementation-time check;
+  `check:local-lab-cycle` requires a clean candidate; release mode fails closed
+  while Gates 4-7 lack evidence.
 - Owner-directive Stage B qualification authorizes operational use only on the
   experimental branch. It does not establish a quantified improvement.
 - `.agents/actors.json` contains one public-key-only Codex executor and no human
@@ -61,7 +67,7 @@ Repository: /Users/istokdmgmail.com/Documents/yorso-commerce-hub-main
 Branch: local-lab/agent-capability-foundation
 Read AGENTS.md, PROJECT_STATE.yaml, HANDOFF.md and NEXT_ACTIONS.md.
 Verify git status and agent governance before editing.
-Do not merge main. Stage B operational qualification is complete for the
-experimental branch. Continue feature work with exact-HEAD acceptance and keep
-independent quality measurement plus production promotion as separate gates.
+Do not merge main. Run the local-lab cycle before accepting feature work.
+Stage B operational qualification is complete for the experimental branch;
+release Gates 4-7 still require independent, exact-HEAD and server evidence.
 ```

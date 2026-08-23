@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "agent-capability-foundation-2026-08-23",
+  "branch": "local-lab/agent-capability-foundation",
+  "baseRef": "origin/main",
+  "baseCommit": "0f71847b7150f5ed5358c418f4fb3509109b7b82",
+  "canonicalRemote": "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub",
+  "changeClass": "governance-tooling",
+  "allowedPaths": [
+    ".agents/",
+    ".github/workflows/ci.yml",
+    "docs/agents/",
+    "docs/project-memory/",
+    "docs/workflow/",
+    "e2e/account-workspace-sections.spec.ts",
+    "package.json",
+    "scripts/",
+    "src/test/provider-free-tooling-retirement.test.ts",
+    "src/test/setup.ts",
+    "tsconfig.app.json"
+  ],
+  "automatedChecks": [
+    "check:agent-governance",
+    "check:project-memory",
+    "check:provider-boundary",
+    "test:local-lab-cycle"
+  ],
+  "humanLikeQa": {
+    "required": false,
+    "reason": "This scope changes governance documentation and verification tooling only; no user-visible runtime or interaction changed."
+  },
+  "independentReviews": {
+    "status": "pending",
+    "reason": "The current task is performed by one runtime; a separate actor has not reviewed the exact commit."
+  },
+  "lovableSameBranch": {
+    "status": "pending",
+    "reason": "Lovable has not yet verified the resulting exact HEAD on this branch."
+  },
+  "pullRequest": {
+    "status": "pending",
+    "reason": "No PR to main is opened by this local cycle test."
+  },
+  "serverProof": {
+    "status": "pending",
+    "reason": "No merge or server deployment is authorized in this workstream."
+  }
+}

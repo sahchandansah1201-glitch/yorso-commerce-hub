@@ -62,6 +62,10 @@ active_workstream:
     - "Added a fail-closed human reviewer workflow: complete blind drafts use only reviewItemId, canonical reviewer-sheet-v4 payloads are prepared only after decisions are frozen, detached Ed25519 signatures are verified externally and status revalidates every sheet against current packet and output evidence."
     - "Hardened the operator runbook after rejecting an unsigned shared-parent attempt whose event trace exposed operator files: executor work, temporary CODEX_HOME and operator logs/signing artifacts must use separate physical roots and every trace must be inspected before signing."
     - "Added fail-closed owner-directive Stage B qualification for experimental local-lab branches and qualified copywriter-2026-08 from 30/30 immutable assignments and valid signed outputs, with 6 blocked responses recorded and no independent-review, uplift or production-promotion claim."
+    - "Repeated role research for all 13 accountable roles through Exa deep search and the Codex skills index, then bound qualified GitHub candidates to verified licenses and full commit SHAs."
+    - "Recorded candidate overlap, domain-fit limits and explicit rejects; no external skill was installed wholesale from popularity alone."
+    - "Added an executable local-lab delivery cycle with safe command allowlisting, repository/branch/base/scope checks, human-like QA policy and fail-closed local versus release verdicts."
+    - "Tested the cycle with six positive and adversarial cases and a real working-tree run: Gates 0-3 passed locally while Gates 4-7 remained pending by design."
   open_gates:
     - "Run independent blind comparative review before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before independent-review evidence or main promotion can pass."
@@ -77,6 +81,17 @@ governance:
   registered_skills: 11
   copywriter_status: "active-local-lab-owner-qualified"
   automatic_main_promotion: false
+
+development_cycle:
+  workflow: "docs/workflow/local-lab-delivery-workflow.ru.md"
+  acceptance_gate: "docs/workflow/local-lab-acceptance-gate.ru.md"
+  evidence: "docs/workflow/runs/agent-capability-foundation.json"
+  role_research_ledger: "docs/agents/research/role-skill-deep-search-2026-08-23.md"
+  researched_roles: 13
+  runner_tests: "6/6 passed"
+  local_verdict: "VALIDATED_LOCAL"
+  release_verdict: "NO-GO_pending_gates_4_7"
+  claim_boundary: "The cycle implementation is tested locally; release readiness is not established."
 
 stage_b_pilot:
   id: "copywriter-2026-08"
@@ -128,6 +143,10 @@ validation:
     lint: "passed with 6 known non-blocking warnings"
     production_build: "passed; 3113 modules"
   required_commands:
+    - "npm run test:local-lab-cycle"
+    - "npm run check:local-lab-cycle:working-tree"
+    - "npm run check:local-lab-cycle"
+    - "npm run check:local-lab-release-cycle"
     - "npm run check:agent-governance"
     - "npm run test:agent-governance"
     - "npm run check:project-memory"
@@ -138,4 +157,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Use the owner-qualified copywriter skill in local-lab product work with feature-specific verification; keep independent quality measurement and any merge to main behind their separate review and promotion gates."
+next_action: "Use the executable local-lab cycle for the next product scope; pilot the QA/release candidate before installation, and keep release Gates 4-7 closed until exact evidence exists."

@@ -4494,3 +4494,33 @@ Keep this file factual and append-only.
 | Create complete run matrix | 30 task files created | Execute all tasks | task count = 30 |
 | Keep review blind | Queue omits arm mapping | Generate packet after outputs | queue key inspection |
 | Keep promotion fail-closed | Stage B/main checks return 2/1 | Real humans and signed evidence | status commands |
+
+## 2026-08-23 — Role Deep Search And Executable Local-Lab Cycle
+
+- Repeated deep research for all 13 accountable Yorso roles through Exa and
+  the Codex skills index.
+- Verified selected GitHub candidates through repository metadata, root
+  license evidence and full commit SHA; recorded overlap, domain-fit limits and
+  explicit rejects instead of installing by popularity.
+- Selected `petrkindlmann/qa-skills` for the next narrow QA/release pilot and
+  retained `affaan-m/ECC` as a logistics research candidate. Neither was
+  installed or declared production-ready.
+- Added Russian delivery workflow and acceptance-gate documents plus a safe,
+  allowlisted runner for local and release modes.
+- Added six positive/adversarial tests covering local success, release
+  fail-closed behavior, external evidence, repository/scope mismatch,
+  mandatory human QA for UI and arbitrary-command rejection.
+- Ran the cycle against the actual working tree: Gates 0-3 passed and returned
+  `VALIDATED_LOCAL`; Gates 4-7 stayed pending, so no release claim was made.
+- Found and fixed a syntax defect in the initial diff-check command and split
+  implementation-time dirty-tree validation from strict clean-candidate
+  acceptance.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Research every role | 13/13 searched through Exa and Codex skills | Pilot selected candidates | role research ledger |
+| Bind external provenance | License and full SHA recorded for qualified candidates | Audit exact candidate content before adaptation | GitHub metadata evidence |
+| Test the development cycle | Six unit cases plus real local run pass | Exact-HEAD external Gates 4-7 | `test:local-lab-cycle`; cycle runner |
+| Fail closed on release | Pending review/Lovable/PR/server evidence returns `NO-GO` | Supply evidence only during promotion | release-mode test |

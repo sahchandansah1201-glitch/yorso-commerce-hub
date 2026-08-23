@@ -41,6 +41,8 @@ multilingual UX copywriter and non-mutating verification gates.
 | Complete the Stage B execution campaign | `codex-local-executor-a` produced 30/30 immutable, externally signed and valid outputs; 6 blocked responses are recorded; one contaminated attempt was rejected before signing | None for owner-directed operational use | owner evidence binds all 30 assignments and outputs |
 | Make human review executable | Blind drafts contain only `reviewItemId` decisions; `stage-b:prepare-review-submission` freezes complete drafts into output-bound reviewer-sheet-v4 payloads; `stage-b:submit-review` verifies the registered human's detached Ed25519 signature and status rejects later drift | Two real humans must independently complete, sign and submit their sheets | focused reviewer workflow tests cover incomplete/leaking drafts, wrong identities/signatures, overwrite and post-submit tampering |
 | Qualify operational Stage B | Project-owner directive activated the copywriter for experimental work; governance records `owner-directive` mode and exact negative claim boundary | Use it in feature work; independent review is optional until uplift/main is pursued | 30/30 signed outputs, 0 invalid, 6 blocked; checksum-bound directive/evidence |
+| Repeat role/skill discovery | All 13 roles searched through Exa and Codex skills; GitHub license and full-SHA evidence recorded | Pilot only the selected QA and logistics candidates | `docs/agents/research/role-skill-deep-search-2026-08-23.md` |
+| Make the development cycle executable | Safe allowlisted runner evaluates repository, branch, base, scope, automated checks, human QA and release evidence | Supply real Gates 4-7 evidence only when promotion is requested | `npm run test:local-lab-cycle`; `npm run check:local-lab-cycle` |
 
 ## Evidence Already Established
 
@@ -66,11 +68,19 @@ multilingual UX copywriter and non-mutating verification gates.
   hashes instead.
 - Local promotion-gate fixtures prove validation logic, not that GitHub CI was
   executed. Verifiable remote CI attestation remains required before `main`.
+- The local-lab runner has six passing positive/adversarial tests. A real dirty
+  working-tree run produced `VALIDATED_LOCAL` for Gates 0-3. Release mode is
+  expected to return `NO-GO` until independent review, Lovable same-HEAD, PR and
+  server proof are supplied.
+- No external candidate found in the repeated search was installed wholesale.
+  The highest-priority next pilot is `petrkindlmann/qa-skills`; this is a pilot
+  decision, not an adoption or quality-uplift claim.
 
 ## Next Commands
 
 ```bash
 npm run check:capability-foundation
+npm run check:local-lab-cycle:working-tree
 npm run test:tooling
 npx tsc -b --noEmit
 npm run lint

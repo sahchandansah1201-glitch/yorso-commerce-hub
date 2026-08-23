@@ -2026,3 +2026,22 @@
   complete external blind draft into a canonical evidence-bound signing
   payload, then verify the registered human reviewer's external Ed25519
   signature. The repository currently contains no human reviewer result.
+
+## Role Research And Local-Lab Delivery Cycle
+
+- `docs/agents/role-skill-provenance-matrix.md`: accountable role matrix with
+  current Yorso skills and external qualification decisions for all 13 roles.
+- `docs/agents/research/role-skill-deep-search-2026-08-23.md`: repeated Exa and
+  Codex skills search ledger with GitHub license, full commit SHA, maturity,
+  overlap and decision evidence.
+- `docs/workflow/local-lab-delivery-workflow.ru.md`: single-branch development
+  flow from task framing through local validation, review and promotion.
+- `docs/workflow/local-lab-acceptance-gate.ru.md`: Gates 0-7 and the distinction
+  between `VALIDATED_LOCAL`, `RELEASE_READY` and server delivery.
+- `docs/workflow/runs/agent-capability-foundation.json`: allowlisted evidence
+  declaration for the current governance/tooling scope.
+- `scripts/lib/local-lab-cycle.mjs`: pure evidence validation and gate verdict
+  engine.
+- `scripts/check-local-lab-cycle.mjs`: repository-aware safe-check runner.
+- `scripts/check-local-lab-cycle.test.mjs`: six positive and fail-closed cycle
+  tests.
