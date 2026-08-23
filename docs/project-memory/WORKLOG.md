@@ -2,6 +2,24 @@
 
 Keep this file factual and append-only.
 
+## 2026-08-23 — Signed Stage B human reviewer workflow
+
+- Added a blank blind-review template and required all 30 human decisions to be
+  completed using only `reviewItemId`, score, known critical-defect ids and a
+  pass decision. Drafts that are incomplete or leak run/arm/candidate fields
+  fail closed.
+- Added `stage-b:prepare-review-submission` as the controlled deblinding point:
+  after the human draft is final, it creates canonical reviewer-sheet-v4 bytes
+  bound to the candidate, evaluated commit, fixture oracle, blind packet and
+  every current output SHA-256.
+- Added `stage-b:submit-review` to verify the registered reviewer's detached
+  Ed25519 signature, reject payload/evidence drift and prevent sheet overwrite.
+  Status now revalidates stored sheets and reports valid and invalid counts.
+- Added focused adversarial coverage for incomplete/leaking drafts, identity
+  and signature forgery, overwrite and post-submit mutation. No human reviewer,
+  score, private key or signature was generated; the real pilot remains at 0/2
+  reviewers and 0/2 signed sheets.
+
 ## 2026-08-23 — Stage B signed execution campaign complete
 
 - Completed `copywriter-2026-08` with 30/30 immutable task assignments, 30/30

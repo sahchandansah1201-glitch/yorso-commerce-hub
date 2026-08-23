@@ -143,7 +143,17 @@ The executable workflow is documented in
   verified Ed25519 and SHA-256 provenance;
 - `npm run stage-b:prepare-review -- --pilot <id>`: reject incomplete or
   unsigned/identity-mismatched outputs and create a reviewer packet without
-  skill/arm identity;
+  skill/arm identity plus a blind decision template keyed only by
+  `reviewItemId`;
+- `npm run stage-b:prepare-review-submission -- --pilot <id> --reviewer <id>
+  --review-file <external-file> --payload-file <external-file>`: require a
+  complete blind human draft, reject arm/run/candidate leakage, then freeze the
+  decisions into a canonical schema-version-4 payload bound to the candidate,
+  evaluated commit, oracle, packet and every current output SHA-256;
+- `npm run stage-b:submit-review -- --pilot <id> --reviewer <id>
+  --payload-file <external-file> --signature-file <external-file>`: verify the
+  registered reviewer's detached Ed25519 signature, reject stale evidence and
+  store one immutable signed reviewer sheet;
 - `npm run stage-b:register-actor -- ...`: enrol only an Ed25519 public key;
 - `npm run stage-b:status -- --pilot <id>`: report concrete blockers and return
   exit code 2 while qualification is incomplete;
@@ -153,5 +163,8 @@ The executable workflow is documented in
 - `npm run check:main-promotion`: evaluate the separate production policy
   without mutating the repository.
 
-Tooling never creates a reviewer identity, private key, score, signature or
-promotion decision. Missing human evidence remains a hard blocker.
+Reviewers complete all decisions while the packet is still blind. Run keys and
+candidate identity are introduced only by the payload-preparation command after
+the draft is final. Tooling never creates a reviewer identity, private key,
+score, signature or promotion decision. Missing human evidence remains a hard
+blocker.

@@ -4,6 +4,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  realpathSync,
   readdirSync,
   rmSync,
   writeFileSync,
@@ -22,6 +23,8 @@ const REVIEW_PACKET_SCHEMA_VERSION = 1;
 const EXECUTOR_PACKET_SCHEMA_VERSION = 1;
 const EXECUTOR_ASSIGNMENT_SCHEMA_VERSION = 1;
 const EXECUTOR_SUBMISSION_SCHEMA_VERSION = 1;
+const BLIND_REVIEW_DRAFT_SCHEMA_VERSION = 1;
+const REVIEWER_SHEET_SCHEMA_VERSION = 4;
 const ACTOR_REGISTRY_SCHEMA_VERSION = 2;
 const FIXTURE_IDS = ["F1", "F2", "F3", "F4", "F5"];
 const ARMS = ["baseline", "candidate"];
@@ -52,6 +55,42 @@ const readJson = (file) => JSON.parse(readFileSync(file, "utf8"));
 const writeJson = (file, value) => {
   mkdirSync(path.dirname(file), { recursive: true });
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
+};
+
+const assertExactKeys = (value, allowedKeys, label) => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error(`${label} must be an object`);
+  }
+  for (const key of Object.keys(value)) {
+    if (!allowedKeys.has(key)) throw new Error(`unsupported ${label} field: ${key}`);
+  }
+};
+
+const resolvesWithin = (parent, child) => {
+  const relative = path.relative(path.resolve(parent), path.resolve(child));
+  return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== "..");
+};
+
+const physicalPath = (file) => {
+  const requested = path.resolve(file);
+  let existing = requested;
+  while (!existsSync(existing)) {
+    const parent = path.dirname(existing);
+    if (parent === existing) break;
+    existing = parent;
+  }
+  return path.resolve(realpathSync(existing), path.relative(existing, requested));
+};
+
+const requireExternalOperatorFile = ({ root, workspace, file, label }) => {
+  if (!file) throw new Error(`${label} is required`);
+  const physicalFile = physicalPath(file);
+  if (
+    resolvesWithin(realpathSync(root), physicalFile) ||
+    resolvesWithin(realpathSync(workspace), physicalFile)
+  ) {
+    throw new Error(`${label} must stay outside the repository and pilot workspace`);
+  }
 };
 
 const git = (root, args) =>
@@ -533,6 +572,268 @@ const assignmentFiles = (workspace) => {
   return existsSync(directory) ? readdirSync(directory).filter((name) => name.endsWith(".json")) : [];
 };
 
+const stageBResultRoot = (pilotId) => `docs/agents/pilots/results/${pilotId}`;
+
+const readVerifiedReviewPacket = ({ root, workspace, coordinator }) => {
+  const packetRoot = path.join(workspace, "review-packet");
+  const manifestFile = path.join(packetRoot, "manifest.json");
+  if (!existsSync(manifestFile)) throw new Error("blind review packet is missing");
+  const manifest = readJson(manifestFile);
+  if (
+    manifest.schemaVersion !== REVIEW_PACKET_SCHEMA_VERSION ||
+    manifest.pilotId !== coordinator.pilotId ||
+    !Array.isArray(manifest.items)
+  ) {
+    throw new Error("blind review packet identity is invalid");
+  }
+  const tasks = readdirSync(path.join(workspace, "tasks"))
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => readJson(path.join(workspace, "tasks", name)));
+  const taskById = new Map(tasks.map((task) => [task.taskId, task]));
+  const seen = new Set();
+  for (const item of manifest.items) {
+    const task = taskById.get(item?.reviewItemId);
+    const outputFile = path.join(packetRoot, item?.outputPath ?? "");
+    if (
+      !task ||
+      seen.has(item.reviewItemId) ||
+      item.fixtureId !== task.fixtureId ||
+      item.fixturePath !== task.promptPath ||
+      !item.outputPath?.startsWith("outputs/") ||
+      !existsSync(outputFile) ||
+      item.outputSha256 !== fileSha256(outputFile)
+    ) {
+      throw new Error(`blind review packet item is invalid: ${item?.reviewItemId ?? "unknown"}`);
+    }
+    seen.add(item.reviewItemId);
+  }
+  if (manifest.items.length !== coordinator.taskCount || taskById.size !== coordinator.taskCount) {
+    throw new Error("blind review packet must contain every task exactly once");
+  }
+  return {
+    manifest,
+    manifestFile,
+    taskById,
+    reviewPacketSha256: fileSha256(manifestFile),
+  };
+};
+
+const validateBlindReviewDraft = ({ coordinator, reviewerId, draft, packet }) => {
+  assertExactKeys(
+    draft,
+    new Set(["schemaVersion", "pilotId", "reviewerId", "reviews"]),
+    "blind review draft",
+  );
+  if (
+    draft.schemaVersion !== BLIND_REVIEW_DRAFT_SCHEMA_VERSION ||
+    draft.pilotId !== coordinator.pilotId ||
+    draft.reviewerId !== reviewerId ||
+    !Array.isArray(draft.reviews)
+  ) {
+    throw new Error("blind review draft identity is invalid");
+  }
+  const packetItems = new Map(packet.manifest.items.map((item) => [item.reviewItemId, item]));
+  const seen = new Set();
+  for (const review of draft.reviews) {
+    assertExactKeys(
+      review,
+      new Set(["reviewItemId", "score", "criticalDefectIdsFound", "pass"]),
+      "blind review",
+    );
+    const item = packetItems.get(review.reviewItemId);
+    const defects = Array.isArray(review.criticalDefectIdsFound) ? review.criticalDefectIdsFound : [];
+    if (
+      !item ||
+      seen.has(review.reviewItemId) ||
+      !Number.isFinite(review.score) ||
+      review.score < 0 ||
+      review.score > 100 ||
+      typeof review.pass !== "boolean" ||
+      defects.length !== new Set(defects).size ||
+      defects.some((id) => !item.criticalDefectIds.includes(id))
+    ) {
+      throw new Error(`invalid blind review decision: ${review.reviewItemId ?? "unknown"}`);
+    }
+    seen.add(review.reviewItemId);
+  }
+  if (draft.reviews.length !== packetItems.size || [...packetItems.keys()].some((id) => !seen.has(id))) {
+    throw new Error("blind review draft must review every blind review item exactly once");
+  }
+};
+
+const currentReviewerOutputBindings = ({ root, workspace, coordinator, packet }) => {
+  const runByTask = new Map(coordinator.runMap.map((entry) => [entry.taskId, entry.runKey]));
+  return packet.manifest.items
+    .map((item) => {
+      const task = packet.taskById.get(item.reviewItemId);
+      const outputFile = path.join(workspace, task.outputPath);
+      const output = readJson(outputFile);
+      validateStoredExecutorOutput({
+        root,
+        workspace,
+        coordinator,
+        task,
+        output,
+        outputPath: task.outputPath,
+      });
+      return {
+        runKey: runByTask.get(item.reviewItemId),
+        outputArtifact: `${stageBResultRoot(coordinator.pilotId)}/${task.outputPath}`,
+        outputSha256: fileSha256(outputFile),
+      };
+    })
+    .sort((left, right) => left.runKey.localeCompare(right.runKey));
+};
+
+const reviewerPayloadKeys = new Set([
+  "schemaVersion",
+  "pilotId",
+  "resultRoot",
+  "candidateSkillId",
+  "evaluatedCommit",
+  "candidateSkillContentSha256",
+  "fixtureOracleSha256",
+  "blindReviewSha256",
+  "reviewPacketSha256",
+  "outputBindings",
+  "reviewerId",
+  "reviews",
+]);
+
+const validateReviewerPayload = ({ root, workspace, reviewerId, payload }) => {
+  assertExactKeys(payload, reviewerPayloadKeys, "reviewer payload");
+  const actor = requireActorRole({ root, actorId: reviewerId, role: "stage-b-reviewer" });
+  const coordinator = readJson(path.join(workspace, "coordinator.json"));
+  const packet = readVerifiedReviewPacket({ root, workspace, coordinator });
+  const outputBindings = currentReviewerOutputBindings({ root, workspace, coordinator, packet });
+  if (
+    payload.schemaVersion !== REVIEWER_SHEET_SCHEMA_VERSION ||
+    payload.pilotId !== coordinator.pilotId ||
+    payload.resultRoot !== stageBResultRoot(coordinator.pilotId) ||
+    payload.candidateSkillId !== coordinator.candidateSkillId ||
+    payload.evaluatedCommit !== coordinator.evaluatedCommit ||
+    payload.candidateSkillContentSha256 !== coordinator.candidateSkillContentSha256 ||
+    payload.fixtureOracleSha256 !== coordinator.fixtureOracleSha256 ||
+    payload.reviewerId !== reviewerId ||
+    !SHA256.test(payload.blindReviewSha256 ?? "") ||
+    payload.reviewPacketSha256 !== packet.reviewPacketSha256 ||
+    canonicalJson(payload.outputBindings) !== canonicalJson(outputBindings) ||
+    !Array.isArray(payload.reviews)
+  ) {
+    throw new Error("reviewer payload identity or evidence binding is invalid");
+  }
+  const runByTask = new Map(coordinator.runMap.map((entry) => [entry.taskId, entry.runKey]));
+  const expectedRunKeys = new Set(runByTask.values());
+  const itemByRunKey = new Map(
+    packet.manifest.items.map((item) => [runByTask.get(item.reviewItemId), item]),
+  );
+  const seen = new Set();
+  for (const review of payload.reviews) {
+    assertExactKeys(review, new Set(["runKey", "score", "criticalDefectIdsFound", "pass"]), "reviewer decision");
+    const item = itemByRunKey.get(review.runKey);
+    const defects = Array.isArray(review.criticalDefectIdsFound) ? review.criticalDefectIdsFound : [];
+    if (
+      !item ||
+      seen.has(review.runKey) ||
+      !Number.isFinite(review.score) ||
+      review.score < 0 ||
+      review.score > 100 ||
+      typeof review.pass !== "boolean" ||
+      defects.length !== new Set(defects).size ||
+      defects.some((id) => !item.criticalDefectIds.includes(id))
+    ) {
+      throw new Error(`invalid reviewer decision: ${review.runKey ?? "unknown"}`);
+    }
+    seen.add(review.runKey);
+  }
+  if (payload.reviews.length !== expectedRunKeys.size || [...expectedRunKeys].some((key) => !seen.has(key))) {
+    throw new Error("reviewer payload must review every run exactly once");
+  }
+  return { actor, coordinator, packet };
+};
+
+export const prepareStageBReviewerPayload = ({
+  root,
+  workspace,
+  reviewerId,
+  reviewFile,
+  payloadFile,
+}) => {
+  requireExternalOperatorFile({ root, workspace, file: reviewFile, label: "blind review draft" });
+  requireExternalOperatorFile({ root, workspace, file: payloadFile, label: "reviewer signing payload" });
+  requireActorRole({ root, actorId: reviewerId, role: "stage-b-reviewer" });
+  const status = getStageBPilotStatus({ root, workspace });
+  if (!status.readyForReview) throw new Error(status.blockers[0]);
+  const coordinator = readJson(path.join(workspace, "coordinator.json"));
+  const packet = readVerifiedReviewPacket({ root, workspace, coordinator });
+  const draft = readJson(reviewFile);
+  validateBlindReviewDraft({ coordinator, reviewerId, draft, packet });
+  const runByTask = new Map(coordinator.runMap.map((entry) => [entry.taskId, entry.runKey]));
+  const payload = {
+    schemaVersion: REVIEWER_SHEET_SCHEMA_VERSION,
+    pilotId: coordinator.pilotId,
+    resultRoot: stageBResultRoot(coordinator.pilotId),
+    candidateSkillId: coordinator.candidateSkillId,
+    evaluatedCommit: coordinator.evaluatedCommit,
+    candidateSkillContentSha256: coordinator.candidateSkillContentSha256,
+    fixtureOracleSha256: coordinator.fixtureOracleSha256,
+    blindReviewSha256: canonicalSha256(draft),
+    reviewPacketSha256: packet.reviewPacketSha256,
+    outputBindings: currentReviewerOutputBindings({ root, workspace, coordinator, packet }),
+    reviewerId,
+    reviews: draft.reviews
+      .map((review) => ({
+        runKey: runByTask.get(review.reviewItemId),
+        score: review.score,
+        criticalDefectIdsFound: review.criticalDefectIdsFound,
+        pass: review.pass,
+      }))
+      .sort((left, right) => left.runKey.localeCompare(right.runKey)),
+  };
+  validateReviewerPayload({ root, workspace, reviewerId, payload });
+  mkdirSync(path.dirname(payloadFile), { recursive: true });
+  writeFileSync(payloadFile, canonicalJson(payload));
+  return { payload, payloadSha256: canonicalSha256(payload) };
+};
+
+const validateStoredReviewerSheet = ({ root, workspace, file }) => {
+  const reviewerId = path.basename(file, ".json");
+  assertCanonicalId(reviewerId, "reviewer id");
+  const sheet = readJson(path.join(workspace, "reviews", file));
+  const { signature, ...payload } = sheet;
+  const { actor } = validateReviewerPayload({ root, workspace, reviewerId, payload });
+  const signatureBytes = Buffer.from(signature ?? "", "base64");
+  if (
+    typeof signature !== "string" ||
+    !/^[A-Za-z0-9+/]+={0,2}$/.test(signature) ||
+    signatureBytes.length !== 64 ||
+    !verify(null, Buffer.from(canonicalJson(payload)), actor.publicKeyPem, signatureBytes)
+  ) {
+    throw new Error(`reviewer signature is invalid: ${reviewerId}`);
+  }
+  return { reviewerId, actor, sheet };
+};
+
+export const submitStageBReview = ({ root, workspace, reviewerId, payloadFile, signatureFile }) => {
+  requireExternalOperatorFile({ root, workspace, file: payloadFile, label: "reviewer signing payload" });
+  requireExternalOperatorFile({ root, workspace, file: signatureFile, label: "reviewer signature" });
+  assertCanonicalId(reviewerId, "reviewer id");
+  const sheetPath = path.join(workspace, "reviews", `${reviewerId}.json`);
+  if (existsSync(sheetPath)) throw new Error(`reviewer sheet already exists: ${reviewerId}`);
+  const payloadText = readFileSync(payloadFile, "utf8");
+  const payload = JSON.parse(payloadText);
+  if (payloadText !== canonicalJson(payload)) throw new Error("reviewer signing payload is not canonical JSON");
+  if (payload.reviewerId !== reviewerId) throw new Error("reviewer payload identity mismatch");
+  const { actor } = validateReviewerPayload({ root, workspace, reviewerId, payload });
+  const signature = readFileSync(signatureFile);
+  if (signature.length !== 64 || !verify(null, Buffer.from(payloadText), actor.publicKeyPem, signature)) {
+    throw new Error("reviewer signature is invalid");
+  }
+  const sheet = { ...payload, signature: signature.toString("base64") };
+  writeJson(sheetPath, sheet);
+  return { sheet, sheetPath };
+};
+
 export const getStageBPilotStatus = ({ root, workspace, env = process.env }) => {
   const coordinator = readJson(path.join(workspace, "coordinator.json"));
   const governance = loadAgentGovernance(root);
@@ -546,6 +847,9 @@ export const getStageBPilotStatus = ({ root, workspace, env = process.env }) => 
   const trustedRegistry = env.YORSO_TRUSTED_ACTOR_REGISTRY_SHA256;
   const blockers = [];
   let invalidOutputCount = 0;
+  let invalidReviewerSheetCount = 0;
+  const validReviewerIds = new Set();
+  const validReviewerGroups = new Set();
 
   for (const file of outputs) {
     const taskId = path.basename(file, ".json");
@@ -562,6 +866,17 @@ export const getStageBPilotStatus = ({ root, workspace, env = process.env }) => 
       });
     } catch {
       invalidOutputCount += 1;
+    }
+  }
+
+  for (const file of reviews) {
+    try {
+      const validated = validateStoredReviewerSheet({ root, workspace, file });
+      if (validReviewerIds.has(validated.reviewerId)) throw new Error("duplicate reviewer identity");
+      validReviewerIds.add(validated.reviewerId);
+      validReviewerGroups.add(validated.actor.independenceGroup);
+    } catch {
+      invalidReviewerSheetCount += 1;
     }
   }
 
@@ -586,6 +901,10 @@ export const getStageBPilotStatus = ({ root, workspace, env = process.env }) => 
   if (reviews.length !== 2) {
     blockers.push(reviews.length < 2 ? `missing signed reviewer sheets: ${2 - reviews.length}` : "exactly two reviewer sheets are required");
   }
+  if (invalidReviewerSheetCount > 0) blockers.push(`invalid signed reviewer sheets: ${invalidReviewerSheetCount}`);
+  if (reviews.length === 2 && invalidReviewerSheetCount === 0 && validReviewerGroups.size < 2) {
+    blockers.push("signed Stage B reviewer sheets must use distinct independence groups");
+  }
   if (!SHA256.test(trustedRegistry ?? "")) blockers.push("YORSO_TRUSTED_ACTOR_REGISTRY_SHA256 is not set");
   else if (trustedRegistry !== registrySha256) blockers.push("trusted actor registry SHA-256 does not match");
 
@@ -600,6 +919,8 @@ export const getStageBPilotStatus = ({ root, workspace, env = process.env }) => 
     executorCount: executors.length,
     reviewerCount: reviewers.length,
     reviewerSheetCount: reviews.length,
+    validReviewerSheetCount: validReviewerIds.size,
+    invalidReviewerSheetCount,
     actorRegistrySha256: registrySha256,
     readyForReview:
       assignments.length === coordinator.taskCount &&
@@ -654,6 +975,17 @@ export const prepareBlindReviewPacket = ({ root, workspace, force = false }) => 
     pilotId: coordinator.pilotId,
     note: "This packet intentionally omits skill identity, experiment arms and run keys.",
     items,
+  });
+  writeJson(path.join(packetRoot, "review-draft.template.json"), {
+    schemaVersion: BLIND_REVIEW_DRAFT_SCHEMA_VERSION,
+    pilotId: coordinator.pilotId,
+    reviewerId: "replace-with-registered-reviewer-id",
+    reviews: items.map((item) => ({
+      reviewItemId: item.reviewItemId,
+      score: null,
+      criticalDefectIdsFound: [],
+      pass: null,
+    })),
   });
   return packetRoot;
 };

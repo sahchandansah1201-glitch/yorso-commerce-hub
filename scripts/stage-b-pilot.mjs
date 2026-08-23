@@ -6,9 +6,11 @@ import {
   getStageBPilotStatus,
   initializeStageBPilot,
   prepareBlindReviewPacket,
+  prepareStageBReviewerPayload,
   prepareStageBSubmissionPayload,
   qualifyStageBPilot,
   registerActor,
+  submitStageBReview,
   submitStageBOutput,
 } from "./lib/stage-b-pilot.mjs";
 
@@ -31,6 +33,8 @@ const printStatus = (status) => {
   console.log(`Invalid signed outputs: ${status.invalidOutputCount}`);
   console.log(`Registered reviewers: ${status.reviewerCount}/2`);
   console.log(`Signed reviewer sheets: ${status.reviewerSheetCount}/2`);
+  console.log(`Valid signed reviewer sheets: ${status.validReviewerSheetCount}/2`);
+  console.log(`Invalid signed reviewer sheets: ${status.invalidReviewerSheetCount}`);
   console.log(`Actor registry SHA-256: ${status.actorRegistrySha256}`);
   console.log(`Qualification: ${status.readyForQualification ? "READY" : "BLOCKED"}`);
   for (const blocker of status.blockers) console.log(`- ${blocker}`);
@@ -105,6 +109,38 @@ try {
     if (!workspace) throw new Error("usage: stage-b:prepare-review -- --pilot <id>");
     const packet = prepareBlindReviewPacket({ root, workspace, force: args.includes("--force") });
     console.log(`Blind review packet created: ${packet}`);
+    console.log(`Blind reviewer draft template: ${path.join(packet, "review-draft.template.json")}`);
+  } else if (command === "prepare-review-submission") {
+    const reviewerId = value("--reviewer");
+    const reviewFile = value("--review-file");
+    const payloadFile = value("--payload-file");
+    if (!workspace || !reviewerId || !reviewFile || !payloadFile) {
+      throw new Error(
+        "usage: stage-b:prepare-review-submission -- --pilot <id> --reviewer <id> --review-file <file> --payload-file <file>",
+      );
+    }
+    const result = prepareStageBReviewerPayload({
+      root,
+      workspace,
+      reviewerId,
+      reviewFile,
+      payloadFile,
+    });
+    console.log(`Canonical reviewer signing payload: ${payloadFile}`);
+    console.log(`Signing payload SHA-256: ${result.payloadSha256}`);
+    console.log("The blind draft is now frozen. Sign this exact payload outside the repository and do not edit the review.");
+  } else if (command === "submit-review") {
+    const reviewerId = value("--reviewer");
+    const payloadFile = value("--payload-file");
+    const signatureFile = value("--signature-file");
+    if (!workspace || !reviewerId || !payloadFile || !signatureFile) {
+      throw new Error(
+        "usage: stage-b:submit-review -- --pilot <id> --reviewer <id> --payload-file <file> --signature-file <file>",
+      );
+    }
+    const result = submitStageBReview({ root, workspace, reviewerId, payloadFile, signatureFile });
+    console.log(`Signed Stage B reviewer sheet accepted: ${result.sheetPath}`);
+    console.log(`Reviewer: ${result.sheet.reviewerId}`);
   } else if (command === "qualify") {
     if (!workspace) throw new Error("usage: stage-b:qualify -- --pilot <id>");
     const result = qualifyStageBPilot({ root, workspace });
@@ -126,7 +162,9 @@ try {
     console.log(`Actor registry SHA-256: ${result.registrySha256}`);
     console.log("Store this digest out-of-band; no private key was read or stored.");
   } else {
-    throw new Error("commands: init, next, prepare-submission, submit-output, status, prepare-review, qualify, register-actor");
+    throw new Error(
+      "commands: init, next, prepare-submission, submit-output, status, prepare-review, prepare-review-submission, submit-review, qualify, register-actor",
+    );
   }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { generateKeyPairSync, sign } from "node:crypto";
+import { createHash, generateKeyPairSync, sign } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { cpSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -13,8 +13,10 @@ import {
   getStageBPilotStatus,
   prepareNextStageBExecutorTask,
   prepareBlindReviewPacket,
+  prepareStageBReviewerPayload,
   prepareStageBSubmissionPayload,
   registerActor,
+  submitStageBReview,
   submitStageBOutput,
 } from "./lib/stage-b-pilot.mjs";
 
@@ -66,6 +68,7 @@ const createExecutorWorkspace = () => {
   cpSync(path.join(root, "docs/agents/pilots"), path.join(repository, "docs/agents/pilots"), { recursive: true });
 
   const executorKeys = new Map();
+  const reviewerKeys = new Map();
   const actors = ["executor.one", "executor.two", "executor.review"].map((id, index) => {
     const { publicKey, privateKey } = generateKeyPairSync("ed25519");
     executorKeys.set(id, privateKey);
@@ -76,6 +79,16 @@ const createExecutorWorkspace = () => {
       publicKeyPem: publicKey.export({ type: "spki", format: "pem" }),
     };
   });
+  for (const [index, id] of ["reviewer.one", "reviewer.two"].entries()) {
+    const { publicKey, privateKey } = generateKeyPairSync("ed25519");
+    reviewerKeys.set(id, privateKey);
+    actors.push({
+      id,
+      independenceGroup: `review-${index + 1}`,
+      allowedRoles: ["stage-b-reviewer"],
+      publicKeyPem: publicKey.export({ type: "spki", format: "pem" }),
+    });
+  }
   writeFileSync(
     path.join(repository, ".agents/actors.json"),
     `${JSON.stringify({ schemaVersion: 2, actors }, null, 2)}\n`,
@@ -100,11 +113,19 @@ const createExecutorWorkspace = () => {
   mkdirSync(path.join(workspace, "tasks"));
   mkdirSync(path.join(workspace, "outputs"));
   mkdirSync(path.join(workspace, "reviews"));
-  writeFileSync(path.join(workspace, "coordinator.json"), `${JSON.stringify(plan.coordinator, null, 2)}\n`);
+  writeFileSync(
+    path.join(workspace, "coordinator.json"),
+    `${JSON.stringify({
+      ...plan.coordinator,
+      fixtureOracleSha256: createHash("sha256")
+        .update(readFileSync(path.join(repository, "docs/agents/pilots/fixture-oracle.json")))
+        .digest("hex"),
+    }, null, 2)}\n`,
+  );
   for (const task of plan.tasks) {
     writeFileSync(path.join(workspace, "tasks", `${task.taskId}.json`), `${JSON.stringify(task, null, 2)}\n`);
   }
-  return { root: repository, workspace, plan, executorKeys };
+  return { root: repository, workspace, plan, executorKeys, reviewerKeys };
 };
 
 const prepareSignedSubmission = ({
@@ -453,6 +474,213 @@ test("prepareBlindReviewPacket rejects a tampered executor signature", () => {
     () => prepareBlindReviewPacket({ root: fixtureRoot, workspace }),
     /invalid signed executor outputs|invalid Stage B output identity/,
   );
+});
+
+test("reviewer workflow freezes blind decisions, verifies external signatures and fails closed on tampering", async (t) => {
+  const {
+    root: fixtureRoot,
+    workspace,
+    plan,
+    executorKeys,
+    reviewerKeys,
+  } = createExecutorWorkspace();
+  writeFileSync(
+    path.join(workspace, "review-queue.json"),
+    `${JSON.stringify({
+      schemaVersion: 1,
+      pilotId: plan.coordinator.pilotId,
+      items: plan.tasks.map((task) => ({
+        reviewItemId: task.taskId,
+        fixtureId: task.fixtureId,
+        promptPath: task.promptPath,
+        expectedOutputPath: task.outputPath,
+      })),
+    }, null, 2)}\n`,
+  );
+  for (const task of plan.tasks) {
+    const responseFile = path.join(workspace, `${task.taskId}.txt`);
+    writeFileSync(responseFile, `Signed response for reviewer workflow task ${task.taskId}.`);
+    const signed = prepareSignedSubmission({
+      root: fixtureRoot,
+      workspace,
+      task,
+      executorId: "executor.review",
+      executorKeys,
+      responseFile,
+    });
+    submitStageBOutput({
+      root: fixtureRoot,
+      workspace,
+      taskId: task.taskId,
+      executorId: "executor.review",
+      responseFile,
+      signatureFile: signed.signatureFile,
+    });
+  }
+  const packetRoot = prepareBlindReviewPacket({ root: fixtureRoot, workspace });
+  const manifest = JSON.parse(readFileSync(path.join(packetRoot, "manifest.json"), "utf8"));
+  const template = JSON.parse(readFileSync(path.join(packetRoot, "review-draft.template.json"), "utf8"));
+  assert.equal(template.reviews.length, 30);
+  assert.equal(JSON.stringify(template).includes("runKey"), false);
+  assert.equal(JSON.stringify(template).includes("candidateSkillId"), false);
+  assert.equal(JSON.stringify(template).includes("arm"), false);
+  const operatorRoot = mkdtempSync(path.join(os.tmpdir(), "yorso-stage-b-review-operator-"));
+  const reviewFile = path.join(operatorRoot, "reviewer-one-draft.json");
+  const payloadFile = path.join(operatorRoot, "reviewer-one-payload.json");
+  const signatureFile = path.join(operatorRoot, "reviewer-one.sig");
+  const draft = {
+    schemaVersion: 1,
+    pilotId: plan.coordinator.pilotId,
+    reviewerId: "reviewer.one",
+    reviews: manifest.items.map((item, index) => ({
+      reviewItemId: item.reviewItemId,
+      score: 70 + (index % 20),
+      criticalDefectIdsFound: [],
+      pass: index % 2 === 0,
+    })),
+  };
+  writeFileSync(reviewFile, `${JSON.stringify(draft, null, 2)}\n`);
+
+  await t.test("prepares a canonical v4 payload only after the complete blind draft is frozen", () => {
+    const prepared = prepareStageBReviewerPayload({
+      root: fixtureRoot,
+      workspace,
+      reviewerId: "reviewer.one",
+      reviewFile,
+      payloadFile,
+    });
+    assert.equal(readFileSync(payloadFile, "utf8"), canonicalJson(prepared.payload));
+    assert.equal(prepared.payload.schemaVersion, 4);
+    assert.equal(prepared.payload.reviewerId, "reviewer.one");
+    assert.equal(prepared.payload.reviews.length, 30);
+    assert.equal(prepared.payload.outputBindings.length, 30);
+    assert.match(prepared.payload.blindReviewSha256, /^[0-9a-f]{64}$/);
+    assert.match(prepared.payload.reviewPacketSha256, /^[0-9a-f]{64}$/);
+    assert.equal(JSON.stringify(draft).includes("runKey"), false);
+    assert.equal(JSON.stringify(draft).includes("candidateSkillId"), false);
+    assert.equal(JSON.stringify(draft).includes("arm"), false);
+    assert.equal(
+      prepared.payload.outputBindings.every((binding) =>
+        binding.outputArtifact.startsWith(`docs/agents/pilots/results/${plan.coordinator.pilotId}/outputs/`),
+      ),
+      true,
+    );
+
+    const incomplete = structuredClone(draft);
+    incomplete.reviews.pop();
+    const incompleteFile = path.join(operatorRoot, "incomplete.json");
+    writeFileSync(incompleteFile, `${JSON.stringify(incomplete, null, 2)}\n`);
+    assert.throws(
+      () => prepareStageBReviewerPayload({
+        root: fixtureRoot,
+        workspace,
+        reviewerId: "reviewer.one",
+        reviewFile: incompleteFile,
+        payloadFile,
+      }),
+      /every blind review item exactly once/,
+    );
+
+    const leaked = structuredClone(draft);
+    leaked.reviews[0].runKey = plan.tasks[0].runKey;
+    const leakedFile = path.join(operatorRoot, "leaked.json");
+    writeFileSync(leakedFile, `${JSON.stringify(leaked, null, 2)}\n`);
+    assert.throws(
+      () => prepareStageBReviewerPayload({
+        root: fixtureRoot,
+        workspace,
+        reviewerId: "reviewer.one",
+        reviewFile: leakedFile,
+        payloadFile,
+      }),
+      /unsupported blind review field: runKey/,
+    );
+
+    assert.throws(
+      () => prepareStageBReviewerPayload({
+        root: fixtureRoot,
+        workspace,
+        reviewerId: "reviewer.one",
+        reviewFile: path.join(fixtureRoot, "reviewer-draft.json"),
+        payloadFile,
+      }),
+      /must stay outside the repository and pilot workspace/,
+    );
+    assert.throws(
+      () => prepareStageBReviewerPayload({
+        root: fixtureRoot,
+        workspace,
+        reviewerId: "reviewer.one",
+        reviewFile,
+        payloadFile: path.join(workspace, "reviewer-payload.json"),
+      }),
+      /must stay outside the repository and pilot workspace/,
+    );
+
+    const repositoryDraft = path.join(fixtureRoot, "reviewer-draft.json");
+    const externalDraftLink = path.join(operatorRoot, "linked-reviewer-draft.json");
+    writeFileSync(repositoryDraft, `${JSON.stringify(draft, null, 2)}\n`);
+    symlinkSync(repositoryDraft, externalDraftLink);
+    assert.throws(
+      () => prepareStageBReviewerPayload({
+        root: fixtureRoot,
+        workspace,
+        reviewerId: "reviewer.one",
+        reviewFile: externalDraftLink,
+        payloadFile,
+      }),
+      /must stay outside the repository and pilot workspace/,
+    );
+  });
+
+  await t.test("accepts only the registered reviewer's exact detached signature and prevents overwrite", () => {
+    writeFileSync(signatureFile, sign(null, readFileSync(payloadFile), reviewerKeys.get("reviewer.one")));
+    const submitted = submitStageBReview({
+      root: fixtureRoot,
+      workspace,
+      reviewerId: "reviewer.one",
+      payloadFile,
+      signatureFile,
+    });
+    assert.equal(submitted.sheet.reviewerId, "reviewer.one");
+    assert.match(submitted.sheet.signature, /^[A-Za-z0-9+/]+=*$/);
+    assert.throws(
+      () => submitStageBReview({
+        root: fixtureRoot,
+        workspace,
+        reviewerId: "reviewer.one",
+        payloadFile,
+        signatureFile,
+      }),
+      /reviewer sheet already exists/,
+    );
+
+    const forgedSignatureFile = path.join(operatorRoot, "forged.sig");
+    writeFileSync(forgedSignatureFile, sign(null, readFileSync(payloadFile), reviewerKeys.get("reviewer.two")));
+    assert.throws(
+      () => submitStageBReview({
+        root: fixtureRoot,
+        workspace,
+        reviewerId: "reviewer.two",
+        payloadFile,
+        signatureFile: forgedSignatureFile,
+      }),
+      /reviewer payload identity mismatch|reviewer signature is invalid/,
+    );
+  });
+
+  await t.test("status rejects a reviewer sheet whose signed content was changed after submission", () => {
+    const validStatus = getStageBPilotStatus({ root: fixtureRoot, workspace, env: {} });
+    assert.equal(validStatus.reviewerSheetCount, 1);
+    assert.equal(validStatus.invalidReviewerSheetCount, 0);
+    const sheetPath = path.join(workspace, "reviews/reviewer.one.json");
+    const tampered = JSON.parse(readFileSync(sheetPath, "utf8"));
+    tampered.reviews[0].score += 1;
+    writeFileSync(sheetPath, `${JSON.stringify(tampered, null, 2)}\n`);
+    const invalidStatus = getStageBPilotStatus({ root: fixtureRoot, workspace, env: {} });
+    assert.equal(invalidStatus.invalidReviewerSheetCount, 1);
+    assert.equal(invalidStatus.blockers.includes("invalid signed reviewer sheets: 1"), true);
+  });
 });
 
 test("registerActor stores only a valid Ed25519 public key and returns the registry digest", () => {

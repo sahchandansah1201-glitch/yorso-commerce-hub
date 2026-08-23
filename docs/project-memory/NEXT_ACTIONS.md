@@ -15,16 +15,23 @@ Branch: `local-lab/agent-capability-foundation`
    invalid signed outputs.
 2. Register two real reviewers from distinct independence groups using only
    their Ed25519 public keys; retain private keys outside the repository.
-3. Give reviewers only `.data/stage-b/copywriter-2026-08/review-packet/`.
-   Never disclose coordinator, task arm mappings, candidate identity or
-   executor/operator artifacts.
-4. Collect exactly two signed reviewer sheets and re-run fail-closed status.
-5. Store the accepted actor-registry SHA-256 out of band and provide it through
+3. Give reviewers only `.data/stage-b/copywriter-2026-08/review-packet/` and an
+   external copy of `review-draft.template.json`. Each human completes all 30
+   decisions keyed only by `reviewItemId`. Never disclose coordinator, task arm
+   mappings, candidate identity or executor/operator artifacts.
+4. After each blind draft is final, freeze and sign it with the supported flow:
+   `stage-b:prepare-review-submission`, external Ed25519 signing, then
+   `stage-b:submit-review`. Drafts, payloads, signatures and private keys stay
+   outside both repository and pilot workspace.
+5. Collect exactly two valid sheets from distinct groups and re-run
+   `npm run stage-b:status -- --pilot copywriter-2026-08`; any signature,
+   packet, output or sheet drift must fail closed.
+6. Store the accepted actor-registry SHA-256 out of band and provide it through
    `YORSO_TRUSTED_ACTOR_REGISTRY_SHA256` only during qualification.
-6. Record schema-version-5 evidence only after score, critical-recall,
+7. Record schema-version-5 evidence only after score, critical-recall,
    agreement and overhead gates pass; do not infer or fabricate missing
    results.
-7. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
+8. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
    `main` unchanged until Stage B and separate promotion approval pass.
 
 ## Required Before Main Promotion

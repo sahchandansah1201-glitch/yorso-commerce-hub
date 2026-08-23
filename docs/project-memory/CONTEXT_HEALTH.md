@@ -16,7 +16,7 @@ last_checkpoint: "2026-08-23"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Give the completed blind review packet to two real reviewers from distinct independence groups, collect exactly two signed reviewer sheets and supply the trusted registry digest out of band; do not merge main."
+recommended_action: "Register two real reviewers from distinct groups; each completes an external blind draft, then uses prepare-review-submission, external Ed25519 signing and submit-review; supply the trusted registry digest out of band and do not merge main."
 why_medium: "The exact-commit Stage B execution campaign has 30/30 immutable assignments, 30/30 valid signed outputs and 0 invalid signed outputs, but it still has no human reviewers, no signed reviewer sheets, no trusted final registry digest and no promotion approval."
 ```
 
@@ -37,6 +37,10 @@ why_medium: "The exact-commit Stage B execution campaign has 30/30 immutable ass
   out-of-band before Stage B or promotion can pass.
 - Stage B workspaces are ignored under `.data/stage-b/`; reviewers must receive
   only `review-packet/`, never coordinator/task arm mappings.
+- Each reviewer fills an external copy of `review-draft.template.json` keyed
+  only by `reviewItemId`. Candidate/run mappings are added by tooling only after
+  the human decisions are frozen; payloads, signatures and private keys remain
+  outside the repository and pilot workspace.
 - Executors must receive only generated `executor-packets/<task-id>/`; they must
   not receive `coordinator.json`, raw `tasks/` arm mappings or the opposite arm.
 - Every executor must be registered with role `stage-b-executor`, receive an

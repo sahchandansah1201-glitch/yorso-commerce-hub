@@ -59,6 +59,7 @@ active_workstream:
     - "Hardened Stage B executor provenance: every task has an immutable assignment to a registered stage-b-executor, every response is bound to a canonical payload and Ed25519 signature, and status plus blind-review preparation reject assignment, packet, response, key or signature drift."
     - "Accepted the first genuine isolated Stage B executor response for task a93017b304142d7845e8 after external Ed25519 signing; one earlier run that exposed user skills was rejected and never submitted."
     - "Completed the Stage B execution campaign with 30/30 immutable assignments, 30/30 valid Ed25519-signed outputs and 0 invalid signed outputs, then generated a 30-item blind reviewer packet without candidate, arm, run-key or evaluated-commit identity leakage."
+    - "Added a fail-closed human reviewer workflow: complete blind drafts use only reviewItemId, canonical reviewer-sheet-v4 payloads are prepared only after decisions are frozen, detached Ed25519 signatures are verified externally and status revalidates every sheet against current packet and output evidence."
     - "Hardened the operator runbook after rejecting an unsigned shared-parent attempt whose event trace exposed operator files: executor work, temporary CODEX_HOME and operator logs/signing artifacts must use separate physical roots and every trace must be inspected before signing."
   open_gates:
     - "Run the complete Stage B blind comparative pilot before claiming a measured quality uplift."
@@ -101,6 +102,10 @@ stage_b_pilot:
     - "npm run stage-b:next -- --pilot copywriter-2026-08 --executor <executor-id>"
     - "npm run stage-b:prepare-submission -- --pilot copywriter-2026-08 --task <task-id> --executor <executor-id> --response-file <path> --payload-file <path>"
     - "npm run stage-b:submit-output -- --pilot copywriter-2026-08 --task <task-id> --executor <executor-id> --response-file <path> --signature-file <path>"
+  reviewer_commands:
+    - "npm run stage-b:register-actor -- --id <reviewer-id> --group <independence-group> --roles stage-b-reviewer --public-key-file <public-key-path>"
+    - "npm run stage-b:prepare-review-submission -- --pilot copywriter-2026-08 --reviewer <reviewer-id> --review-file <external-blind-draft-path> --payload-file <external-payload-path>"
+    - "npm run stage-b:submit-review -- --pilot copywriter-2026-08 --reviewer <reviewer-id> --payload-file <external-payload-path> --signature-file <external-signature-path>"
   blockers:
     - "missing registered Stage B reviewers: 2"
     - "Stage B reviewers must use distinct independence groups"
@@ -124,4 +129,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Give only the generated blind review packet to two real reviewers from distinct independence groups, collect exactly two signed reviewer sheets and supply the trusted actor-registry digest out of band before qualification."
+next_action: "Register two real reviewers from distinct independence groups, let each complete an external blind review-draft copy, then prepare, externally sign and submit exactly two reviewer-sheet-v4 payloads; do not merge main or claim uplift before qualification."

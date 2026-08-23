@@ -1,6 +1,6 @@
 # Yorso Skill Pilot Results
 
-Last updated: 2026-08-22
+Last updated: 2026-08-23
 
 ## Current verdict
 
@@ -52,8 +52,14 @@ Stage B comparative qualification is not complete.
   commits are accepted while any later candidate-source or configuration change
   makes the reviewed commit stale. These tests are synthetic gate tests, not
   real Stage B qualification evidence.
-- `.agents/actors.json` is intentionally empty. Until real human reviewers and
-  approvers are registered, Stage B and promotion fail closed.
+- `.agents/actors.json` contains one public-key-only Stage B executor and no
+  human reviewers or approvers. Until two independent real reviewers and the
+  later promotion approvers are registered, Stage B and promotion fail closed.
+- The reviewer operator workflow is executable: a human completes a blind
+  30-item draft keyed only by `reviewItemId`; tooling then freezes it into a
+  candidate/output-bound schema-version-4 payload, verifies an external
+  Ed25519 signature and revalidates stored sheets against current evidence.
+  This workflow has regression coverage but no real reviewer decisions yet.
 - External candidate matrix records license/SHA/overlap/rejection decisions.
 - Five fixed Stage B fixtures are versioned under `docs/agents/pilots/fixtures/`.
 - Expanded pre-foundation project-memory snapshots are preserved as

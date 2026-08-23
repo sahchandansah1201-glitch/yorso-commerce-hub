@@ -46,13 +46,15 @@
 - `scripts/stage-b-pilot.mjs` and `scripts/lib/stage-b-pilot.mjs`: Stage B
   operator CLI including arm-isolated executor packet generation, immutable
   executor assignment, canonical signing-payload generation, Ed25519 output
-  verification and blind-review revalidation.
+  verification, blind-review revalidation, blind human draft freezing,
+  reviewer-sheet-v4 payload preparation and detached reviewer-signature
+  verification.
 - `.data/stage-b/copywriter-2026-08/executor-packets/`: ignored local executor
   handoff packets. Baseline packets exclude candidate identifiers, hashes and
   skill content; packets are not reviewer artifacts and are not committed.
 - `.data/stage-b/copywriter-2026-08/assignments/` and `outputs/`: ignored
-  runtime evidence. Task `a93017b304142d7845e8` has one immutable assignment
-  and one valid signed output; these files are not repository artifacts.
+  runtime evidence. The campaign has 30 immutable assignments and 30 valid
+  signed outputs; these files are not repository artifacts.
 - External Stage B executor secrets: Ed25519 private key, response text,
   canonical payload, detached signature and temporary isolated Codex home stay
   outside the repository and pilot workspace and are never committed.
@@ -2008,3 +2010,11 @@
 - `.data/stage-b/copywriter-2026-08/review-packet/manifest.json` plus 30 text
   outputs: generated blind human-review input. The manifest omits candidate
   skill, arm/baseline, run key, evaluated commit and candidate hash identities.
+- `.data/stage-b/copywriter-2026-08/review-packet/review-draft.template.json`:
+  ignored blank human decision template keyed only by `reviewItemId`; it
+  contains no score or signature evidence until a real reviewer works on an
+  external copy.
+- `stage-b:prepare-review-submission` and `stage-b:submit-review`: freeze a
+  complete external blind draft into a canonical evidence-bound signing
+  payload, then verify the registered human reviewer's external Ed25519
+  signature. The repository currently contains no human reviewer result.

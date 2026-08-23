@@ -180,7 +180,10 @@ npm run stage-b:prepare-review -- --pilot copywriter-2026-08
 This command refuses incomplete, unsigned or identity-mismatched outputs. It
 revalidates the stored assignment, response, canonical payload, registered
 executor key and Ed25519 signature. The generated packet omits skill identity,
-experiment arm and run key.
+experiment arm and run key. It also creates
+`review-packet/review-draft.template.json`. Give a reviewer a copy of that
+template and the packet outputs only. The reviewer's working copy must stay
+outside the repository and pilot workspace.
 
 ## 8. Enrol real reviewers and approvers
 
@@ -198,7 +201,72 @@ npm run stage-b:register-actor -- \
 Use two reviewers from distinct independence groups. Promotion approvers are
 registered separately with the `promotion-approver` role.
 
-## 9. Inspect fail-closed status
+## 9. Complete the blind human review
+
+Each reviewer works from only `review-packet/` and an external copy of
+`review-draft.template.json`. Replace the template reviewer id with the
+registered canonical id and complete all 30 decisions. Every decision is keyed
+only by `reviewItemId`:
+
+```json
+{
+  "reviewItemId": "blind-item-id",
+  "score": 88,
+  "criticalDefectIdsFound": ["fixture-defect-id"],
+  "pass": true
+}
+```
+
+Do not add a run key, arm, candidate id or evaluated commit to the blind draft.
+The reviewer must make and finish the decisions before the operator prepares a
+signing payload. Tooling validates complete one-time coverage, score bounds,
+known critical-defect ids and the absence of unsupported fields.
+
+## 10. Freeze the review and prepare its signing payload
+
+After the reviewer confirms that the blind draft is final:
+
+```bash
+npm run stage-b:prepare-review-submission -- \
+  --pilot copywriter-2026-08 \
+  --reviewer reviewer.one \
+  --review-file /secure/outside-repo/reviewer-one-draft.json \
+  --payload-file /secure/outside-repo/reviewer-one-payload.json
+```
+
+This is the controlled deblinding boundary. The command translates blind
+`reviewItemId` values to run keys only after the decisions are complete and
+binds the canonical schema-version-4 payload to the candidate skill, evaluated
+commit, fixture oracle, blind packet and all 30 current output SHA-256 values.
+The draft and payload paths are rejected if they are inside the repository or
+pilot workspace. Do not edit the draft or payload after this command.
+
+## 11. Sign and submit the reviewer sheet
+
+The reviewer signs the exact canonical payload bytes with the private key that
+corresponds to the registered public key:
+
+```bash
+openssl pkeyutl -sign -rawin \
+  -inkey /secure/outside-repo/reviewer-one.private.pem \
+  -in /secure/outside-repo/reviewer-one-payload.json \
+  -out /secure/outside-repo/reviewer-one.sig
+
+npm run stage-b:submit-review -- \
+  --pilot copywriter-2026-08 \
+  --reviewer reviewer.one \
+  --payload-file /secure/outside-repo/reviewer-one-payload.json \
+  --signature-file /secure/outside-repo/reviewer-one.sig
+```
+
+Submission rejects a non-canonical payload, wrong reviewer identity, invalid
+signature, stale packet/output binding and reviewer-sheet overwrite. Status
+revalidates every stored signature and current evidence; later sheet or output
+mutation makes the sheet invalid. Repeat steps 9 through 11 for a second real
+reviewer from a different independence group. Tooling never fills decisions or
+signs on a human's behalf.
+
+## 12. Inspect fail-closed status
 
 ```bash
 npm run stage-b:status -- --pilot copywriter-2026-08
@@ -207,9 +275,10 @@ npm run stage-b:status -- --pilot copywriter-2026-08
 Exit code `2` means evidence is incomplete. This is expected until all tasks
 have assignments and valid signed outputs, one real executor is registered,
 two real reviewers exist, exactly two signed sheets exist and the trusted
-registry digest is supplied.
+registry digest is supplied. Status reports valid and invalid signed reviewer
+sheet counts separately.
 
-## 10. Qualification
+## 13. Qualification
 
 After signed reviewer sheets and schema-version-5 evidence are committed and
 the manifest maps the active skill to that evidence:
@@ -222,7 +291,7 @@ YORSO_TRUSTED_ACTOR_REGISTRY_SHA256=<out-of-band-digest> \
 The command passes only when both workspace readiness and repository governance
 validation pass. It does not mutate the manifest or promote a skill.
 
-## 11. Main promotion readiness
+## 14. Main promotion readiness
 
 Main remains a separate gate:
 
