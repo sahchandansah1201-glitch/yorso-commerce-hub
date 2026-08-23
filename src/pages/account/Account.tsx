@@ -633,7 +633,12 @@ const CompanySection = ({
   const fallbackAccountApiClient = useMemo(() => createAccountApiClient(), []);
   const accountApiClient = accountApiClientProp ?? fallbackAccountApiClient;
 
-  const saveCompany = (next: CompanyProfile) => onChange({ ...profile, company: next });
+  const saveCompany = (next: CompanyProfile) =>
+    onChange({
+      ...profile,
+      company: { ...next, certificates: canonicalizeCertificationList(next.certificates) },
+    });
+
   const resolveMediaSrc = (value: string) => accountApiClient.resolveStoredFileUrl(value);
   const uploadCompanyMediaFile = async (
     slot: "logo" | "cover",
