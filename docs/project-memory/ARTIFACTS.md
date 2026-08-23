@@ -2048,6 +2048,10 @@
 - GitHub Actions run `32650214185`: first real remote cycle signal; core gates
   passed and browser smoke reached 286/287 before exposing the supplier initial
   debounce pagination race.
+- GitHub Actions run `32651568454`: green exact-SHA rerun for
+  `4121018533ac444218ac269bdce95ead60542d98`; the full Core Type And Build Gate
+  completed successfully, including browser, API-backed, provider-free,
+  self-hosted auth and admin runtime suites.
 - `src/pages/Suppliers.test.tsx`: regression waits beyond the 250 ms debounce
   window and proves page 2 remains selected.
 - `E2E_CHROMIUM_EXECUTABLE_PATH` in `playwright.config.ts`: reproducible local

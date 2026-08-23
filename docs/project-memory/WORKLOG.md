@@ -2,6 +2,26 @@
 
 Keep this file factual and append-only.
 
+## 2026-08-23 — Exact fixed candidate passed remote CI
+
+- GitHub Actions run `32651568454` completed successfully on exact SHA
+  `4121018533ac444218ac269bdce95ead60542d98`.
+- The job passed core CI, account report checks, the complete browser smoke
+  suite, API-backed access, provider-free environment, self-hosted auth and all
+  admin runtime browser checks.
+- This closed the remote candidate-verification gap created by failed run
+  `32650214185`. The failed run remains useful before/after evidence: it caught
+  the supplier pagination startup-debounce race before acceptance.
+- The branch remains `VALIDATED_LOCAL`, not release-ready. Gates 4-7 still need
+  independent role review, Lovable same-branch verification, an accepted PR to
+  `main` and post-merge/server proof.
+
+| План | Сделано | Осталось | Проверка |
+|---|---|---|---|
+| Re-run remote CI on fixed exact SHA | Run `32651568454` passed | — | GitHub Actions conclusion `success` |
+| Preserve fail-closed promotion | `main` unchanged; release verdict remains NO-GO | Gates 4-7 | local-lab release runner |
+| Record exact evidence | Project memory updated with run, SHA and claim boundary | Commit and re-run docs-only CI | project-memory checks |
+
 ## 2026-08-23 — Real CI cycle caught supplier pagination race
 
 - Pushed the role-matrix and executable-cycle candidate as `a1d38d5d` to the

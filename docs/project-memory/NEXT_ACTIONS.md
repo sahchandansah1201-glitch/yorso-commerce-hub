@@ -10,9 +10,10 @@ Branch: `local-lab/agent-capability-foundation`
 
 ## Immediate
 
-1. Commit and push the supplier pagination race fix, then require GitHub CI on
-   the new exact HEAD. The previous run `32650214185` is evidence of a caught
-   defect, not a pass.
+1. Treat GitHub Actions run `32651568454` on exact SHA
+   `4121018533ac444218ac269bdce95ead60542d98` as the green remote candidate
+   signal. Preserve failed run `32650214185` as evidence that the cycle caught
+   the supplier pagination race before acceptance.
 2. Use `npm run check:local-lab-cycle:working-tree` during implementation and
    `npm run check:local-lab-cycle` on the clean candidate commit. Gate 3 now
    requires the recorded real-Chrome flow. Do not call the branch release-ready
@@ -31,8 +32,9 @@ Branch: `local-lab/agent-capability-foundation`
 7. Keep the owner directive and generated evidence checksum-bound; governance
    must fail if either artifact, the candidate hash, fixture oracle, evaluated
    commit or signed run set drifts.
-8. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
-   `main` unchanged until the separate production promotion gate passes.
+8. Continue only on `local-lab/agent-capability-foundation` and keep `main`
+   unchanged until the separate production promotion gate passes. Any new
+   commit invalidates the exact-SHA remote evidence and requires a fresh CI run.
 9. Continue the next product implementation stage instead of waiting for
    external reviewers. Independent review may be added later to measure quality
    uplift, but it is not a blocker for experimental operational use.

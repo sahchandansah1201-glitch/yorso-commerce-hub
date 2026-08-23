@@ -25,7 +25,7 @@ multilingual UX copywriter and non-mutating verification gates.
 
 | Plan | Fact | Remaining | Verification |
 |---|---|---|---|
-| Isolate experiments | `local-lab/agent-capability-foundation` created from `origin/main` at `0f71847b` | Push branch after exact-HEAD acceptance | `git merge-base --is-ancestor origin/main HEAD` |
+| Isolate experiments | `local-lab/agent-capability-foundation` created from `origin/main` at `0f71847b` and published independently of `main` | Keep all new work on this branch until promotion | `git merge-base --is-ancestor origin/main HEAD` |
 | Define accountable team | 13 role profiles created | Independent exact-HEAD review and later promotion review | `npm run check:agent-governance` |
 | Register project-wide skills | 11 skills registered and locked | Feature-specific adoption tests | governance tests |
 | Add copywriter | EN/RU/ES-ES UX copy gate is active on `local-lab/*` after owner-directed Stage B qualification | Independent review only if measured uplift or main promotion is pursued | owner directive plus pilot evidence |
@@ -34,7 +34,7 @@ multilingual UX copywriter and non-mutating verification gates.
 | Preserve prior evidence | Expanded state and handoff archives are checksum-bound and compared with their recorded source commit | Keep archives immutable | `check:project-memory` |
 | Prevent evidence-only promotion | Stage B/main-promotion v5 plus reviewer-sheet v4 bind each skill to signed actors, structured outputs, fixture oracle, exact commit, each output SHA and structured gate artifacts; the tracked candidate surface is fresh while evidence/project-memory use later attestations | Register real trusted actors and produce Stage B results later | governance adversarial and real-Git integration tests |
 | Protect production PRs | CI validates the PR base branch; a PR targeting `main` must satisfy main policy | Keep `main` unchanged until promotion | governance PR-target test |
-| Validate experimental pushes | GitHub CI now runs for `local-lab/**` pushes | Verify remote workflow result after first push | `.github/workflows/ci.yml` |
+| Validate experimental pushes | GitHub CI runs for `local-lab/**`; run `32651568454` passed on exact SHA `4121018533ac444218ac269bdce95ead60542d98` | Re-run after every new commit | GitHub Actions exact-SHA evidence |
 | Make Stage B executable | CLI supports both strict independent review and owner-directed operational qualification with different claim boundaries | Preserve fail-closed mode-specific evidence | `npm run test:agent-governance`; `docs/agents/stage-b-operator-runbook.md` |
 | Initialize the first real workspace | `copywriter-2026-08` contains 30 tasks bound to exact commit `dc86aae5331d84836ab428929ba602d0420f35a9`; reviewer queue omits arm mappings | Preserve ignored runtime evidence | owner qualification evidence |
 | Make executor runs reproducible | `stage-b:next` immutably assigns an arm-isolated exact-commit packet to a registered executor; `stage-b:prepare-submission` emits a canonical payload; `stage-b:submit-output` verifies an Ed25519 signature and binds assignment, packet, response and payload hashes | Preserve the completed execution evidence | `npm run test:agent-governance`; signature/tamper tests; fail-closed pilot status |
@@ -43,7 +43,7 @@ multilingual UX copywriter and non-mutating verification gates.
 | Qualify operational Stage B | Project-owner directive activated the copywriter for experimental work; governance records `owner-directive` mode and exact negative claim boundary | Use it in feature work; independent review is optional until uplift/main is pursued | 30/30 signed outputs, 0 invalid, 6 blocked; checksum-bound directive/evidence |
 | Repeat role/skill discovery | All 13 roles searched through Exa and Codex skills; GitHub license and full-SHA evidence recorded | Pilot only the selected QA and logistics candidates | `docs/agents/research/role-skill-deep-search-2026-08-23.md` |
 | Make the development cycle executable | Safe allowlisted runner evaluates repository, branch, base, scope, automated checks, human QA and release evidence | Supply real Gates 4-7 evidence only when promotion is requested | `npm run test:local-lab-cycle`; `npm run check:local-lab-cycle` |
-| Test the cycle against real CI | Run `32650214185` passed core gates and 286/287 browser tests, then exposed a supplier pagination debounce race | Push the verified fix and require a green run on the new exact HEAD | GitHub Actions plus focused Chrome 5/5 |
+| Test the cycle against real CI | Run `32650214185` exposed a supplier pagination debounce race; the fixed exact SHA passed run `32651568454` end to end | Preserve the failed and passing runs as before/after evidence | GitHub Actions plus focused Chrome 5/5 |
 
 ## Evidence Already Established
 
@@ -67,8 +67,9 @@ multilingual UX copywriter and non-mutating verification gates.
 - External source metadata is pinned, but exact upstream blob-byte comparison is
   not implemented. Local Yorso adaptations are protected by project content
   hashes instead.
-- Local promotion-gate fixtures prove validation logic, not that GitHub CI was
-  executed. Verifiable remote CI attestation remains required before `main`.
+- Remote CI has been executed successfully for exact SHA
+  `4121018533ac444218ac269bdce95ead60542d98` in run `32651568454`. This is a
+  candidate signal, not permission to merge `main`; Gates 4-7 remain separate.
 - The local-lab runner has seven passing positive/adversarial tests. A real dirty
   working-tree run produced `VALIDATED_LOCAL` for Gates 0-3. Gate 3 is now a
   mandatory human-like browser gate because this workstream includes a supplier
@@ -79,6 +80,10 @@ multilingual UX copywriter and non-mutating verification gates.
   passed. The cycle therefore prevented a false completion claim. Root cause was
   a delayed initial search debounce resetting supplier pagination; the focused
   unit regression and real system-Chrome suite now pass locally.
+- Remote run `32651568454` then passed the complete job on the fixed exact SHA,
+  including core CI, account report checks, browser smoke, API-backed access,
+  provider-free and self-hosted auth checks, and all admin runtime browser
+  suites.
 - No external candidate found in the repeated search was installed wholesale.
   The highest-priority next pilot is `petrkindlmann/qa-skills`; this is a pilot
   decision, not an adoption or quality-uplift claim.
