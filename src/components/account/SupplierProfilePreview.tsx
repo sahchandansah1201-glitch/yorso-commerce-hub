@@ -2,6 +2,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { CompanyProfile } from "@/data/mockAccount";
+import { canonicalizeCertificationList, getCertificationInfo } from "@/data/certifications";
 
 const focalToObjectPosition = (f: CompanyProfile["coverFocalPoint"]) =>
   f === "top" ? "center top" : f === "bottom" ? "center bottom" : "center center";
@@ -13,7 +14,8 @@ export const SupplierProfilePreview = ({
   company: CompanyProfile;
   resolveMediaSrc?: (value: string) => string;
 }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const certificates = canonicalizeCertificationList(company.certificates);
   return (
     <Card data-testid="account-supplier-preview">
       <CardHeader className="space-y-1">
