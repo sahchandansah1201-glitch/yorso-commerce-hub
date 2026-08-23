@@ -7,6 +7,8 @@ import { AccountSectionCard } from "@/components/account/AccountSectionCard";
 import { EditableCard } from "@/components/account/EditableCard";
 import { AccountProductCatalogPicker } from "@/components/account/AccountProductCatalogPicker";
 import { AccountCountryCombobox } from "@/components/account/AccountCountryCombobox";
+import { AccountCertificationPicker } from "@/components/account/AccountCertificationPicker";
+import { canonicalizeCertificationList, getCertificationInfo } from "@/data/certifications";
 import {
   findCountryByName,
   localizedCountryName,
@@ -624,7 +626,7 @@ const CompanySection = ({
   onChange: (p: AccountProfile, options?: AccountUpdateOptions) => AccountUpdateResult;
   accountApiClient?: AccountApiClient;
 }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const c = profile.company;
   const pub = pubLabelMap(t);
   const qual = qualLabelMap(t);
