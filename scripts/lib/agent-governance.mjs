@@ -62,7 +62,7 @@ const REQUIRED_ROLES = [
   "knowledge-analytics",
   "orders-logistics",
 ];
-const REQUIRED_ACTOR_ROLES = new Set(["stage-b-reviewer", "promotion-approver"]);
+const REQUIRED_ACTOR_ROLES = new Set(["stage-b-executor", "stage-b-reviewer", "promotion-approver"]);
 const PUBLIC_KEY_PATTERN = /^-----BEGIN PUBLIC KEY-----[\s\S]+-----END PUBLIC KEY-----\n?$/;
 
 const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value, key);

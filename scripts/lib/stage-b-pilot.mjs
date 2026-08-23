@@ -1,4 +1,4 @@
-import { createHash, createPublicKey, randomBytes } from "node:crypto";
+import { createHash, createPublicKey, randomBytes, verify } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import {
   existsSync,
@@ -20,11 +20,13 @@ const PILOT_SCHEMA_VERSION = 1;
 const TASK_SCHEMA_VERSION = 1;
 const REVIEW_PACKET_SCHEMA_VERSION = 1;
 const EXECUTOR_PACKET_SCHEMA_VERSION = 1;
+const EXECUTOR_ASSIGNMENT_SCHEMA_VERSION = 1;
+const EXECUTOR_SUBMISSION_SCHEMA_VERSION = 1;
 const ACTOR_REGISTRY_SCHEMA_VERSION = 2;
 const FIXTURE_IDS = ["F1", "F2", "F3", "F4", "F5"];
 const ARMS = ["baseline", "candidate"];
 const REPEATS = [1, 2, 3];
-const ACTOR_ROLES = new Set(["stage-b-reviewer", "promotion-approver"]);
+const ACTOR_ROLES = new Set(["stage-b-executor", "stage-b-reviewer", "promotion-approver"]);
 const CANONICAL_ID = /^[a-z0-9][a-z0-9._-]*$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 
@@ -80,6 +82,24 @@ const assertCanonicalId = (value, label) => {
   if (typeof value !== "string" || !CANONICAL_ID.test(value)) {
     throw new Error(`${label} must use lowercase ASCII letters, digits, '.', '_' or '-'`);
   }
+};
+
+const actorRegistry = (root) => {
+  const registry = readJson(path.join(root, ".agents/actors.json"));
+  if (registry.schemaVersion !== ACTOR_REGISTRY_SCHEMA_VERSION || !Array.isArray(registry.actors)) {
+    throw new Error("unsupported actor registry schema");
+  }
+  return registry;
+};
+
+const requireActorRole = ({ root, actorId, role }) => {
+  assertCanonicalId(actorId, "actor id");
+  const actor = actorRegistry(root).actors.find((entry) => entry.id === actorId);
+  if (!actor) throw new Error(`executor is not registered: ${actorId}`);
+  if (!actor.allowedRoles?.includes(role)) throw new Error(`actor lacks ${role}: ${actorId}`);
+  const publicKey = createPublicKey(actor.publicKeyPem);
+  if (publicKey.asymmetricKeyType !== "ed25519") throw new Error(`actor public key must use Ed25519: ${actorId}`);
+  return actor;
 };
 
 const readPilotTask = ({ workspace, taskId }) => {
@@ -184,18 +204,102 @@ export const prepareNextStageBExecutorTask = ({ root, workspace, taskId }) => {
   return { task, packet, packetPath, packetSha256: canonicalSha256(packet) };
 };
 
-export const submitStageBOutput = ({ root, workspace, taskId, executorId, responseFile }) => {
+const assignmentFile = (workspace, taskId) => path.join(workspace, "assignments", `${taskId}.json`);
+
+export const assignStageBExecutorTask = ({ root, workspace, taskId, executorId }) => {
+  const actor = requireActorRole({ root, actorId: executorId, role: "stage-b-executor" });
+  const coordinator = readJson(path.join(workspace, "coordinator.json"));
+  const prepared = prepareNextStageBExecutorTask({ root, workspace, taskId });
+  const assignment = {
+    schemaVersion: EXECUTOR_ASSIGNMENT_SCHEMA_VERSION,
+    pilotId: coordinator.pilotId,
+    taskId: prepared.task.taskId,
+    executorId: actor.id,
+    evaluatedCommit: coordinator.evaluatedCommit,
+    packetSha256: prepared.packetSha256,
+  };
+  const file = assignmentFile(workspace, prepared.task.taskId);
+  if (existsSync(file)) {
+    const existing = readJson(file);
+    if (canonicalSha256(existing) !== canonicalSha256(assignment)) {
+      throw new Error(`Stage B task is already assigned to another executor: ${prepared.task.taskId}`);
+    }
+  } else {
+    writeJson(file, assignment);
+  }
+  return { ...prepared, actor, assignment, assignmentPath: file };
+};
+
+const requireExecutorAssignment = ({ root, workspace, taskId, executorId, prepared }) => {
+  const actor = requireActorRole({ root, actorId: executorId, role: "stage-b-executor" });
+  const coordinator = readJson(path.join(workspace, "coordinator.json"));
+  const file = assignmentFile(workspace, taskId);
+  if (!existsSync(file)) throw new Error(`Stage B task is not assigned: ${taskId}`);
+  const assignment = readJson(file);
+  if (
+    assignment.schemaVersion !== EXECUTOR_ASSIGNMENT_SCHEMA_VERSION ||
+    assignment.pilotId !== coordinator.pilotId ||
+    assignment.taskId !== taskId ||
+    assignment.executorId !== executorId ||
+    assignment.evaluatedCommit !== prepared.task.evaluatedCommit ||
+    assignment.packetSha256 !== prepared.packetSha256
+  ) {
+    throw new Error(`Stage B task assignment does not match executor or packet: ${taskId}`);
+  }
+  return { actor, assignment };
+};
+
+export const prepareStageBSubmissionPayload = ({
+  root,
+  workspace,
+  taskId,
+  executorId,
+  responseFile,
+  payloadFile,
+}) => {
+  const prepared = prepareNextStageBExecutorTask({ root, workspace, taskId });
+  const { actor, assignment } = requireExecutorAssignment({ root, workspace, taskId, executorId, prepared });
+  const outputText = readFileSync(responseFile, "utf8").trim();
+  if (outputText.length < 20) throw new Error("Stage B executor response must contain at least 20 characters");
+  const payload = {
+    schemaVersion: EXECUTOR_SUBMISSION_SCHEMA_VERSION,
+    pilotId: assignment.pilotId,
+    taskId,
+    executorId,
+    evaluatedCommit: assignment.evaluatedCommit,
+    packetSha256: assignment.packetSha256,
+    responseSha256: textSha256(outputText),
+  };
+  if (payloadFile) {
+    mkdirSync(path.dirname(payloadFile), { recursive: true });
+    writeFileSync(payloadFile, canonicalJson(payload));
+  }
+  return {
+    payload,
+    payloadSha256: canonicalSha256(payload),
+    outputText,
+    prepared,
+    actor,
+    assignment,
+  };
+};
+
+export const submitStageBOutput = ({ root, workspace, taskId, executorId, responseFile, signatureFile }) => {
   assertCanonicalId(executorId, "executor id");
   const task = readPilotTask({ workspace, taskId });
   const outputPath = path.join(workspace, task.outputPath);
   if (existsSync(outputPath)) throw new Error(`Stage B output already exists: ${task.outputPath}`);
-  const prepared = prepareNextStageBExecutorTask({ root, workspace, taskId });
+  const submission = prepareStageBSubmissionPayload({ root, workspace, taskId, executorId, responseFile });
+  const { prepared, outputText, payload } = submission;
   const existingPacket = readJson(prepared.packetPath);
   if (canonicalSha256(existingPacket) !== prepared.packetSha256) {
     throw new Error(`executor packet does not match evaluated commit: ${taskId}`);
   }
-  const outputText = readFileSync(responseFile, "utf8").trim();
-  if (outputText.length < 20) throw new Error("Stage B executor response must contain at least 20 characters");
+  if (!signatureFile) throw new Error("Stage B executor signature file is required");
+  const signature = readFileSync(signatureFile);
+  if (!verify(null, Buffer.from(canonicalJson(payload)), submission.actor.publicKeyPem, signature)) {
+    throw new Error(`Stage B executor signature is invalid: ${executorId}`);
+  }
 
   const output = {
     schemaVersion: 1,
@@ -208,10 +312,66 @@ export const submitStageBOutput = ({ root, workspace, taskId, executorId, respon
       id: executorId,
       packetSha256: prepared.packetSha256,
       responseSha256: textSha256(outputText),
+      assignmentSha256: canonicalSha256(submission.assignment),
+      signingPayloadSha256: submission.payloadSha256,
+      signature: signature.toString("base64"),
     },
   };
   writeJson(outputPath, output);
   return { output, outputPath };
+};
+
+const validateStoredExecutorOutput = ({ root, workspace, coordinator, task, output, outputPath }) => {
+  try {
+    const expectedPacket = buildExecutorPacket({ root, coordinator, task });
+    const expectedPacketSha256 = canonicalSha256(expectedPacket);
+    const packetPath = path.join(workspace, "executor-packets", `${task.taskId}.json`);
+    const packet = existsSync(packetPath) ? readJson(packetPath) : undefined;
+    const executorId = output.executor?.id;
+    const actor = requireActorRole({ root, actorId: executorId, role: "stage-b-executor" });
+    const assignmentPath = assignmentFile(workspace, task.taskId);
+    const assignment = existsSync(assignmentPath) ? readJson(assignmentPath) : undefined;
+    const expectedAssignment = {
+      schemaVersion: EXECUTOR_ASSIGNMENT_SCHEMA_VERSION,
+      pilotId: coordinator.pilotId,
+      taskId: task.taskId,
+      executorId,
+      evaluatedCommit: coordinator.evaluatedCommit,
+      packetSha256: expectedPacketSha256,
+    };
+    const responseSha256 = textSha256(output.outputText);
+    const signingPayload = {
+      schemaVersion: EXECUTOR_SUBMISSION_SCHEMA_VERSION,
+      pilotId: coordinator.pilotId,
+      taskId: task.taskId,
+      executorId,
+      evaluatedCommit: coordinator.evaluatedCommit,
+      packetSha256: expectedPacketSha256,
+      responseSha256,
+    };
+    const signature = Buffer.from(output.executor?.signature ?? "", "base64");
+    const valid =
+      output.schemaVersion === 1 &&
+      output.runKey === task.runKey &&
+      output.evaluatedCommit === coordinator.evaluatedCommit &&
+      output.candidateSkillId === coordinator.candidateSkillId &&
+      output.candidateSkillContentSha256 === coordinator.candidateSkillContentSha256 &&
+      typeof output.outputText === "string" &&
+      output.outputText.trim().length >= 20 &&
+      packet &&
+      canonicalSha256(packet) === expectedPacketSha256 &&
+      assignment &&
+      canonicalSha256(assignment) === canonicalSha256(expectedAssignment) &&
+      output.executor.packetSha256 === expectedPacketSha256 &&
+      output.executor.responseSha256 === responseSha256 &&
+      output.executor.assignmentSha256 === canonicalSha256(expectedAssignment) &&
+      output.executor.signingPayloadSha256 === canonicalSha256(signingPayload) &&
+      signature.length > 0 &&
+      verify(null, Buffer.from(canonicalJson(signingPayload)), actor.publicKeyPem, signature);
+    if (!valid) throw new Error("stored executor provenance is invalid");
+  } catch {
+    throw new Error(`invalid Stage B output identity: ${outputPath}`);
+  }
 };
 
 const findCandidate = ({ manifest, lock }, skillId) => {
@@ -349,8 +509,8 @@ export const initializeStageBPilot = ({ root, skillId, pilotId, workspaceRoot })
     `# Stage B workspace: ${pilotId}\n\n` +
       `Candidate: ${skillId}\nEvaluated commit: ${evaluatedCommit}\nTasks: 30\n\n` +
       "1. Never give executors tasks/ or coordinator.json.\n" +
-      "2. Use stage-b:next to create one isolated executor packet.\n" +
-      "3. Use stage-b:submit-output to wrap the raw response with verified identity and provenance.\n" +
+      "2. Register an executor public key, then use stage-b:next with --executor to assign one isolated packet.\n" +
+      "3. Use stage-b:prepare-submission, sign its exact payload outside the workspace, then use stage-b:submit-output.\n" +
       "4. Run prepare-review only after all 30 outputs exist.\n" +
       "5. Give reviewers only review-packet/, never coordinator.json, tasks/ or executor-packets/.\n" +
       "6. Private signing keys must remain outside this repository and workspace.\n",
@@ -368,16 +528,42 @@ const reviewFiles = (workspace) => {
   return existsSync(directory) ? readdirSync(directory).filter((name) => name.endsWith(".json")) : [];
 };
 
+const assignmentFiles = (workspace) => {
+  const directory = path.join(workspace, "assignments");
+  return existsSync(directory) ? readdirSync(directory).filter((name) => name.endsWith(".json")) : [];
+};
+
 export const getStageBPilotStatus = ({ root, workspace, env = process.env }) => {
   const coordinator = readJson(path.join(workspace, "coordinator.json"));
   const governance = loadAgentGovernance(root);
   const outputs = outputFiles(workspace);
+  const assignments = assignmentFiles(workspace);
   const reviews = reviewFiles(workspace);
+  const executors = governance.actors.actors.filter((actor) => actor.allowedRoles?.includes("stage-b-executor"));
   const reviewers = governance.actors.actors.filter((actor) => actor.allowedRoles?.includes("stage-b-reviewer"));
   const reviewerGroups = new Set(reviewers.map((actor) => actor.independenceGroup));
   const registrySha256 = canonicalSha256(governance.actors);
   const trustedRegistry = env.YORSO_TRUSTED_ACTOR_REGISTRY_SHA256;
   const blockers = [];
+  let invalidOutputCount = 0;
+
+  for (const file of outputs) {
+    const taskId = path.basename(file, ".json");
+    try {
+      const task = readPilotTask({ workspace, taskId });
+      const outputPath = path.join("outputs", file);
+      validateStoredExecutorOutput({
+        root,
+        workspace,
+        coordinator,
+        task,
+        output: readJson(path.join(workspace, outputPath)),
+        outputPath,
+      });
+    } catch {
+      invalidOutputCount += 1;
+    }
+  }
 
   if (outputs.length !== coordinator.taskCount) {
     blockers.push(
@@ -386,6 +572,15 @@ export const getStageBPilotStatus = ({ root, workspace, env = process.env }) => 
         : `unexpected extra outputs: ${outputs.length - coordinator.taskCount}`,
     );
   }
+  if (assignments.length !== coordinator.taskCount) {
+    blockers.push(
+      assignments.length < coordinator.taskCount
+        ? `missing executor assignments: ${coordinator.taskCount - assignments.length}`
+        : `unexpected extra executor assignments: ${assignments.length - coordinator.taskCount}`,
+    );
+  }
+  if (invalidOutputCount > 0) blockers.push(`invalid signed executor outputs: ${invalidOutputCount}`);
+  if (executors.length < 1) blockers.push("missing registered Stage B executors: 1");
   if (reviewers.length < 2) blockers.push(`missing registered Stage B reviewers: ${2 - reviewers.length}`);
   if (reviewerGroups.size < 2) blockers.push("Stage B reviewers must use distinct independence groups");
   if (reviews.length !== 2) {
@@ -399,11 +594,17 @@ export const getStageBPilotStatus = ({ root, workspace, env = process.env }) => 
     candidateSkillId: coordinator.candidateSkillId,
     evaluatedCommit: coordinator.evaluatedCommit,
     taskCount: coordinator.taskCount,
+    assignmentCount: assignments.length,
     outputCount: outputs.length,
+    invalidOutputCount,
+    executorCount: executors.length,
     reviewerCount: reviewers.length,
     reviewerSheetCount: reviews.length,
     actorRegistrySha256: registrySha256,
-    readyForReview: outputs.length === coordinator.taskCount,
+    readyForReview:
+      assignments.length === coordinator.taskCount &&
+      outputs.length === coordinator.taskCount &&
+      invalidOutputCount === 0,
     readyForQualification: blockers.length === 0,
     blockers,
   };
@@ -426,28 +627,16 @@ export const prepareBlindReviewPacket = ({ root, workspace, force = false }) => 
 
   for (const queued of queue.items) {
     const output = readJson(path.join(workspace, queued.expectedOutputPath));
-    const run = runByTask.get(queued.reviewItemId);
     const task = readPilotTask({ workspace, taskId: queued.reviewItemId });
-    const expectedPacket = buildExecutorPacket({ root, coordinator, task });
-    const packetPath = path.join(workspace, "executor-packets", `${task.taskId}.json`);
-    const packet = existsSync(packetPath) ? readJson(packetPath) : undefined;
-    if (
-      output.schemaVersion !== 1 ||
-      output.runKey !== run.runKey ||
-      output.evaluatedCommit !== coordinator.evaluatedCommit ||
-      output.candidateSkillId !== coordinator.candidateSkillId ||
-      output.candidateSkillContentSha256 !== coordinator.candidateSkillContentSha256 ||
-      typeof output.outputText !== "string" ||
-      output.outputText.trim().length < 20 ||
-      !packet ||
-      canonicalSha256(packet) !== canonicalSha256(expectedPacket) ||
-      !output.executor ||
-      !CANONICAL_ID.test(output.executor.id ?? "") ||
-      output.executor.packetSha256 !== canonicalSha256(expectedPacket) ||
-      output.executor.responseSha256 !== textSha256(output.outputText)
-    ) {
-      throw new Error(`invalid Stage B output identity: ${queued.expectedOutputPath}`);
-    }
+    if (!runByTask.has(queued.reviewItemId)) throw new Error(`invalid Stage B task identity: ${queued.reviewItemId}`);
+    validateStoredExecutorOutput({
+      root,
+      workspace,
+      coordinator,
+      task,
+      output,
+      outputPath: queued.expectedOutputPath,
+    });
     const reviewOutput = `outputs/${queued.reviewItemId}.txt`;
     mkdirSync(path.join(packetRoot, "outputs"), { recursive: true });
     writeFileSync(path.join(packetRoot, reviewOutput), output.outputText);
@@ -474,15 +663,14 @@ export const registerActor = ({ root, id, independenceGroup, allowedRoles, publi
   assertCanonicalId(independenceGroup, "independence group");
   const roles = [...new Set(allowedRoles)];
   if (roles.length === 0 || roles.some((role) => !ACTOR_ROLES.has(role))) {
-    throw new Error("actor role must be stage-b-reviewer or promotion-approver");
+    throw new Error("actor role must be stage-b-executor, stage-b-reviewer or promotion-approver");
   }
   const publicKeyPem = readFileSync(publicKeyFile, "utf8");
   const publicKey = createPublicKey(publicKeyPem);
   if (publicKey.asymmetricKeyType !== "ed25519") throw new Error("actor public key must use Ed25519");
 
   const registryFile = path.join(root, ".agents/actors.json");
-  const registry = readJson(registryFile);
-  if (registry.schemaVersion !== ACTOR_REGISTRY_SCHEMA_VERSION) throw new Error("unsupported actor registry schema");
+  const registry = actorRegistry(root);
   if (registry.actors.some((actor) => actor.id === id)) throw new Error(`actor already exists: ${id}`);
   registry.actors.push({ id, independenceGroup, allowedRoles: roles.sort(), publicKeyPem });
   registry.actors.sort((left, right) => left.id.localeCompare(right.id));

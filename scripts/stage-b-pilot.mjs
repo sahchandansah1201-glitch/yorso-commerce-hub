@@ -2,10 +2,11 @@
 import path from "node:path";
 
 import {
+  assignStageBExecutorTask,
   getStageBPilotStatus,
   initializeStageBPilot,
-  prepareNextStageBExecutorTask,
   prepareBlindReviewPacket,
+  prepareStageBSubmissionPayload,
   qualifyStageBPilot,
   registerActor,
   submitStageBOutput,
@@ -24,7 +25,10 @@ const workspace = pilotId ? path.join(root, ".data/stage-b", pilotId) : undefine
 const printStatus = (status) => {
   console.log(`Stage B pilot: ${status.pilotId}`);
   console.log(`Candidate: ${status.candidateSkillId}`);
+  console.log(`Registered executors: ${status.executorCount}`);
+  console.log(`Assignments: ${status.assignmentCount}/${status.taskCount}`);
   console.log(`Outputs: ${status.outputCount}/${status.taskCount}`);
+  console.log(`Invalid signed outputs: ${status.invalidOutputCount}`);
   console.log(`Registered reviewers: ${status.reviewerCount}/2`);
   console.log(`Signed reviewer sheets: ${status.reviewerSheetCount}/2`);
   console.log(`Actor registry SHA-256: ${status.actorRegistrySha256}`);
@@ -46,22 +50,54 @@ try {
     printStatus(status);
     if (!status.readyForQualification) process.exitCode = 2;
   } else if (command === "next") {
-    if (!workspace) throw new Error("usage: stage-b:next -- --pilot <id> [--task <task-id>]");
-    const result = prepareNextStageBExecutorTask({ root, workspace, taskId: value("--task") });
+    const executorId = value("--executor");
+    if (!workspace || !executorId) {
+      throw new Error("usage: stage-b:next -- --pilot <id> --executor <id> [--task <task-id>]");
+    }
+    const result = assignStageBExecutorTask({
+      root,
+      workspace,
+      taskId: value("--task"),
+      executorId,
+    });
     console.log(`Executor packet: ${result.packetPath}`);
     console.log(`Task: ${result.task.taskId} (${result.task.sequence}/30)`);
+    console.log(`Assigned executor: ${result.assignment.executorId}`);
+    console.log(`Assignment: ${result.assignmentPath}`);
     console.log(`Packet SHA-256: ${result.packetSha256}`);
     console.log("Give only this packet to the executor. Do not give tasks/, coordinator.json or another arm packet.");
+  } else if (command === "prepare-submission") {
+    const taskId = value("--task");
+    const executorId = value("--executor");
+    const responseFile = value("--response-file");
+    const payloadFile = value("--payload-file");
+    if (!workspace || !taskId || !executorId || !responseFile || !payloadFile) {
+      throw new Error(
+        "usage: stage-b:prepare-submission -- --pilot <id> --task <task-id> --executor <id> --response-file <file> --payload-file <file>",
+      );
+    }
+    const result = prepareStageBSubmissionPayload({
+      root,
+      workspace,
+      taskId,
+      executorId,
+      responseFile,
+      payloadFile,
+    });
+    console.log(`Canonical signing payload: ${payloadFile}`);
+    console.log(`Signing payload SHA-256: ${result.payloadSha256}`);
+    console.log("Sign this exact file with the assigned executor's Ed25519 private key outside the repository.");
   } else if (command === "submit-output") {
     const taskId = value("--task");
     const executorId = value("--executor");
     const responseFile = value("--response-file");
-    if (!workspace || !taskId || !executorId || !responseFile) {
+    const signatureFile = value("--signature-file");
+    if (!workspace || !taskId || !executorId || !responseFile || !signatureFile) {
       throw new Error(
-        "usage: stage-b:submit-output -- --pilot <id> --task <task-id> --executor <id> --response-file <file>",
+        "usage: stage-b:submit-output -- --pilot <id> --task <task-id> --executor <id> --response-file <file> --signature-file <file>",
       );
     }
-    const result = submitStageBOutput({ root, workspace, taskId, executorId, responseFile });
+    const result = submitStageBOutput({ root, workspace, taskId, executorId, responseFile, signatureFile });
     console.log(`Stage B output accepted: ${result.outputPath}`);
     console.log(`Executor: ${result.output.executor.id}`);
     console.log(`Response SHA-256: ${result.output.executor.responseSha256}`);
@@ -90,7 +126,7 @@ try {
     console.log(`Actor registry SHA-256: ${result.registrySha256}`);
     console.log("Store this digest out-of-band; no private key was read or stored.");
   } else {
-    throw new Error("commands: init, next, submit-output, status, prepare-review, qualify, register-actor");
+    throw new Error("commands: init, next, prepare-submission, submit-output, status, prepare-review, qualify, register-actor");
   }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));

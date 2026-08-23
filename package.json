@@ -11,6 +11,7 @@
     "lock:agent-skills": "node scripts/lock-agent-skills.mjs",
     "stage-b:init": "node scripts/stage-b-pilot.mjs init",
     "stage-b:next": "node scripts/stage-b-pilot.mjs next",
+    "stage-b:prepare-submission": "node scripts/stage-b-pilot.mjs prepare-submission",
     "stage-b:submit-output": "node scripts/stage-b-pilot.mjs submit-output",
     "stage-b:status": "node scripts/stage-b-pilot.mjs status",
     "stage-b:prepare-review": "node scripts/stage-b-pilot.mjs prepare-review",

@@ -2,6 +2,24 @@
 
 Keep this file factual and append-only.
 
+## 2026-08-23 — Signed Stage B executor assignments
+
+- Added the `stage-b-executor` actor role and immutable per-task assignments;
+  assigning the same task to another actor fails closed.
+- Added `stage-b:prepare-submission` to produce exact canonical payload bytes
+  outside the pilot workspace, and required a detached Ed25519 signature during
+  `stage-b:submit-output`.
+- Bound stored outputs to executor, assignment, evaluated commit, packet,
+  response and canonical payload SHA-256 values. Status and blind-review packet
+  preparation revalidate the registered public key and signature, so tampered
+  responses, assignments, packets, keys and signatures are rejected.
+- Test-driven evidence: the first focused run exposed that unregistered
+  executors and the executor actor role were not enforced. After the change,
+  Stage B tests passed 11/11 and the shared governance suite passed 55/55.
+- The real `copywriter-2026-08` pilot remains blocked with 0/30 assignments,
+  0/30 outputs, no registered executor, 0/2 reviewers and 0/2 signed sheets. No
+  skill qualification or quality-uplift claim is made.
+
 ## 2026-08-22 — Stage B executor workflow
 
 - Added `stage-b:next` to generate one exact-commit, arm-isolated executor

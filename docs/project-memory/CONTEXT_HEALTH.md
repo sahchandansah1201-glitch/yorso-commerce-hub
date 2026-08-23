@@ -1,6 +1,6 @@
 # Context Health
 
-Updated: 2026-08-22
+Updated: 2026-08-23
 
 Repository: `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`
 
@@ -12,12 +12,12 @@ Branch: `local-lab/agent-capability-foundation`
 
 ```yaml
 context_risk: "medium"
-last_checkpoint: "2026-08-22"
+last_checkpoint: "2026-08-23"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Assign real executors and collect the 30 copywriter responses through the packet/submission CLI, then collect two real independent reviewers and signed evidence; do not merge main."
-why_medium: "The exact-commit Stage B workspace and reproducible executor transport exist and fail closed, but the real pilot has 0/30 outputs, no real trusted actors, no signed reviewer sheets and no promotion approval."
+recommended_action: "Register real executors, assign all 30 tasks and collect Ed25519-signed copywriter responses through the packet/submission CLI, then collect two real independent reviewers and signed evidence; do not merge main."
+why_medium: "The exact-commit Stage B workspace and signed executor transport exist and fail closed, but the real pilot has 0/30 assignments, 0/30 outputs, no real trusted actors, no signed reviewer sheets and no promotion approval."
 ```
 
 ## Confirmed Boundaries
@@ -38,6 +38,9 @@ why_medium: "The exact-commit Stage B workspace and reproducible executor transp
   only `review-packet/`, never coordinator/task arm mappings.
 - Executors must receive only generated `executor-packets/<task-id>/`; they must
   not receive `coordinator.json`, raw `tasks/` arm mappings or the opposite arm.
+- Every executor must be registered with role `stage-b-executor`, receive an
+  immutable task assignment and sign the canonical submission payload with an
+  Ed25519 private key that remains outside the repository and workspace.
 
 ## Recovery Prompt
 

@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-08-22
+Updated: 2026-08-23
 
 Project: `yorso-commerce-hub`
 
@@ -37,7 +37,7 @@ multilingual UX copywriter and non-mutating verification gates.
 | Validate experimental pushes | GitHub CI now runs for `local-lab/**` pushes | Verify remote workflow result after first push | `.github/workflows/ci.yml` |
 | Make Stage B executable | CLI creates 30 randomized tasks, validates identity-bound outputs, builds a blind reviewer packet, enrols public keys only and fails closed until real evidence exists | Run real executor outputs and signed independent review | `npm run test:agent-governance`; `docs/agents/stage-b-operator-runbook.md` |
 | Initialize the first real workspace | `copywriter-2026-08` contains 30 tasks bound to exact commit `dc86aae5331d84836ab428929ba602d0420f35a9`; reviewer queue omits arm mappings | Produce 30 outputs and enrol two real reviewers | `npm run stage-b:status -- --pilot copywriter-2026-08` returns blocked exit 2 |
-| Make executor runs reproducible | `stage-b:next` emits arm-isolated exact-commit packets and `stage-b:submit-output` binds canonical executor identity, packet SHA-256 and response SHA-256; baseline packets contain no candidate skill material | Assign real executors and collect 30 genuine responses | `npm run test:agent-governance`; manual packet leak check; fail-closed pilot status |
+| Make executor runs reproducible | `stage-b:next` immutably assigns an arm-isolated exact-commit packet to a registered executor; `stage-b:prepare-submission` emits a canonical payload; `stage-b:submit-output` verifies an Ed25519 signature and binds assignment, packet, response and payload hashes | Register real executors and collect 30 genuine signed responses | `npm run test:agent-governance`; signature/tamper tests; fail-closed pilot status |
 
 ## Evidence Already Established
 
@@ -47,8 +47,9 @@ multilingual UX copywriter and non-mutating verification gates.
 - Stage A structural/provenance pilot passed.
 - Full Stage B evidence is not complete; therefore no `30%`, `200%` or other
   quantified improvement claim is made.
-- The executor transport is locally verified, but the real pilot still has
-  `0/30` outputs, `0/2` reviewers and `0/2` signed sheets. Tooling readiness is
+- The signed executor transport is locally verified, but the real pilot still
+  has `0/30` assignments, `0/30` outputs, `0` registered executors, `0/2`
+  reviewers and `0/2` signed sheets. Tooling readiness is
   not skill qualification.
 - `.agents/actors.json` has no real registered humans yet; this intentionally
   keeps Stage B and promotion closed. Passed evidence additionally requires the

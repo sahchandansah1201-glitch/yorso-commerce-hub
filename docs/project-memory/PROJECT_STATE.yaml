@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-08-22"
+updated_at: "2026-08-23"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -56,6 +56,7 @@ active_workstream:
     - "Added an executable Stage B blind-pilot CLI with 30 randomized task files, identity-bound outputs, reviewer-facing arm redaction, public-key-only actor enrollment, fail-closed status and separate qualification/main-promotion checks."
     - "Initialized ignored pilot workspace copywriter-2026-08 against exact commit dc86aae5331d84836ab428929ba602d0420f35a9 with 30 tasks and a reviewer queue that omits arm mappings."
     - "Added a reproducible Stage B executor workflow: stage-b:next emits one commit-bound arm-isolated packet, and stage-b:submit-output records canonical executor identity plus packet and response SHA-256 without exposing coordinator arm mappings."
+    - "Hardened Stage B executor provenance: every task has an immutable assignment to a registered stage-b-executor, every response is bound to a canonical payload and Ed25519 signature, and status plus blind-review preparation reject assignment, packet, response, key or signature drift."
   open_gates:
     - "Run the complete Stage B blind comparative pilot before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before Stage B evidence can pass."
@@ -79,16 +80,23 @@ stage_b_pilot:
   evaluated_commit: "dc86aae5331d84836ab428929ba602d0420f35a9"
   workspace: ".data/stage-b/copywriter-2026-08"
   task_count: 30
+  assignment_count: 0
   output_count: 0
+  invalid_signed_output_count: 0
+  executor_count: 0
   reviewer_count: 0
   reviewer_sheet_count: 0
   qualification: "blocked"
   executor_workflow: "implemented_and_locally_verified"
   executor_commands:
-    - "npm run stage-b:next -- --pilot copywriter-2026-08"
-    - "npm run stage-b:submit-output -- --pilot copywriter-2026-08 --task <task-id> --executor <executor-id> --response-file <path>"
+    - "npm run stage-b:register-actor -- --id <executor-id> --group <group> --roles stage-b-executor --public-key-file <public-key-path>"
+    - "npm run stage-b:next -- --pilot copywriter-2026-08 --executor <executor-id>"
+    - "npm run stage-b:prepare-submission -- --pilot copywriter-2026-08 --task <task-id> --executor <executor-id> --response-file <path> --payload-file <path>"
+    - "npm run stage-b:submit-output -- --pilot copywriter-2026-08 --task <task-id> --executor <executor-id> --response-file <path> --signature-file <path>"
   blockers:
+    - "missing executor assignments: 30"
     - "missing outputs: 30"
+    - "missing registered Stage B executors: 1"
     - "missing registered Stage B reviewers: 2"
     - "Stage B reviewers must use distinct independence groups"
     - "missing signed reviewer sheets: 2"
@@ -111,4 +119,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Assign real canonical executors and collect all 30 responses through stage-b:next and stage-b:submit-output, then obtain two real independent reviewers and signed evidence before qualification."
+next_action: "Register real Stage B executors, assign all 30 tasks and collect Ed25519-signed responses through stage-b:prepare-submission and stage-b:submit-output, then obtain two real independent reviewers and signed evidence before qualification."

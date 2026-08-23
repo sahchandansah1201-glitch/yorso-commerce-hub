@@ -44,8 +44,9 @@
 - `docs/project-memory/DECISIONS/ADR-0002-agent-capability-governance.md`:
   durable governance decision.
 - `scripts/stage-b-pilot.mjs` and `scripts/lib/stage-b-pilot.mjs`: Stage B
-  operator CLI including arm-isolated executor packet generation and
-  provenance-bound output submission.
+  operator CLI including arm-isolated executor packet generation, immutable
+  executor assignment, canonical signing-payload generation, Ed25519 output
+  verification and blind-review revalidation.
 - `.data/stage-b/copywriter-2026-08/executor-packets/`: ignored local executor
   handoff packets. Baseline packets exclude candidate identifiers, hashes and
   skill content; packets are not reviewer artifacts and are not committed.

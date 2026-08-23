@@ -129,15 +129,21 @@ The executable workflow is documented in
 
 - `npm run stage-b:init -- --pilot <id> --skill <id>`: create 30 randomized
   executor tasks in ignored `.data/stage-b/<id>` from a clean committed HEAD;
-- `npm run stage-b:next -- --pilot <id> [--task <task-id>]`: create an isolated
-  executor packet from the evaluated commit; baseline packets omit all candidate
-  identity and skill material;
+- `npm run stage-b:next -- --pilot <id> --executor <id> [--task <task-id>]`:
+  assign the task once to a registered `stage-b-executor` and create an isolated
+  packet from the evaluated commit; baseline packets omit all candidate identity
+  and skill material;
+- `npm run stage-b:prepare-submission -- --pilot <id> --task <task-id>
+  --executor <id> --response-file <file> --payload-file <file>`: generate the
+  exact canonical payload that the assigned executor signs outside the
+  repository with its Ed25519 private key;
 - `npm run stage-b:submit-output -- --pilot <id> --task <task-id> --executor
-  <id> --response-file <file>`: reject packet tampering or overwrite and wrap a
-  raw executor response with verified identity and SHA-256 provenance;
+  <id> --response-file <file> --signature-file <file>`: reject assignment,
+  packet, response, actor-key or signature drift and wrap the response with
+  verified Ed25519 and SHA-256 provenance;
 - `npm run stage-b:prepare-review -- --pilot <id>`: reject incomplete or
-  identity-mismatched outputs and create a reviewer packet without skill/arm
-  identity;
+  unsigned/identity-mismatched outputs and create a reviewer packet without
+  skill/arm identity;
 - `npm run stage-b:register-actor -- ...`: enrol only an Ed25519 public key;
 - `npm run stage-b:status -- --pilot <id>`: report concrete blockers and return
   exit code 2 while qualification is incomplete;
