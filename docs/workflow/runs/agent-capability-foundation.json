@@ -5,7 +5,7 @@
   "baseRef": "origin/main",
   "baseCommit": "0f71847b7150f5ed5358c418f4fb3509109b7b82",
   "canonicalRemote": "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub",
-  "changeClass": "governance-tooling",
+  "changeClass": "user-visible",
   "allowedPaths": [
     ".agents/",
     ".github/workflows/ci.yml",
@@ -14,7 +14,10 @@
     "docs/workflow/",
     "e2e/account-workspace-sections.spec.ts",
     "package.json",
+    "playwright.config.ts",
     "scripts/",
+    "src/pages/Suppliers.test.tsx",
+    "src/pages/Suppliers.tsx",
     "src/test/provider-free-tooling-retirement.test.ts",
     "src/test/setup.ts",
     "tsconfig.app.json"
@@ -23,11 +26,13 @@
     "check:agent-governance",
     "check:project-memory",
     "check:provider-boundary",
-    "test:local-lab-cycle"
+    "test:local-lab-cycle",
+    "test:supplier-directory-frontend"
   ],
   "humanLikeQa": {
-    "required": false,
-    "reason": "This scope changes governance documentation and verification tooling only; no user-visible runtime or interaction changed."
+    "required": true,
+    "status": "passed",
+    "evidence": "System Google Chrome completed the focused supplier pagination flow 5/5: Next remained on page 2 beyond the 250 ms initial debounce window, URL and summary stayed synchronized, and the existing mobile paging cases passed."
   },
   "independentReviews": {
     "status": "pending",

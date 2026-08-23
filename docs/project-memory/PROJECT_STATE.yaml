@@ -66,6 +66,8 @@ active_workstream:
     - "Recorded candidate overlap, domain-fit limits and explicit rejects; no external skill was installed wholesale from popularity alone."
     - "Added an executable local-lab delivery cycle with safe command allowlisting, repository/branch/base/scope checks, human-like QA policy and fail-closed local versus release verdicts."
     - "Tested the cycle with six positive and adversarial cases and a real working-tree run: Gates 0-3 passed locally while Gates 4-7 remained pending by design."
+    - "Exercised the cycle against remote GitHub CI: the first exact-HEAD run passed core gates but failed one supplier pagination browser case, exposing an initial debounce race that reset page 2 to page 1."
+    - "Fixed the supplier pagination race, added a post-debounce unit regression and verified the focused flow 5/5 in system Google Chrome before the remote rerun."
   open_gates:
     - "Run independent blind comparative review before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before independent-review evidence or main promotion can pass."
@@ -88,10 +90,12 @@ development_cycle:
   evidence: "docs/workflow/runs/agent-capability-foundation.json"
   role_research_ledger: "docs/agents/research/role-skill-deep-search-2026-08-23.md"
   researched_roles: 13
-  runner_tests: "6/6 passed"
+  runner_tests: "7/7 passed"
   local_verdict: "VALIDATED_LOCAL"
   release_verdict: "NO-GO_pending_gates_4_7"
-  claim_boundary: "The cycle implementation is tested locally; release readiness is not established."
+  first_remote_ci: "failed_run_32650214185_supplier_pagination_race"
+  remote_ci_rerun: "pending_new_exact_head"
+  claim_boundary: "The cycle has caught a real browser regression and the local fix is verified; release readiness is not established until the new exact HEAD passes remote CI and Gates 4-7."
 
 stage_b_pilot:
   id: "copywriter-2026-08"
@@ -144,6 +148,7 @@ validation:
     production_build: "passed; 3113 modules"
   required_commands:
     - "npm run test:local-lab-cycle"
+    - "npm run test:supplier-directory-frontend"
     - "npm run check:local-lab-cycle:working-tree"
     - "npm run check:local-lab-cycle"
     - "npm run check:local-lab-release-cycle"
@@ -157,4 +162,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Use the executable local-lab cycle for the next product scope; pilot the QA/release candidate before installation, and keep release Gates 4-7 closed until exact evidence exists."
+next_action: "Commit and push the supplier pagination race fix on the local-lab branch, require remote CI on the new exact HEAD, then keep release Gates 4-7 closed until their separate evidence exists."

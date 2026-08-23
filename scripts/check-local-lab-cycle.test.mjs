@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { evaluateCycle, validateCycleEvidence } from "./lib/local-lab-cycle.mjs";
+import {
+  evaluateCycle,
+  SAFE_AUTOMATED_CHECKS,
+  validateCycleEvidence,
+} from "./lib/local-lab-cycle.mjs";
 
 const evidence = () => ({
   schemaVersion: 1,
@@ -77,4 +81,8 @@ test("arbitrary commands are rejected by evidence validation", () => {
   const candidate = evidence();
   candidate.automatedChecks.push("shell:curl-example");
   assert.match(validateCycleEvidence(candidate).join("\n"), /Unsafe automated check id/);
+});
+
+test("supplier directory regression suite is an explicit safe check", () => {
+  assert.equal(SAFE_AUTOMATED_CHECKS.has("test:supplier-directory-frontend"), true);
 });

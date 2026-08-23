@@ -1,7 +1,8 @@
 import { defineConfig } from "@playwright/test";
 import { existsSync } from "node:fs";
 
-const systemChromiumPath = "/bin/chromium";
+const requestedChromiumPath = process.env.E2E_CHROMIUM_EXECUTABLE_PATH?.trim();
+const systemChromiumPath = requestedChromiumPath || "/bin/chromium";
 const chromiumLaunchOptions = existsSync(systemChromiumPath)
   ? { executablePath: systemChromiumPath }
   : undefined;

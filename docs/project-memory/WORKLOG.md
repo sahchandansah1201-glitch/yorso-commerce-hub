@@ -2,6 +2,31 @@
 
 Keep this file factual and append-only.
 
+## 2026-08-23 — Real CI cycle caught supplier pagination race
+
+- Pushed the role-matrix and executable-cycle candidate as `a1d38d5d` to the
+  experimental branch; `origin/main` stayed at `0f71847b`.
+- GitHub Actions run `32650214185` passed the full core stage and 286 of 287
+  browser cases, then failed the supplier directory pagination flow on both the
+  first attempt and retry.
+- Reproduced the root cause in code: the initial 250 ms search debounce reset
+  `page` to 1 even when the query had not changed, racing a quick Next action.
+- Guarded the debounce reset by actual normalized-query change and added a unit
+  regression that waits past the timer before rechecking page 2.
+- Added a local Chromium executable override and verified the focused supplier
+  paging suite 5/5 in system Google Chrome with the CI-equivalent no-API build.
+- Reclassified the cycle evidence as user-visible and made Gate 3 mandatory;
+  the branch is not release-ready until the new exact HEAD passes remote CI and
+  Gates 4-7 receive separate evidence.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Test the cycle remotely | Core passed; browser regression was caught | Rerun on fixed exact HEAD | Actions run `32650214185` |
+| Fix the actual defect | Initial debounce no longer resets unchanged query | Remote full-suite pass | unit 21/21; Chrome 5/5 |
+| Require human-like QA | Gate 3 changed from N/A to required PASS | Preserve evidence per product scope | cycle evidence JSON |
+
 ## 2026-08-23 — Stage B owner-directed operational qualification
 
 - Added a second, explicit Stage B mode for project-owner qualification on

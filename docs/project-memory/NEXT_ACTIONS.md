@@ -10,26 +10,30 @@ Branch: `local-lab/agent-capability-foundation`
 
 ## Immediate
 
-1. Use `npm run check:local-lab-cycle:working-tree` during implementation and
-   `npm run check:local-lab-cycle` on the clean candidate commit. Do not call a
-   branch release-ready while Gates 4-7 remain pending.
-2. Run a narrow Stage B pilot of `petrkindlmann/qa-skills` against the existing
+1. Commit and push the supplier pagination race fix, then require GitHub CI on
+   the new exact HEAD. The previous run `32650214185` is evidence of a caught
+   defect, not a pass.
+2. Use `npm run check:local-lab-cycle:working-tree` during implementation and
+   `npm run check:local-lab-cycle` on the clean candidate commit. Gate 3 now
+   requires the recorded real-Chrome flow. Do not call the branch release-ready
+   while Gates 4-7 remain pending.
+3. Run a narrow Stage B pilot of `petrkindlmann/qa-skills` against the existing
    Yorso QA/release gate before installing or adapting it. Evaluate defect
    recall, false positives, runtime cost and overlap with current skills.
-3. Keep `affaan-m/ECC` as the next logistics research candidate only; audit the
+4. Keep `affaan-m/ECC` as the next logistics research candidate only; audit the
    exact customs/logistics content before any local adaptation.
-4. Preserve the completed `.data/stage-b/copywriter-2026-08` execution
+5. Preserve the completed `.data/stage-b/copywriter-2026-08` execution
    workspace: 30/30 immutable assignments, 30/30 valid signed outputs, 0
    invalid outputs and 6 recorded blocked responses.
-5. Use `yorso-multilingual-ux-copywriter-agent` as an active project-wide skill
+6. Use `yorso-multilingual-ux-copywriter-agent` as an active project-wide skill
    for experimental `local-lab/*` work and run feature-specific tests for every
    product-code change it influences.
-6. Keep the owner directive and generated evidence checksum-bound; governance
+7. Keep the owner directive and generated evidence checksum-bound; governance
    must fail if either artifact, the candidate hash, fixture oracle, evaluated
    commit or signed run set drifts.
-7. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
+8. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
    `main` unchanged until the separate production promotion gate passes.
-8. Continue the next product implementation stage instead of waiting for
+9. Continue the next product implementation stage instead of waiting for
    external reviewers. Independent review may be added later to measure quality
    uplift, but it is not a blocker for experimental operational use.
 

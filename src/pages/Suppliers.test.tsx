@@ -371,7 +371,7 @@ describe("/suppliers — implementation quality fixes", () => {
     expect(screen.getByTestId("supplier-directory-page-size")).toHaveValue("20");
   });
 
-  it("paginates local supplier fallback without changing access shaping", () => {
+  it("paginates local supplier fallback without a delayed initial search reset", async () => {
     renderPage();
 
     expect(screen.getByTestId("supplier-directory-page-summary")).toHaveTextContent("Showing 1-10 of 12");
@@ -382,6 +382,10 @@ describe("/suppliers — implementation quality fixes", () => {
     expect(screen.getByTestId("supplier-directory-page-summary")).toHaveTextContent("Showing 11-12 of 12");
     expect(screen.getAllByTestId("supplier-row")).toHaveLength(2);
     expect(document.body.textContent ?? "").not.toContain(mockSuppliers[0].companyName);
+
+    await new Promise((resolve) => window.setTimeout(resolve, 300));
+    expect(screen.getByTestId("supplier-directory-page-summary")).toHaveTextContent("Showing 11-12 of 12");
+    expect(screen.getAllByTestId("supplier-row")).toHaveLength(2);
   });
 });
 

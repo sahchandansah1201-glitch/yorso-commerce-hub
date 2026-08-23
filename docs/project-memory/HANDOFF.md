@@ -43,6 +43,7 @@ multilingual UX copywriter and non-mutating verification gates.
 | Qualify operational Stage B | Project-owner directive activated the copywriter for experimental work; governance records `owner-directive` mode and exact negative claim boundary | Use it in feature work; independent review is optional until uplift/main is pursued | 30/30 signed outputs, 0 invalid, 6 blocked; checksum-bound directive/evidence |
 | Repeat role/skill discovery | All 13 roles searched through Exa and Codex skills; GitHub license and full-SHA evidence recorded | Pilot only the selected QA and logistics candidates | `docs/agents/research/role-skill-deep-search-2026-08-23.md` |
 | Make the development cycle executable | Safe allowlisted runner evaluates repository, branch, base, scope, automated checks, human QA and release evidence | Supply real Gates 4-7 evidence only when promotion is requested | `npm run test:local-lab-cycle`; `npm run check:local-lab-cycle` |
+| Test the cycle against real CI | Run `32650214185` passed core gates and 286/287 browser tests, then exposed a supplier pagination debounce race | Push the verified fix and require a green run on the new exact HEAD | GitHub Actions plus focused Chrome 5/5 |
 
 ## Evidence Already Established
 
@@ -68,10 +69,16 @@ multilingual UX copywriter and non-mutating verification gates.
   hashes instead.
 - Local promotion-gate fixtures prove validation logic, not that GitHub CI was
   executed. Verifiable remote CI attestation remains required before `main`.
-- The local-lab runner has six passing positive/adversarial tests. A real dirty
-  working-tree run produced `VALIDATED_LOCAL` for Gates 0-3. Release mode is
+- The local-lab runner has seven passing positive/adversarial tests. A real dirty
+  working-tree run produced `VALIDATED_LOCAL` for Gates 0-3. Gate 3 is now a
+  mandatory human-like browser gate because this workstream includes a supplier
+  UI fix. Release mode is
   expected to return `NO-GO` until independent review, Lovable same-HEAD, PR and
   server proof are supplied.
+- Remote run `32650214185` failed one of 287 browser cases after all core gates
+  passed. The cycle therefore prevented a false completion claim. Root cause was
+  a delayed initial search debounce resetting supplier pagination; the focused
+  unit regression and real system-Chrome suite now pass locally.
 - No external candidate found in the repeated search was installed wholesale.
   The highest-priority next pilot is `petrkindlmann/qa-skills`; this is a pilot
   decision, not an adoption or quality-uplift claim.

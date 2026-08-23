@@ -254,12 +254,14 @@ const Suppliers = () => {
   };
 
   useEffect(() => {
+    const nextQuery = query.trim();
     const handle = window.setTimeout(() => {
-      setDebouncedQuery(query.trim());
+      if (nextQuery === debouncedQuery) return;
+      setDebouncedQuery(nextQuery);
       setPage(1);
     }, 250);
     return () => window.clearTimeout(handle);
-  }, [query]);
+  }, [debouncedQuery, query]);
 
   const stableSupplierById = useMemo(() => new Map(mockSuppliers.map((s) => [s.id, s])), []);
 

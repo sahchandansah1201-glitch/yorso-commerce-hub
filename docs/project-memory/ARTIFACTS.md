@@ -2044,4 +2044,11 @@
   engine.
 - `scripts/check-local-lab-cycle.mjs`: repository-aware safe-check runner.
 - `scripts/check-local-lab-cycle.test.mjs`: six positive and fail-closed cycle
-  tests.
+  tests plus one safe-check registration test.
+- GitHub Actions run `32650214185`: first real remote cycle signal; core gates
+  passed and browser smoke reached 286/287 before exposing the supplier initial
+  debounce pagination race.
+- `src/pages/Suppliers.test.tsx`: regression waits beyond the 250 ms debounce
+  window and proves page 2 remains selected.
+- `E2E_CHROMIUM_EXECUTABLE_PATH` in `playwright.config.ts`: reproducible local
+  real-Chrome override while CI retains its bundled Chromium default.

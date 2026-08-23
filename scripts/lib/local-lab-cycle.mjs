@@ -5,6 +5,7 @@ export const SAFE_AUTOMATED_CHECKS = new Set([
   "test:agent-governance",
   "test:local-lab-cycle",
   "test:project-memory",
+  "test:supplier-directory-frontend",
 ]);
 
 const RELEASE_GATE_FIELDS = [
