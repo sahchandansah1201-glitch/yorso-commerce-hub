@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "pilotId": "copywriter-2026-08",
+  "candidateSkillId": "yorso-multilingual-ux-copywriter-agent",
+  "authority": "project-owner",
+  "decision": "qualify",
+  "qualificationMode": "owner-directive",
+  "issuedAt": "2026-08-23",
+  "statement": "Квалифицировать Stage B для операционного использования multilingual UX copywriter skill в experimental-ветке Yorso.",
+  "acknowledgedEvidence": {
+    "assignments": 30,
+    "validSignedOutputs": 30,
+    "invalidSignedOutputs": 0,
+    "blockedResponses": 6
+  },
+  "claimBoundary": {
+    "independentReviewCompleted": false,
+    "measuredQualityUplift": false,
+    "productionPromotionAuthorized": false
+  }
+}

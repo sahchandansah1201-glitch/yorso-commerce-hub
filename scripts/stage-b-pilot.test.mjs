@@ -15,10 +15,12 @@ import {
   prepareBlindReviewPacket,
   prepareStageBReviewerPayload,
   prepareStageBSubmissionPayload,
+  qualifyStageBPilotByOwnerDirective,
   registerActor,
   submitStageBReview,
   submitStageBOutput,
 } from "./lib/stage-b-pilot.mjs";
+import { validateAgentGovernance } from "./lib/agent-governance.mjs";
 
 const root = process.cwd();
 const candidate = {
@@ -55,17 +57,19 @@ const runGit = (repository, args) =>
   execFileSync("git", args, { cwd: repository, encoding: "utf8" }).trim();
 
 const createExecutorWorkspace = () => {
-  const repository = mkdtempSync(path.join(os.tmpdir(), "yorso-stage-b-repository-"));
-  mkdirSync(path.join(repository, ".agents/skills"), { recursive: true });
-  mkdirSync(path.join(repository, "docs/agents"), { recursive: true });
-  cpSync(path.join(root, ".agents/manifest.json"), path.join(repository, ".agents/manifest.json"));
-  cpSync(path.join(root, ".agents/skills.lock.json"), path.join(repository, ".agents/skills.lock.json"));
-  cpSync(
-    path.join(root, actualCandidate.path),
-    path.join(repository, actualCandidate.path),
-    { recursive: true },
-  );
-  cpSync(path.join(root, "docs/agents/pilots"), path.join(repository, "docs/agents/pilots"), { recursive: true });
+  const repositoryParent = mkdtempSync(path.join(os.tmpdir(), "yorso-stage-b-repository-"));
+  const repository = path.join(repositoryParent, "repository");
+  execFileSync("git", ["clone", "--quiet", "--no-hardlinks", root, repository]);
+  runGit(repository, ["checkout", "--quiet", "-B", "local-lab/agent-capability-foundation"]);
+  runGit(repository, ["remote", "set-url", "origin", "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub.git"]);
+
+  const manifestPath = path.join(repository, ".agents/manifest.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  manifest.branchPolicy.stageBPilotStatus = "pending";
+  delete manifest.branchPolicy.stageBQualificationMode;
+  delete manifest.branchPolicy.stageBEvidenceBySkill;
+  manifest.skills.find((skill) => skill.id === actualCandidate.id).status = "experimental";
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
   const executorKeys = new Map();
   const reviewerKeys = new Map();
@@ -94,11 +98,15 @@ const createExecutorWorkspace = () => {
     `${JSON.stringify({ schemaVersion: 2, actors }, null, 2)}\n`,
   );
 
-  runGit(repository, ["init", "--quiet"]);
   runGit(repository, ["config", "user.name", "Stage B test"]);
   runGit(repository, ["config", "user.email", "stage-b-test@example.invalid"]);
   runGit(repository, ["add", "."]);
   runGit(repository, ["commit", "--quiet", "-m", "Stage B test fixture"]);
+  runGit(repository, [
+    "update-ref",
+    "refs/remotes/origin/main",
+    JSON.parse(readFileSync(manifestPath, "utf8")).branchPolicy.baseCommit,
+  ]);
   const repositoryCommit = runGit(repository, ["rev-parse", "HEAD"]);
 
   const workspace = mkdtempSync(path.join(os.tmpdir(), "yorso-stage-b-executor-"));
@@ -126,6 +134,32 @@ const createExecutorWorkspace = () => {
     writeFileSync(path.join(workspace, "tasks", `${task.taskId}.json`), `${JSON.stringify(task, null, 2)}\n`);
   }
   return { root: repository, workspace, plan, executorKeys, reviewerKeys };
+};
+
+const submitAllExecutorOutputs = ({ root: fixtureRoot, workspace, plan, executorKeys }) => {
+  for (const [index, task] of plan.tasks.entries()) {
+    const responseFile = path.join(workspace, `${task.taskId}.owner-response.txt`);
+    const response = index < 6
+      ? `BLOCKED: fixture ${task.fixtureId} needs an explicit source before copy can be finalized.`
+      : `Complete signed executor response for ${task.fixtureId}, run ${task.runKey}, with concise interface copy.`;
+    writeFileSync(responseFile, `${response}\n`);
+    const signed = prepareSignedSubmission({
+      root: fixtureRoot,
+      workspace,
+      task,
+      executorId: "executor.review",
+      executorKeys,
+      responseFile,
+    });
+    submitStageBOutput({
+      root: fixtureRoot,
+      workspace,
+      taskId: task.taskId,
+      executorId: "executor.review",
+      responseFile,
+      signatureFile: signed.signatureFile,
+    });
+  }
 };
 
 const prepareSignedSubmission = ({
@@ -681,6 +715,67 @@ test("reviewer workflow freezes blind decisions, verifies external signatures an
     assert.equal(invalidStatus.invalidReviewerSheetCount, 1);
     assert.equal(invalidStatus.blockers.includes("invalid signed reviewer sheets: 1"), true);
   });
+});
+
+test("owner directive qualifies a complete signed Stage B pilot without claiming independent review", () => {
+  const {
+    root: fixtureRoot,
+    workspace,
+    plan,
+    executorKeys,
+  } = createExecutorWorkspace();
+  submitAllExecutorOutputs({ root: fixtureRoot, workspace, plan, executorKeys });
+
+  const directiveRelativePath = "docs/agents/pilots/owner-directives/pilot-executor.json";
+  const directivePath = path.join(fixtureRoot, directiveRelativePath);
+  mkdirSync(path.dirname(directivePath), { recursive: true });
+  writeFileSync(
+    directivePath,
+    `${JSON.stringify({
+      schemaVersion: 1,
+      pilotId: plan.coordinator.pilotId,
+      candidateSkillId: actualCandidate.id,
+      authority: "project-owner",
+      decision: "qualify",
+      qualificationMode: "owner-directive",
+    }, null, 2)}\n`,
+  );
+
+  const result = qualifyStageBPilotByOwnerDirective({
+    root: fixtureRoot,
+    workspace,
+    directiveFile: directiveRelativePath,
+  });
+  const manifest = JSON.parse(readFileSync(path.join(fixtureRoot, ".agents/manifest.json"), "utf8"));
+
+  assert.equal(result.status.ownerDirectiveQualified, true);
+  assert.equal(result.evidence.execution.runs.length, 30);
+  assert.equal(result.evidence.execution.blockedResponseCount, 6);
+  assert.deepEqual(result.evidence.claimBoundary, {
+    operationalQualification: true,
+    independentReviewCompleted: false,
+    measuredQualityUplift: false,
+    productionPromotionAuthorized: false,
+  });
+  assert.equal(manifest.branchPolicy.stageBPilotStatus, "passed");
+  assert.equal(manifest.branchPolicy.stageBQualificationMode, "owner-directive");
+  assert.equal(
+    manifest.branchPolicy.stageBEvidenceBySkill[actualCandidate.id],
+    result.evidencePath,
+  );
+  assert.equal(
+    manifest.skills.find((skill) => skill.id === actualCandidate.id).status,
+    "active",
+  );
+  assert.deepEqual(validateAgentGovernance(fixtureRoot), []);
+
+  const directive = JSON.parse(readFileSync(directivePath, "utf8"));
+  directive.decision = "revoke";
+  writeFileSync(directivePath, `${JSON.stringify(directive, null, 2)}\n`);
+  assert.match(
+    validateAgentGovernance(fixtureRoot).join("\n"),
+    /SHA-256 mismatch|does not authorize/,
+  );
 });
 
 test("registerActor stores only a valid Ed25519 public key and returns the registry digest", () => {

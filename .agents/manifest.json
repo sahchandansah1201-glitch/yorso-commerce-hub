@@ -8,29 +8,133 @@
     "currentExperimentalBranch": "local-lab/agent-capability-foundation",
     "baseRef": "origin/main",
     "baseCommit": "0f71847b7150f5ed5358c418f4fb3509109b7b82",
-    "stageBPilotStatus": "pending",
+    "stageBPilotStatus": "passed",
     "promotionRequires": [
       "independent-review",
       "governance-check",
       "project-memory-check",
       "relevant-product-tests",
       "non-mutating-gates"
-    ]
+    ],
+    "stageBQualificationMode": "owner-directive",
+    "stageBEvidenceBySkill": {
+      "yorso-multilingual-ux-copywriter-agent": "docs/agents/pilots/results/copywriter-2026-08/owner-directive-stage-b.json"
+    }
   },
   "roles": [
-    { "id": "founder-product-orchestrator", "profile": ".agents/agents/founder-product-orchestrator.md", "skills": ["yorso-release-reliability-agent", "yorso-engineering-quality-gate-agent"] },
-    { "id": "human-steering-delivery", "profile": ".agents/agents/human-steering-delivery.md", "skills": ["yorso-engineering-quality-gate-agent", "yorso-release-reliability-agent"] },
-    { "id": "product-ux-design", "profile": ".agents/agents/product-ux-design.md", "skills": ["yorso-ux-ui-quality-agent", "yorso-usability-audit", "yorso-component-patterns"] },
-    { "id": "multilingual-ux-copywriter", "profile": ".agents/agents/multilingual-ux-copywriter.md", "skills": ["yorso-multilingual-ux-copywriter-agent", "yorso-ux-ui-quality-agent"] },
-    { "id": "frontend-engineer", "profile": ".agents/agents/frontend-engineer.md", "skills": ["yorso-engineering-quality-gate-agent", "yorso-component-patterns", "yorso-api-contract-gate-agent"] },
-    { "id": "backend-platform-engineer", "profile": ".agents/agents/backend-platform-engineer.md", "skills": ["yorso-service-architecture-agent", "yorso-api-contract-gate-agent", "yorso-engineering-quality-gate-agent"] },
-    { "id": "buyer-procurement", "profile": ".agents/agents/buyer-procurement.md", "skills": ["yorso-usability-audit", "yorso-access-state-ux", "yorso-multilingual-ux-copywriter-agent"] },
-    { "id": "supplier-operations", "profile": ".agents/agents/supplier-operations.md", "skills": ["yorso-usability-audit", "yorso-component-patterns", "yorso-ux-ui-quality-agent"] },
-    { "id": "trust-compliance", "profile": ".agents/agents/trust-compliance.md", "skills": ["yorso-access-state-ux", "yorso-api-contract-gate-agent", "yorso-service-architecture-agent"] },
-    { "id": "market-pricing-search", "profile": ".agents/agents/market-pricing-search.md", "skills": ["yorso-access-state-ux", "yorso-usability-audit", "yorso-multilingual-ux-copywriter-agent"] },
-    { "id": "qa-release-owner", "profile": ".agents/agents/qa-release-owner.md", "skills": ["yorso-testing-quality-gate-agent", "yorso-release-reliability-agent", "yorso-engineering-quality-gate-agent"] },
-    { "id": "knowledge-analytics", "profile": ".agents/agents/knowledge-analytics.md", "skills": ["yorso-release-reliability-agent", "yorso-engineering-quality-gate-agent"] },
-    { "id": "orders-logistics", "profile": ".agents/agents/orders-logistics.md", "skills": ["yorso-service-architecture-agent", "yorso-api-contract-gate-agent", "yorso-engineering-quality-gate-agent"] }
+    {
+      "id": "founder-product-orchestrator",
+      "profile": ".agents/agents/founder-product-orchestrator.md",
+      "skills": [
+        "yorso-release-reliability-agent",
+        "yorso-engineering-quality-gate-agent"
+      ]
+    },
+    {
+      "id": "human-steering-delivery",
+      "profile": ".agents/agents/human-steering-delivery.md",
+      "skills": [
+        "yorso-engineering-quality-gate-agent",
+        "yorso-release-reliability-agent"
+      ]
+    },
+    {
+      "id": "product-ux-design",
+      "profile": ".agents/agents/product-ux-design.md",
+      "skills": [
+        "yorso-ux-ui-quality-agent",
+        "yorso-usability-audit",
+        "yorso-component-patterns"
+      ]
+    },
+    {
+      "id": "multilingual-ux-copywriter",
+      "profile": ".agents/agents/multilingual-ux-copywriter.md",
+      "skills": [
+        "yorso-multilingual-ux-copywriter-agent",
+        "yorso-ux-ui-quality-agent"
+      ]
+    },
+    {
+      "id": "frontend-engineer",
+      "profile": ".agents/agents/frontend-engineer.md",
+      "skills": [
+        "yorso-engineering-quality-gate-agent",
+        "yorso-component-patterns",
+        "yorso-api-contract-gate-agent"
+      ]
+    },
+    {
+      "id": "backend-platform-engineer",
+      "profile": ".agents/agents/backend-platform-engineer.md",
+      "skills": [
+        "yorso-service-architecture-agent",
+        "yorso-api-contract-gate-agent",
+        "yorso-engineering-quality-gate-agent"
+      ]
+    },
+    {
+      "id": "buyer-procurement",
+      "profile": ".agents/agents/buyer-procurement.md",
+      "skills": [
+        "yorso-usability-audit",
+        "yorso-access-state-ux",
+        "yorso-multilingual-ux-copywriter-agent"
+      ]
+    },
+    {
+      "id": "supplier-operations",
+      "profile": ".agents/agents/supplier-operations.md",
+      "skills": [
+        "yorso-usability-audit",
+        "yorso-component-patterns",
+        "yorso-ux-ui-quality-agent"
+      ]
+    },
+    {
+      "id": "trust-compliance",
+      "profile": ".agents/agents/trust-compliance.md",
+      "skills": [
+        "yorso-access-state-ux",
+        "yorso-api-contract-gate-agent",
+        "yorso-service-architecture-agent"
+      ]
+    },
+    {
+      "id": "market-pricing-search",
+      "profile": ".agents/agents/market-pricing-search.md",
+      "skills": [
+        "yorso-access-state-ux",
+        "yorso-usability-audit",
+        "yorso-multilingual-ux-copywriter-agent"
+      ]
+    },
+    {
+      "id": "qa-release-owner",
+      "profile": ".agents/agents/qa-release-owner.md",
+      "skills": [
+        "yorso-testing-quality-gate-agent",
+        "yorso-release-reliability-agent",
+        "yorso-engineering-quality-gate-agent"
+      ]
+    },
+    {
+      "id": "knowledge-analytics",
+      "profile": ".agents/agents/knowledge-analytics.md",
+      "skills": [
+        "yorso-release-reliability-agent",
+        "yorso-engineering-quality-gate-agent"
+      ]
+    },
+    {
+      "id": "orders-logistics",
+      "profile": ".agents/agents/orders-logistics.md",
+      "skills": [
+        "yorso-service-architecture-agent",
+        "yorso-api-contract-gate-agent",
+        "yorso-engineering-quality-gate-agent"
+      ]
+    }
   ],
   "skills": [
     {
@@ -39,9 +143,18 @@
       "status": "active",
       "ownerRole": "trust-compliance",
       "reviewerRole": "qa-release-owner",
-      "domains": ["access", "offers", "supplier-redaction"],
+      "domains": [
+        "access",
+        "offers",
+        "supplier-redaction"
+      ],
       "dependencies": [],
-      "source": { "type": "project-internal", "repository": "sahchandansah1201-glitch/yorso-commerce-hub", "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012", "license": "project-internal" }
+      "source": {
+        "type": "project-internal",
+        "repository": "sahchandansah1201-glitch/yorso-commerce-hub",
+        "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+        "license": "project-internal"
+      }
     },
     {
       "id": "yorso-component-patterns",
@@ -49,9 +162,18 @@
       "status": "active",
       "ownerRole": "product-ux-design",
       "reviewerRole": "frontend-engineer",
-      "domains": ["frontend", "design-system", "responsive-ui"],
+      "domains": [
+        "frontend",
+        "design-system",
+        "responsive-ui"
+      ],
       "dependencies": [],
-      "source": { "type": "project-internal", "repository": "sahchandansah1201-glitch/yorso-commerce-hub", "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012", "license": "project-internal" }
+      "source": {
+        "type": "project-internal",
+        "repository": "sahchandansah1201-glitch/yorso-commerce-hub",
+        "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+        "license": "project-internal"
+      }
     },
     {
       "id": "yorso-usability-audit",
@@ -59,9 +181,20 @@
       "status": "active",
       "ownerRole": "product-ux-design",
       "reviewerRole": "buyer-procurement",
-      "domains": ["usability", "b2b-procurement", "mobile"],
-      "dependencies": ["yorso-component-patterns"],
-      "source": { "type": "project-internal", "repository": "sahchandansah1201-glitch/yorso-commerce-hub", "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012", "license": "project-internal" }
+      "domains": [
+        "usability",
+        "b2b-procurement",
+        "mobile"
+      ],
+      "dependencies": [
+        "yorso-component-patterns"
+      ],
+      "source": {
+        "type": "project-internal",
+        "repository": "sahchandansah1201-glitch/yorso-commerce-hub",
+        "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+        "license": "project-internal"
+      }
     },
     {
       "id": "yorso-engineering-quality-gate-agent",
@@ -69,9 +202,18 @@
       "status": "experimental",
       "ownerRole": "qa-release-owner",
       "reviewerRole": "human-steering-delivery",
-      "domains": ["engineering", "code-quality", "completion-evidence"],
+      "domains": [
+        "engineering",
+        "code-quality",
+        "completion-evidence"
+      ],
       "dependencies": [],
-      "source": { "type": "project-adaptation", "repository": "sahchandansah1201-glitch/yorso-commerce-hub", "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012", "license": "project-internal" }
+      "source": {
+        "type": "project-adaptation",
+        "repository": "sahchandansah1201-glitch/yorso-commerce-hub",
+        "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+        "license": "project-internal"
+      }
     },
     {
       "id": "yorso-testing-quality-gate-agent",
@@ -79,9 +221,20 @@
       "status": "experimental",
       "ownerRole": "qa-release-owner",
       "reviewerRole": "human-steering-delivery",
-      "domains": ["testing", "browser-qa", "adversarial-review"],
-      "dependencies": ["yorso-engineering-quality-gate-agent"],
-      "source": { "type": "project-adaptation", "repository": "sahchandansah1201-glitch/yorso-commerce-hub", "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012", "license": "project-internal" }
+      "domains": [
+        "testing",
+        "browser-qa",
+        "adversarial-review"
+      ],
+      "dependencies": [
+        "yorso-engineering-quality-gate-agent"
+      ],
+      "source": {
+        "type": "project-adaptation",
+        "repository": "sahchandansah1201-glitch/yorso-commerce-hub",
+        "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+        "license": "project-internal"
+      }
     },
     {
       "id": "yorso-api-contract-gate-agent",
@@ -89,9 +242,21 @@
       "status": "experimental",
       "ownerRole": "backend-platform-engineer",
       "reviewerRole": "qa-release-owner",
-      "domains": ["api", "dto", "persistence", "contract-drift"],
-      "dependencies": ["yorso-engineering-quality-gate-agent"],
-      "source": { "type": "project-adaptation", "repository": "sahchandansah1201-glitch/yorso-commerce-hub", "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012", "license": "project-internal" }
+      "domains": [
+        "api",
+        "dto",
+        "persistence",
+        "contract-drift"
+      ],
+      "dependencies": [
+        "yorso-engineering-quality-gate-agent"
+      ],
+      "source": {
+        "type": "project-adaptation",
+        "repository": "sahchandansah1201-glitch/yorso-commerce-hub",
+        "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+        "license": "project-internal"
+      }
     },
     {
       "id": "yorso-service-architecture-agent",
@@ -99,9 +264,21 @@
       "status": "experimental",
       "ownerRole": "backend-platform-engineer",
       "reviewerRole": "trust-compliance",
-      "domains": ["architecture", "self-hosting", "scale", "observability"],
-      "dependencies": ["yorso-api-contract-gate-agent"],
-      "source": { "type": "project-adaptation", "repository": "sahchandansah1201-glitch/yorso-commerce-hub", "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012", "license": "project-internal" }
+      "domains": [
+        "architecture",
+        "self-hosting",
+        "scale",
+        "observability"
+      ],
+      "dependencies": [
+        "yorso-api-contract-gate-agent"
+      ],
+      "source": {
+        "type": "project-adaptation",
+        "repository": "sahchandansah1201-glitch/yorso-commerce-hub",
+        "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+        "license": "project-internal"
+      }
     },
     {
       "id": "yorso-release-reliability-agent",
@@ -109,9 +286,21 @@
       "status": "experimental",
       "ownerRole": "qa-release-owner",
       "reviewerRole": "human-steering-delivery",
-      "domains": ["release", "rollback", "project-memory"],
-      "dependencies": ["yorso-engineering-quality-gate-agent", "yorso-testing-quality-gate-agent"],
-      "source": { "type": "project-adaptation", "repository": "sahchandansah1201-glitch/yorso-commerce-hub", "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012", "license": "project-internal" }
+      "domains": [
+        "release",
+        "rollback",
+        "project-memory"
+      ],
+      "dependencies": [
+        "yorso-engineering-quality-gate-agent",
+        "yorso-testing-quality-gate-agent"
+      ],
+      "source": {
+        "type": "project-adaptation",
+        "repository": "sahchandansah1201-glitch/yorso-commerce-hub",
+        "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+        "license": "project-internal"
+      }
     },
     {
       "id": "yorso-lovable-component-brief-agent",
@@ -119,9 +308,21 @@
       "status": "experimental",
       "ownerRole": "product-ux-design",
       "reviewerRole": "frontend-engineer",
-      "domains": ["lovable", "component-brief", "design-system"],
-      "dependencies": ["yorso-component-patterns", "yorso-ux-ui-quality-agent"],
-      "source": { "type": "project-adaptation", "repository": "sahchandansah1201-glitch/yorso-commerce-hub", "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012", "license": "project-internal" }
+      "domains": [
+        "lovable",
+        "component-brief",
+        "design-system"
+      ],
+      "dependencies": [
+        "yorso-component-patterns",
+        "yorso-ux-ui-quality-agent"
+      ],
+      "source": {
+        "type": "project-adaptation",
+        "repository": "sahchandansah1201-glitch/yorso-commerce-hub",
+        "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+        "license": "project-internal"
+      }
     },
     {
       "id": "yorso-ux-ui-quality-agent",
@@ -129,18 +330,39 @@
       "status": "experimental",
       "ownerRole": "product-ux-design",
       "reviewerRole": "qa-release-owner",
-      "domains": ["ux", "ui", "accessibility", "conversion"],
-      "dependencies": ["yorso-component-patterns", "yorso-usability-audit"],
-      "source": { "type": "project-adaptation", "repository": "sahchandansah1201-glitch/yorso-commerce-hub", "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012", "license": "project-internal" }
+      "domains": [
+        "ux",
+        "ui",
+        "accessibility",
+        "conversion"
+      ],
+      "dependencies": [
+        "yorso-component-patterns",
+        "yorso-usability-audit"
+      ],
+      "source": {
+        "type": "project-adaptation",
+        "repository": "sahchandansah1201-glitch/yorso-commerce-hub",
+        "revision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",
+        "license": "project-internal"
+      }
     },
     {
       "id": "yorso-multilingual-ux-copywriter-agent",
       "path": ".agents/skills/yorso-multilingual-ux-copywriter-agent",
-      "status": "experimental",
+      "status": "active",
       "ownerRole": "multilingual-ux-copywriter",
       "reviewerRole": "human-steering-delivery",
-      "domains": ["ux-copy", "i18n", "en", "ru", "es-ES"],
-      "dependencies": ["yorso-ux-ui-quality-agent"],
+      "domains": [
+        "ux-copy",
+        "i18n",
+        "en",
+        "ru",
+        "es-ES"
+      ],
+      "dependencies": [
+        "yorso-ux-ui-quality-agent"
+      ],
       "humanReviewRequired": true,
       "source": {
         "type": "external-adaptation",
@@ -150,7 +372,12 @@
         "evidence": "docs/agents/role-skill-provenance-matrix.md"
       },
       "upstream": [
-        { "repository": "hueyexe/frontend-agent-skills", "revision": "2841c079dd8a9c634882227194dc42e25227710d", "license": "MIT", "scope": "ux-writing-content-design" }
+        {
+          "repository": "hueyexe/frontend-agent-skills",
+          "revision": "2841c079dd8a9c634882227194dc42e25227710d",
+          "license": "MIT",
+          "scope": "ux-writing-content-design"
+        }
       ]
     }
   ]

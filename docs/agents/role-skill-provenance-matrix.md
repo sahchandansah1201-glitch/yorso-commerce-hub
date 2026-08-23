@@ -16,7 +16,7 @@ Last updated: 2026-08-21
 | Founder / Product Orchestrator | discovery/planning methods; no autonomous product-decision skill | problem, scope and success metric | role active; human decision required |
 | Human Steering / Delivery | `yorso-release-reliability-agent`, `yorso-engineering-quality-gate-agent` | approvals, handoff, evidence | experimental skills |
 | Product / UX Design | `yorso-component-patterns`, `yorso-usability-audit`, `yorso-ux-ui-quality-agent` | interaction, hierarchy, responsive UI | two active; quality wrapper experimental |
-| Multilingual UX Copywriter | `yorso-multilingual-ux-copywriter-agent` | EN/RU/ES-ES UI copy | experimental with mandatory independent human locale review |
+| Multilingual UX Copywriter | `yorso-multilingual-ux-copywriter-agent` | EN/RU/ES-ES UI copy | active on `local-lab/*` by owner-directed Stage B; independent review required only for uplift claims and `main` promotion |
 | Frontend Engineer | `yorso-component-patterns`, `yorso-engineering-quality-gate-agent` | React UI and tests | component skill active; gate experimental |
 | Backend / Platform Engineer | `yorso-service-architecture-agent`, `yorso-api-contract-gate-agent` | self-hosted API, persistence, scale | experimental |
 | Buyer Procurement | `yorso-access-state-ux`, `yorso-usability-audit` | buyer decision workflow | active |
@@ -32,7 +32,7 @@ Last updated: 2026-08-21
 | Candidate | Pinned commit | License evidence | Relevant role | Overlap / risk | Decision | Pilot status |
 | --- | --- | --- | --- | --- | --- | --- |
 | `obra/superpowers` | `b36e0829c6d0140e93cfef2ca599b1b07d4a7797` | MIT root license | engineering, QA, delivery | broad process suite; would duplicate project routing if vendored wholesale | reference selected methods; do not vendor wholesale | Stage A source pass; Stage B pending |
-| `content-designer/ux-writing-skill` | `98cacde4ba2dd10ed28df43a8d53eef1e321c539` | MIT root license | multilingual copywriter | generic UX writing lacks Yorso locale/reviewer/domain gates | adapted into Yorso copywriter wrapper | Stage A pass; qualitative pilot ready-with-risk; Stage B pending |
+| `content-designer/ux-writing-skill` | `98cacde4ba2dd10ed28df43a8d53eef1e321c539` | MIT root license | multilingual copywriter | generic UX writing lacks Yorso locale/reviewer/domain gates | adapted into Yorso copywriter wrapper | Stage A pass; owner-directed Stage B operational qualification passed; active on `local-lab/*` |
 | `hueyexe/frontend-agent-skills` | `2841c079dd8a9c634882227194dc42e25227710d` | MIT root license | copywriter, frontend UX | overlaps generic UX writing and frontend quality | upstream reference for copywriter; no wholesale install | Stage A pass; Stage B pending |
 | `vercel-labs/agent-skills` | `dd089a8c752c966dee8bf0f27cb625ba193ffd9e` | per-skill MIT for React/composition; no verified root license | frontend engineer | useful React guidance; license differs by sub-skill | reference only; vendor only a separately verified sub-skill | Stage A provenance note; not installed |
 | `openai/skills` | `49f948faa9258a0c61caceaf225e179651397431` | no root license verified in sparse audit | packaging/governance | useful format reference, unsuitable for blind vendoring | format reference only | excluded from install |

@@ -1037,3 +1037,154 @@ export const qualifyStageBPilot = ({ root, workspace, env = process.env }) => {
   }
   return { status, evidencePath };
 };
+
+export const qualifyStageBPilotByOwnerDirective = ({ root, workspace, directiveFile }) => {
+  const status = getStageBPilotStatus({ root, workspace, env: {} });
+  if (
+    status.taskCount !== 30 ||
+    status.assignmentCount !== status.taskCount ||
+    status.outputCount !== status.taskCount ||
+    status.invalidOutputCount !== 0 ||
+    status.executorCount < 1
+  ) {
+    throw new Error(
+      "Stage B owner qualification requires 30 assigned tasks, 30 valid signed outputs and at least one registered executor",
+    );
+  }
+
+  if (!directiveFile) throw new Error("Stage B owner directive file is required");
+  const directiveRoot = path.join(root, "docs/agents/pilots/owner-directives");
+  const absoluteDirective = path.resolve(root, directiveFile);
+  const expectedPhysicalDirective = path.resolve(
+    realpathSync(root),
+    path.relative(path.resolve(root), absoluteDirective),
+  );
+  if (
+    !existsSync(absoluteDirective) ||
+    !resolvesWithin(directiveRoot, absoluteDirective) ||
+    realpathSync(absoluteDirective) !== expectedPhysicalDirective
+  ) {
+    throw new Error("Stage B owner directive must be a non-symlink file in docs/agents/pilots/owner-directives");
+  }
+
+  const coordinator = readJson(path.join(workspace, "coordinator.json"));
+  const directive = readJson(absoluteDirective);
+  if (
+    directive.schemaVersion !== 1 ||
+    directive.pilotId !== coordinator.pilotId ||
+    directive.candidateSkillId !== coordinator.candidateSkillId ||
+    directive.authority !== "project-owner" ||
+    directive.decision !== "qualify" ||
+    directive.qualificationMode !== "owner-directive"
+  ) {
+    throw new Error("Stage B owner directive does not authorize this pilot and candidate");
+  }
+
+  const runByTaskId = new Map(coordinator.runMap.map((run) => [run.taskId, run]));
+  const runs = assignmentFiles(workspace)
+    .map((name) => {
+      const taskId = path.basename(name, ".json");
+      const run = runByTaskId.get(taskId);
+      const assignment = readJson(path.join(workspace, "assignments", name));
+      const output = readJson(path.join(workspace, "outputs", name));
+      if (!run || assignment.taskId !== taskId || output.runKey !== run.runKey) {
+        throw new Error(`Stage B execution artifact identity mismatch: ${taskId}`);
+      }
+      return {
+        taskId,
+        runKey: run.runKey,
+        executorId: assignment.executorId,
+        assignmentSha256: canonicalSha256(assignment),
+        outputSha256: canonicalSha256(output),
+        blockedResponse: /^\s*BLOCKED\b/i.test(output.outputText),
+      };
+    })
+    .sort((left, right) => left.runKey.localeCompare(right.runKey));
+
+  if (runs.length !== coordinator.taskCount) {
+    throw new Error(`Stage B owner qualification expected ${coordinator.taskCount} complete runs`);
+  }
+
+  const evidence = {
+    schemaVersion: 1,
+    qualificationMode: "owner-directive",
+    pilotId: coordinator.pilotId,
+    candidateSkillId: coordinator.candidateSkillId,
+    candidateSkillContentSha256: coordinator.candidateSkillContentSha256,
+    evaluatedCommit: coordinator.evaluatedCommit,
+    fixtureOracleSha256: coordinator.fixtureOracleSha256,
+    directiveArtifact: {
+      path: path.relative(root, absoluteDirective).split(path.sep).join("/"),
+      sha256: fileSha256(absoluteDirective),
+    },
+    execution: {
+      taskCount: coordinator.taskCount,
+      assignmentCount: status.assignmentCount,
+      outputCount: status.outputCount,
+      invalidOutputCount: status.invalidOutputCount,
+      blockedResponseCount: runs.filter((run) => run.blockedResponse).length,
+      assignmentSetSha256: canonicalSha256(runs.map(({
+        runKey,
+        taskId,
+        executorId,
+        assignmentSha256,
+      }) => ({ runKey, taskId, executorId, assignmentSha256 }))),
+      outputSetSha256: canonicalSha256(runs.map(({
+        runKey,
+        taskId,
+        executorId,
+        outputSha256,
+        blockedResponse,
+      }) => ({ runKey, taskId, executorId, outputSha256, blockedResponse }))),
+      runs,
+    },
+    claimBoundary: {
+      operationalQualification: true,
+      independentReviewCompleted: false,
+      measuredQualityUplift: false,
+      productionPromotionAuthorized: false,
+    },
+  };
+
+  const governance = loadAgentGovernance(root);
+  const candidate = governance.manifest.skills.find((skill) => skill.id === coordinator.candidateSkillId);
+  if (!candidate || candidate.status !== "experimental" || candidate.source?.type === "project-internal") {
+    throw new Error(`Stage B owner qualification requires an experimental adapted skill: ${coordinator.candidateSkillId}`);
+  }
+
+  const evidenceRelativePath = `${stageBResultRoot(coordinator.pilotId)}/owner-directive-stage-b.json`;
+  const evidencePath = path.join(root, evidenceRelativePath);
+  if (existsSync(evidencePath)) throw new Error(`Stage B owner evidence already exists: ${evidenceRelativePath}`);
+
+  const manifestPath = path.join(root, ".agents/manifest.json");
+  const originalManifest = readFileSync(manifestPath, "utf8");
+  governance.manifest.branchPolicy.stageBPilotStatus = "passed";
+  governance.manifest.branchPolicy.stageBQualificationMode = "owner-directive";
+  governance.manifest.branchPolicy.stageBEvidenceBySkill = {
+    [coordinator.candidateSkillId]: evidenceRelativePath,
+  };
+  candidate.status = "active";
+
+  try {
+    writeJson(evidencePath, evidence);
+    writeJson(manifestPath, governance.manifest);
+    const errors = validateAgentGovernance(root);
+    if (errors.length > 0) {
+      throw new Error(`Stage B owner qualification is invalid:\n${errors.map((error) => `- ${error}`).join("\n")}`);
+    }
+  } catch (error) {
+    writeFileSync(manifestPath, originalManifest);
+    rmSync(evidencePath, { force: true });
+    throw error;
+  }
+
+  return {
+    evidence,
+    evidencePath: evidenceRelativePath,
+    status: {
+      ...status,
+      qualificationMode: "owner-directive",
+      ownerDirectiveQualified: true,
+    },
+  };
+};

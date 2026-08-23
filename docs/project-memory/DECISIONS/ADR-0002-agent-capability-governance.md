@@ -21,9 +21,14 @@ from current component and access APIs.
 - Require different owner and reviewer roles.
 - Run governance, project-memory and provider-boundary checks through
   `check:gate-mutation` before core CI, then run their adversarial tests.
-- Require structured Stage B outputs, signed reviewer sheets and signed
-  promotion approvals. A passed result trusts `.agents/actors.json` only when
-  its digest matches an out-of-band trust anchor.
+- Support two explicit Stage B qualification modes:
+  - `owner-directive` activates a fully executed, signed pilot for operational
+    use on `local-lab/*` without claiming independent review, measured uplift
+    or production-promotion authorization;
+  - `independent-review` requires signed reviewer sheets and promotion
+    approvals for comparative-quality claims and promotion to `main`.
+  A passed independent-review result trusts `.agents/actors.json` only when its
+  digest matches an out-of-band trust anchor.
 - Bind each reviewer signature to the evaluated commit, candidate skill hash,
   fixture-oracle hash and exact output path/SHA mapping.
 - Separate the reviewed candidate commit from later evidence/project-memory
@@ -38,7 +43,9 @@ from current component and access APIs.
 
 The project can detect unregistered roles, skill content drift, missing source
 provenance, self-review, reviewer-output replay and stale candidate content.
-Stage A structural validation is automated. Stage B comparative quality pilots
-remain a human-reviewed gate; no percentage improvement is claimed until those
-pilots pass. Repository-backed validator fixtures do not substitute for real
-CI execution, Stage B runs or trusted human approval.
+Stage A structural validation is automated. A project-owner directive can
+qualify a complete Stage B execution campaign for experimental operational use,
+but cannot establish comparative quality or authorize production promotion.
+Those claims remain an independent human-reviewed gate. Repository-backed
+validator fixtures do not substitute for real CI execution, signed Stage B
+runs or the evidence required by the selected qualification mode.

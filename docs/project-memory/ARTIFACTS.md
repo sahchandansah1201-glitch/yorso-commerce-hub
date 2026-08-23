@@ -7,9 +7,10 @@
 - `.agents/skills.lock.json`: content hashes and pinned source revisions for all
   registered project-wide skills.
 - `.agents/actors.json`: canonical actor registry. It is schema version 2 and
-  contains one public-key-only Stage B executor, but no human reviewers or
-  approvers, so Stage B and promotion remain fail-closed. Passed evidence
-  requires Ed25519 signatures and an out-of-band trusted final registry digest.
+  contains one public-key-only Stage B executor. Owner-directed operational
+  qualification uses the signed executor evidence without fabricating human
+  reviewers; independent review and promotion remain fail-closed without real
+  reviewers, approvers and an out-of-band trusted registry digest.
 - `.agents/agents/`: 13 accountable Yorso role profiles.
 - `.agents/skills/yorso-multilingual-ux-copywriter-agent/`: project-wide EN,
   RU and ES-ES interface-copy workflow with independent human review.
@@ -48,7 +49,14 @@
   executor assignment, canonical signing-payload generation, Ed25519 output
   verification, blind-review revalidation, blind human draft freezing,
   reviewer-sheet-v4 payload preparation and detached reviewer-signature
-  verification.
+  verification, plus checksum-bound owner-directed operational qualification
+  for experimental branches.
+- `docs/agents/pilots/owner-directives/copywriter-2026-08.json`: explicit
+  project-owner decision authorizing operational Stage B use with negative
+  independent-review, uplift and production-promotion claims.
+- `docs/agents/pilots/results/copywriter-2026-08/owner-directive-stage-b.json`:
+  checksum-bound Stage B evidence for all 30 assignments and valid signed
+  outputs, including 6 recorded blocked responses and the exact claim boundary.
 - `.data/stage-b/copywriter-2026-08/executor-packets/`: ignored local executor
   handoff packets. Baseline packets exclude candidate identifiers, hashes and
   skill content; packets are not reviewer artifacts and are not committed.

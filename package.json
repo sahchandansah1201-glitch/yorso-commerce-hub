@@ -18,6 +18,7 @@
     "stage-b:prepare-review-submission": "node scripts/stage-b-pilot.mjs prepare-review-submission",
     "stage-b:submit-review": "node scripts/stage-b-pilot.mjs submit-review",
     "stage-b:qualify": "node scripts/stage-b-pilot.mjs qualify",
+    "stage-b:owner-qualify": "node scripts/stage-b-pilot.mjs owner-qualify",
     "stage-b:register-actor": "node scripts/stage-b-pilot.mjs register-actor",
     "test:agent-governance": "node --test scripts/check-agent-governance.test.mjs scripts/stage-b-pilot.test.mjs",
     "test:gate-mutation": "node --test scripts/check-gate-mutation.test.mjs",

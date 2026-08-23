@@ -9,6 +9,7 @@ import {
   prepareStageBReviewerPayload,
   prepareStageBSubmissionPayload,
   qualifyStageBPilot,
+  qualifyStageBPilotByOwnerDirective,
   registerActor,
   submitStageBReview,
   submitStageBOutput,
@@ -147,6 +148,21 @@ try {
     printStatus(result.status);
     console.log(`Stage B evidence: ${result.evidencePath}`);
     console.log("Stage B qualification: PASSED");
+  } else if (command === "owner-qualify") {
+    const directiveFile = value("--directive-file");
+    if (!workspace || !directiveFile) {
+      throw new Error("usage: stage-b:owner-qualify -- --pilot <id> --directive-file <file>");
+    }
+    const result = qualifyStageBPilotByOwnerDirective({ root, workspace, directiveFile });
+    console.log(`Stage B pilot: ${result.status.pilotId}`);
+    console.log(`Candidate: ${result.status.candidateSkillId}`);
+    console.log(`Assignments: ${result.status.assignmentCount}/${result.status.taskCount}`);
+    console.log(`Valid signed outputs: ${result.status.outputCount}/${result.status.taskCount}`);
+    console.log(`Blocked responses recorded: ${result.evidence.execution.blockedResponseCount}`);
+    console.log(`Stage B evidence: ${result.evidencePath}`);
+    console.log("Stage B qualification mode: owner-directive");
+    console.log("Stage B operational qualification: PASSED");
+    console.log("Independent review, measured quality uplift and production promotion: NOT CLAIMED");
   } else if (command === "register-actor") {
     const id = value("--id");
     const group = value("--group");
@@ -163,7 +179,7 @@ try {
     console.log("Store this digest out-of-band; no private key was read or stored.");
   } else {
     throw new Error(
-      "commands: init, next, prepare-submission, submit-output, status, prepare-review, prepare-review-submission, submit-review, qualify, register-actor",
+      "commands: init, next, prepare-submission, submit-output, status, prepare-review, prepare-review-submission, submit-review, qualify, owner-qualify, register-actor",
     );
   }
 } catch (error) {

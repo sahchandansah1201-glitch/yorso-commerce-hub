@@ -6,6 +6,7 @@ import path from "node:path";
 const ALLOWED_STATUSES = new Set(["active", "experimental"]);
 const ALLOWED_SOURCE_TYPES = new Set(["project-internal", "project-adaptation", "external-adaptation"]);
 const ALLOWED_STAGE_B_STATUSES = new Set(["pending", "passed"]);
+const ALLOWED_STAGE_B_QUALIFICATION_MODES = new Set(["independent-review", "owner-directive"]);
 const VERIFIED_EXTERNAL_SOURCES = new Map([
   [
     "content-designer/ux-writing-skill@98cacde4ba2dd10ed28df43a8d53eef1e321c539",
@@ -26,6 +27,7 @@ const REQUIRED_PROMOTION_GATES = [
 const REQUIRED_STAGE_B_FIXTURES = ["F1", "F2", "F3", "F4", "F5"];
 const REQUIRED_STAGE_B_ARMS = ["baseline", "candidate"];
 const STAGE_B_EVIDENCE_SCHEMA_VERSION = 5;
+const OWNER_DIRECTIVE_STAGE_B_SCHEMA_VERSION = 1;
 const PROMOTION_EVIDENCE_SCHEMA_VERSION = 5;
 const REVIEWER_SHEET_SCHEMA_VERSION = 4;
 const ACTOR_REGISTRY_SCHEMA_VERSION = 2;
@@ -845,6 +847,141 @@ const validateStageBEvidenceFile = ({
   }
 };
 
+const validateOwnerDirectiveStageBEvidenceFile = ({
+  root,
+  evidence,
+  skill,
+  skillContentSha256,
+  fixtureOracleSha256,
+  errors,
+  skipRepositoryInspection,
+}) => {
+  const absolute = path.join(root, evidence);
+  if (!existsSync(absolute) || !resolvesWithin(root, absolute, "docs/agents/pilots/results") || containsSymbolicLink(absolute)) {
+    errors.push(`owner-directive Stage B evidence must be a non-symlink file inside docs/agents/pilots/results: ${evidence}`);
+    return;
+  }
+
+  let report;
+  try {
+    report = readJson(absolute);
+  } catch {
+    errors.push(`owner-directive Stage B evidence must contain valid JSON: ${evidence}`);
+    return;
+  }
+
+  if (report.schemaVersion !== OWNER_DIRECTIVE_STAGE_B_SCHEMA_VERSION) {
+    errors.push(`owner-directive Stage B evidence schemaVersion must be ${OWNER_DIRECTIVE_STAGE_B_SCHEMA_VERSION}`);
+  }
+  if (report.qualificationMode !== "owner-directive") {
+    errors.push("owner-directive Stage B evidence qualificationMode must be owner-directive");
+  }
+  if (report.candidateSkillId !== skill.id) errors.push(`owner-directive Stage B skill mismatch for ${skill.id}`);
+  if (report.candidateSkillContentSha256 !== skillContentSha256) {
+    errors.push(`owner-directive Stage B content hash mismatch for ${skill.id}`);
+  }
+  if (report.fixtureOracleSha256 !== fixtureOracleSha256) {
+    errors.push(`owner-directive Stage B fixture oracle hash mismatch for ${skill.id}`);
+  }
+
+  const directivePath = validateBoundArtifact({
+    root,
+    artifact: report.directiveArtifact,
+    allowedRoot: "docs/agents/pilots/owner-directives",
+    label: "Stage B owner directive",
+    errors,
+  });
+  if (directivePath) {
+    const directive = readJson(path.join(root, directivePath));
+    if (
+      directive.schemaVersion !== 1 ||
+      directive.pilotId !== report.pilotId ||
+      directive.candidateSkillId !== skill.id ||
+      directive.authority !== "project-owner" ||
+      directive.decision !== "qualify" ||
+      directive.qualificationMode !== "owner-directive"
+    ) {
+      errors.push("Stage B owner directive does not authorize this pilot and candidate");
+    }
+  }
+
+  if (!/^[0-9a-f]{40}$/.test(report.evaluatedCommit ?? "") || /^0+$/.test(report.evaluatedCommit ?? "")) {
+    errors.push("owner-directive Stage B evidence requires a non-zero evaluated commit");
+  } else if (!skipRepositoryInspection) {
+    if (git(root, ["cat-file", "-e", `${report.evaluatedCommit}^{commit}`]) === null) {
+      errors.push(`owner-directive Stage B evaluated commit does not exist: ${report.evaluatedCommit}`);
+    } else if (git(root, ["merge-base", "--is-ancestor", report.evaluatedCommit, "HEAD"]) === null) {
+      errors.push("owner-directive Stage B evaluated commit must be an ancestor of HEAD");
+    } else if (hashSkillDirectoryAtRevision(root, report.evaluatedCommit, skill.path) !== skillContentSha256) {
+      errors.push(`owner-directive Stage B candidate hash does not match evaluated commit for ${skill.id}`);
+    }
+  }
+
+  const execution = report.execution ?? {};
+  const runs = Array.isArray(execution.runs) ? execution.runs : [];
+  const expectedRunKeys = REQUIRED_STAGE_B_FIXTURES.flatMap((fixtureId) =>
+    REQUIRED_STAGE_B_ARMS.flatMap((arm) => [1, 2, 3].map((repeat) => `${fixtureId}:${arm}:${repeat}`)),
+  );
+  const runKeys = new Set();
+  for (const run of runs) {
+    if (
+      !isCanonicalActorId(run?.executorId) ||
+      !/^[0-9a-f]{20}$/.test(run?.taskId ?? "") ||
+      !expectedRunKeys.includes(run?.runKey) ||
+      !SHA256_PATTERN.test(run?.assignmentSha256 ?? "") ||
+      !SHA256_PATTERN.test(run?.outputSha256 ?? "") ||
+      typeof run?.blockedResponse !== "boolean"
+    ) {
+      errors.push(`invalid owner-directive Stage B run: ${run?.runKey ?? "missing"}`);
+      continue;
+    }
+    if (runKeys.has(run.runKey)) errors.push(`duplicate owner-directive Stage B run: ${run.runKey}`);
+    runKeys.add(run.runKey);
+  }
+  if (runs.length !== 30 || expectedRunKeys.some((runKey) => !runKeys.has(runKey))) {
+    errors.push("owner-directive Stage B evidence must contain all 30 unique fixture/arm/repeat runs");
+  }
+
+  const sortedRuns = [...runs].sort((left, right) => String(left.runKey).localeCompare(String(right.runKey)));
+  const blockedResponseCount = sortedRuns.filter((run) => run.blockedResponse).length;
+  if (
+    execution.taskCount !== 30 ||
+    execution.assignmentCount !== 30 ||
+    execution.outputCount !== 30 ||
+    execution.invalidOutputCount !== 0 ||
+    execution.blockedResponseCount !== blockedResponseCount
+  ) {
+    errors.push("owner-directive Stage B execution counters do not match the run evidence");
+  }
+  if (execution.assignmentSetSha256 !== canonicalSha256(sortedRuns.map(({ runKey, taskId, executorId, assignmentSha256 }) => ({
+    runKey,
+    taskId,
+    executorId,
+    assignmentSha256,
+  })))) {
+    errors.push("owner-directive Stage B assignment set SHA-256 mismatch");
+  }
+  if (execution.outputSetSha256 !== canonicalSha256(sortedRuns.map(({ runKey, taskId, executorId, outputSha256, blockedResponse }) => ({
+    runKey,
+    taskId,
+    executorId,
+    outputSha256,
+    blockedResponse,
+  })))) {
+    errors.push("owner-directive Stage B output set SHA-256 mismatch");
+  }
+
+  const boundary = report.claimBoundary ?? {};
+  if (
+    boundary.operationalQualification !== true ||
+    boundary.independentReviewCompleted !== false ||
+    boundary.measuredQualityUplift !== false ||
+    boundary.productionPromotionAuthorized !== false
+  ) {
+    errors.push("owner-directive Stage B evidence must preserve the operational-only claim boundary");
+  }
+};
+
 const validateStageBEvidence = ({
   root,
   branchPolicy,
@@ -877,19 +1014,26 @@ const validateStageBEvidence = ({
     }
     if (evidencePaths.has(evidence)) errors.push(`Stage B evidence file is reused across skills: ${evidence}`);
     evidencePaths.add(evidence);
-    validateStageBEvidenceFile({
+    const common = {
       root,
       evidence,
       skill,
       skillContentSha256: locked.get(skill.id)?.contentSha256,
-      actors,
-      fixtureOracleById,
       fixtureOracleSha256,
-      globalArtifactPaths,
-      globalArtifactHashes,
       errors,
       skipRepositoryInspection,
-    });
+    };
+    if (branchPolicy.stageBQualificationMode === "owner-directive") {
+      validateOwnerDirectiveStageBEvidenceFile(common);
+    } else {
+      validateStageBEvidenceFile({
+        ...common,
+        actors,
+        fixtureOracleById,
+        globalArtifactPaths,
+        globalArtifactHashes,
+      });
+    }
   }
   const allowedSkillIds = new Set(activeAdaptedSkills.map((skill) => skill.id));
   for (const skillId of Object.keys(evidenceBySkill)) {
@@ -1166,11 +1310,29 @@ export const validateAgentGovernance = (root, overrides = {}) => {
   if (!ALLOWED_STAGE_B_STATUSES.has(branchPolicy?.stageBPilotStatus)) {
     errors.push("branchPolicy.stageBPilotStatus must be pending or passed");
   }
+  if (
+    branchPolicy?.stageBPilotStatus === "passed" &&
+    !ALLOWED_STAGE_B_QUALIFICATION_MODES.has(branchPolicy?.stageBQualificationMode)
+  ) {
+    errors.push("branchPolicy.stageBQualificationMode must be independent-review or owner-directive when Stage B passes");
+  }
+
+  let branchToValidate = "";
+  if (!overrides.skipRepositoryInspection || hasOwn(overrides, "currentBranch")) {
+    const currentBranch = hasOwn(overrides, "currentBranch")
+      ? overrides.currentBranch
+      : git(root, ["branch", "--show-current"]);
+    const ciBranch = overrides.ciBranchName ?? process.env.GITHUB_HEAD_REF ?? process.env.GITHUB_REF_NAME ?? "";
+    const ciTargetBranch = overrides.ciTargetBranch ?? process.env.GITHUB_BASE_REF ?? "";
+    branchToValidate = ciTargetBranch || currentBranch || ciBranch;
+  }
   validateTrustedActorRegistry({
     actorRegistry,
     expectedSha256:
       overrides.trustedActorRegistrySha256 ?? process.env.YORSO_TRUSTED_ACTOR_REGISTRY_SHA256,
-    required: branchPolicy?.stageBPilotStatus === "passed",
+    required:
+      branchPolicy?.stageBPilotStatus === "passed" &&
+      (branchPolicy?.stageBQualificationMode !== "owner-directive" || branchToValidate === branchPolicy?.productionSourceOfTruth),
     errors,
   });
   validateStageBEvidence({
@@ -1189,12 +1351,6 @@ export const validateAgentGovernance = (root, overrides = {}) => {
     if (!promotionGates.has(required)) errors.push(`branchPolicy promotion gate is missing: ${required}`);
   }
   if (!overrides.skipRepositoryInspection || hasOwn(overrides, "currentBranch")) {
-    const currentBranch = hasOwn(overrides, "currentBranch")
-      ? overrides.currentBranch
-      : git(root, ["branch", "--show-current"]);
-    const ciBranch = overrides.ciBranchName ?? process.env.GITHUB_HEAD_REF ?? process.env.GITHUB_REF_NAME ?? "";
-    const ciTargetBranch = overrides.ciTargetBranch ?? process.env.GITHUB_BASE_REF ?? "";
-    const branchToValidate = ciTargetBranch || currentBranch || ciBranch;
     if (!branchToValidate) {
       errors.push("detached HEAD requires an explicit CI branch name");
     } else if (branchToValidate === branchPolicy?.productionSourceOfTruth) {

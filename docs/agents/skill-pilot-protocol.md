@@ -21,7 +21,28 @@ Required for every candidate:
 
 Failure at Stage A rejects the candidate from installation.
 
-## Stage B: comparative quality pilot
+## Stage B: qualification modes
+
+Stage B has two explicit qualification modes. They are not interchangeable and
+must not produce the same claims:
+
+1. `owner-directive`: operational qualification for an experimental
+   `local-lab/*` branch. It requires the complete 30-run execution matrix,
+   immutable assignments, valid signed executor outputs, zero invalid outputs,
+   a checksum-bound project-owner directive and checksum-bound qualification
+   evidence. It activates the candidate for project work, but does not claim
+   independent review, measured quality uplift or production promotion.
+2. `independent-review`: comparative quality qualification. It requires the
+   blind reviewer workflow, signed sheets, recomputed metrics and trusted actor
+   registry described below. This is the only mode that may support a measured
+   quality-uplift claim and it remains required by the separate main-promotion
+   policy.
+
+The manifest records the selected mode in
+`branchPolicy.stageBQualificationMode`. A passed status without a valid mode and
+mode-specific evidence fails closed.
+
+## Stage B independent-review pilot
 
 For each finalist run five fixtures in two arms, three repeats per arm:
 
@@ -52,10 +73,34 @@ Score every reviewed run from 0 to 100. Promotion requires all of:
 - median token/time overhead <= 25%;
 - no regression in an already-active skill domain.
 
-Stage B evidence must include prompts, outputs, machine-readable reviewer
-sheets, disagreement resolution and cost. Without it, the status remains
-`experimental`. A human-review requirement limits pilot risk but does not
-replace Stage B qualification.
+Independent-review evidence must include prompts, outputs, machine-readable
+reviewer sheets, disagreement resolution and cost. Without it, no independent
+quality or measured-uplift claim is allowed. A human-review requirement limits
+pilot risk but does not replace independent-review qualification.
+
+### Owner-directive evidence contract
+
+Owner-directive evidence uses `schemaVersion: 1` and is allowed only outside
+`main`. It binds the project owner's decision to:
+
+- the pilot id, candidate skill id and locked candidate content SHA-256;
+- the evaluated candidate commit and fixture-oracle SHA-256;
+- all 30 canonical fixture/arm/repeat tuples;
+- each immutable assignment and valid signed executor output SHA-256;
+- aggregate assignment/output set SHA-256 values;
+- exact counts for tasks, assignments, outputs, invalid outputs and blocked
+  responses;
+- a directive artifact under `docs/agents/pilots/owner-directives/` with its
+  verified SHA-256;
+- the claim boundary `operationalQualification: true`,
+  `independentReviewCompleted: false`, `measuredQualityUplift: false` and
+  `productionPromotionAuthorized: false`.
+
+The owner-directive command rejects incomplete runs, invalid signatures,
+candidate/fixture/commit drift, duplicate or missing tuples, directive
+tampering, path escapes and unsupported authority or claims. It marks the skill
+active only after the complete repository governance gate passes. It cannot be
+used on `main` and cannot satisfy the main-promotion policy.
 
 ### Machine-enforced evidence contract
 
@@ -160,6 +205,11 @@ The executable workflow is documented in
 - `npm run stage-b:qualify -- --pilot <id>`: require real workspace evidence,
   signed independent review, an out-of-band trusted registry digest and a fully
   valid repository evidence mapping;
+- `npm run stage-b:owner-qualify -- --pilot <id> --directive-file <path>`:
+  qualify complete signed execution evidence for operational use on the current
+  experimental branch, write checksum-bound owner evidence and activate the
+  candidate without claiming independent review, uplift or production
+  promotion;
 - `npm run check:main-promotion`: evaluate the separate production policy
   without mutating the repository.
 

@@ -215,6 +215,7 @@ const prepareValidStageBEvidence = (fixture, requestedSkillId, options = {}) => 
 const applyStageB = (manifest, stages) => {
   const stageList = Array.isArray(stages) ? stages : [stages];
   manifest.branchPolicy.stageBPilotStatus = "passed";
+  manifest.branchPolicy.stageBQualificationMode = "independent-review";
   manifest.branchPolicy.stageBEvidenceBySkill = Object.fromEntries(
     stageList.map((stage) => [stage.candidateSkill.id, stage.relativePath]),
   );
@@ -298,6 +299,15 @@ const validateFixture = (mutate, prepare, validationOverrides = {}) => {
       path.join(fixture, "docs/agents/pilots/fixture-oracle.json"),
     );
     const { manifest, lock, actors, fixtureOracle } = loadAgentGovernance(fixture);
+    // Mutation tests start from the pre-qualification baseline so the real
+    // owner-qualified manifest cannot leak unrelated evidence requirements
+    // into independent-review scenarios.
+    manifest.branchPolicy.stageBPilotStatus = "pending";
+    delete manifest.branchPolicy.stageBQualificationMode;
+    delete manifest.branchPolicy.stageBEvidenceBySkill;
+    for (const skill of manifest.skills) {
+      if (skill.source.type !== "project-internal") skill.status = "experimental";
+    }
     Object.assign(actors, structuredClone(TEST_ACTORS));
     const trustedActorRegistrySha256 = canonicalSha256(actors);
     prepare?.(fixture, manifest, lock, actors, fixtureOracle);
@@ -508,6 +518,7 @@ test("an adapted skill cannot become active before Stage B passes", () => {
 test("Stage B cannot pass without a structured evidence file", () => {
   const errors = validateFixture((manifest) => {
     manifest.branchPolicy.stageBPilotStatus = "passed";
+    manifest.branchPolicy.stageBQualificationMode = "independent-review";
     delete manifest.branchPolicy.stageBEvidenceBySkill;
   });
   assert.match(errors.join("\n"), /stageBEvidenceBySkill is required/);
@@ -1054,6 +1065,7 @@ test("repository-backed Stage B and promotion evidence satisfy main policy witho
     const adaptedSkills = manifest.skills.filter((skill) => skill.source.type !== "project-internal");
     manifest.branchPolicy.baseCommit = baseCommit;
     manifest.branchPolicy.stageBPilotStatus = "passed";
+    manifest.branchPolicy.stageBQualificationMode = "independent-review";
     manifest.branchPolicy.stageBEvidenceBySkill = Object.fromEntries(
       adaptedSkills.map((skill) => [
         skill.id,

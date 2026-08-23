@@ -2,6 +2,22 @@
 
 Keep this file factual and append-only.
 
+## 2026-08-23 — Stage B owner-directed operational qualification
+
+- Added a second, explicit Stage B mode for project-owner qualification on
+  experimental `local-lab/*` branches; the existing independent-review path and
+  production promotion policy remain intact.
+- Qualified `copywriter-2026-08` from 30/30 immutable assignments, 30/30 valid
+  signed executor outputs, 0 invalid outputs and 6 explicitly blocked
+  responses.
+- Bound the directive, evaluated commit, candidate skill hash, fixture oracle,
+  every canonical run tuple and aggregate assignment/output sets by SHA-256.
+- Activated `yorso-multilingual-ux-copywriter-agent` for experimental project
+  work. The evidence explicitly records that independent review, measured
+  quality uplift and production promotion were not established.
+- Added integration coverage proving successful owner qualification and
+  fail-closed rejection after directive tampering.
+
 ## 2026-08-23 — Signed Stage B human reviewer workflow
 
 - Added a blank blind-review template and required all 30 human decisions to be

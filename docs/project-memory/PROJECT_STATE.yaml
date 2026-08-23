@@ -61,10 +61,10 @@ active_workstream:
     - "Completed the Stage B execution campaign with 30/30 immutable assignments, 30/30 valid Ed25519-signed outputs and 0 invalid signed outputs, then generated a 30-item blind reviewer packet without candidate, arm, run-key or evaluated-commit identity leakage."
     - "Added a fail-closed human reviewer workflow: complete blind drafts use only reviewItemId, canonical reviewer-sheet-v4 payloads are prepared only after decisions are frozen, detached Ed25519 signatures are verified externally and status revalidates every sheet against current packet and output evidence."
     - "Hardened the operator runbook after rejecting an unsigned shared-parent attempt whose event trace exposed operator files: executor work, temporary CODEX_HOME and operator logs/signing artifacts must use separate physical roots and every trace must be inspected before signing."
+    - "Added fail-closed owner-directive Stage B qualification for experimental local-lab branches and qualified copywriter-2026-08 from 30/30 immutable assignments and valid signed outputs, with 6 blocked responses recorded and no independent-review, uplift or production-promotion claim."
   open_gates:
-    - "Run the complete Stage B blind comparative pilot before claiming a measured quality uplift."
-    - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before Stage B evidence can pass."
-    - "Resolve independent exact-HEAD review findings before publishing the experimental branch."
+    - "Run independent blind comparative review before claiming a measured quality uplift."
+    - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before independent-review evidence or main promotion can pass."
     - "Obtain a separate independent promotion review before any merge to main."
     - "Run feature-specific tests when a role or skill is first used on product code."
 
@@ -75,7 +75,7 @@ governance:
   fixture_oracle: "docs/agents/pilots/fixture-oracle.json"
   role_profiles: 13
   registered_skills: 11
-  copywriter_status: "experimental-with-human-review"
+  copywriter_status: "active-local-lab-owner-qualified"
   automatic_main_promotion: false
 
 stage_b_pilot:
@@ -90,7 +90,16 @@ stage_b_pilot:
   executor_count: 1
   reviewer_count: 0
   reviewer_sheet_count: 0
-  qualification: "blocked"
+  blocked_response_count: 6
+  qualification: "passed"
+  qualification_mode: "owner-directive"
+  owner_directive: "docs/agents/pilots/owner-directives/copywriter-2026-08.json"
+  qualification_evidence: "docs/agents/pilots/results/copywriter-2026-08/owner-directive-stage-b.json"
+  claim_boundary:
+    operational_qualification: true
+    independent_review_completed: false
+    measured_quality_uplift: false
+    production_promotion_authorized: false
   executor_workflow: "complete_signed_execution_campaign"
   actor_registry_sha256: "5d05c9bda5dffa92fe9d2614e88fd70ec1611af0009e87a23a3689f703bb38ec"
   first_accepted_task_id: "a93017b304142d7845e8"
@@ -106,11 +115,11 @@ stage_b_pilot:
     - "npm run stage-b:register-actor -- --id <reviewer-id> --group <independence-group> --roles stage-b-reviewer --public-key-file <public-key-path>"
     - "npm run stage-b:prepare-review-submission -- --pilot copywriter-2026-08 --reviewer <reviewer-id> --review-file <external-blind-draft-path> --payload-file <external-payload-path>"
     - "npm run stage-b:submit-review -- --pilot copywriter-2026-08 --reviewer <reviewer-id> --payload-file <external-payload-path> --signature-file <external-signature-path>"
+  owner_qualification_command: "npm run stage-b:owner-qualify -- --pilot copywriter-2026-08 --directive-file docs/agents/pilots/owner-directives/copywriter-2026-08.json"
   blockers:
-    - "missing registered Stage B reviewers: 2"
-    - "Stage B reviewers must use distinct independence groups"
-    - "missing signed reviewer sheets: 2"
-    - "YORSO_TRUSTED_ACTOR_REGISTRY_SHA256 is not set"
+    - "Independent comparative quality review has not been completed."
+    - "Measured quality uplift is not established."
+    - "Production promotion remains unauthorized."
 
 validation:
   initial_baseline:
@@ -129,4 +138,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Register two real reviewers from distinct independence groups, let each complete an external blind review-draft copy, then prepare, externally sign and submit exactly two reviewer-sheet-v4 payloads; do not merge main or claim uplift before qualification."
+next_action: "Use the owner-qualified copywriter skill in local-lab product work with feature-specific verification; keep independent quality measurement and any merge to main behind their separate review and promotion gates."

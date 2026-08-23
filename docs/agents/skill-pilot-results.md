@@ -4,15 +4,17 @@ Last updated: 2026-08-23
 
 ## Current verdict
 
-The capability foundation is **GO for structural use inside the
+The capability foundation is **GO for operational use inside the
 `local-lab/agent-capability-foundation` branch** and **NO-GO for automatic
-production promotion**. Stage A structural/provenance validation is complete;
-Stage B comparative qualification is not complete.
+production promotion**. Stage A structural/provenance validation is complete.
+The multilingual UX copywriter passed Stage B in `owner-directive` mode after
+30/30 signed executions. Independent comparative review is not complete, so no
+measured quality-uplift claim is made.
 
 | Candidate / package | Stage A | Qualitative review | Stage B | Current status |
 | --- | --- | --- | --- | --- |
 | Existing access/component/usability skills | pass after repository-drift corrections | repository-grounded review | not required for current active status; future changes require regression pilot | active |
-| Multilingual UX copywriter | pass | ready for a controlled pilot: exact locale, independent review, glossary and ICU gates added | pending | experimental with mandatory human review |
+| Multilingual UX copywriter | pass | exact locale, glossary and ICU gates added | passed: owner-directive | active on `local-lab/*`; independent review and main promotion remain separate |
 | Engineering quality gate | pass | useful completion checklist; overlaps release/testing by design | pending | experimental |
 | Testing quality gate | pass | strong repeated-flow and evidence critique | pending | experimental |
 | API contract gate | pass | useful contract-drift lens | pending | experimental |
@@ -53,8 +55,9 @@ Stage B comparative qualification is not complete.
   makes the reviewed commit stale. These tests are synthetic gate tests, not
   real Stage B qualification evidence.
 - `.agents/actors.json` contains one public-key-only Stage B executor and no
-  human reviewers or approvers. Until two independent real reviewers and the
-  later promotion approvers are registered, Stage B and promotion fail closed.
+  human reviewers or approvers. This is sufficient only for the completed
+  owner-directive operational qualification. Independent-review claims and
+  promotion remain closed until the required humans and trust anchor exist.
 - The reviewer operator workflow is executable: a human completes a blind
   30-item draft keyed only by `reviewItemId`; tooling then freezes it into a
   candidate/output-bound schema-version-4 payload, verifies an external
@@ -62,6 +65,11 @@ Stage B comparative qualification is not complete.
   This workflow has regression coverage but no real reviewer decisions yet.
 - External candidate matrix records license/SHA/overlap/rejection decisions.
 - Five fixed Stage B fixtures are versioned under `docs/agents/pilots/fixtures/`.
+- `copywriter-2026-08` records 30/30 immutable assignments, 30/30 valid signed
+  outputs, zero invalid outputs and six explicitly blocked responses. The owner
+  directive and qualification evidence are checksum-bound under
+  `docs/agents/pilots/owner-directives/` and
+  `docs/agents/pilots/results/copywriter-2026-08/`.
 - Expanded pre-foundation project-memory snapshots are preserved as
   checksum-pinned gzip archives and are checked for tampering.
 - Baseline project build, typecheck and provider boundary were green before governance changes.
@@ -74,5 +82,6 @@ Stage B comparative qualification is not complete.
 - It does not prove the local adaptation is byte-identical to an upstream skill
   file; the local adaptation is intentionally project-specific.
 
-Those claims require the 30-run-per-finalist Stage B protocol. Keeping the
-skills experimental is the fail-closed result, not an incomplete installation.
+Those claims require the independent-review path and separate production
+promotion gate. Owner-directed operational use is a narrower, explicit result,
+not evidence for the claims above.

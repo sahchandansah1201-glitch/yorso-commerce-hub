@@ -5,8 +5,10 @@ Last updated: 2026-08-23
 ## Purpose
 
 This runbook turns the Stage B evidence contract into an executable, fail-closed
-workflow. It does not create reviewers, signatures, scores or promotion proof.
-Those inputs must come from real independent humans and external private keys.
+workflow. It supports owner-directed operational qualification on an
+experimental branch and a stricter independent-review path. It does not create
+reviewers, signatures, scores or promotion proof. Those inputs must come from
+real independent humans and external private keys.
 
 ## Security boundary
 
@@ -278,7 +280,34 @@ two real reviewers exist, exactly two signed sheets exist and the trusted
 registry digest is supplied. Status reports valid and invalid signed reviewer
 sheet counts separately.
 
-## 13. Qualification
+For an owner-directive pilot, 30 valid signed outputs are the execution
+prerequisite. The dedicated owner command performs its own mode-specific
+validation and does not require reviewer sheets.
+
+## 13A. Owner-directed operational qualification
+
+Use this path only when the project owner explicitly authorizes operational use
+on an experimental `local-lab/*` branch. Create a repository directive with the
+required pilot, candidate, execution counts and negative claim boundary, then
+run:
+
+```bash
+npm run stage-b:owner-qualify -- \
+  --pilot copywriter-2026-08 \
+  --directive-file docs/agents/pilots/owner-directives/copywriter-2026-08.json
+```
+
+The command validates all 30 assignments and signed outputs, records blocked
+responses, binds the directive and run sets by SHA-256, writes owner evidence,
+updates the manifest and runs full repository governance before retaining the
+change. On validation failure it restores the prior manifest and evidence.
+
+A pass from this path means the skill is active for experimental project work.
+It explicitly does **not** mean that independent review was completed, quality
+uplift was measured or promotion to `main` was authorized. The independent
+review may still be completed later without repeating valid executor outputs.
+
+## 13B. Independent-review qualification
 
 After signed reviewer sheets and schema-version-5 evidence are committed and
 the manifest maps the active skill to that evidence:
@@ -300,5 +329,7 @@ YORSO_TRUSTED_ACTOR_REGISTRY_SHA256=<out-of-band-digest> \
   npm run check:main-promotion
 ```
 
-This command is intentionally not part of normal experimental CI because it
-must fail while Stage B is pending or any skill remains experimental.
+This command is intentionally not part of normal experimental CI. An
+owner-directive qualification cannot satisfy it: promotion still requires the
+independent-review evidence, trusted actors, exact-commit gate artifacts and
+separate approval defined by the production policy.

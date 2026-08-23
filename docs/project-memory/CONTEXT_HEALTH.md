@@ -16,8 +16,8 @@ last_checkpoint: "2026-08-23"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Register two real reviewers from distinct groups; each completes an external blind draft, then uses prepare-review-submission, external Ed25519 signing and submit-review; supply the trusted registry digest out of band and do not merge main."
-why_medium: "The exact-commit Stage B execution campaign has 30/30 immutable assignments, 30/30 valid signed outputs and 0 invalid signed outputs, but it still has no human reviewers, no signed reviewer sheets, no trusted final registry digest and no promotion approval."
+recommended_action: "Use the owner-qualified copywriter skill in local-lab product work with feature-specific verification; keep independent quality measurement and main promotion as separate gates."
+why_medium: "Stage B operational qualification is complete from 30/30 valid signed outputs and a checksum-bound owner directive, but independent quality uplift and production promotion are intentionally not established."
 ```
 
 ## Confirmed Boundaries
@@ -29,12 +29,12 @@ why_medium: "The exact-commit Stage B execution campaign has 30/30 immutable ass
 - Current changes are governance, project skills, verification tooling and
   project-memory only. No product runtime or production deployment changes are
   part of this workstream.
-- No quantified improvement claim is allowed until the Stage B pilot protocol
-  passes.
+- Owner-directive Stage B qualification authorizes operational use only on the
+  experimental branch. It does not establish a quantified improvement.
 - `.agents/actors.json` contains one public-key-only Codex executor and no human
   reviewers or approvers. Real independent reviewers and approvers with
   Ed25519 keys must be registered and the final registry digest must be trusted
-  out-of-band before Stage B or promotion can pass.
+  out-of-band before independent-review evidence or promotion can pass.
 - Stage B workspaces are ignored under `.data/stage-b/`; reviewers must receive
   only `review-packet/`, never coordinator/task arm mappings.
 - Each reviewer fills an external copy of `review-draft.template.json` keyed
@@ -61,6 +61,7 @@ Repository: /Users/istokdmgmail.com/Documents/yorso-commerce-hub-main
 Branch: local-lab/agent-capability-foundation
 Read AGENTS.md, PROJECT_STATE.yaml, HANDOFF.md and NEXT_ACTIONS.md.
 Verify git status and agent governance before editing.
-Do not merge main. First finish exact-HEAD acceptance and push only this
-experimental branch. Stage B remains the next external evidence gate.
+Do not merge main. Stage B operational qualification is complete for the
+experimental branch. Continue feature work with exact-HEAD acceptance and keep
+independent quality measurement plus production promotion as separate gates.
 ```
