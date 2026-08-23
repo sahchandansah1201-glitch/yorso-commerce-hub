@@ -4569,3 +4569,29 @@ Keep this file factual and append-only.
 | Bind external provenance | License and full SHA recorded for qualified candidates | Audit exact candidate content before adaptation | GitHub metadata evidence |
 | Test the development cycle | Six unit cases plus real local run pass | Exact-HEAD external Gates 4-7 | `test:local-lab-cycle`; cycle runner |
 | Fail closed on release | Pending review/Lovable/PR/server evidence returns `NO-GO` | Supply evidence only during promotion | release-mode test |
+
+## P1S — /account/company: Trust & Certifications cleanup
+
+- Убран Product Focus из account Trust card и account SupplierProfilePreview
+  (поле `CompanyProfile.productFocus` и storage не изменены).
+- Добавлена канонизация кодов сертификатов в `src/data/certifications.ts`
+  (`canonicalizeCertificationCode`, `canonicalizeCertificationList`,
+  `listCertificationCodes`, `isKnownCertificationCode`): `IFS Food -> IFS`,
+  `EU Approval Number -> EU`; неизвестные legacy-строки остаются как есть.
+- Новый компонент `src/components/account/AccountCertificationPicker.tsx`:
+  компактный multi-select по локальному справочнику, chips с локальными логотипами
+  (MSC/ASC/BRC, `alt=""`) и текстовым fallback, клавиатура ArrowDown/Up/Enter/Escape,
+  focus возвращается на поиск, действия ≥44px, testid всегда на каноническом коде
+  (`account-company-certificate-chip-GLOBALGAP`).
+- i18n EN/RU/ES: «Certifications and approvals» / «Сертификаты и допуски» /
+  «Certificaciones y autorizaciones» + help/placeholder/empty/remove.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Убрать Product Focus из UI account | Убран в Trust card и SupplierProfilePreview | — | e2e `account-company-edit-contract` |
+| Picker сертификатов | `AccountCertificationPicker` + канонизация | — | `p1s-company-certifications` 4/4 |
+| Копия и локализация | EN/RU/ES native labels | — | vitest 35/35 |
+| Mobile 390 | Нет overflow, ≥44px, нет nested interactive | — | e2e mobile-кейс |
+| Регрессия account | 35/35 e2e company/workspace | — | Playwright chromium |

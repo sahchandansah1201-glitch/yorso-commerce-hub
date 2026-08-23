@@ -156,15 +156,17 @@ test.describe("/account/company · editable company profile contract", () => {
     await expect(page.getByTestId("account-supplier-preview")).toContainText(description);
   });
 
-  test("trust, certificates and payment terms split lists and update supplier preview", async ({
+  test("certifications picker and payment terms update supplier preview", async ({
     page,
   }) => {
     await openCompany(page);
 
     const trustCardId = "account-card-company-trust";
     const trust = await editCard(page, trustCardId);
-    await trust.getByTestId("account-company-product-focus").fill("Salmon, Cod, Herring");
-    await trust.getByTestId("account-company-certificates").fill("MSC, ASC, HACCP");
+    await expect(trust.getByTestId("account-company-product-focus")).toHaveCount(0);
+    await trust.getByTestId("account-company-certificates-search").click();
+    await trust.getByTestId("account-company-certificates-option-HACCP").click();
+    await expect(trust.getByTestId("account-company-certificate-chip-HACCP")).toBeVisible();
     await saveCard(trust, trustCardId);
 
     const paymentCardId = "account-card-company-payment";
@@ -173,12 +175,12 @@ test.describe("/account/company · editable company profile contract", () => {
     await saveCard(payment, paymentCardId);
 
     const supplierPreview = page.getByTestId("account-supplier-preview");
-    await expect(supplierPreview.getByTestId("account-supplier-preview-productFocus")).toContainText("Salmon");
-    await expect(supplierPreview.getByTestId("account-supplier-preview-productFocus")).toContainText("Herring");
+    await expect(supplierPreview.getByTestId("account-supplier-preview-productFocus")).toHaveCount(0);
     await expect(supplierPreview.getByTestId("account-supplier-preview-certificates")).toContainText("HACCP");
     await expect(supplierPreview.getByTestId("account-supplier-preview-paymentTerms")).toContainText("LC at sight");
-    expect(await mainText(page)).not.toMatch(/Salmon,\s*Cod,\s*Herring/);
+    expect(await mainText(page)).not.toMatch(/MSC,\s*ASC/);
   });
+
 
   test("publication and buyer qualification statuses persist as user-facing labels", async ({
     page,

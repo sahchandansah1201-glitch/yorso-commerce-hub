@@ -7,6 +7,8 @@ import { AccountSectionCard } from "@/components/account/AccountSectionCard";
 import { EditableCard } from "@/components/account/EditableCard";
 import { AccountProductCatalogPicker } from "@/components/account/AccountProductCatalogPicker";
 import { AccountCountryCombobox } from "@/components/account/AccountCountryCombobox";
+import { AccountCertificationPicker } from "@/components/account/AccountCertificationPicker";
+import { canonicalizeCertificationList, getCertificationInfo } from "@/data/certifications";
 import {
   findCountryByName,
   localizedCountryName,
@@ -624,14 +626,19 @@ const CompanySection = ({
   onChange: (p: AccountProfile, options?: AccountUpdateOptions) => AccountUpdateResult;
   accountApiClient?: AccountApiClient;
 }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const c = profile.company;
   const pub = pubLabelMap(t);
   const qual = qualLabelMap(t);
   const fallbackAccountApiClient = useMemo(() => createAccountApiClient(), []);
   const accountApiClient = accountApiClientProp ?? fallbackAccountApiClient;
 
-  const saveCompany = (next: CompanyProfile) => onChange({ ...profile, company: next });
+  const saveCompany = (next: CompanyProfile) =>
+    onChange({
+      ...profile,
+      company: { ...next, certificates: canonicalizeCertificationList(next.certificates) },
+    });
+
   const resolveMediaSrc = (value: string) => accountApiClient.resolveStoredFileUrl(value);
   const uploadCompanyMediaFile = async (
     slot: "logo" | "cover",
@@ -880,56 +887,51 @@ const CompanySection = ({
           <div className="space-y-3">
             <div>
               <p className="mb-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                {t.account_company_productFocus}
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {v.productFocus.length === 0 ? (
-                  <span className="text-sm text-muted-foreground">{t.account_value_notSpecified}</span>
-                ) : (
-                  v.productFocus.map((x) => (
-                    <Badge key={x} variant="outline">
-                      {x}
-                    </Badge>
-                  ))
-                )}
-              </div>
-            </div>
-            <div>
-              <p className="mb-1 text-[11px] uppercase tracking-wider text-muted-foreground">
                 {t.account_company_certificates}
               </p>
-              <div className="flex flex-wrap gap-1.5">
-                {v.certificates.length === 0 ? (
+              <div className="flex flex-wrap gap-1.5" data-testid="account-company-certificates-view">
+                {canonicalizeCertificationList(v.certificates).length === 0 ? (
                   <span className="text-sm text-muted-foreground">{t.account_value_notSpecified}</span>
                 ) : (
-                  v.certificates.map((x) => (
-                    <Badge key={x} variant="secondary">
-                      {x}
-                    </Badge>
-                  ))
+                  canonicalizeCertificationList(v.certificates).map((code) => {
+                    const info = getCertificationInfo(code, lang);
+                    return (
+                      <span
+                        key={code}
+                        data-testid={`account-company-certificate-chip-${code}`}
+                        className="inline-flex items-center gap-1.5 rounded-md border border-input bg-muted/40 px-2 py-1 text-sm"
+                      >
+                        {info.logo ? (
+                          <img src={info.logo} alt="" aria-hidden className="h-4 w-4 object-contain" />
+                        ) : (
+                          <span
+                            aria-hidden
+                            className="inline-flex h-4 min-w-4 items-center justify-center rounded border border-border px-1 text-[9px] font-semibold uppercase text-muted-foreground"
+                          >
+                            {info.code.slice(0, 3)}
+                          </span>
+                        )}
+                        <span className="font-medium">{info.name}</span>
+                      </span>
+                    );
+                  })
                 )}
               </div>
             </div>
           </div>
         )}
         renderEdit={({ draft, setDraft }) => (
-          <div className="space-y-3">
-            <FormRow label={t.account_company_productFocus} hint={t.account_company_listHelp}>
-              <Input
-                value={draft.productFocus.join(", ")}
-                onChange={(e) => setDraft({ ...draft, productFocus: splitList(e.target.value) })}
-                data-testid="account-company-product-focus"
-              />
-            </FormRow>
-            <FormRow label={t.account_company_certificates} hint={t.account_company_listHelp}>
-              <Input
-                value={draft.certificates.join(", ")}
-                onChange={(e) => setDraft({ ...draft, certificates: splitList(e.target.value) })}
-                data-testid="account-company-certificates"
-              />
-            </FormRow>
-          </div>
+          <FormRow
+            label={t.account_company_certificates}
+            hint={t.account_company_certificates_help}
+          >
+            <AccountCertificationPicker
+              value={draft.certificates}
+              onChange={(certificates) => setDraft({ ...draft, certificates })}
+            />
+          </FormRow>
         )}
+
       />
 
       <EditableCard<CompanyProfile>

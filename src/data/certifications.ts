@@ -362,3 +362,57 @@ export function getCertificationInfo(code: string, lang: Language): Certificatio
     logo: def.logo,
   };
 }
+
+/** Известные синонимы legacy-значений -> канонический код справочника. */
+const CERTIFICATION_ALIASES: Record<string, string> = {
+  IFSFOOD: "IFS",
+  EUAPPROVALNUMBER: "EU",
+  EUAPPROVAL: "EU",
+  EUAPPROVED: "EU",
+  GLOBALGAP: "GLOBALGAP",
+  FRIENDOFTHESEA: "FOS",
+  ISO22000: "ISO22000",
+};
+
+function normalizeCertificationKey(code: string): string {
+  return code.toUpperCase().replace(/[\s.\-_/]/g, "");
+}
+
+/**
+ * Приводит значение к каноническому коду справочника.
+ * Известные коды и алиасы -> канонический код, неизвестные строки остаются без изменений.
+ */
+export function canonicalizeCertificationCode(code: string): string {
+  const raw = code.trim();
+  if (!raw) return "";
+  const key = normalizeCertificationKey(raw);
+  if (CERTIFICATIONS[key]) return CERTIFICATIONS[key].code;
+  const alias = CERTIFICATION_ALIASES[key];
+  if (alias && CERTIFICATIONS[alias]) return CERTIFICATIONS[alias].code;
+  return raw;
+}
+
+/** true, если значение соответствует коду локального справочника. */
+export function isKnownCertificationCode(code: string): boolean {
+  return Boolean(CERTIFICATIONS[normalizeCertificationKey(code)]);
+}
+
+/** Все канонические коды справочника (для picker). */
+export function listCertificationCodes(): string[] {
+  return Object.values(CERTIFICATIONS).map((def) => def.code);
+}
+
+/** Канонизирует список, убирая дубли по каноническому коду. */
+export function canonicalizeCertificationList(codes: string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const value of codes) {
+    const canonical = canonicalizeCertificationCode(value);
+    if (!canonical) continue;
+    const key = normalizeCertificationKey(canonical);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(canonical);
+  }
+  return out;
+}
