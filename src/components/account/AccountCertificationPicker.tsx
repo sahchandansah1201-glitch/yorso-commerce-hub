@@ -63,8 +63,9 @@ export const AccountCertificationPicker = ({
     const onDown = (e: MouseEvent) => {
       if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
     };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
+    // capture-фаза: React уже мог удалить выбранную опцию из DOM к bubble-фазе
+    document.addEventListener("mousedown", onDown, true);
+    return () => document.removeEventListener("mousedown", onDown, true);
   }, []);
 
   const focusInput = () => {
