@@ -6,10 +6,10 @@
   reviewer and dependency registry.
 - `.agents/skills.lock.json`: content hashes and pinned source revisions for all
   registered project-wide skills.
-- `.agents/actors.json`: canonical reviewer/approver registry. It is currently
-  schema version 2 and currently empty, so Stage B and promotion remain
-  fail-closed. Passed evidence requires Ed25519 signatures and an out-of-band
-  trusted registry digest.
+- `.agents/actors.json`: canonical actor registry. It is schema version 2 and
+  contains one public-key-only Stage B executor, but no human reviewers or
+  approvers, so Stage B and promotion remain fail-closed. Passed evidence
+  requires Ed25519 signatures and an out-of-band trusted final registry digest.
 - `.agents/agents/`: 13 accountable Yorso role profiles.
 - `.agents/skills/yorso-multilingual-ux-copywriter-agent/`: project-wide EN,
   RU and ES-ES interface-copy workflow with independent human review.
@@ -50,6 +50,12 @@
 - `.data/stage-b/copywriter-2026-08/executor-packets/`: ignored local executor
   handoff packets. Baseline packets exclude candidate identifiers, hashes and
   skill content; packets are not reviewer artifacts and are not committed.
+- `.data/stage-b/copywriter-2026-08/assignments/` and `outputs/`: ignored
+  runtime evidence. Task `a93017b304142d7845e8` has one immutable assignment
+  and one valid signed output; these files are not repository artifacts.
+- External Stage B executor secrets: Ed25519 private key, response text,
+  canonical payload, detached signature and temporary isolated Codex home stay
+  outside the repository and pilot workspace and are never committed.
 
 ## Project Memory
 
@@ -1996,5 +2002,5 @@
   clean candidate commit; not a repository artifact.
 - `.data/stage-b/copywriter-2026-08`: initialized local runtime workspace with
   30 tasks bound to exact commit
-  `dc86aae5331d84836ab428929ba602d0420f35a9`; contains no completed outputs or
-  reviewer evidence yet and is intentionally ignored by Git.
+  `dc86aae5331d84836ab428929ba602d0420f35a9`; contains 1/30 valid signed
+  outputs, no reviewer evidence yet and is intentionally ignored by Git.

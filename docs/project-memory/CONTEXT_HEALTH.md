@@ -16,8 +16,8 @@ last_checkpoint: "2026-08-23"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Register real executors, assign all 30 tasks and collect Ed25519-signed copywriter responses through the packet/submission CLI, then collect two real independent reviewers and signed evidence; do not merge main."
-why_medium: "The exact-commit Stage B workspace and signed executor transport exist and fail closed, but the real pilot has 0/30 assignments, 0/30 outputs, no real trusted actors, no signed reviewer sheets and no promotion approval."
+recommended_action: "Continue the remaining 29 isolated executor tasks and externally signed responses, then collect two real independent human reviewers and signed evidence; do not merge main."
+why_medium: "The exact-commit Stage B workspace now has 1/30 immutable assignments and 1/30 valid signed outputs, but it still has no human reviewers, no signed reviewer sheets, no trusted final registry digest and no promotion approval."
 ```
 
 ## Confirmed Boundaries
@@ -31,9 +31,10 @@ why_medium: "The exact-commit Stage B workspace and signed executor transport ex
   part of this workstream.
 - No quantified improvement claim is allowed until the Stage B pilot protocol
   passes.
-- `.agents/actors.json` is intentionally empty; real independent reviewers and
-  approvers with Ed25519 keys must be registered and the registry digest must
-  be trusted out-of-band before Stage B or promotion can pass.
+- `.agents/actors.json` contains one public-key-only Codex executor and no human
+  reviewers or approvers. Real independent reviewers and approvers with
+  Ed25519 keys must be registered and the final registry digest must be trusted
+  out-of-band before Stage B or promotion can pass.
 - Stage B workspaces are ignored under `.data/stage-b/`; reviewers must receive
   only `review-packet/`, never coordinator/task arm mappings.
 - Executors must receive only generated `executor-packets/<task-id>/`; they must
@@ -41,6 +42,9 @@ why_medium: "The exact-commit Stage B workspace and signed executor transport ex
 - Every executor must be registered with role `stage-b-executor`, receive an
   immutable task assignment and sign the canonical submission payload with an
   Ed25519 private key that remains outside the repository and workspace.
+- A valid Codex executor run uses an empty temporary `CODEX_HOME` and empty
+  working directory. A run that reads user skills, rules, memory or repository
+  files is contaminated and must be rejected without submission.
 
 ## Recovery Prompt
 

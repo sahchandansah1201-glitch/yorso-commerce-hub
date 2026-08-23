@@ -43,7 +43,7 @@ active_workstream:
     - "Pinned external repository/revision/license declarations and local adaptation hashes; exact upstream blob-byte verification remains open."
     - "Added structured Stage B and main-promotion evidence gates."
     - "Upgraded Stage B and promotion evidence to schemaVersion 5 with fixture-oracle binding, structured output/gate artifacts, signed reviewer sheets and recomputed metrics."
-    - "Upgraded the actor registry to schemaVersion 2 with canonical independence groups, Ed25519 identities and an out-of-band registry trust anchor; the empty real registry keeps Stage B and promotion closed."
+    - "Upgraded the actor registry to schemaVersion 2 with canonical independence groups, Ed25519 identities and an out-of-band registry trust anchor; one public-key-only Stage B executor is now registered while human review and promotion remain closed."
     - "Expanded candidate freshness to every tracked repository path except signed evidence results and project-memory attestations; rejected canonical-identity aliases, reviewer-supplied denominators, cross-skill artifact reuse and project-memory symlink escapes."
     - "Expanded non-mutation checks to reject gate-created commits, branch switches and any ref mutation."
     - "Expanded non-mutation checks to safely reject ignored provider scaffold, symlinks, special files and oversized observer inputs, and made those wrappers mandatory in ci:core."
@@ -57,6 +57,7 @@ active_workstream:
     - "Initialized ignored pilot workspace copywriter-2026-08 against exact commit dc86aae5331d84836ab428929ba602d0420f35a9 with 30 tasks and a reviewer queue that omits arm mappings."
     - "Added a reproducible Stage B executor workflow: stage-b:next emits one commit-bound arm-isolated packet, and stage-b:submit-output records canonical executor identity plus packet and response SHA-256 without exposing coordinator arm mappings."
     - "Hardened Stage B executor provenance: every task has an immutable assignment to a registered stage-b-executor, every response is bound to a canonical payload and Ed25519 signature, and status plus blind-review preparation reject assignment, packet, response, key or signature drift."
+    - "Accepted the first genuine isolated Stage B executor response for task a93017b304142d7845e8 after external Ed25519 signing; one earlier run that exposed user skills was rejected and never submitted."
   open_gates:
     - "Run the complete Stage B blind comparative pilot before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before Stage B evidence can pass."
@@ -80,23 +81,27 @@ stage_b_pilot:
   evaluated_commit: "dc86aae5331d84836ab428929ba602d0420f35a9"
   workspace: ".data/stage-b/copywriter-2026-08"
   task_count: 30
-  assignment_count: 0
-  output_count: 0
+  assignment_count: 1
+  output_count: 1
   invalid_signed_output_count: 0
-  executor_count: 0
+  executor_count: 1
   reviewer_count: 0
   reviewer_sheet_count: 0
   qualification: "blocked"
-  executor_workflow: "implemented_and_locally_verified"
+  executor_workflow: "first_real_signed_output_accepted"
+  actor_registry_sha256: "5d05c9bda5dffa92fe9d2614e88fd70ec1611af0009e87a23a3689f703bb38ec"
+  first_accepted_task_id: "a93017b304142d7845e8"
+  first_accepted_packet_sha256: "73e5cf4007b006f5ed47c7ff40f8dda65f289e0996618851a66049d960e27161"
+  first_accepted_response_sha256: "1452dfa6037eb7dae06ba8d3543b52a68d7293ff049ff214c892df9388b6cb3c"
+  first_accepted_signing_payload_sha256: "bdb6f70d20af268eef33a4a860dde9f25eb364825aaf690b4f954ecc495181f4"
   executor_commands:
     - "npm run stage-b:register-actor -- --id <executor-id> --group <group> --roles stage-b-executor --public-key-file <public-key-path>"
     - "npm run stage-b:next -- --pilot copywriter-2026-08 --executor <executor-id>"
     - "npm run stage-b:prepare-submission -- --pilot copywriter-2026-08 --task <task-id> --executor <executor-id> --response-file <path> --payload-file <path>"
     - "npm run stage-b:submit-output -- --pilot copywriter-2026-08 --task <task-id> --executor <executor-id> --response-file <path> --signature-file <path>"
   blockers:
-    - "missing executor assignments: 30"
-    - "missing outputs: 30"
-    - "missing registered Stage B executors: 1"
+    - "missing executor assignments: 29"
+    - "missing outputs: 29"
     - "missing registered Stage B reviewers: 2"
     - "Stage B reviewers must use distinct independence groups"
     - "missing signed reviewer sheets: 2"
@@ -119,4 +124,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Register real Stage B executors, assign all 30 tasks and collect Ed25519-signed responses through stage-b:prepare-submission and stage-b:submit-output, then obtain two real independent reviewers and signed evidence before qualification."
+next_action: "Continue the remaining 29 isolated assignments and Ed25519-signed responses through stage-b:prepare-submission and stage-b:submit-output, then obtain two real independent human reviewers and signed evidence before qualification."

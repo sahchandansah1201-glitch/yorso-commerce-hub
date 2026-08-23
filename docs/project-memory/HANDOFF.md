@@ -38,6 +38,7 @@ multilingual UX copywriter and non-mutating verification gates.
 | Make Stage B executable | CLI creates 30 randomized tasks, validates identity-bound outputs, builds a blind reviewer packet, enrols public keys only and fails closed until real evidence exists | Run real executor outputs and signed independent review | `npm run test:agent-governance`; `docs/agents/stage-b-operator-runbook.md` |
 | Initialize the first real workspace | `copywriter-2026-08` contains 30 tasks bound to exact commit `dc86aae5331d84836ab428929ba602d0420f35a9`; reviewer queue omits arm mappings | Produce 30 outputs and enrol two real reviewers | `npm run stage-b:status -- --pilot copywriter-2026-08` returns blocked exit 2 |
 | Make executor runs reproducible | `stage-b:next` immutably assigns an arm-isolated exact-commit packet to a registered executor; `stage-b:prepare-submission` emits a canonical payload; `stage-b:submit-output` verifies an Ed25519 signature and binds assignment, packet, response and payload hashes | Register real executors and collect 30 genuine signed responses | `npm run test:agent-governance`; signature/tamper tests; fail-closed pilot status |
+| Execute the first genuine Stage B task | Registered `codex-local-executor-a` with a public key only, assigned task `a93017b304142d7845e8` and accepted one externally signed isolated response | Run the remaining 29 tasks, then obtain two independent human reviews | status reports 1/30 assignments, 1/30 outputs and 0 invalid signatures |
 
 ## Evidence Already Established
 
@@ -47,13 +48,15 @@ multilingual UX copywriter and non-mutating verification gates.
 - Stage A structural/provenance pilot passed.
 - Full Stage B evidence is not complete; therefore no `30%`, `200%` or other
   quantified improvement claim is made.
-- The signed executor transport is locally verified, but the real pilot still
-  has `0/30` assignments, `0/30` outputs, `0` registered executors, `0/2`
-  reviewers and `0/2` signed sheets. Tooling readiness is
-  not skill qualification.
-- `.agents/actors.json` has no real registered humans yet; this intentionally
-  keeps Stage B and promotion closed. Passed evidence additionally requires the
-  out-of-band trusted registry digest `YORSO_TRUSTED_ACTOR_REGISTRY_SHA256`.
+- The real pilot has `1/30` immutable assignments, `1/30` valid signed outputs,
+  `1` registered executor, `0/2` reviewers and `0/2` signed sheets. The first
+  attempt was rejected because the normal Codex home exposed user skills; only
+  the rerun with an empty isolated Codex home was signed and submitted.
+- `.agents/actors.json` contains one public-key-only Codex executor and no real
+  registered humans. This intentionally keeps Stage B and promotion closed.
+  Passed evidence additionally requires two independent human reviewers and
+  the out-of-band trusted registry digest
+  `YORSO_TRUSTED_ACTOR_REGISTRY_SHA256`.
 - External source metadata is pinned, but exact upstream blob-byte comparison is
   not implemented. Local Yorso adaptations are protected by project content
   hashes instead.
@@ -73,7 +76,7 @@ git diff --check
 
 The Stage B pilot remains initialized from clean exact HEAD `dc86aae5`; the
 executor packet/submission workflow was added later on the experimental branch.
-Stage B stays blocked until all 30 real outputs, two
+Stage B stays blocked until the remaining 29 real outputs, two
 registered independent reviewers, exactly two valid signed sheets and the
 out-of-band trusted actor-registry digest exist. Any merge to `main` remains a
 separate closed gate.

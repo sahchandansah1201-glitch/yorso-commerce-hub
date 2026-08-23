@@ -499,6 +499,16 @@ test("registerActor accepts a canonical Stage B executor identity", () => {
 });
 
 test("status remains fail-closed without real outputs, reviewers, signatures and trusted registry", () => {
+  const governanceRoot = mkdtempSync(path.join(os.tmpdir(), "yorso-stage-b-status-governance-"));
+  mkdirSync(path.join(governanceRoot, ".agents"), { recursive: true });
+  mkdirSync(path.join(governanceRoot, "docs/agents/pilots"), { recursive: true });
+  cpSync(path.join(root, ".agents/manifest.json"), path.join(governanceRoot, ".agents/manifest.json"));
+  cpSync(path.join(root, ".agents/skills.lock.json"), path.join(governanceRoot, ".agents/skills.lock.json"));
+  cpSync(
+    path.join(root, "docs/agents/pilots/fixture-oracle.json"),
+    path.join(governanceRoot, "docs/agents/pilots/fixture-oracle.json"),
+  );
+  writeFileSync(path.join(governanceRoot, ".agents/actors.json"), '{"schemaVersion":2,"actors":[]}\n');
   const workspace = mkdtempSync(path.join(os.tmpdir(), "yorso-stage-b-status-"));
   mkdirSync(path.join(workspace, "outputs"));
   mkdirSync(path.join(workspace, "reviews"));
@@ -512,7 +522,7 @@ test("status remains fail-closed without real outputs, reviewers, signatures and
       taskCount: 30,
     }, null, 2)}\n`,
   );
-  const status = getStageBPilotStatus({ root, workspace, env: {} });
+  const status = getStageBPilotStatus({ root: governanceRoot, workspace, env: {} });
   assert.equal(status.readyForReview, false);
   assert.equal(status.readyForQualification, false);
   assert.equal(status.blockers.includes("missing executor assignments: 30"), true);

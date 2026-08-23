@@ -1,4 +1,13 @@
 {
   "schemaVersion": 2,
-  "actors": []
+  "actors": [
+    {
+      "id": "codex-local-executor-a",
+      "independenceGroup": "codex-execution-a",
+      "allowedRoles": [
+        "stage-b-executor"
+      ],
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAyLW/MTcjtW8/tEeaWvaZG14uhVgzz5DaJhJkWZSyB0M=\n-----END PUBLIC KEY-----\n"
+    }
+  ]
 }

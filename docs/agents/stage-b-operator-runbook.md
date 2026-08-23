@@ -79,6 +79,25 @@ response.
 The executor returns only its complete response as a UTF-8 text file. It must
 not manufacture run keys, commit hashes or skill hashes.
 
+### Codex CLI isolation
+
+For Codex CLI executors, `--ignore-user-config --ignore-rules` is not a complete
+isolation boundary when the normal `CODEX_HOME` still exposes global skills or
+plugins. Use a fresh temporary `CODEX_HOME` and an empty working directory for
+each run. Copy only the minimum authentication material into that temporary
+home for the process lifetime, and remove the temporary home after retaining
+the response outside the repository.
+
+The executor process must be ephemeral, use a read-only sandbox and receive
+only the assigned packet content. It must not receive repository access, user
+skills, rules, memory, another task packet or coordinator files. Never commit
+or copy authentication material, private keys, raw responses, signing payloads
+or signatures into the repository or pilot workspace.
+
+Treat any run that reads external skills, rules, memory or project files as
+contaminated. Interrupt it and do not sign or submit its response. Start again
+with a fresh isolated home and empty working directory.
+
 ## 5. Prepare and sign the canonical submission payload
 
 ```bash

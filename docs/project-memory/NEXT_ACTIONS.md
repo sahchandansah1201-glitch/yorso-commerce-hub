@@ -12,27 +12,30 @@ Branch: `local-lab/agent-capability-foundation`
 
 1. Use the initialized `.data/stage-b/copywriter-2026-08` workspace, which is
    bound to candidate commit `dc86aae5331d84836ab428929ba602d0420f35a9`.
-2. Register each real executor with role `stage-b-executor` and only its
-   Ed25519 public key. Keep its private key outside the repository and pilot
+2. Continue with the registered `codex-local-executor-a`; only its Ed25519
+   public key is tracked. Keep its private key outside the repository and pilot
    workspace.
-3. Assign each task once with `npm run stage-b:next -- --pilot
-   copywriter-2026-08 --executor <executor-id>` to issue one arm-isolated,
-   exact-commit packet at a time.
-4. Generate and externally sign the canonical payload with `npm run
+3. Run each executor in an empty temporary `CODEX_HOME` and empty working
+   directory. Copy in authentication only for the process lifetime; do not
+   expose user skills, rules, memory, the repository or another task packet.
+4. Assign each remaining task once with `npm run stage-b:next -- --pilot
+   copywriter-2026-08 --executor codex-local-executor-a` to issue one
+   arm-isolated, exact-commit packet at a time.
+5. Generate and externally sign the canonical payload with `npm run
    stage-b:prepare-submission -- --pilot copywriter-2026-08 --task <task-id>
    --executor <executor-id> --response-file <path> --payload-file <path>`.
-5. Submit each signed executor response only through `npm run
+6. Submit each signed executor response only through `npm run
    stage-b:submit-output -- --pilot copywriter-2026-08 --task <task-id>
    --executor <executor-id> --response-file <path> --signature-file <path>`.
    Submission, status and blind-review preparation reject executor,
    assignment, packet, response, public-key or signature drift.
-6. Register two real reviewers from distinct independence groups using only
+7. Register two real reviewers from distinct independence groups using only
    their Ed25519 public keys; retain private keys outside the repository.
-7. Prepare the blind review packet after all signed outputs exist and collect two
+8. Prepare the blind review packet after all signed outputs exist and collect two
    signed reviewer sheets.
-8. Record schema-version-5 evidence only after the score/recall/agreement gates
+9. Record schema-version-5 evidence only after the score/recall/agreement gates
    pass; do not infer or fabricate missing results.
-9. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
+10. Push only `local-lab/agent-capability-foundation`, verify remote CI and keep
    `main` unchanged until Stage B and separate promotion approval pass.
 
 ## Required Before Main Promotion

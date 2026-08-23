@@ -2,6 +2,26 @@
 
 Keep this file factual and append-only.
 
+## 2026-08-23 — First genuine signed Stage B executor output
+
+- Registered `codex-local-executor-a` as a `stage-b-executor` with only its
+  Ed25519 public key in `.agents/actors.json`; the private key remains outside
+  the repository and pilot workspace.
+- Assigned task `a93017b304142d7845e8` once and accepted one signed response
+  through `stage-b:prepare-submission` and `stage-b:submit-output`.
+- The accepted packet, response and canonical payload SHA-256 values are
+  `73e5cf4007b006f5ed47c7ff40f8dda65f289e0996618851a66049d960e27161`,
+  `1452dfa6037eb7dae06ba8d3543b52a68d7293ff049ff214c892df9388b6cb3c` and
+  `bdb6f70d20af268eef33a4a860dde9f25eb364825aaf690b4f954ecc495181f4`.
+- Rejected an earlier executor attempt because the normal Codex home exposed
+  user skills despite `--ignore-user-config --ignore-rules`. That response was
+  interrupted, not signed and not submitted. The accepted rerun used an empty
+  temporary `CODEX_HOME`, empty working directory, ephemeral session and
+  read-only sandbox with only the assigned packet as task context.
+- Fresh fail-closed status reports 1/30 assignments, 1/30 outputs, 0 invalid
+  signed outputs, 0/2 reviewers and 0/2 signed sheets. Stage B qualification
+  remains blocked; no uplift or promotion claim is made.
+
 ## 2026-08-23 — Signed Stage B executor assignments
 
 - Added the `stage-b-executor` actor role and immutable per-task assignments;
