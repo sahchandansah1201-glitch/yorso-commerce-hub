@@ -14,6 +14,14 @@ import {
 
 const root = process.cwd();
 
+const removeFixture = (fixture) =>
+  rmSync(fixture, {
+    force: true,
+    recursive: true,
+    maxRetries: 5,
+    retryDelay: 100,
+  });
+
 const canonicalJson = (value) => {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
   if (value && typeof value === "object") {
@@ -323,7 +331,7 @@ const validateFixture = (mutate, prepare, validationOverrides = {}) => {
       ...validationOverrides,
     });
   } finally {
-    rmSync(fixture, { force: true, recursive: true });
+    removeFixture(fixture);
   }
 };
 
@@ -462,7 +470,7 @@ test("a skill symlink escaping the registered skills root fails closed", () => {
     const registered = path.join(fixture, ".agents/skills/yorso-access-state-ux");
     const outside = path.join(fixture, "outside-skill");
     cpSync(registered, outside, { recursive: true });
-    rmSync(registered, { recursive: true, force: true });
+    removeFixture(registered);
     symlinkSync(outside, registered, "dir");
   });
   assert.match(errors.join("\n"), /resolves outside \.agents\/skills/);
@@ -473,7 +481,7 @@ test("a symlinked registered skills root fails closed", () => {
     const skillsRoot = path.join(fixture, ".agents/skills");
     const outside = path.join(fixture, "outside-skills-root");
     cpSync(skillsRoot, outside, { recursive: true });
-    rmSync(skillsRoot, { recursive: true, force: true });
+    removeFixture(skillsRoot);
     symlinkSync(outside, skillsRoot, "dir");
   });
   assert.match(errors.join("\n"), /resolves outside \.agents\/skills/);
@@ -733,7 +741,7 @@ test("dirty governed surface detection includes tracked and untracked governance
     assert.match(dirty, /docs\/agents\/untracked\.md/);
     assert.match(dirty, /src\/product-runtime\.ts/);
   } finally {
-    rmSync(fixture, { force: true, recursive: true });
+    removeFixture(fixture);
   }
 });
 
@@ -1011,7 +1019,7 @@ test("reviewed commit freshness allows later evidence commits but rejects later 
     });
     assert.match(staleErrors.join("\n"), /reviewed candidate surface changed/);
   } finally {
-    rmSync(fixture, { force: true, recursive: true });
+    removeFixture(fixture);
   }
 });
 
@@ -1098,7 +1106,7 @@ test("repository-backed Stage B and promotion evidence satisfy main policy witho
     });
     assert.deepEqual(errors, []);
   } finally {
-    rmSync(fixture, { force: true, recursive: true });
+    removeFixture(fixture);
   }
 });
 
