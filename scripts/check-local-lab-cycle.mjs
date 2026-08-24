@@ -74,7 +74,8 @@ const result = evaluateCycle(evidence, context, mode);
 console.log("\n| Gate | Status | Detail |");
 console.log("| --- | --- | --- |");
 for (const [gate, outcome] of Object.entries(result.gates)) {
-  console.log(`| ${gate} | ${outcome.status} | ${outcome.detail.replaceAll("|", "\\|")} |`);
+  const detail = String(outcome.detail ?? "No detail provided.").replaceAll("|", "\\|");
+  console.log(`| ${gate} | ${outcome.status} | ${detail} |`);
 }
 console.log(`\nVerdict: ${result.verdict}`);
 if (result.verdict === "NO-GO") process.exit(1);

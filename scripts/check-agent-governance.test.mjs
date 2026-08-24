@@ -18,8 +18,10 @@ const removeFixture = (fixture) =>
   rmSync(fixture, {
     force: true,
     recursive: true,
-    maxRetries: 5,
-    retryDelay: 100,
+    // Git can briefly keep updating files under .git after the last command
+    // exits on shared CI runners. Allow that transient activity to settle.
+    maxRetries: 20,
+    retryDelay: 200,
   });
 
 const canonicalJson = (value) => {

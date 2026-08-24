@@ -61,7 +61,7 @@
   "lovableSameBranch": {
     "status": "passed",
     "verifiedCommit": "4f5b393ad7c62531a7c93f5b787526eb9654675b",
-    "reason": "Lovable verified the exact P1S.1 implementation commit on local-lab/agent-capability-foundation with a clean working tree, zero Lovable file changes and a passing provider-free boundary check."
+    "evidence": "Lovable verified the exact P1S.1 implementation commit 4f5b393ad7c62531a7c93f5b787526eb9654675b on local-lab/agent-capability-foundation with a clean working tree, zero Lovable file changes and a passing provider-free boundary check."
   },
   "pullRequest": {
     "status": "pending",

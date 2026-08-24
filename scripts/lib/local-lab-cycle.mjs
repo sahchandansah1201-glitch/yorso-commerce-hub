@@ -140,7 +140,11 @@ export function evaluateCycle(evidence, context, mode = "local") {
 
   for (const [field, gate, label] of RELEASE_GATE_FIELDS) {
     const record = evidence[field];
-    if (record?.status === "passed") gates.set(gate, status("PASS", record.evidence));
+    if (record?.status === "passed" && isNonEmptyString(record.evidence)) {
+      gates.set(gate, status("PASS", record.evidence));
+    } else if (record?.status === "passed") {
+      gates.set(gate, status("NO-GO", `${label} evidence is missing.`));
+    }
     else if (mode === "release") gates.set(gate, status("NO-GO", `${label} pending: ${record?.reason ?? "missing evidence"}`));
     else gates.set(gate, status("PENDING", record?.reason ?? "Not required for local validation."));
   }

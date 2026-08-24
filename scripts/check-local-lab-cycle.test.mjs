@@ -59,6 +59,17 @@ test("release mode passes only after all external gates have evidence", () => {
   assert.equal(result.verdict, "RELEASE_READY");
 });
 
+test("passed external gate without evidence fails closed with printable detail", () => {
+  const candidate = evidence();
+  candidate.lovableSameBranch = { status: "passed", reason: "Incorrect legacy record." };
+  const result = evaluateCycle(candidate, context(), "local");
+  assert.equal(result.verdict, "NO-GO");
+  assert.equal(result.gates[0].status, "NO-GO");
+  assert.equal(result.gates[5].status, "NO-GO");
+  assert.equal(typeof result.gates[5].detail, "string");
+  assert.match(result.gates[5].detail, /evidence is missing/);
+});
+
 test("wrong repository or out-of-scope files produce NO-GO", () => {
   const badContext = context();
   badContext.remote = "https://github.com/example/wrong-repository.git";
