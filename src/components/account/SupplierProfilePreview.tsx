@@ -2,7 +2,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { CompanyProfile } from "@/data/mockAccount";
-import { canonicalizeCertificationList, getCertificationInfo } from "@/data/certifications";
+import { getCertificationInfo, sortCertificationCodes } from "@/data/certifications";
 
 const focalToObjectPosition = (f: CompanyProfile["coverFocalPoint"]) =>
   f === "top" ? "center top" : f === "bottom" ? "center bottom" : "center center";
@@ -15,7 +15,7 @@ export const SupplierProfilePreview = ({
   resolveMediaSrc?: (value: string) => string;
 }) => {
   const { t, lang } = useLanguage();
-  const certificates = canonicalizeCertificationList(company.certificates);
+  const certificates = sortCertificationCodes(company.certificates);
   return (
     <Card data-testid="account-supplier-preview">
       <CardHeader className="space-y-1">
@@ -82,7 +82,14 @@ export const SupplierProfilePreview = ({
                     return (
                       <Badge key={cert} variant="outline" className="gap-1 text-[11px]">
                         {info.logo ? (
-                          <img src={info.logo} alt="" aria-hidden className="h-3 w-3 object-contain" />
+                          <span aria-hidden className="inline-flex h-5 w-5 shrink-0 overflow-hidden rounded-sm">
+                            <img
+                              src={info.logo}
+                              alt=""
+                              className="h-full w-full object-contain"
+                              style={{ transform: `scale(${info.logoScale ?? 1})` }}
+                            />
+                          </span>
                         ) : null}
                         {info.name}
                       </Badge>

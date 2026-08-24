@@ -59,27 +59,33 @@ test.describe("/account/company · P1S certifications picker", () => {
   for (const locale of [
     {
       lang: "en" as const,
-      title: "Trust and certificates",
+      title: "Certifications and approvals",
       label: "Certifications and approvals",
       placeholder: "Search certifications",
+      euLabel: "EU approval",
     },
     {
       lang: "ru" as const,
-      title: "Доверие и сертификации",
+      title: "Сертификаты и допуски",
       label: "Сертификаты и допуски",
       placeholder: "Поиск сертификатов",
+      euLabel: "Допуск ЕС",
     },
     {
       lang: "es" as const,
-      title: "Confianza y certificaciones",
+      title: "Certificaciones y autorizaciones",
       label: "Certificaciones y autorizaciones",
       placeholder: "Buscar certificaciones",
+      euLabel: "Autorización UE",
     },
   ]) {
     test(`${locale.lang}: native card and picker labels`, async ({ page }) => {
       await openCompany(page, locale.lang);
       const card = page.getByTestId(TRUST);
       await expect(card.getByText(locale.title, { exact: true })).toBeVisible();
+      await expect(card.getByTestId("account-company-certificate-chip-EU")).toContainText(
+        locale.euLabel,
+      );
 
       await editTrust(page);
       const search = card.getByTestId("account-company-certificates-search");
@@ -106,10 +112,26 @@ test.describe("/account/company · P1S certifications picker", () => {
     await expect(card.getByTestId("account-company-certificate-chip-IFS")).toBeVisible();
     await expect(card.getByTestId("account-company-certificate-chip-EU")).toBeVisible();
     await expect(card.getByTestId("account-company-certificate-chip-MSC")).toBeVisible();
+    await expect(card.getByTestId("account-company-certificates-view")).not.toContainText(
+      "IFS IFS",
+    );
 
-    // логотип декоративный (видимая аббревиатура рядом)
+    const chipOrder = await card
+      .locator('[data-testid^="account-company-certificate-chip-"]')
+      .evaluateAll((chips) => chips.map((chip) => chip.getAttribute("data-testid")));
+    expect(chipOrder).toEqual([
+      "account-company-certificate-chip-MSC",
+      "account-company-certificate-chip-ASC",
+      "account-company-certificate-chip-IFS",
+      "account-company-certificate-chip-EU",
+    ]);
+
+    // Логотип декоративный, а его фактический размер остаётся читаемым.
     const logos = card.getByTestId("account-company-certificate-chip-MSC").locator("img");
     await expect(logos.first()).toHaveAttribute("alt", "");
+    const logoBox = await logos.first().boundingBox();
+    expect(logoBox?.width ?? 0).toBeGreaterThanOrEqual(20);
+    expect(logoBox?.height ?? 0).toBeGreaterThanOrEqual(20);
 
     await card.screenshot({ path: `${SHOTS}/desktop-read.png` });
     await card

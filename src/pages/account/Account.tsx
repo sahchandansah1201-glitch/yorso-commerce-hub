@@ -8,7 +8,12 @@ import { EditableCard } from "@/components/account/EditableCard";
 import { AccountProductCatalogPicker } from "@/components/account/AccountProductCatalogPicker";
 import { AccountCountryCombobox } from "@/components/account/AccountCountryCombobox";
 import { AccountCertificationPicker } from "@/components/account/AccountCertificationPicker";
-import { canonicalizeCertificationList, getCertificationInfo } from "@/data/certifications";
+import {
+  canonicalizeCertificationList,
+  getCertificationDisplayCode,
+  getCertificationInfo,
+  sortCertificationCodes,
+} from "@/data/certifications";
 import {
   findCountryByName,
   localizedCountryName,
@@ -884,17 +889,13 @@ const CompanySection = ({
         initial={c}
         onSave={saveCompany}
         renderView={(v) => (
-          <div className="space-y-3">
-            <div>
-              <p className="mb-1 text-[11px] uppercase tracking-wider text-muted-foreground">
-                {t.account_company_certificates}
-              </p>
-              <div className="flex flex-wrap gap-1.5" data-testid="account-company-certificates-view">
-                {canonicalizeCertificationList(v.certificates).length === 0 ? (
+          <div className="flex flex-wrap gap-1.5" data-testid="account-company-certificates-view">
+                {sortCertificationCodes(v.certificates).length === 0 ? (
                   <span className="text-sm text-muted-foreground">{t.account_value_notSpecified}</span>
                 ) : (
-                  canonicalizeCertificationList(v.certificates).map((code) => {
+                  sortCertificationCodes(v.certificates).map((code) => {
                     const info = getCertificationInfo(code, lang);
+                    const displayCode = getCertificationDisplayCode(info);
                     return (
                       <span
                         key={code}
@@ -902,34 +903,34 @@ const CompanySection = ({
                         className="inline-flex items-center gap-1.5 rounded-md border border-input bg-muted/40 px-2 py-1 text-sm"
                       >
                         {info.logo ? (
-                          <img src={info.logo} alt="" aria-hidden className="h-4 w-4 object-contain" />
-                        ) : (
+                          <span aria-hidden className="inline-flex h-5 w-5 shrink-0 overflow-hidden rounded-sm">
+                            <img
+                              src={info.logo}
+                              alt=""
+                              className="h-full w-full object-contain"
+                              style={{ transform: `scale(${info.logoScale ?? 1})` }}
+                            />
+                          </span>
+                        ) : displayCode ? (
                           <span
                             aria-hidden
-                            className="inline-flex h-4 min-w-4 items-center justify-center rounded border border-border px-1 text-[9px] font-semibold uppercase text-muted-foreground"
+                            className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-border px-1 text-[9px] font-semibold uppercase text-muted-foreground"
                           >
-                            {info.code.slice(0, 3)}
+                            {displayCode}
                           </span>
-                        )}
+                        ) : null}
                         <span className="font-medium">{info.name}</span>
                       </span>
                     );
                   })
                 )}
-              </div>
-            </div>
           </div>
         )}
         renderEdit={({ draft, setDraft }) => (
-          <FormRow
-            label={t.account_company_certificates}
-            hint={t.account_company_certificates_help}
-          >
-            <AccountCertificationPicker
-              value={draft.certificates}
-              onChange={(certificates) => setDraft({ ...draft, certificates })}
-            />
-          </FormRow>
+          <AccountCertificationPicker
+            value={draft.certificates}
+            onChange={(certificates) => setDraft({ ...draft, certificates })}
+          />
         )}
 
       />

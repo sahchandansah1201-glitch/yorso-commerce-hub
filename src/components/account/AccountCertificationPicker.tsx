@@ -5,8 +5,10 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import {
   canonicalizeCertificationCode,
   canonicalizeCertificationList,
+  getCertificationDisplayCode,
   getCertificationInfo,
   listCertificationCodes,
+  sortCertificationCodes,
 } from "@/data/certifications";
 
 interface Props {
@@ -25,7 +27,7 @@ const matches = (query: string, haystack: string[]) => {
 
 /**
  * Компактный multi-select сертификатов по локальному справочнику.
- * Логотипы — только существующие локальные ассеты, alt="" (рядом всегда видимая аббревиатура).
+ * Логотипы — только существующие локальные ассеты, alt=""; текстовое имя всегда остаётся видимым.
  * testid всегда строятся на каноническом коде (GLOBALGAP), не на отображаемом названии.
  */
 export const AccountCertificationPicker = ({
@@ -44,6 +46,7 @@ export const AccountCertificationPicker = ({
   const optionId = (code: string) => `${listboxId}-option-${normalizeKey(code).toLowerCase()}`;
 
   const selected = useMemo(() => canonicalizeCertificationList(value), [value]);
+  const visibleSelected = useMemo(() => sortCertificationCodes(selected), [selected]);
   const selectedKeys = useMemo(
     () => new Set(selected.map((code) => normalizeKey(code))),
     [selected],
@@ -116,10 +119,11 @@ export const AccountCertificationPicker = ({
 
   return (
     <div ref={wrapRef} className="relative space-y-2" data-testid={testId}>
-      {selected.length > 0 ? (
+      {visibleSelected.length > 0 ? (
         <div className="flex flex-wrap gap-1.5">
-          {selected.map((code) => {
+          {visibleSelected.map((code) => {
             const info = getCertificationInfo(code, lang);
+            const displayCode = getCertificationDisplayCode(info);
             return (
               <span
                 key={code}
@@ -127,15 +131,22 @@ export const AccountCertificationPicker = ({
                 className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-input bg-muted/40 pl-2 pr-1 text-sm"
               >
                 {info.logo ? (
-                  <img src={info.logo} alt="" aria-hidden className="h-5 w-5 object-contain" />
-                ) : (
+                  <span aria-hidden className="inline-flex h-6 w-6 shrink-0 overflow-hidden rounded-sm">
+                    <img
+                      src={info.logo}
+                      alt=""
+                      className="h-full w-full object-contain"
+                      style={{ transform: `scale(${info.logoScale ?? 1})` }}
+                    />
+                  </span>
+                ) : displayCode ? (
                   <span
                     aria-hidden
-                    className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-border px-1 text-[9px] font-semibold uppercase text-muted-foreground"
+                    className="inline-flex h-6 min-w-6 items-center justify-center rounded border border-border px-1 text-[9px] font-semibold uppercase text-muted-foreground"
                   >
-                    {info.code.slice(0, 3)}
+                    {displayCode}
                   </span>
-                )}
+                ) : null}
                 <span className="font-medium">{info.name}</span>
                 <button
                   type="button"
@@ -194,40 +205,50 @@ export const AccountCertificationPicker = ({
               {t.account_company_certificates_empty}
             </li>
           ) : (
-            options.map((info, i) => (
-              <li
-                key={info.code}
-                id={optionId(info.code)}
-                role="option"
-                aria-selected={i === activeIndex}
-                data-testid={`account-company-certificates-option-${info.code}`}
-                onMouseEnter={() => setActiveIndex(i)}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  add(info.code);
-                }}
-                className={`flex min-h-11 cursor-pointer items-center gap-2 rounded px-3 py-2 ${
-                  i === activeIndex ? "bg-primary/10 ring-1 ring-inset ring-primary/40" : "hover:bg-muted"
-                }`}
-              >
+            options.map((info, i) => {
+              const displayCode = getCertificationDisplayCode(info);
+              return (
+                <li
+                  key={info.code}
+                  id={optionId(info.code)}
+                  role="option"
+                  aria-selected={i === activeIndex}
+                  data-testid={`account-company-certificates-option-${info.code}`}
+                  onMouseEnter={() => setActiveIndex(i)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    add(info.code);
+                  }}
+                  className={`flex min-h-11 cursor-pointer items-center gap-2 rounded px-3 py-2 ${
+                    i === activeIndex ? "bg-primary/10 ring-1 ring-inset ring-primary/40" : "hover:bg-muted"
+                  }`}
+                >
                 {info.logo ? (
-                  <img src={info.logo} alt="" aria-hidden className="h-6 w-6 object-contain" />
-                ) : (
+                  <span aria-hidden className="inline-flex h-6 w-6 shrink-0 overflow-hidden rounded-sm">
+                    <img
+                      src={info.logo}
+                      alt=""
+                      className="h-full w-full object-contain"
+                      style={{ transform: `scale(${info.logoScale ?? 1})` }}
+                    />
+                  </span>
+                ) : displayCode ? (
                   <span
                     aria-hidden
                     className="inline-flex h-6 min-w-6 items-center justify-center rounded border border-border px-1 text-[10px] font-semibold uppercase text-muted-foreground"
                   >
-                    {info.code.slice(0, 3)}
+                    {displayCode}
                   </span>
-                )}
+                ) : null}
                 <span className="min-w-0">
                   <span className="block font-medium text-foreground">{info.name}</span>
                   <span className="block truncate text-xs text-muted-foreground">
                     {info.fullName}
                   </span>
                 </span>
-              </li>
-            ))
+                </li>
+              );
+            })
           )}
         </ul>
       ) : null}

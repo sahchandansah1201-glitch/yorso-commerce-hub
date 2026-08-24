@@ -70,12 +70,14 @@ active_workstream:
     - "Fixed the supplier pagination race, added a post-debounce unit regression and verified the focused flow 5/5 in system Google Chrome before the remote rerun."
     - "Completed GitHub Actions run 32651568454 successfully on exact SHA 4121018533ac444218ac269bdce95ead60542d98; core CI, account reports, the full browser smoke suite, API-backed access, provider-free, self-hosted auth and all admin runtime browser checks passed."
     - "Added a persistent Lovable quality lifecycle: a 5,109-character Project Knowledge block, five registered lifecycle skills, a human-flow browser acceptance matrix and a fail-closed quality-layer validator wired into the capability gate."
+    - "Confirmed the connected Lovable project and workspace through the Lovable plugin: Project Knowledge contains the Yorso Lovable Quality Pack and the four required workspace skills are present."
+    - "Completed P1S.1 certification-picker UX refinement with native EN/RU/ES copy, canonical legacy aliases, stable ordering, duplicate-label suppression, readable local logos and real Chromium desktop/mobile evidence."
   open_gates:
     - "Run independent blind comparative review before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before independent-review evidence or main promotion can pass."
     - "Obtain a separate independent promotion review before any merge to main."
     - "Run feature-specific tests when a role or skill is first used on product code."
-    - "Copy the tracked Lovable Project Knowledge block into the connected Lovable project and prove the five-step lifecycle on a real same-branch UI batch."
+    - "Push the verified P1S.1 exact SHA and obtain a no-edit Lovable same-branch sync/verification report for that SHA."
     - "Run fresh exact-HEAD GitHub CI after the Lovable lifecycle governance commit is pushed."
 
 governance:

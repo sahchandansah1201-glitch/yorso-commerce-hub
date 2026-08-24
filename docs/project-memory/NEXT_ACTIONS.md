@@ -10,12 +10,13 @@ Branch: `local-lab/agent-capability-foundation`
 
 ## Immediate
 
-1. Copy `docs/lovable/project-knowledge-block.md` into Lovable Project
-   Knowledge and confirm the Lovable project is connected to
-   `local-lab/agent-capability-foundation`, not `main`.
-2. Run the first real Lovable batch through discovery, UI build, browser
-   acceptance, visual critique and sync verification. Preserve browser-flow,
-   screenshot, console and exact commit evidence.
+1. Push the verified P1S.1 certification-picker commit to
+   `local-lab/agent-capability-foundation`, then require Lovable to confirm the
+   same exact SHA without editing product code or creating a new plan.
+2. Preserve the confirmed Lovable Project Knowledge and four workspace Quality
+   Pack skills. The current plugin cannot enumerate per-project skill toggles,
+   so treat workspace presence plus explicit Project Knowledge routing as the
+   supported evidence boundary.
 3. Run fresh GitHub CI on the new exact branch HEAD. Treat GitHub Actions run
    `32651568454` on exact SHA
    `4121018533ac444218ac269bdce95ead60542d98` as the green remote candidate
@@ -43,9 +44,10 @@ Branch: `local-lab/agent-capability-foundation`
 10. Continue only on `local-lab/agent-capability-foundation` and keep `main`
    unchanged until the separate production promotion gate passes. Any new
    commit invalidates the exact-SHA remote evidence and requires a fresh CI run.
-11. Continue the next product implementation stage instead of waiting for
-   external reviewers. Independent review may be added later to measure quality
-   uplift, but it is not a blocker for experimental operational use.
+11. Continue the next product implementation stage only after the exact-SHA
+    Lovable sync report is recorded. Independent review may still be added
+    later to measure quality uplift, but it is not a blocker for experimental
+    operational use.
 
 ## Required Before Main Promotion
 

@@ -2073,3 +2073,14 @@
   window and proves page 2 remains selected.
 - `E2E_CHROMIUM_EXECUTABLE_PATH` in `playwright.config.ts`: reproducible local
   real-Chrome override while CI retains its bundled Chromium default.
+
+## P1S.1 Certification Picker Evidence
+
+- `test-results/p1s-company-certifications/desktop-read.png`: compact read mode
+  with native title, local MSC/ASC logos and IFS/EU text fallbacks.
+- `test-results/p1s-company-certifications/desktop-edit-picker-open.png`:
+  desktop picker with the duplicate visible heading removed.
+- `test-results/p1s-company-certifications/mobile-390-read.png` and
+  `mobile-390-edit-picker-open.png`: 390px read/edit evidence.
+- `test-results/p1s-company-certifications/mobile-selected-chips.png` and
+  `legacy-canonical-chips.png`: selected-chip and alias-canonicalization proof.

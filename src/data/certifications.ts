@@ -11,9 +11,11 @@ export interface CertificationInfo {
   issuer: string;
   website?: string;
   logo?: string;
+  logoScale?: number;
 }
 
 interface LocalizedCertFields {
+  name?: string;
   fullName: string;
   description: string;
   issuer: string;
@@ -24,6 +26,7 @@ interface CertificationDef {
   name: string;
   website?: string;
   logo?: string;
+  logoScale?: number;
   i18n: Record<Language, LocalizedCertFields>;
 }
 
@@ -59,6 +62,7 @@ const CERTIFICATIONS: Record<string, CertificationDef> = {
     name: "ASC",
     website: "https://www.asc-aqua.org",
     logo: ascLogo,
+    logoScale: 2.35,
     i18n: {
       en: {
         fullName: "Aquaculture Stewardship Council",
@@ -109,6 +113,7 @@ const CERTIFICATIONS: Record<string, CertificationDef> = {
     name: "BRC",
     website: "https://www.brcgs.com",
     logo: brcLogo,
+    logoScale: 1.75,
     i18n: {
       en: {
         fullName: "BRCGS Global Standard for Food Safety",
@@ -185,18 +190,21 @@ const CERTIFICATIONS: Record<string, CertificationDef> = {
     name: "EU Approved",
     i18n: {
       en: {
+        name: "EU approval",
         fullName: "European Union Approved Establishment",
         description:
           "Establishment authorized to export seafood products to the European Union, meeting all EU sanitary, hygiene, and traceability requirements.",
         issuer: "European Commission DG SANTE",
       },
       ru: {
+        name: "Допуск ЕС",
         fullName: "Предприятие, одобренное Европейским Союзом",
         description:
           "Предприятие, имеющее разрешение на экспорт морепродуктов в ЕС и соответствующее всем санитарным, гигиеническим требованиям и требованиям к прослеживаемости.",
         issuer: "Европейская комиссия DG SANTE",
       },
       es: {
+        name: "Autorización UE",
         fullName: "Establecimiento Aprobado por la Unión Europea",
         description:
           "Establecimiento autorizado para exportar productos del mar a la Unión Europea, que cumple todos los requisitos sanitarios, de higiene y trazabilidad de la UE.",
@@ -239,6 +247,7 @@ const CERTIFICATIONS: Record<string, CertificationDef> = {
         issuer: "Accredited Halal certification bodies",
       },
       ru: {
+        name: "Халяль",
         fullName: "Сертификация Халяль",
         description:
           "Подтверждает соответствие продукции исламским пищевым нормам — важно для экспорта на рынки с преимущественно мусульманским населением.",
@@ -263,6 +272,7 @@ const CERTIFICATIONS: Record<string, CertificationDef> = {
         issuer: "Accredited Kosher certification bodies",
       },
       ru: {
+        name: "Кошер",
         fullName: "Сертификация Кошер",
         description:
           "Подтверждает соответствие иудейским пищевым законам (кашрут). Требуется для еврейских религиозных рынков и многих премиальных розничных каналов.",
@@ -354,12 +364,13 @@ export function getCertificationInfo(code: string, lang: Language): Certificatio
   const localized = def.i18n[lang] ?? def.i18n.en;
   return {
     code: def.code,
-    name: def.name,
+    name: localized.name ?? def.name,
     fullName: localized.fullName,
     description: localized.description,
     issuer: localized.issuer,
     website: def.website,
     logo: def.logo,
+    logoScale: def.logoScale,
   };
 }
 
@@ -400,6 +411,34 @@ export function isKnownCertificationCode(code: string): boolean {
 /** Все канонические коды справочника (для picker). */
 export function listCertificationCodes(): string[] {
   return Object.values(CERTIFICATIONS).map((def) => def.code);
+}
+
+/**
+ * Возвращает компактную аббревиатуру только когда она добавляет смысл.
+ * Например, не дублирует IFS рядом с IFS или FOS рядом с Friend of the Sea.
+ */
+export function getCertificationDisplayCode(info: CertificationInfo): string | null {
+  const code = normalizeCertificationKey(info.code);
+  const name = normalizeCertificationKey(info.name);
+  if (!code || code === name || name.startsWith(code)) return null;
+
+  const initials = info.name
+    .split(/\s+/)
+    .filter((word) => !["the", "and", "de", "del", "la", "y"].includes(word.toLowerCase()))
+    .map((word) => word[0] ?? "")
+    .join("")
+    .toUpperCase();
+  return initials === code ? null : info.code;
+}
+
+/** Стабильный UI-порядок: известные коды по справочнику, legacy-значения после них. */
+export function sortCertificationCodes(codes: string[]): string[] {
+  const canonical = canonicalizeCertificationList(codes);
+  const order = new Map(listCertificationCodes().map((code, index) => [code, index]));
+  return canonical
+    .map((code, index) => ({ code, index, rank: order.get(code) ?? Number.MAX_SAFE_INTEGER }))
+    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .map(({ code }) => code);
 }
 
 /** Канонизирует список, убирая дубли по каноническому коду. */

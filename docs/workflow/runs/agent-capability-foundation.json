@@ -26,6 +26,7 @@
     "src/components/account/AccountCertificationPicker.tsx",
     "src/components/account/SupplierProfilePreview.tsx",
     "src/data/certifications.ts",
+    "src/data/certifications.test.ts",
     "src/i18n/translations.ts",
     "src/pages/Suppliers.test.tsx",
     "src/pages/Suppliers.tsx",

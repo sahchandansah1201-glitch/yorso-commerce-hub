@@ -4619,3 +4619,32 @@ Keep this file factual and append-only.
 | Separate lifecycle responsibilities | Five focused skills created | Exercise them on a real UI batch | skill structure check |
 | Bind roles and reviewers | Six role profiles and governance manifest updated | Independent real-batch evidence | agent governance gate |
 | Prevent silent drift | Lifecycle validator included in capability gate | Fresh remote exact-HEAD CI | capability foundation gate |
+
+## 2026-08-24 — P1S.1 Certification Picker UX And Lovable Sync Readiness
+
+- Confirmed the connected Lovable project `Yorso Commerce Hub`, its GitHub
+  repository and the experimental `local-lab/agent-capability-foundation`
+  branch at exact pre-delivery SHA `3770496bba34fba07d460c46909f6e401c692a21`.
+- Confirmed the Lovable workspace contains the four Quality Pack skills:
+  `yorso-ui-surface-build`, `yorso-real-user-acceptance`,
+  `yorso-multilingual-interface-copy` and
+  `yorso-provider-free-github-sync`; Project Knowledge explicitly requires
+  them for Yorso work.
+- Refined P1S certification presentation: native EN/RU/ES labels, stable
+  catalog order, canonical legacy aliases, duplicate-label suppression and
+  readable logo scaling for assets with internal whitespace.
+- Removed the duplicate visible picker heading/helper while preserving the
+  accessible field name, keyboard interaction, 44px targets and canonical
+  test ids.
+- Re-ran real Chromium flows and inspected desktop/mobile screenshots instead
+  of accepting test output alone.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Confirm Lovable skills | Four Quality Pack skills exist and Project Knowledge requires them | Per-project skill-list endpoint is unavailable; do not claim its toggle state | Lovable plugin workspace and Project Knowledge APIs |
+| Improve certification scanability | Stable chips, native labels, readable local logos and compact fallback codes | — | visual inspection of six P1S screenshots |
+| Preserve company behavior | Company edit, save, reload and preview contracts unchanged | — | account company 7/7 |
+| Exercise picker as a user | Three consecutive choices, remove/re-add, keyboard, empty state and mobile flow pass | — | P1S 7/7 |
+| Keep provider-free boundary | No hosted backend dependency introduced | — | provider-boundary PASS |
