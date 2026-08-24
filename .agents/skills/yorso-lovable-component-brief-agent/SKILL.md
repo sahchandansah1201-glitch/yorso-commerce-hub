@@ -19,8 +19,12 @@ decision identifies primitives to reuse.
 - Official Lovable docs: Plan mode, Build mode, workspace/project knowledge,
   Lovable skills, design systems, visual edits, testing, GitHub sync,
   integrations, MCP server, and deployment/ownership docs.
-- Yorso local playbook:
-  `docs/pipelines/yorso-lovable-capabilities-playbook.md`.
+- Yorso Project Knowledge source:
+  `docs/lovable/project-knowledge-block.md`.
+- Yorso Lovable lifecycle skills:
+  `yorso-lovable-discovery-plan`, `yorso-lovable-ui-build`,
+  `yorso-lovable-browser-acceptance`, `yorso-lovable-visual-critique` and
+  `yorso-lovable-sync-verification`.
 
 ## Lovable Capability Model
 

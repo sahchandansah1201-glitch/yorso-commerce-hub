@@ -1,0 +1,5 @@
+interface:
+  display_name: "Yorso Lovable Visual Critique"
+  short_description: "Independent screenshot critique for Yorso interfaces"
+  default_prompt: "Use $yorso-lovable-visual-critique to review current Yorso screenshots for hierarchy, scanability and responsive defects."
+  brand_color: "#7C3AED"

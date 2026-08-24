@@ -1,0 +1,5 @@
+interface:
+  display_name: "Yorso Lovable Discovery Plan"
+  short_description: "Evidence-backed Plan mode gate for Yorso UI"
+  default_prompt: "Use $yorso-lovable-discovery-plan to inspect the real Yorso surface, reproduce the issue and prepare a scoped Plan-mode proposal without editing code."
+  brand_color: "#2563EB"

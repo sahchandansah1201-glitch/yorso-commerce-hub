@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "check:lovable-quality": "node scripts/check-lovable-quality-layer.mjs",
     "check:agent-governance": "node scripts/check-agent-governance.mjs",
     "check:main-promotion": "node scripts/check-main-promotion.mjs",
     "lock:agent-skills": "node scripts/lock-agent-skills.mjs",

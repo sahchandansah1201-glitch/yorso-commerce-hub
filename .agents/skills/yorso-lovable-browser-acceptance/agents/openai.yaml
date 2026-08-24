@@ -1,0 +1,5 @@
+interface:
+  display_name: "Yorso Lovable Browser Acceptance"
+  short_description: "Human-like browser acceptance for Yorso UI"
+  default_prompt: "Use $yorso-lovable-browser-acceptance to test the implemented Yorso flow like a real user and report defects before fixes."
+  brand_color: "#059669"

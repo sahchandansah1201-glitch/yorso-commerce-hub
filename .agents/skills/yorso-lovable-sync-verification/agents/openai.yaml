@@ -1,0 +1,5 @@
+interface:
+  display_name: "Yorso Lovable Sync Verification"
+  short_description: "Git and evidence gate for Lovable batches"
+  default_prompt: "Use $yorso-lovable-sync-verification to verify branch, HEAD, diff and acceptance evidence before claiming sync."
+  brand_color: "#0F766E"

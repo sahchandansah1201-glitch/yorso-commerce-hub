@@ -1,0 +1,5 @@
+interface:
+  display_name: "Yorso Lovable UI Build"
+  short_description: "Surgical Build-mode implementation for approved Yorso UI"
+  default_prompt: "Use $yorso-lovable-ui-build to implement only the approved Yorso UI scope and stop before final acceptance."
+  brand_color: "#EA580C"
