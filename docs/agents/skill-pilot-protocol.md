@@ -42,6 +42,22 @@ The manifest records the selected mode in
 `branchPolicy.stageBQualificationMode`. A passed status without a valid mode and
 mode-specific evidence fails closed.
 
+### What Stage B does not block
+
+Stage B is a governance gate for candidate skills. It is not a release gate for
+ordinary product implementation. Missing Stage B evidence does not block:
+
+- feature work, local browser testing or the persistent local-lab service;
+- commits and evidence artifacts on an experimental `local-lab/*` branch;
+- use of an already owner-qualified skill within its recorded claim boundary.
+
+The 30 signed executor outputs belong to `owner-directive` qualification. The
+two independent reviewer sheets and trusted actor-registry digest belong to
+`independent-review` and main-promotion claims. They are required only when the
+project claims measured skill uplift or promotes that governance decision to
+`main`. Product acceptance must not report these artifacts as blockers unless
+the current change actually installs, qualifies or promotes a skill.
+
 ## Stage B independent-review pilot
 
 For each finalist run five fixtures in two arms, three repeats per arm:

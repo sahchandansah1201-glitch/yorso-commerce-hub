@@ -5,6 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:local-lab": "VITE_YORSO_API_URL= vite --host 127.0.0.1 --port 3300 --strictPort",
+    "local-lab:install": "node scripts/local-lab-service.mjs install",
+    "local-lab:restart": "node scripts/local-lab-service.mjs restart",
+    "local-lab:status": "node scripts/local-lab-service.mjs status",
+    "local-lab:verify": "npm run local-lab:status && E2E_BASE_URL=http://127.0.0.1:3300 E2E_WORKERS=1 playwright test e2e/local-lab-runtime.spec.ts --project=chromium --reporter=list",
     "build": "vite build",
     "check:typescript": "tsc -b --noEmit",
     "check:lovable-quality": "node scripts/check-lovable-quality-layer.mjs",

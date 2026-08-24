@@ -1,5 +1,19 @@
 # Artifacts
 
+## Persistent Local Lab Runtime (2026-08-25)
+
+- `scripts/local-lab-service.mjs`: installs, restarts, reports and verifies the
+  macOS LaunchAgent-backed Vite service at `http://127.0.0.1:3300/`.
+- `e2e/local-lab-runtime.spec.ts`: deterministic desktop/mobile browser smoke
+  for the live working tree, including request, console, overflow and nested
+  interactive checks.
+- `~/Library/LaunchAgents/com.yorso.local-lab.plist`: generated local service
+  definition; machine-local and intentionally not committed.
+- `~/Library/Logs/Yorso/`: generated Vite stdout/stderr logs; machine-local and
+  intentionally not committed.
+- `test-results/local-lab-runtime/`: generated local screenshots and browser
+  evidence; not a source artifact.
+
 ## Agent Capability Foundation (2026-08-21)
 
 - `.agents/manifest.json`: machine-readable role, skill, provenance, ownership,

@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-08-24
+Updated: 2026-08-25
 
 Project: `yorso-commerce-hub`
 
@@ -47,6 +47,8 @@ non-mutating verification gates.
 | Register the selected QA pilot | `yorso-adversarial-test-review-pilot` is a narrow MIT-licensed adaptation pinned to `petrkindlmann/qa-skills@b3bb61bd268b147476252c6ed5a0440c87b97441`; Stage A and governance pass, but no role activation occurred | Execute blind Stage B and review evidence before activation or uplift claims | official skill validator plus 71/71 governance tests |
 | Make the development cycle executable | Safe allowlisted runner evaluates repository, branch, base, scope, automated checks, human QA and release evidence | Supply real Gates 4-7 evidence only when promotion is requested | `npm run test:local-lab-cycle`; `npm run check:local-lab-cycle` |
 | Test the cycle against real CI | Run `32650214185` exposed a supplier pagination debounce race; the fixed exact SHA passed run `32651568454` end to end | Preserve the failed and passing runs as before/after evidence | GitHub Actions plus focused Chrome 5/5 |
+| Keep the latest test UI reachable | A macOS LaunchAgent serves the active working tree at `http://127.0.0.1:3300/`, restarts Vite after failure and exposes a three-flow Playwright acceptance command | Keep the Mac user session active; run the browser verification after UI changes | `npm run local-lab:status`; `npm run local-lab:verify` |
+| Keep Stage B in its proper role | Copywriter owner-directed qualification is complete with 30/30 valid signed outputs; the adversarial QA pilot remains deferred | Two reviewer sheets and the trusted digest are needed only for independent uplift or `main` promotion, not current product work | owner evidence plus `docs/agents/skill-pilot-protocol.md` |
 
 ## Evidence Already Established
 
@@ -103,6 +105,8 @@ non-mutating verification gates.
 
 ```bash
 npm run check:capability-foundation
+npm run local-lab:status
+npm run local-lab:verify
 npm run check:local-lab-cycle:working-tree
 node scripts/stage-b-pilot.mjs --help
 npm run test:tooling
@@ -118,3 +122,7 @@ Execution and owner-directed operational qualification are complete. The skill
 is active for experimental project work. Independent reviewer scores were not
 generated, so measured uplift is not claimed. Any merge to `main` remains a
 separate closed gate requiring independent evidence and promotion approval.
+
+The persistent local product stand is independent of that promotion gate. It
+serves the latest experimental working tree at `http://127.0.0.1:3300/` and is
+the default place for immediate human and Playwright verification.

@@ -7,10 +7,8 @@ import { ACCOUNT_SECTIONS, type AccountSectionKey } from "./account-sections";
  * AccountSidebar — навигация между разделами /account/*. Real `<NavLink>`s.
  *
  * variant="rail"  — десктоп-сайдбар.
- * variant="chips" — мобильная горизонтальная полоса. Sticky, чтобы при
- *                   скролле длинных форм пользователь мог переключать разделы
- *                   без возврата наверх. Активный чип автоскроллится в видимую
- *                   область.
+ * variant="chips" — мобильная горизонтальная полоса в обычном потоке страницы.
+ *                   Активный чип прокручивается внутри ограниченного контейнера.
  */
 interface Props {
   active: AccountSectionKey;
@@ -35,7 +33,7 @@ export const AccountSidebar = ({ active, variant = "rail" }: Props) => {
   if (variant === "chips") {
     return (
       <nav
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2"
+        className="flex w-full max-w-full min-w-0 gap-2 overflow-x-auto overscroll-x-contain pb-2"
         aria-label={t.account_nav_aria}
         data-testid="account-mobile-nav"
       >

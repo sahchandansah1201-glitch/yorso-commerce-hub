@@ -69,7 +69,7 @@ export const AccountShell = ({
         </div>
 
         {/* Mobile section tabs — статичные, чтобы не перекрывать поля формы при скролле */}
-        <div className="mb-6 border-b border-border/60 pb-3 lg:hidden" data-testid="account-mobile-nav">
+        <div className="mb-6 min-w-0 border-b border-border/60 pb-3 lg:hidden">
           <AccountSidebar active={active} variant="chips" />
         </div>
 

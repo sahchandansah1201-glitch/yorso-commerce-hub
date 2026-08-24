@@ -4697,3 +4697,25 @@ Keep this file factual and append-only.
 | Prevent premature activation | Candidate is experimental and absent from role active-skill lists | Blind Stage B qualification | manifest role-activation check |
 | Prove governance integrity | Full suite passed 71/71 | Fresh exact-HEAD CI after push | `npm run test:agent-governance` |
 | Preserve claim boundary | No defect-recall, uplift or production-readiness claim made | Independent evidence before promotion | project-memory and governance status |
+
+## 2026-08-25 — Persistent local-lab runtime and Stage B boundary correction
+
+- Added an idempotent local-lab service manager and macOS LaunchAgent for
+  `http://127.0.0.1:3300/`. It serves the current experimental working tree,
+  starts after user login and restarts Vite after process failure.
+- Added a deterministic Playwright runtime acceptance that exercises the home
+  page, desktop account route and repeated mobile 390px company edit flow while
+  checking request failures, console/page errors, horizontal overflow and
+  nested interactive controls.
+- The browser run exposed mobile action-header clipping in `EditableCard` and
+  duplicate mobile-nav test ids. Both defects were fixed and reverified.
+- Corrected the Stage B task boundary: copywriter owner-directed qualification
+  already has 30/30 valid signed outputs. Two independent reviewer sheets and a
+  trusted actor-registry digest apply only to independent uplift or `main`
+  promotion claims. They do not block ordinary `local-lab` product work.
+
+| План | Сделано | Осталось | Проверка |
+|---|---|---|---|
+| Keep one local address available | LaunchAgent-backed Vite service installed | Mac must be awake and user session active | HTTP 200 plus process recovery |
+| Test changes as a user | Three browser flows and screenshots added | Extend flows when a new surface needs specific coverage | `npm run local-lab:verify` |
+| Remove Stage B from product critical path | Product priority and handoff corrected | Independent review only when uplift/promotion is requested | project-memory check |

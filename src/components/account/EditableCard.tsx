@@ -311,8 +311,8 @@ export function EditableCard<T>({
       data-save-state={saveState}
       onKeyDown={onKeyDown}
     >
-      <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
-        <div className="space-y-1">
+      <CardHeader className="flex-col items-stretch gap-3 space-y-0 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 space-y-1">
           <CardTitle id={titleId} className="text-base font-semibold">
             {title}
           </CardTitle>
@@ -322,7 +322,7 @@ export function EditableCard<T>({
             </p>
           ) : null}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:flex-nowrap">
           {(() => {
             // Status chip: visible in both view and edit modes when relevant
             const showSaving = isSaving;

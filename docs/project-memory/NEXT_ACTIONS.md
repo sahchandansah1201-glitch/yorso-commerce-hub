@@ -1,12 +1,27 @@
 # Next Actions
 
-Updated: 2026-08-24
+Updated: 2026-08-25
 
 Repository: `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`
 
 Remote: `https://github.com/sahchandansah1201-glitch/yorso-commerce-hub.git`
 
 Branch: `local-lab/agent-capability-foundation`
+
+## Current Product Priority
+
+1. Use the persistent `http://127.0.0.1:3300/` local-lab stand for the latest
+   working-tree UI. After every user-visible change, run
+   `npm run local-lab:verify` before reporting the result.
+2. Continue scoped product work on `local-lab/agent-capability-foundation` and
+   push only verified checkpoints. Keep `main` unchanged.
+3. Keep `yorso-adversarial-test-review-pilot` registered but deferred. It is
+   not a product-development gate. Run its Stage B only when explicitly
+   activating that skill, measuring uplift or preparing promotion evidence.
+4. No user action is required for the existing copywriter Stage B: its
+   owner-directed operational qualification already has 30/30 valid signed
+   outputs. Two reviewer sheets and a trusted registry digest apply only to
+   independent uplift and `main` promotion claims.
 
 ## Immediate
 
@@ -28,12 +43,12 @@ Branch: `local-lab/agent-capability-foundation`
    `npm run check:local-lab-cycle` on the clean candidate commit. Gate 3 now
    requires the recorded real-Chrome flow. Do not call the branch release-ready
    while Gates 4-7 remain pending.
-5. Initialize and run a narrow blind Stage B pilot of the already registered
-   experimental `yorso-adversarial-test-review-pilot`, adapted from
+5. Preserve the registered experimental
+   `yorso-adversarial-test-review-pilot`, adapted from
    `petrkindlmann/qa-skills` at exact upstream commit
-   `b3bb61bd268b147476252c6ed5a0440c87b97441`. Evaluate defect recall, false
-   positives, runtime cost and overlap with current Yorso QA/release skills.
-   Do not add it to the QA role until qualification evidence passes.
+   `b3bb61bd268b147476252c6ed5a0440c87b97441`. Do not add it to the QA role or
+   claim uplift until a separately requested Stage B evaluates defect recall,
+   false positives, runtime cost and overlap with current Yorso QA skills.
 6. Keep `affaan-m/ECC` as the next logistics research candidate only; audit the
    exact customs/logistics content before any local adaptation.
 7. Preserve the completed `.data/stage-b/copywriter-2026-08` execution
