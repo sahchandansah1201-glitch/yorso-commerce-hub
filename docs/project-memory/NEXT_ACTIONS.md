@@ -10,14 +10,15 @@ Branch: `local-lab/agent-capability-foundation`
 
 ## Immediate
 
-1. Push the verified P1S.1 certification-picker commit to
-   `local-lab/agent-capability-foundation`, then require Lovable to confirm the
-   same exact SHA without editing product code or creating a new plan.
+1. Preserve the completed P1S.1 Lovable verification for implementation SHA
+   `4f5b393ad7c62531a7c93f5b787526eb9654675b`: Lovable confirmed the same
+   `local-lab/agent-capability-foundation` revision, a clean tree, zero product
+   edits and the provider-free boundary.
 2. Preserve the confirmed Lovable Project Knowledge and four workspace Quality
    Pack skills. The current plugin cannot enumerate per-project skill toggles,
    so treat workspace presence plus explicit Project Knowledge routing as the
    supported evidence boundary.
-3. Run fresh GitHub CI on the new exact branch HEAD. Treat GitHub Actions run
+3. Run fresh GitHub CI on the next exact branch HEAD. Treat GitHub Actions run
    `32651568454` on exact SHA
    `4121018533ac444218ac269bdce95ead60542d98` as the green remote candidate
    signal for its historical SHA only; preserve failed run `32650214185` as
@@ -44,10 +45,10 @@ Branch: `local-lab/agent-capability-foundation`
 10. Continue only on `local-lab/agent-capability-foundation` and keep `main`
    unchanged until the separate production promotion gate passes. Any new
    commit invalidates the exact-SHA remote evidence and requires a fresh CI run.
-11. Continue the next product implementation stage only after the exact-SHA
-    Lovable sync report is recorded. Independent review may still be added
-    later to measure quality uplift, but it is not a blocker for experimental
-    operational use.
+11. The exact-SHA Lovable sync requirement for P1S.1 is closed. Continue the
+    next scoped product stage only after its task frame and acceptance checks
+    are recorded. Independent review may still be added later to measure
+    quality uplift, but it is not a blocker for experimental operational use.
 
 ## Required Before Main Promotion
 

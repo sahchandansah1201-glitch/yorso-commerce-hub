@@ -29,7 +29,7 @@ non-mutating verification gates.
 | Isolate experiments | `local-lab/agent-capability-foundation` created from `origin/main` at `0f71847b` and published independently of `main` | Keep all new work on this branch until promotion | `git merge-base --is-ancestor origin/main HEAD` |
 | Define accountable team | 13 role profiles created | Independent exact-HEAD review and later promotion review | `npm run check:agent-governance` |
 | Register project-wide skills | 16 skills registered and locked | Feature-specific adoption tests | governance tests |
-| Make Lovable quality reproducible | Project Knowledge is present in the connected Lovable project; the four Quality Pack workspace skills are present and P1S.1 supplies a real browser-verified batch | Push P1S.1 and obtain Lovable no-edit exact-SHA confirmation | plugin evidence plus `npm run check:lovable-quality` |
+| Make Lovable quality reproducible | Project Knowledge is present in the connected Lovable project; the four Quality Pack workspace skills are present; Lovable verified P1S.1 exact implementation SHA `4f5b393ad7c62531a7c93f5b787526eb9654675b` with a clean tree and zero edits | Run fresh exact-HEAD CI after the next checkpoint commit | plugin evidence plus `npm run check:lovable-quality` |
 | Add copywriter | EN/RU/ES-ES UX copy gate is active on `local-lab/*` after owner-directed Stage B qualification | Independent review only if measured uplift or main promotion is pursued | owner directive plus pilot evidence |
 | Prevent silent gate mutation | cleanup removed from prehooks; mutation checker covers HEAD, branch, all refs, tracked/untracked files, ignored provider scaffold, symlinks and special files | Keep verification commands observer-only | `check:governance-gates-nonmutating` |
 | Protect handoff state | compact structural memory and freshness checker added | Semantic accuracy still requires review | `check:project-memory` |
@@ -89,6 +89,12 @@ non-mutating verification gates.
 - No external candidate found in the repeated search was installed wholesale.
   The highest-priority next pilot is `petrkindlmann/qa-skills`; this is a pilot
   decision, not an adoption or quality-uplift claim.
+- Lovable verified P1S.1 on exact implementation SHA
+  `4f5b393ad7c62531a7c93f5b787526eb9654675b`. The verification changed zero
+  files, retained a clean working tree and confirmed the provider-free
+  boundary. Per-project skill toggle enumeration remains unavailable; the
+  supported evidence is workspace skill presence plus Project Knowledge
+  routing.
 
 ## Next Commands
 

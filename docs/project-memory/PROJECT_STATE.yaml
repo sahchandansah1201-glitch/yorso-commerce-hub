@@ -72,12 +72,12 @@ active_workstream:
     - "Added a persistent Lovable quality lifecycle: a 5,109-character Project Knowledge block, five registered lifecycle skills, a human-flow browser acceptance matrix and a fail-closed quality-layer validator wired into the capability gate."
     - "Confirmed the connected Lovable project and workspace through the Lovable plugin: Project Knowledge contains the Yorso Lovable Quality Pack and the four required workspace skills are present."
     - "Completed P1S.1 certification-picker UX refinement with native EN/RU/ES copy, canonical legacy aliases, stable ordering, duplicate-label suppression, readable local logos and real Chromium desktop/mobile evidence."
+    - "Verified P1S.1 through the Lovable plugin on exact implementation SHA 4f5b393ad7c62531a7c93f5b787526eb9654675b: the branch and files matched, the working tree stayed clean, Lovable changed zero files, and the provider-free check passed."
   open_gates:
     - "Run independent blind comparative review before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before independent-review evidence or main promotion can pass."
     - "Obtain a separate independent promotion review before any merge to main."
     - "Run feature-specific tests when a role or skill is first used on product code."
-    - "Push the verified P1S.1 exact SHA and obtain a no-edit Lovable same-branch sync/verification report for that SHA."
     - "Run fresh exact-HEAD GitHub CI after the Lovable lifecycle governance commit is pushed."
 
 governance:
@@ -102,7 +102,7 @@ development_cycle:
   first_remote_ci: "failed_run_32650214185_supplier_pagination_race"
   remote_ci_rerun: "passed_run_32651568454_exact_sha_4121018533ac444218ac269bdce95ead60542d98"
   remote_ci_url: "https://github.com/sahchandansah1201-glitch/yorso-commerce-hub/actions/runs/32651568454"
-  claim_boundary: "The cycle caught a real browser regression and the exact fixed candidate passed remote CI; release readiness remains NO-GO until independent review, Lovable same-branch verification, an accepted PR and post-merge server evidence close Gates 4-7."
+  claim_boundary: "The cycle caught a real browser regression, the exact fixed candidate passed remote CI, and P1S.1 received a no-edit same-branch Lovable verification; release readiness remains NO-GO until independent review, an accepted PR and post-merge server evidence close the remaining gates."
 
 stage_b_pilot:
   id: "copywriter-2026-08"

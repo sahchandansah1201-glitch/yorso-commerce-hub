@@ -4648,3 +4648,27 @@ Keep this file factual and append-only.
 | Preserve company behavior | Company edit, save, reload and preview contracts unchanged | — | account company 7/7 |
 | Exercise picker as a user | Three consecutive choices, remove/re-add, keyboard, empty state and mobile flow pass | — | P1S 7/7 |
 | Keep provider-free boundary | No hosted backend dependency introduced | — | provider-boundary PASS |
+
+## 2026-08-24 — P1S.1 Exact-SHA Lovable Verification
+
+- Pushed implementation SHA
+  `4f5b393ad7c62531a7c93f5b787526eb9654675b` to
+  `local-lab/agent-capability-foundation` and verified that local HEAD and the
+  remote branch matched.
+- Used the Lovable plugin in sync/verify-only mode. Lovable confirmed the same
+  exact SHA, a clean working tree, all P1S.1 files present, native EN/RU/ES
+  titles, Product Focus absent from the account Trust surfaces and the
+  provider-free boundary passing.
+- Lovable changed zero files and did not create a replacement plan or build.
+- Confirmed the Lovable workspace contains the four Yorso Quality Pack skills
+  and the project Project Knowledge routes Yorso work through that pack. The
+  plugin cannot enumerate per-project skill toggles, so no stronger claim is
+  made.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Synchronize P1S.1 with Lovable | Exact implementation SHA `4f5b393a` verified, zero Lovable edits | — | Lovable plugin report plus matching local/remote HEAD |
+| Confirm Quality Pack | Four required workspace skills and Project Knowledge routing present | Per-project toggle state is not exposed | Lovable workspace and Project Knowledge APIs |
+| Close local-lab Gate 5 | `lovableSameBranch` changed from pending to passed for the implementation SHA | Fresh CI is required after later commits | workflow evidence record |
