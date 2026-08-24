@@ -4595,3 +4595,27 @@ Keep this file factual and append-only.
 | Копия и локализация | EN/RU/ES native labels | — | vitest 35/35 |
 | Mobile 390 | Нет overflow, ≥44px, нет nested interactive | — | e2e mobile-кейс |
 | Регрессия account | 35/35 e2e company/workspace | — | Playwright chromium |
+
+## 2026-08-24 — Lovable Quality Lifecycle Foundation
+
+- Added a 5,109-character, repository-bound Project Knowledge block for the
+  connected Lovable project.
+- Added five focused lifecycle skills: discovery/plan, UI build, browser
+  acceptance, visual critique and exact-branch sync verification.
+- Added a human-flow browser matrix and a fail-closed structural validator,
+  then wired that validator into `check:capability-foundation`.
+- Registered all five skills in governance, assigned accountable owners and
+  reviewers across six role profiles and regenerated immutable skill locks.
+- Did not change product UI, backend, API, auth, storage or `main`.
+- Lovable Project Knowledge activation and the first real same-branch browser
+  lifecycle remain external acceptance steps; local files alone do not prove
+  those steps happened.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Make Lovable prompting durable | Project Knowledge block is tracked and under the 10,000-character limit | Copy it into Lovable Project Knowledge | `check:lovable-quality` |
+| Separate lifecycle responsibilities | Five focused skills created | Exercise them on a real UI batch | skill structure check |
+| Bind roles and reviewers | Six role profiles and governance manifest updated | Independent real-batch evidence | agent governance gate |
+| Prevent silent drift | Lifecycle validator included in capability gate | Fresh remote exact-HEAD CI | capability foundation gate |

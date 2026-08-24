@@ -14,6 +14,23 @@
 - `.agents/agents/`: 13 accountable Yorso role profiles.
 - `.agents/skills/yorso-multilingual-ux-copywriter-agent/`: project-wide EN,
   RU and ES-ES interface-copy workflow with independent human review.
+- `docs/lovable/project-knowledge-block.md`: bounded Project Knowledge text for
+  the connected Lovable project, including repository identity, branch policy,
+  UX priorities, provider boundary and evidence rules.
+- `.agents/skills/yorso-lovable-discovery-plan/`: evidence-first Lovable
+  discovery and plan contract.
+- `.agents/skills/yorso-lovable-ui-build/`: bounded Lovable implementation
+  contract for approved UI scope.
+- `.agents/skills/yorso-lovable-browser-acceptance/`: real human-flow browser
+  acceptance contract with mobile, console and interaction checks.
+- `.agents/skills/yorso-lovable-visual-critique/`: independent visual hierarchy,
+  scanability and interaction critique contract.
+- `.agents/skills/yorso-lovable-sync-verification/`: exact-branch, exact-commit
+  sync and verification contract.
+- `.agents/skills/yorso-lovable-browser-acceptance/references/human-flow-matrix.md`:
+  minimum human journeys and failure checks for browser acceptance.
+- `scripts/check-lovable-quality-layer.mjs`: fail-closed structural validator
+  for the Project Knowledge block and five lifecycle skills.
 - `docs/agents/role-skill-provenance-matrix.md`: candidate, license, commit SHA,
   overlap and pilot-decision matrix.
 - `docs/agents/skill-routing.md`: task-to-role-to-skill routing contract.

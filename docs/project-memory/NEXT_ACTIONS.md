@@ -1,6 +1,6 @@
 # Next Actions
 
-Updated: 2026-08-23
+Updated: 2026-08-24
 
 Repository: `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`
 
@@ -10,32 +10,40 @@ Branch: `local-lab/agent-capability-foundation`
 
 ## Immediate
 
-1. Treat GitHub Actions run `32651568454` on exact SHA
+1. Copy `docs/lovable/project-knowledge-block.md` into Lovable Project
+   Knowledge and confirm the Lovable project is connected to
+   `local-lab/agent-capability-foundation`, not `main`.
+2. Run the first real Lovable batch through discovery, UI build, browser
+   acceptance, visual critique and sync verification. Preserve browser-flow,
+   screenshot, console and exact commit evidence.
+3. Run fresh GitHub CI on the new exact branch HEAD. Treat GitHub Actions run
+   `32651568454` on exact SHA
    `4121018533ac444218ac269bdce95ead60542d98` as the green remote candidate
-   signal. Preserve failed run `32650214185` as evidence that the cycle caught
-   the supplier pagination race before acceptance.
-2. Use `npm run check:local-lab-cycle:working-tree` during implementation and
+   signal for its historical SHA only; preserve failed run `32650214185` as
+   evidence that the cycle caught the supplier pagination race before
+   acceptance.
+4. Use `npm run check:local-lab-cycle:working-tree` during implementation and
    `npm run check:local-lab-cycle` on the clean candidate commit. Gate 3 now
    requires the recorded real-Chrome flow. Do not call the branch release-ready
    while Gates 4-7 remain pending.
-3. Run a narrow Stage B pilot of `petrkindlmann/qa-skills` against the existing
+5. Run a narrow Stage B pilot of `petrkindlmann/qa-skills` against the existing
    Yorso QA/release gate before installing or adapting it. Evaluate defect
    recall, false positives, runtime cost and overlap with current skills.
-4. Keep `affaan-m/ECC` as the next logistics research candidate only; audit the
+6. Keep `affaan-m/ECC` as the next logistics research candidate only; audit the
    exact customs/logistics content before any local adaptation.
-5. Preserve the completed `.data/stage-b/copywriter-2026-08` execution
+7. Preserve the completed `.data/stage-b/copywriter-2026-08` execution
    workspace: 30/30 immutable assignments, 30/30 valid signed outputs, 0
    invalid outputs and 6 recorded blocked responses.
-6. Use `yorso-multilingual-ux-copywriter-agent` as an active project-wide skill
+8. Use `yorso-multilingual-ux-copywriter-agent` as an active project-wide skill
    for experimental `local-lab/*` work and run feature-specific tests for every
    product-code change it influences.
-7. Keep the owner directive and generated evidence checksum-bound; governance
+9. Keep the owner directive and generated evidence checksum-bound; governance
    must fail if either artifact, the candidate hash, fixture oracle, evaluated
    commit or signed run set drifts.
-8. Continue only on `local-lab/agent-capability-foundation` and keep `main`
+10. Continue only on `local-lab/agent-capability-foundation` and keep `main`
    unchanged until the separate production promotion gate passes. Any new
    commit invalidates the exact-SHA remote evidence and requires a fresh CI run.
-9. Continue the next product implementation stage instead of waiting for
+11. Continue the next product implementation stage instead of waiting for
    external reviewers. Independent review may be added later to measure quality
    uplift, but it is not a blocker for experimental operational use.
 

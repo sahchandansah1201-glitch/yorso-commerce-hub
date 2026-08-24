@@ -1,6 +1,6 @@
 # Context Health
 
-Updated: 2026-08-23
+Updated: 2026-08-24
 
 Repository: `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`
 
@@ -12,12 +12,12 @@ Branch: `local-lab/agent-capability-foundation`
 
 ```yaml
 context_risk: "medium"
-last_checkpoint: "2026-08-23"
+last_checkpoint: "2026-08-24"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Continue the next scoped product change through the validated local-lab cycle or run the narrow QA-skill Stage B pilot; keep main unchanged until Gates 4-7 close."
-why_medium: "Exact SHA 4121018533ac444218ac269bdce95ead60542d98 passed GitHub Actions run 32651568454 after the cycle caught and fixed a real browser regression, but independent review, Lovable same-branch verification, PR acceptance and server proof remain absent."
+recommended_action: "Sync the tracked Lovable Project Knowledge into the connected experimental project, execute the first real UI batch through the five-step lifecycle and obtain fresh exact-HEAD CI; keep main unchanged until Gates 4-7 close."
+why_medium: "The Lovable lifecycle is registered and locally validated, and historical exact SHA 4121018533ac444218ac269bdce95ead60542d98 passed GitHub Actions run 32651568454, but Project Knowledge activation, same-branch browser proof, fresh exact-HEAD CI, PR acceptance and server proof remain absent."
 ```
 
 ## Confirmed Boundaries
@@ -26,6 +26,10 @@ why_medium: "Exact SHA 4121018533ac444218ac269bdce95ead60542d98 passed GitHub Ac
 - Experimental work uses one branch pattern: `local-lab/<scope>`.
 - Lovable may connect to the experimental branch, but its report is not
   acceptance evidence by itself.
+- The repository now contains a bounded Lovable Project Knowledge block and
+  five lifecycle skills for discovery, UI build, browser acceptance, visual
+  critique and sync verification. Registration and local validation are facts;
+  activation in Lovable and a real same-branch lifecycle run are still open.
 - Current changes include governance, project skills, verification tooling and
   one supplier-directory pagination race fix found by remote CI. No production
   deployment is part of this workstream.

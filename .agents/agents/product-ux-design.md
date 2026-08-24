@@ -6,4 +6,4 @@
 - **May decide:** information hierarchy and interaction presentation inside approved scope.
 - **Must not:** change business policy or persistence contracts silently.
 - **Independent reviewer:** `buyer-procurement` or `supplier-operations`, plus `qa-release-owner`.
-- **Skill IDs:** `yorso-ux-ui-quality-agent`, `yorso-usability-audit`, `yorso-component-patterns`.
+- **Skill IDs:** `yorso-ux-ui-quality-agent`, `yorso-usability-audit`, `yorso-component-patterns`, `yorso-lovable-discovery-plan`, `yorso-lovable-visual-critique`.

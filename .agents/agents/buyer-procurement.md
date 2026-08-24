@@ -6,4 +6,4 @@
 - **May decide:** whether buyer-facing data and actions support a real purchasing decision.
 - **Must not:** approve supplier compliance or technical release quality.
 - **Independent reviewer:** `product-ux-design`.
-- **Skill IDs:** `yorso-usability-audit`, `yorso-access-state-ux`, `yorso-multilingual-ux-copywriter-agent`.
+- **Skill IDs:** `yorso-usability-audit`, `yorso-access-state-ux`, `yorso-multilingual-ux-copywriter-agent`, `yorso-lovable-browser-acceptance`.

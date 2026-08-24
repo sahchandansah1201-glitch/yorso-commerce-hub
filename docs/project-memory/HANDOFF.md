@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-08-23
+Updated: 2026-08-24
 
 Project: `yorso-commerce-hub`
 
@@ -17,9 +17,10 @@ separate accepted promotion gate).
 
 Validate and publish the project-wide role and skill capability foundation on
 the experimental branch. It includes 13
-accountable roles, 11 registered skills, immutable skill hashes, source and
+accountable roles, 16 registered skills, immutable skill hashes, source and
 license provenance, independent reviewers, routing documentation, a
-multilingual UX copywriter and non-mutating verification gates.
+multilingual UX copywriter, a persistent Lovable quality lifecycle and
+non-mutating verification gates.
 
 ## Plan / Fact
 
@@ -27,7 +28,8 @@ multilingual UX copywriter and non-mutating verification gates.
 |---|---|---|---|
 | Isolate experiments | `local-lab/agent-capability-foundation` created from `origin/main` at `0f71847b` and published independently of `main` | Keep all new work on this branch until promotion | `git merge-base --is-ancestor origin/main HEAD` |
 | Define accountable team | 13 role profiles created | Independent exact-HEAD review and later promotion review | `npm run check:agent-governance` |
-| Register project-wide skills | 11 skills registered and locked | Feature-specific adoption tests | governance tests |
+| Register project-wide skills | 16 skills registered and locked | Feature-specific adoption tests | governance tests |
+| Make Lovable quality reproducible | A 5,109-character Project Knowledge block plus discovery, build, browser acceptance, visual critique and sync-verification skills are registered and locked | Copy Project Knowledge into Lovable and verify the connected branch on a real batch | `npm run check:lovable-quality` |
 | Add copywriter | EN/RU/ES-ES UX copy gate is active on `local-lab/*` after owner-directed Stage B qualification | Independent review only if measured uplift or main promotion is pursued | owner directive plus pilot evidence |
 | Prevent silent gate mutation | cleanup removed from prehooks; mutation checker covers HEAD, branch, all refs, tracked/untracked files, ignored provider scaffold, symlinks and special files | Keep verification commands observer-only | `check:governance-gates-nonmutating` |
 | Protect handoff state | compact structural memory and freshness checker added | Semantic accuracy still requires review | `check:project-memory` |

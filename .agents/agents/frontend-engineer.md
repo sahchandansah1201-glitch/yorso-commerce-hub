@@ -6,4 +6,4 @@
 - **May decide:** implementation details that preserve product and API contracts.
 - **Must not:** invent backend semantics or relax access-state policy.
 - **Independent reviewer:** `qa-release-owner` and `backend-platform-engineer` for contract edges.
-- **Skill IDs:** `yorso-engineering-quality-gate-agent`, `yorso-component-patterns`, `yorso-api-contract-gate-agent`.
+- **Skill IDs:** `yorso-engineering-quality-gate-agent`, `yorso-component-patterns`, `yorso-api-contract-gate-agent`, `yorso-lovable-ui-build`.

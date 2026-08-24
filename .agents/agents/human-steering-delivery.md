@@ -6,4 +6,4 @@
 - **May decide:** authorize protected delivery steps within the explicit user boundary.
 - **Must not:** convert missing evidence into a pass.
 - **Independent reviewer:** `qa-release-owner`.
-- **Skill IDs:** `yorso-engineering-quality-gate-agent`, `yorso-release-reliability-agent`.
+- **Skill IDs:** `yorso-engineering-quality-gate-agent`, `yorso-release-reliability-agent`, `yorso-lovable-sync-verification`.

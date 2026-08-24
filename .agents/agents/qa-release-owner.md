@@ -6,4 +6,4 @@
 - **May decide:** whether the evidence meets the accepted gate.
 - **Must not:** accept author claims without rerunning relevant checks.
 - **Independent reviewer:** `human-steering-delivery` for protected promotion.
-- **Skill IDs:** `yorso-testing-quality-gate-agent`, `yorso-release-reliability-agent`, `yorso-engineering-quality-gate-agent`.
+- **Skill IDs:** `yorso-testing-quality-gate-agent`, `yorso-release-reliability-agent`, `yorso-engineering-quality-gate-agent`, `yorso-lovable-browser-acceptance`, `yorso-lovable-sync-verification`.
