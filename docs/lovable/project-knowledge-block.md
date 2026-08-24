@@ -103,12 +103,29 @@ Also include:
 Never report “verified”, “synced” or “fixed” without current evidence. Stop
 after the approved scope and wait for review.
 
-## Lifecycle Skills
+## Yorso Lovable Quality Pack
 
-Use these project skills in order when relevant:
+The following workspace skills are the canonical quality pack for Yorso:
 
-1. `yorso-lovable-discovery-plan`
-2. `yorso-lovable-ui-build`
-3. `yorso-lovable-browser-acceptance`
-4. `yorso-lovable-visual-critique`
-5. `yorso-lovable-sync-verification`
+1. `yorso-ui-surface-build` - implement a scoped Yorso UI surface without
+   changing unrelated behavior.
+2. `yorso-real-user-acceptance` - verify the actual user flow in a browser,
+   including desktop and 390px mobile behavior, console errors, overflow and
+   interactive-control semantics.
+3. `yorso-multilingual-interface-copy` - review visible interface copy and
+   labels in EN, RU and ES using native, concise wording.
+4. `yorso-provider-free-github-sync` - verify the intended GitHub branch and
+   commit, preserve the provider-free boundary and report synchronization
+   evidence without regenerating product code.
+
+Name every applicable skill explicitly in the task prompt. Do not assume a
+project-level enable toggle has been applied. A normal UI lifecycle is:
+
+1. Preflight and branch synchronization with
+   `yorso-provider-free-github-sync`.
+2. Scoped implementation with `yorso-ui-surface-build`.
+3. Copy review with `yorso-multilingual-interface-copy` when visible text is
+   added or changed.
+4. Real user-flow verification with `yorso-real-user-acceptance`.
+5. Final branch, commit and provider-free verification with
+   `yorso-provider-free-github-sync`.

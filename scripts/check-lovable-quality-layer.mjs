@@ -11,6 +11,12 @@ const lifecycleSkills = [
   "yorso-lovable-visual-critique",
   "yorso-lovable-sync-verification",
 ];
+const workspaceQualityPackSkills = [
+  "yorso-ui-surface-build",
+  "yorso-real-user-acceptance",
+  "yorso-multilingual-interface-copy",
+  "yorso-provider-free-github-sync",
+];
 
 const failures = [];
 
@@ -64,6 +70,10 @@ for (const skill of lifecycleSkills) {
   requireText(contents, `name: ${skill}`, skillPath);
 }
 
+for (const skill of workspaceQualityPackSkills) {
+  requireText(knowledge, `\`${skill}\``, knowledgePath);
+}
+
 const matrixPath = ".agents/skills/yorso-lovable-browser-acceptance/references/human-flow-matrix.md";
 const matrix = await read(matrixPath);
 for (const token of [
@@ -93,5 +103,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Lovable quality layer check passed. Project Knowledge: ${knowledge.length}/10000 characters; lifecycle skills: ${lifecycleSkills.length}.`,
+  `Lovable quality layer check passed. Project Knowledge: ${knowledge.length}/10000 characters; repo lifecycle skills: ${lifecycleSkills.length}; workspace quality pack skills: ${workspaceQualityPackSkills.length}.`,
 );
