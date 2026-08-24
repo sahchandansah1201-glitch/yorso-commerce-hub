@@ -1,0 +1,6 @@
+interface:
+  display_name: "Yorso Adversarial Test Review Pilot"
+  short_description: "Experimental false-green test reviewer"
+  default_prompt: "Use $yorso-adversarial-test-review-pilot as an experimental second pass: map every promised behavior to an exact assertion, challenge false-green tests and return an evidence-bound Russian verdict without changing product code."
+  brand_color: "#9A3412"
+

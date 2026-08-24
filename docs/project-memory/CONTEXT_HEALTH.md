@@ -16,8 +16,8 @@ last_checkpoint: "2026-08-24"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Sync the tracked Lovable Project Knowledge into the connected experimental project, execute the first real UI batch through the five-step lifecycle and obtain fresh exact-HEAD CI; keep main unchanged until Gates 4-7 close."
-why_medium: "The Lovable lifecycle is registered and locally validated, and historical exact SHA 4121018533ac444218ac269bdce95ead60542d98 passed GitHub Actions run 32651568454, but Project Knowledge activation, same-branch browser proof, fresh exact-HEAD CI, PR acceptance and server proof remain absent."
+recommended_action: "Execute the blind Stage B pilot for the registered experimental adversarial test reviewer, push the exact local-lab checkpoint and synchronize that SHA through Lovable; keep main unchanged until Gates 4-7 close."
+why_medium: "Four required Lovable workspace skills and Project Knowledge routing are confirmed, but per-project toggle enumeration is unavailable and the latest Lovable message is paused for human tool approval. The new QA pilot passed Stage A/governance only; Stage B, fresh exact-HEAD CI, PR acceptance and server proof remain absent."
 ```
 
 ## Confirmed Boundaries
@@ -26,10 +26,14 @@ why_medium: "The Lovable lifecycle is registered and locally validated, and hist
 - Experimental work uses one branch pattern: `local-lab/<scope>`.
 - Lovable may connect to the experimental branch, but its report is not
   acceptance evidence by itself.
-- The repository now contains a bounded Lovable Project Knowledge block and
-  five lifecycle skills for discovery, UI build, browser acceptance, visual
-  critique and sync verification. Registration and local validation are facts;
-  activation in Lovable and a real same-branch lifecycle run are still open.
+- The repository contains a bounded Lovable Project Knowledge block and five
+  lifecycle skills for discovery, UI build, browser acceptance, visual critique
+  and sync verification. The connected Lovable workspace exposes the four
+  Quality Pack skills required by Project Knowledge. The plugin does not expose
+  per-project skill toggles, so no stronger activation claim is allowed.
+- The adversarial test-review adaptation is registered and locked as
+  `experimental` only. It is not role-active and cannot be treated as qualified
+  until blind Stage B evidence passes.
 - Current changes include governance, project skills, verification tooling and
   one supplier-directory pagination race fix found by remote CI. No production
   deployment is part of this workstream.

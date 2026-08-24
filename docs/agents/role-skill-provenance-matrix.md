@@ -27,7 +27,7 @@ Last updated: 2026-08-23
 | Supplier Operations | `yorso-usability-audit`, `yorso-component-patterns` | supplier onboarding and maintenance | `alirezarezvani/claude-skills` vendor-management methods are reference-only because they are SaaS-oriented |
 | Trust / Compliance | `yorso-access-state-ux`, `yorso-api-contract-gate-agent` | claims, redaction, policy | supply-chain and food-safety skills are reference-only; official regulator and certifier sources remain required |
 | Market / Pricing / Search | `yorso-access-state-ux`; source-driven methods | taxonomy, ranking, pricing semantics | `phuryn/pm-skills` market research is reference-only; it does not supply seafood pricing/search semantics |
-| QA / Release Owner | `yorso-testing-quality-gate-agent`, `yorso-release-reliability-agent` | adversarial QA and release verdict | `petrkindlmann/qa-skills` is the strongest external pilot candidate because it includes evals; no install before pilot |
+| QA / Release Owner | `yorso-testing-quality-gate-agent`, `yorso-release-reliability-agent` | adversarial QA and release verdict | `petrkindlmann/qa-skills` is adapted narrowly as experimental `yorso-adversarial-test-review-pilot`; it is not role-active and requires Stage B qualification |
 | Knowledge / Analytics | project KB/source-driven methods | provenance, glossary, metrics | Firecrawl workflows are service-coupled; use source/evidence patterns without adding the service |
 | Orders / Logistics | `yorso-service-architecture-agent`, `yorso-api-contract-gate-agent` | order/shipment state and integration | `affaan-m/ECC` has useful customs/logistics material but is broad; reference/pilot only |
 
@@ -54,7 +54,7 @@ Stage B pilot and independent review.
 | `kishorkukreja/awesome-supply-chain` | `f8cf557df58af5a39de99016f2273904afa6d09b` | MIT | compliance | supply-chain reference only |
 | `sickn33/agentic-awesome-skills` | `b6ceca367a3b3ee90a273a3afa895960e8e9d7a5` | MIT | compliance | food-safety reference only |
 | `phuryn/pm-skills` | `18468a95b427e70e258b51389796367c6f684e7d` | MIT | market/pricing/search | market-research reference only |
-| `petrkindlmann/qa-skills` | `b3bb61bd268b147476252c6ed5a0440c87b97441` | MIT | QA/release | strongest Stage B pilot candidate; evals present |
+| `petrkindlmann/qa-skills` | `b3bb61bd268b147476252c6ed5a0440c87b97441` | MIT | QA/release | narrow Stage A adaptation registered as experimental; upstream evals present; role activation blocked pending Stage B |
 | `nchemb/super-smoke-test` | `db5ab7f18bc20e528937d3b50aa0afe39ed99389` | MIT | QA/release | smoke-test reference only |
 | `firecrawl/firecrawl-workflows` | `94cc91229d6cedc0613f140d3d013b150bc8e1b0` | ISC | knowledge/analytics | reference only; external-service coupling |
 | `affaan-m/ECC` | `d8409a4b0813771235555e32e3d8046a73988bfa` | MIT | orders/logistics | qualified reference/pilot candidate; broad scope |

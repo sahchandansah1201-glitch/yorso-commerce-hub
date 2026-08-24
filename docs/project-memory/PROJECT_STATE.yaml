@@ -34,7 +34,7 @@ active_workstream:
   status: "local_lab_validation"
   completed:
     - "Created 13 accountable role profiles under .agents/agents."
-    - "Registered 16 project-wide skills with ownership, reviewer, provenance, license and dependencies."
+    - "Registered 17 project-wide skills with ownership, reviewer, provenance, license and dependencies."
     - "Added immutable content lock and fail-closed governance checks."
     - "Added a multilingual UX copywriter role with en, ru and es-ES review requirements."
     - "Documented role-to-skill provenance matrix, routing, pilot protocol and Stage A results."
@@ -73,12 +73,14 @@ active_workstream:
     - "Confirmed the connected Lovable project and workspace through the Lovable plugin: Project Knowledge contains the Yorso Lovable Quality Pack and the four required workspace skills are present."
     - "Completed P1S.1 certification-picker UX refinement with native EN/RU/ES copy, canonical legacy aliases, stable ordering, duplicate-label suppression, readable local logos and real Chromium desktop/mobile evidence."
     - "Verified P1S.1 through the Lovable plugin on exact implementation SHA 4f5b393ad7c62531a7c93f5b787526eb9654675b: the branch and files matched, the working tree stayed clean, Lovable changed zero files, and the provider-free check passed."
+    - "Registered yorso-adversarial-test-review-pilot as an experimental, non-role-active adaptation of petrkindlmann/qa-skills at exact upstream commit b3bb61bd268b147476252c6ed5a0440c87b97441; Stage A structure, provenance, immutable lock and governance validation passed, while Stage B qualification remains open."
   open_gates:
     - "Run independent blind comparative review before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before independent-review evidence or main promotion can pass."
     - "Obtain a separate independent promotion review before any merge to main."
     - "Run feature-specific tests when a role or skill is first used on product code."
     - "Run fresh exact-HEAD GitHub CI after the Lovable lifecycle governance commit is pushed."
+    - "Run the blind Stage B pilot for yorso-adversarial-test-review-pilot before adding it to the QA role or making any defect-recall or quality-uplift claim."
 
 governance:
   manifest: ".agents/manifest.json"
@@ -86,8 +88,9 @@ governance:
   actor_registry: ".agents/actors.json"
   fixture_oracle: "docs/agents/pilots/fixture-oracle.json"
   role_profiles: 13
-  registered_skills: 16
+  registered_skills: 17
   copywriter_status: "active-local-lab-owner-qualified"
+  adversarial_test_review_status: "experimental-stage-a-passed-stage-b-pending"
   automatic_main_promotion: false
 
 development_cycle:
@@ -169,4 +172,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Use the validated local-lab cycle for the next scoped product change or run the narrow petrkindlmann/qa-skills Stage B pilot; keep main unchanged and Gates 4-7 closed until their separate evidence exists."
+next_action: "Initialize and execute the blind Stage B pilot for the registered experimental yorso-adversarial-test-review-pilot, then synchronize the exact pushed local-lab SHA with Lovable; keep main unchanged and Gates 4-7 closed until their separate evidence exists."

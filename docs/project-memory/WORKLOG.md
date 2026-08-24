@@ -4672,3 +4672,28 @@ Keep this file factual and append-only.
 | Synchronize P1S.1 with Lovable | Exact implementation SHA `4f5b393a` verified, zero Lovable edits | — | Lovable plugin report plus matching local/remote HEAD |
 | Confirm Quality Pack | Four required workspace skills and Project Knowledge routing present | Per-project toggle state is not exposed | Lovable workspace and Project Knowledge APIs |
 | Close local-lab Gate 5 | `lovableSameBranch` changed from pending to passed for the implementation SHA | Fresh CI is required after later commits | workflow evidence record |
+
+## 2026-08-24 — Experimental Adversarial Test Review Stage A
+
+- Audited `petrkindlmann/qa-skills` at exact upstream commit
+  `b3bb61bd268b147476252c6ed5a0440c87b97441` and verified its MIT license and
+  upstream evaluation assets.
+- Added a narrow Yorso adaptation,
+  `yorso-adversarial-test-review-pilot`, for independent false-green test review.
+  The skill is registered as `experimental`, locked by content hash and not
+  assigned to an active role.
+- Added exact source provenance to the role/skill matrix and the governance
+  allowlist. The official skill validator passed using a temporary PyYAML
+  environment; no repository dependency was added.
+- Rebuilt the immutable skill lock and passed the complete agent-governance
+  suite: 71/71 tests, 0 failures. Stage B remains open and no quality-uplift
+  claim is made.
+
+### Plan / Fact
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Register the selected QA candidate safely | Exact-SHA, MIT-licensed narrow adaptation registered and locked | — | official validator plus governance check |
+| Prevent premature activation | Candidate is experimental and absent from role active-skill lists | Blind Stage B qualification | manifest role-activation check |
+| Prove governance integrity | Full suite passed 71/71 | Fresh exact-HEAD CI after push | `npm run test:agent-governance` |
+| Preserve claim boundary | No defect-recall, uplift or production-readiness claim made | Independent evidence before promotion | project-memory and governance status |

@@ -14,6 +14,10 @@
 - `.agents/agents/`: 13 accountable Yorso role profiles.
 - `.agents/skills/yorso-multilingual-ux-copywriter-agent/`: project-wide EN,
   RU and ES-ES interface-copy workflow with independent human review.
+- `.agents/skills/yorso-adversarial-test-review-pilot/`: experimental,
+  role-inactive Yorso adaptation of `petrkindlmann/qa-skills`, pinned to exact
+  upstream commit `b3bb61bd268b147476252c6ed5a0440c87b97441`; Stage A passed and
+  Stage B remains required before activation.
 - `docs/lovable/project-knowledge-block.md`: bounded Project Knowledge text for
   the connected Lovable project, including repository identity, branch policy,
   UX priorities, provider boundary and evidence rules.
@@ -33,6 +37,8 @@
   for the Project Knowledge block and five lifecycle skills.
 - `docs/agents/role-skill-provenance-matrix.md`: candidate, license, commit SHA,
   overlap and pilot-decision matrix.
+- `scripts/lib/agent-governance.mjs`: exact external-source allowlist now
+  includes the MIT-licensed adversarial test-review pilot upstream revision.
 - `docs/agents/skill-routing.md`: task-to-role-to-skill routing contract.
 - `docs/agents/skill-pilot-protocol.md`: Stage A and Stage B evaluation protocol.
 - `docs/agents/skill-pilot-results.md`: current evidence and explicit open gate.

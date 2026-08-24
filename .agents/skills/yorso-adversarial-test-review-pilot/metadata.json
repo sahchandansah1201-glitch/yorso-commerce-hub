@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "organization": "Yorso",
+  "date": "August 2026",
+  "abstract": "Experimental second-pass test reviewer for Yorso. Detects false-green evidence by mapping promised behavior to exact assertions, challenging weak or hallucinated checks, repeated-action gaps and timing instability before normal QA and release gates can accept a change.",
+  "references": [
+    "docs/agents/role-skill-provenance-matrix.md",
+    "docs/agents/skill-pilot-protocol.md"
+  ]
+}
+

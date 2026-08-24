@@ -17,7 +17,7 @@ separate accepted promotion gate).
 
 Validate and publish the project-wide role and skill capability foundation on
 the experimental branch. It includes 13
-accountable roles, 16 registered skills, immutable skill hashes, source and
+accountable roles, 17 registered skills, immutable skill hashes, source and
 license provenance, independent reviewers, routing documentation, a
 multilingual UX copywriter, a persistent Lovable quality lifecycle and
 non-mutating verification gates.
@@ -28,7 +28,7 @@ non-mutating verification gates.
 |---|---|---|---|
 | Isolate experiments | `local-lab/agent-capability-foundation` created from `origin/main` at `0f71847b` and published independently of `main` | Keep all new work on this branch until promotion | `git merge-base --is-ancestor origin/main HEAD` |
 | Define accountable team | 13 role profiles created | Independent exact-HEAD review and later promotion review | `npm run check:agent-governance` |
-| Register project-wide skills | 16 skills registered and locked | Feature-specific adoption tests | governance tests |
+| Register project-wide skills | 17 skills registered and locked; the new adversarial test reviewer remains experimental and role-inactive | Blind Stage B qualification and feature-specific adoption tests | governance tests |
 | Make Lovable quality reproducible | Project Knowledge is present in the connected Lovable project; the four Quality Pack workspace skills are present; Lovable verified P1S.1 exact implementation SHA `4f5b393ad7c62531a7c93f5b787526eb9654675b` with a clean tree and zero edits | Run fresh exact-HEAD CI after the next checkpoint commit | plugin evidence plus `npm run check:lovable-quality` |
 | Add copywriter | EN/RU/ES-ES UX copy gate is active on `local-lab/*` after owner-directed Stage B qualification | Independent review only if measured uplift or main promotion is pursued | owner directive plus pilot evidence |
 | Prevent silent gate mutation | cleanup removed from prehooks; mutation checker covers HEAD, branch, all refs, tracked/untracked files, ignored provider scaffold, symlinks and special files | Keep verification commands observer-only | `check:governance-gates-nonmutating` |
@@ -44,6 +44,7 @@ non-mutating verification gates.
 | Make human review executable | Blind drafts contain only `reviewItemId` decisions; `stage-b:prepare-review-submission` freezes complete drafts into output-bound reviewer-sheet-v4 payloads; `stage-b:submit-review` verifies the registered human's detached Ed25519 signature and status rejects later drift | Two real humans must independently complete, sign and submit their sheets | focused reviewer workflow tests cover incomplete/leaking drafts, wrong identities/signatures, overwrite and post-submit tampering |
 | Qualify operational Stage B | Project-owner directive activated the copywriter for experimental work; governance records `owner-directive` mode and exact negative claim boundary | Use it in feature work; independent review is optional until uplift/main is pursued | 30/30 signed outputs, 0 invalid, 6 blocked; checksum-bound directive/evidence |
 | Repeat role/skill discovery | All 13 roles searched through Exa and Codex skills; GitHub license and full-SHA evidence recorded | Pilot only the selected QA and logistics candidates | `docs/agents/research/role-skill-deep-search-2026-08-23.md` |
+| Register the selected QA pilot | `yorso-adversarial-test-review-pilot` is a narrow MIT-licensed adaptation pinned to `petrkindlmann/qa-skills@b3bb61bd268b147476252c6ed5a0440c87b97441`; Stage A and governance pass, but no role activation occurred | Execute blind Stage B and review evidence before activation or uplift claims | official skill validator plus 71/71 governance tests |
 | Make the development cycle executable | Safe allowlisted runner evaluates repository, branch, base, scope, automated checks, human QA and release evidence | Supply real Gates 4-7 evidence only when promotion is requested | `npm run test:local-lab-cycle`; `npm run check:local-lab-cycle` |
 | Test the cycle against real CI | Run `32650214185` exposed a supplier pagination debounce race; the fixed exact SHA passed run `32651568454` end to end | Preserve the failed and passing runs as before/after evidence | GitHub Actions plus focused Chrome 5/5 |
 
@@ -87,8 +88,10 @@ non-mutating verification gates.
   provider-free and self-hosted auth checks, and all admin runtime browser
   suites.
 - No external candidate found in the repeated search was installed wholesale.
-  The highest-priority next pilot is `petrkindlmann/qa-skills`; this is a pilot
-  decision, not an adoption or quality-uplift claim.
+  A narrow local adaptation of `petrkindlmann/qa-skills` is now registered as
+  `experimental` and locked to the exact upstream SHA. It is not assigned to an
+  active role; this is Stage A registration, not adoption or a quality-uplift
+  claim.
 - Lovable verified P1S.1 on exact implementation SHA
   `4f5b393ad7c62531a7c93f5b787526eb9654675b`. The verification changed zero
   files, retained a clean working tree and confirmed the provider-free
@@ -101,6 +104,7 @@ non-mutating verification gates.
 ```bash
 npm run check:capability-foundation
 npm run check:local-lab-cycle:working-tree
+node scripts/stage-b-pilot.mjs --help
 npm run test:tooling
 npx tsc -b --noEmit
 npm run lint

@@ -8,6 +8,12 @@
       "contentSha256": "7d7c26c5819d0739e83705158c2e959ff4963217afcf152996f3a3f43138b14e"
     },
     {
+      "id": "yorso-adversarial-test-review-pilot",
+      "path": ".agents/skills/yorso-adversarial-test-review-pilot",
+      "sourceRevision": "b3bb61bd268b147476252c6ed5a0440c87b97441",
+      "contentSha256": "c927cc4bc72104e232a12c415f286f4f027893a3f172cb283a2c6e11df411521"
+    },
+    {
       "id": "yorso-api-contract-gate-agent",
       "path": ".agents/skills/yorso-api-contract-gate-agent",
       "sourceRevision": "8ca08ffbc10d01ce53572ff874f711bba9d8e012",

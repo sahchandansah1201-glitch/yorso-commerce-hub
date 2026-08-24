@@ -245,6 +245,29 @@
       }
     },
     {
+      "id": "yorso-adversarial-test-review-pilot",
+      "path": ".agents/skills/yorso-adversarial-test-review-pilot",
+      "status": "experimental",
+      "ownerRole": "qa-release-owner",
+      "reviewerRole": "human-steering-delivery",
+      "domains": [
+        "test-quality",
+        "false-green-detection",
+        "evidence-audit"
+      ],
+      "dependencies": [
+        "yorso-testing-quality-gate-agent"
+      ],
+      "humanReviewRequired": true,
+      "source": {
+        "type": "external-adaptation",
+        "repository": "petrkindlmann/qa-skills",
+        "revision": "b3bb61bd268b147476252c6ed5a0440c87b97441",
+        "license": "MIT",
+        "evidence": "docs/agents/role-skill-provenance-matrix.md"
+      }
+    },
+    {
       "id": "yorso-api-contract-gate-agent",
       "path": ".agents/skills/yorso-api-contract-gate-agent",
       "status": "experimental",

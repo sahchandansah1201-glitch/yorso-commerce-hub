@@ -28,9 +28,12 @@ Branch: `local-lab/agent-capability-foundation`
    `npm run check:local-lab-cycle` on the clean candidate commit. Gate 3 now
    requires the recorded real-Chrome flow. Do not call the branch release-ready
    while Gates 4-7 remain pending.
-5. Run a narrow Stage B pilot of `petrkindlmann/qa-skills` against the existing
-   Yorso QA/release gate before installing or adapting it. Evaluate defect
-   recall, false positives, runtime cost and overlap with current skills.
+5. Initialize and run a narrow blind Stage B pilot of the already registered
+   experimental `yorso-adversarial-test-review-pilot`, adapted from
+   `petrkindlmann/qa-skills` at exact upstream commit
+   `b3bb61bd268b147476252c6ed5a0440c87b97441`. Evaluate defect recall, false
+   positives, runtime cost and overlap with current Yorso QA/release skills.
+   Do not add it to the QA role until qualification evidence passes.
 6. Keep `affaan-m/ECC` as the next logistics research candidate only; audit the
    exact customs/logistics content before any local adaptation.
 7. Preserve the completed `.data/stage-b/copywriter-2026-08` execution

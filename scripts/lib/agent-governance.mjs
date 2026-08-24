@@ -16,6 +16,10 @@ const VERIFIED_EXTERNAL_SOURCES = new Map([
     "hueyexe/frontend-agent-skills@2841c079dd8a9c634882227194dc42e25227710d",
     "MIT",
   ],
+  [
+    "petrkindlmann/qa-skills@b3bb61bd268b147476252c6ed5a0440c87b97441",
+    "MIT",
+  ],
 ]);
 const REQUIRED_PROMOTION_GATES = [
   "independent-review",
