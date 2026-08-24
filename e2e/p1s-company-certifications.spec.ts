@@ -1,11 +1,12 @@
+import { mkdir } from "node:fs/promises";
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { installBuyerSession } from "./helpers/buyer-session";
+import { installBuyerSession, type E2ELang } from "./helpers/buyer-session";
 
 const SHOTS = "test-results/p1s-company-certifications";
 const TRUST = "account-card-company-trust";
 
-const openCompany = async (page: Page) => {
-  await installBuyerSession(page, { id: "b_e2e_p1s_certs" });
+const openCompany = async (page: Page, lang: E2ELang = "en") => {
+  await installBuyerSession(page, { id: "b_e2e_p1s_certs", lang });
   await page.goto("/account/company", { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle");
   await expect(page.getByTestId("account-section-company")).toBeVisible();
@@ -48,6 +49,42 @@ const nestedInteractiveCount = (scope: Locator) =>
   });
 
 test.describe("/account/company · P1S certifications picker", () => {
+  test.beforeAll(async () => {
+    await mkdir(SHOTS, { recursive: true });
+  });
+
+  for (const locale of [
+    {
+      lang: "en" as const,
+      title: "Trust and certificates",
+      label: "Certifications and approvals",
+      placeholder: "Search certifications",
+    },
+    {
+      lang: "ru" as const,
+      title: "Доверие и сертификации",
+      label: "Сертификаты и допуски",
+      placeholder: "Поиск сертификатов",
+    },
+    {
+      lang: "es" as const,
+      title: "Confianza y certificaciones",
+      label: "Certificaciones y autorizaciones",
+      placeholder: "Buscar certificaciones",
+    },
+  ]) {
+    test(`${locale.lang}: native card and picker labels`, async ({ page }) => {
+      await openCompany(page, locale.lang);
+      const card = page.getByTestId(TRUST);
+      await expect(card.getByText(locale.title, { exact: true })).toBeVisible();
+
+      await editTrust(page);
+      const search = card.getByTestId("account-company-certificates-search");
+      await expect(search).toHaveAttribute("aria-label", locale.label);
+      await expect(search).toHaveAttribute("placeholder", locale.placeholder);
+    });
+  }
+
   test("read mode: no product focus, certification chips with logo or abbreviation fallback", async ({
     page,
   }) => {
@@ -130,6 +167,12 @@ test.describe("/account/company · P1S certifications picker", () => {
     const search = card.getByTestId("account-company-certificates-search");
     await search.click();
     await search.press("ArrowDown");
+    const activeOptionId = await search.getAttribute("aria-activedescendant");
+    expect(activeOptionId).toBeTruthy();
+    await expect(card.locator(`[id="${activeOptionId}"]`)).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
     await search.press("ArrowDown");
     await search.press("ArrowUp");
     await search.press("Enter");

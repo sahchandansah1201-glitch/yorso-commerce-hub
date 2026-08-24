@@ -41,6 +41,7 @@ export const AccountCertificationPicker = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const reactId = useId();
   const listboxId = `account-certifications-listbox-${reactId.replace(/:/g, "")}`;
+  const optionId = (code: string) => `${listboxId}-option-${normalizeKey(code).toLowerCase()}`;
 
   const selected = useMemo(() => canonicalizeCertificationList(value), [value]);
   const selectedKeys = useMemo(
@@ -159,6 +160,9 @@ export const AccountCertificationPicker = ({
         role="combobox"
         aria-expanded={open}
         aria-controls={listboxId}
+        aria-activedescendant={
+          open && options[activeIndex] ? optionId(options[activeIndex].code) : undefined
+        }
         aria-autocomplete="list"
         aria-label={t.account_company_certificates}
         value={query}
@@ -193,6 +197,7 @@ export const AccountCertificationPicker = ({
             options.map((info, i) => (
               <li
                 key={info.code}
+                id={optionId(info.code)}
                 role="option"
                 aria-selected={i === activeIndex}
                 data-testid={`account-company-certificates-option-${info.code}`}
