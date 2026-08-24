@@ -100,5 +100,3 @@ Scope: `productFocus` убирается только из account Trust card и
 Программно: отсутствие horizontal overflow, отсутствие nested interactive controls, mobile-действия ≥44px, отсутствие console/page errors, отсутствие provider-free scaffold.
 
 Стоп после `/account/company`.
-
-

@@ -83,6 +83,15 @@ test("arbitrary commands are rejected by evidence validation", () => {
   assert.match(validateCycleEvidence(candidate).join("\n"), /Unsafe automated check id/);
 });
 
-test("supplier directory regression suite is an explicit safe check", () => {
-  assert.equal(SAFE_AUTOMATED_CHECKS.has("test:supplier-directory-frontend"), true);
+test("branch regression and browser suites are explicit safe checks", () => {
+  for (const checkId of [
+    "build",
+    "check:lovable-quality",
+    "check:typescript",
+    "smoke:e2e:p1s-company-certifications",
+    "test:account-workspace",
+    "test:supplier-directory-frontend",
+  ]) {
+    assert.equal(SAFE_AUTOMATED_CHECKS.has(checkId), true, checkId);
+  }
 });

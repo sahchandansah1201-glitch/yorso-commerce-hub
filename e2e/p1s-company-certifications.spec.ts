@@ -1,12 +1,15 @@
 import { mkdir } from "node:fs/promises";
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { installAccountApiRoutes } from "./helpers/account-api";
 import { installBuyerSession, type E2ELang } from "./helpers/buyer-session";
 
 const SHOTS = "test-results/p1s-company-certifications";
 const TRUST = "account-card-company-trust";
 
 const openCompany = async (page: Page, lang: E2ELang = "en") => {
-  await installBuyerSession(page, { id: "b_e2e_p1s_certs", lang });
+  const sessionId = "b_e2e_p1s_certs";
+  await installAccountApiRoutes(page, { sessionId, lang });
+  await installBuyerSession(page, { id: sessionId, lang });
   await page.goto("/account/company", { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle");
   await expect(page.getByTestId("account-section-company")).toBeVisible();

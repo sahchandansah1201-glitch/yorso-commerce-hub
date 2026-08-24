@@ -2,8 +2,15 @@ import { defineConfig } from "@playwright/test";
 import { existsSync } from "node:fs";
 
 const requestedChromiumPath = process.env.E2E_CHROMIUM_EXECUTABLE_PATH?.trim();
-const systemChromiumPath = requestedChromiumPath || "/bin/chromium";
-const chromiumLaunchOptions = existsSync(systemChromiumPath)
+const systemChromiumPath = [
+  requestedChromiumPath,
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/Applications/Chromium.app/Contents/MacOS/Chromium",
+  "/usr/bin/google-chrome",
+  "/usr/bin/chromium-browser",
+  "/bin/chromium",
+].find((candidate): candidate is string => Boolean(candidate && existsSync(candidate)));
+const chromiumLaunchOptions = systemChromiumPath
   ? { executablePath: systemChromiumPath }
   : undefined;
 const useWebServer = process.env.E2E_USE_WEB_SERVER === "1";
@@ -53,8 +60,8 @@ export default defineConfig({
       name: "chromium",
       use: {
         browserName: "chromium",
-        // В sandbox окружении может быть системный chromium.
-        // Локально и в CI используем bundled Playwright browser, если /bin/chromium отсутствует.
+        // Prefer an explicitly configured or installed system browser. Fall back
+        // to the bundled Playwright browser when no supported executable exists.
         launchOptions: chromiumLaunchOptions,
       },
     },

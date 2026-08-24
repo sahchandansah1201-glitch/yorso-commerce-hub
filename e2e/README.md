@@ -23,7 +23,7 @@ Vitest+jsdom закрывает unit и integration слой (см. `src/**/*.te
 В sandbox-окружении дополнительно нужно указать системный chromium
 (playwright-bundled headless-shell не имеет нужных .so):
 ```bash
-PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/bin/chromium \
+E2E_CHROMIUM_EXECUTABLE_PATH=/bin/chromium \
 E2E_BASE_URL=http://127.0.0.1:5173 \
   bunx playwright test --project=chromium
 ```

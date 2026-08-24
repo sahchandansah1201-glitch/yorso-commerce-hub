@@ -1,8 +1,13 @@
 export const SAFE_AUTOMATED_CHECKS = new Set([
+  "build",
   "check:agent-governance",
+  "check:lovable-quality",
   "check:project-memory",
   "check:provider-boundary",
+  "check:typescript",
+  "smoke:e2e:p1s-company-certifications",
   "test:agent-governance",
+  "test:account-workspace",
   "test:local-lab-cycle",
   "test:project-memory",
   "test:supplier-directory-frontend",

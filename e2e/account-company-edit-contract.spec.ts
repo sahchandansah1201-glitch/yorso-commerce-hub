@@ -1,17 +1,22 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { installAccountApiRoutes } from "./helpers/account-api";
 import { installBuyerSession } from "./helpers/buyer-session";
 
 const setSignedInStorage = async (page: Page) => {
+  const sessionId = "b_e2e_account_company_edit";
+  const accountApi = await installAccountApiRoutes(page, { sessionId });
   await installBuyerSession(page, {
-    id: "b_e2e_account_company_edit",
+    id: sessionId,
   });
+  return accountApi;
 };
 
 const openCompany = async (page: Page) => {
-  await setSignedInStorage(page);
+  const accountApi = await setSignedInStorage(page);
   await page.goto("/account/company", { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle");
   await expect(page.getByTestId("account-section-company")).toBeVisible();
+  return accountApi;
 };
 
 const editCard = async (page: Page, cardId: string): Promise<Locator> => {
@@ -28,21 +33,13 @@ const saveCard = async (card: Locator, cardId: string) => {
   await expect(card.getByTestId(`${cardId}-edit`)).toBeVisible({ timeout: 15_000 });
 };
 
-const expectStorageContains = async (page: Page, expected: string) => {
-  await expect
-    .poll(async () =>
-      page.evaluate((needle) => localStorage.getItem("yorso_account_profile_v1")?.includes(needle), expected),
-    )
-    .toBe(true);
-};
-
 const mainText = async (page: Page) => (await page.locator("main").textContent()) ?? "";
 
 test.describe("/account/company · editable company profile contract", () => {
   test("identity edit persists legal/trade/country/website/year/role and survives reload", async ({
     page,
   }) => {
-    await openCompany(page);
+    const accountApi = await openCompany(page);
 
     const cardId = "account-card-company-identity";
     const card = await editCard(page, cardId);
@@ -61,7 +58,7 @@ test.describe("/account/company · editable company profile contract", () => {
     await expect(card).toContainText("https://blueharbor.example");
     await expect(card).toContainText("Norway");
     await expect(card).toContainText("2008");
-    await expectStorageContains(page, "Blue Harbor Foods LLC");
+    await expect.poll(() => accountApi.getCompany().legalName).toBe("Blue Harbor Foods LLC");
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
@@ -110,7 +107,7 @@ test.describe("/account/company · editable company profile contract", () => {
   test("commercial contacts edit persists email, phone and WhatsApp with validation", async ({
     page,
   }) => {
-    await openCompany(page);
+    const accountApi = await openCompany(page);
 
     const cardId = "account-card-company-contacts";
     const card = await editCard(page, cardId);
@@ -132,7 +129,7 @@ test.describe("/account/company · editable company profile contract", () => {
     await expect(card).toContainText("sales@blueharbor.example");
     await expect(card).toContainText("+47900111222");
     await expect(card).toContainText("+47900333444");
-    await expectStorageContains(page, "sales@blueharbor.example");
+    await expect.poll(() => accountApi.getCompany().contactEmail).toBe("sales@blueharbor.example");
   });
 
   test("description edit updates supplier profile preview and persists after reload", async ({
@@ -185,7 +182,7 @@ test.describe("/account/company · editable company profile contract", () => {
   test("publication and buyer qualification statuses persist as user-facing labels", async ({
     page,
   }) => {
-    await openCompany(page);
+    const accountApi = await openCompany(page);
 
     const cardId = "account-card-company-publication";
     const card = await editCard(page, cardId);
@@ -197,7 +194,7 @@ test.describe("/account/company · editable company profile contract", () => {
     await expect(card).toContainText("Published");
     await expect(card).toContainText("Qualified");
     expect(await mainText(page)).not.toMatch(/ready_for_review|published|qualified/);
-    await expectStorageContains(page, '"supplierPublicationStatus":"published"');
-    await expectStorageContains(page, '"buyerQualificationStatus":"qualified"');
+    await expect.poll(() => accountApi.getCompany().publicationStatus).toBe("published");
+    await expect.poll(() => accountApi.getCompany().buyerQualificationStatus).toBe("qualified");
   });
 });
