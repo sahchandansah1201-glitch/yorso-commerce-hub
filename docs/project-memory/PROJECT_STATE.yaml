@@ -1,5 +1,5 @@
 project: "yorso-commerce-hub"
-updated_at: "2026-08-25"
+updated_at: "2026-08-26"
 owner: "istokdmgmail.com"
 status: "active"
 
@@ -75,6 +75,8 @@ active_workstream:
     - "Verified P1S.1 through the Lovable plugin on exact implementation SHA 4f5b393ad7c62531a7c93f5b787526eb9654675b: the branch and files matched, the working tree stayed clean, Lovable changed zero files, and the provider-free check passed."
     - "Registered yorso-adversarial-test-review-pilot as an experimental, non-role-active adaptation of petrkindlmann/qa-skills at exact upstream commit b3bb61bd268b147476252c6ed5a0440c87b97441; Stage A structure, provenance, immutable lock and governance validation passed, while Stage B qualification remains open."
     - "Added a persistent macOS LaunchAgent-backed local-lab Vite service at http://127.0.0.1:3300/ with automatic restart, current-working-tree HMR and a three-flow Playwright runtime acceptance command."
+    - "Integrated self-hosted Twenty CRM into the persistent local-lab runtime with repository-owned Docker Compose, preserved database and file volumes, a protected admin/company_admin handoff endpoint, localized /crm UI, desktop/mobile account-menu entries and browser proof of the separate Twenty login."
+    - "Closed the local CRM entry defect: stale prototype sessions now trigger backend re-authentication with a safe return to /crm, while the API distinguishes a real Twenty outage through a timeout, five-second process-local cache and single-flight health check."
   open_gates:
     - "Run independent blind comparative review before claiming a measured quality uplift."
     - "Register real human reviewers and approvers with signed identities and distinct canonical independence groups, then trust the registry digest out-of-band before independent-review evidence or main promotion can pass."
@@ -173,4 +175,4 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Continue scoped product development on local-lab/agent-capability-foundation using the persistent http://127.0.0.1:3300/ stand and npm run local-lab:verify after UI changes; keep the adversarial Stage B pilot deferred until explicit skill activation or measured-uplift work, and keep main unchanged."
+next_action: "Continue scoped product development on local-lab/agent-capability-foundation using the persistent http://127.0.0.1:3300/ stand; preserve the verified CRM stale-session recovery and health-check behavior, verify UI, API and Twenty with npm run local-lab:status, and run npm run local-lab:verify after UI changes. Keep Twenty production enablement blocked until HTTPS, tenant isolation, role mapping, observability and load evidence are accepted; keep main unchanged."

@@ -15,6 +15,7 @@ import {
   SUPPLIER_ACCESS_CHANGE_EVENT,
   type SupplierAccessChangeDetail,
 } from "@/lib/supplier-access-requests";
+import { buyerSession } from "@/lib/buyer-session";
 
 export type SupplierAccessNotificationFeedStatus =
   | "idle"
@@ -84,7 +85,7 @@ export const useSupplierAccessNotifications = (
   options: UseSupplierAccessNotificationsOptions = {},
 ): SupplierAccessNotificationsFeed => {
   const autoLoad = options.autoLoad ?? true;
-  const apiConfigured = isSupplierAccessApiConfigured();
+  const apiConfigured = isSupplierAccessApiConfigured() && Boolean(buyerSession.getSession()?.id);
   const [status, setStatus] = useState<SupplierAccessNotificationFeedStatus>("idle");
   const [notifications, setNotifications] = useState<SupplierAccessNotificationFeedItem[]>([]);
 

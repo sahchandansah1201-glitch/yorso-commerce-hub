@@ -1,6 +1,6 @@
 # Next Actions
 
-Updated: 2026-08-25
+Updated: 2026-08-26
 
 Repository: `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`
 
@@ -10,6 +10,10 @@ Branch: `local-lab/agent-capability-foundation`
 
 ## Current Product Priority
 
+0. Keep the local integration stand healthy before each product batch:
+   `npm run local-lab:status` must report HTTP 200 for YORSO UI, YORSO API and
+   Twenty CRM. Use `npm run local-lab:restart` to reconcile the LaunchAgent and
+   repository-owned Compose stack without deleting volumes.
 1. Use the persistent `http://127.0.0.1:3300/` local-lab stand for the latest
    working-tree UI. After every user-visible change, run
    `npm run local-lab:verify` before reporting the result.
@@ -25,6 +29,14 @@ Branch: `local-lab/agent-capability-foundation`
 
 ## Immediate
 
+0. Treat `/crm` as a protected handoff to a separate self-hosted application,
+   not as proof of SSO. Keep the explicit Twenty-login message until a real
+   identity contract is designed and tested. Keep production CRM promotion
+   closed until `docs/backend/crm-integration.md` gates are satisfied: HTTPS,
+   tenant isolation, role mapping, secret management, telemetry and
+   10,000-user load evidence with graceful degradation. The local defect where
+   stale YORSO sessions appeared as a CRM outage is closed; preserve its
+   re-authentication and `/crm` redirect regression coverage.
 1. Preserve the completed P1S.1 Lovable verification for implementation SHA
    `4f5b393ad7c62531a7c93f5b787526eb9654675b`: Lovable confirmed the same
    `local-lab/agent-capability-foundation` revision, a clean tree, zero product

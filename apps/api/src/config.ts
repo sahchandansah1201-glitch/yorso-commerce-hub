@@ -27,6 +27,11 @@ export const apiConfigSchema = z.object({
   authSessionCacheTtlMs: z.coerce.number().int().min(60_000).max(7 * 24 * 60 * 60 * 1000).default(300_000),
   authSessionCacheKeyPrefix: z.string().min(1).default("yorso:auth"),
   accountVersionPreconditionMode: z.enum(["optional", "required"]).default("optional"),
+  crmEnabled: booleanEnvSchema.default(false),
+  crmTenantIsolationEnabled: booleanEnvSchema.default(false),
+  twentyPublicCrmUrl: z.string().url().optional(),
+  crmHealthTimeoutMs: z.coerce.number().int().min(100).max(5_000).default(1_000),
+  crmHealthCacheTtlMs: z.coerce.number().int().min(1_000).max(60_000).default(5_000),
   auditDriver: z.enum(["disabled", "console", "postgres"]).default("disabled"),
   auditMaxInFlight: z.coerce.number().int().min(1).max(50_000).default(2_000),
   adminAuditExportMaxWindowDays: z.coerce.number().int().min(1).max(366).default(31),
@@ -100,6 +105,8 @@ const localDefaults = {
   AUTH_SESSION_CACHE_TTL_MS: "300000",
   AUTH_SESSION_CACHE_KEY_PREFIX: "yorso:auth",
   ACCOUNT_VERSION_PRECONDITION_MODE: "optional",
+  YORSO_CRM_HEALTH_TIMEOUT_MS: "1000",
+  YORSO_CRM_HEALTH_CACHE_TTL_MS: "5000",
   YORSO_AUDIT_DRIVER: "disabled",
   YORSO_AUDIT_MAX_IN_FLIGHT: "2000",
   YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS: "31",
@@ -172,6 +179,11 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     authSessionCacheTtlMs: source.AUTH_SESSION_CACHE_TTL_MS,
     authSessionCacheKeyPrefix: source.AUTH_SESSION_CACHE_KEY_PREFIX,
     accountVersionPreconditionMode: source.ACCOUNT_VERSION_PRECONDITION_MODE,
+    crmEnabled: source.YORSO_CRM_ENABLED,
+    crmTenantIsolationEnabled: source.YORSO_CRM_TENANT_ISOLATION_ENABLED,
+    twentyPublicCrmUrl: source.TWENTY_PUBLIC_CRM_URL,
+    crmHealthTimeoutMs: source.YORSO_CRM_HEALTH_TIMEOUT_MS,
+    crmHealthCacheTtlMs: source.YORSO_CRM_HEALTH_CACHE_TTL_MS,
     auditDriver: source.YORSO_AUDIT_DRIVER,
     auditMaxInFlight: source.YORSO_AUDIT_MAX_IN_FLIGHT,
     adminAuditExportMaxWindowDays: source.YORSO_ADMIN_AUDIT_EXPORT_MAX_WINDOW_DAYS,
@@ -223,6 +235,15 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
 }
 
 export function assertSelfHostedProductionRuntime(config: ApiConfig) {
+  if (config.crmEnabled && !config.crmTenantIsolationEnabled) {
+    throw new Error("Enabled CRM integration must use YORSO_CRM_TENANT_ISOLATION_ENABLED=true.");
+  }
+  if (config.crmEnabled && !config.twentyPublicCrmUrl) {
+    throw new Error("Enabled CRM integration must set TWENTY_PUBLIC_CRM_URL.");
+  }
+  if (config.nodeEnv === "production" && config.crmEnabled && !config.twentyPublicCrmUrl?.startsWith("https://")) {
+    throw new Error("Production CRM integration must use an HTTPS TWENTY_PUBLIC_CRM_URL.");
+  }
   if (config.nodeEnv === "production" && config.authRateLimitDriver !== "redis") {
     throw new Error("Production self-hosted API must use AUTH_RATE_LIMIT_DRIVER=redis.");
   }

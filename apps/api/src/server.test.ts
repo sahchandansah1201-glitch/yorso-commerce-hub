@@ -6,6 +6,7 @@ import { MemoryErrorTelemetrySink } from "./error-observability.js";
 import { ApiLifecycle } from "./lifecycle.js";
 import { InMemoryPrometheusMetricsRegistry } from "./metrics.js";
 import { MemoryAdminAuditRepository } from "./modules/admin-audit/repository.js";
+import { MemoryAuthRepository, type AuthUser } from "./modules/auth/repository.js";
 import { MemorySupplierRepository } from "./modules/suppliers/repository.js";
 import { createApiServer, type ApiServerOptions } from "./server.js";
 import type { ReadinessProbe } from "./routes/health.js";
@@ -13,6 +14,7 @@ import type { ReadinessProbe } from "./routes/health.js";
 type JsonBody = Record<string, unknown>;
 const testAccountUserId = "00000000-0000-4000-8000-000000000001";
 const testAdminUserId = "00000000-0000-4000-8000-000000000090";
+const testBasicUserId = "00000000-0000-4000-8000-000000000091";
 let activeAccountSessionId = "";
 
 const config = loadApiConfig(
@@ -46,7 +48,7 @@ async function request(path: string, init?: RequestInit) {
 
 async function startTestServer() {
   await closeServer();
-  server = createApiServer(config);
+  server = createApiServer(config, { crmAvailabilityChecker: async () => true });
 
   await new Promise<void>((resolve) => {
     server?.listen(0, "127.0.0.1", resolve);
@@ -94,7 +96,10 @@ async function startTestServer() {
 
 async function startRawTestServer(options: ApiServerOptions & { config?: ApiConfig; readinessProbe?: ReadinessProbe } = {}) {
   await closeServer();
-  server = createApiServer(options.config ?? config, options);
+  server = createApiServer(options.config ?? config, {
+    crmAvailabilityChecker: async () => true,
+    ...options,
+  });
 
   await new Promise<void>((resolve) => {
     server?.listen(0, "127.0.0.1", resolve);
@@ -133,7 +138,7 @@ async function signIn(fetchApi: Awaited<ReturnType<typeof startRawTestServer>>, 
 
 async function startLifecycleTestServer(lifecycle: ApiLifecycle) {
   await closeServer();
-  server = createApiServer(config, { lifecycle });
+  server = createApiServer(config, { crmAvailabilityChecker: async () => true, lifecycle });
 
   await new Promise<void>((resolve) => {
     server?.listen(0, "127.0.0.1", resolve);
@@ -202,6 +207,101 @@ async function sendSlowBodyRequest(port: number) {
     });
   });
 }
+
+const crmEnabledConfig: ApiConfig = {
+  ...config,
+  crmEnabled: true,
+  crmTenantIsolationEnabled: true,
+  twentyPublicCrmUrl: "http://127.0.0.1:3020",
+};
+
+describe("CRM full UI access", () => {
+  it("returns the configured self-hosted CRM URL to company administrators", async () => {
+    const fetchApi = await startRawTestServer({ config: crmEnabledConfig });
+    const headers = await signIn(fetchApi, "buyer@example.com");
+    const response = await fetchApi("/v1/crm/full-ui", { headers });
+    const body = await response.json() as JsonBody;
+
+    expect(response.status).toBe(200);
+    expect(body).toMatchObject({
+      ok: true,
+      crmUrl: "http://127.0.0.1:3020",
+    });
+    expect(body.requestId).toEqual(expect.any(String));
+  });
+
+  it("rejects authenticated users without a CRM administration role", async () => {
+    const basicUser: AuthUser = {
+      id: testBasicUserId,
+      email: "basic@example.com",
+      displayName: "Basic Buyer",
+      passwordSecret: "plain:Password1",
+    };
+    const authRepository = new MemoryAuthRepository(
+      [basicUser],
+      { [basicUser.id]: ["buyer"] },
+    );
+    const fetchApi = await startRawTestServer({ authRepository });
+    const headers = await signIn(fetchApi, basicUser.email);
+    const response = await fetchApi("/v1/crm/full-ui", { headers });
+    const body = await response.json() as JsonBody;
+
+    expect(response.status).toBe(403);
+    expect(body.error).toMatchObject({ code: "crm_access_denied" });
+  });
+
+  it("returns a controlled unavailable response when CRM runtime is disabled", async () => {
+    const fetchApi = await startRawTestServer({
+      config: {
+        ...config,
+        crmEnabled: false,
+        crmTenantIsolationEnabled: false,
+        twentyPublicCrmUrl: undefined,
+      },
+    });
+    const headers = await signIn(fetchApi, "buyer@example.com");
+    const response = await fetchApi("/v1/crm/full-ui", { headers });
+    const body = await response.json() as JsonBody;
+
+    expect(response.status).toBe(503);
+    expect(body.error).toMatchObject({ code: "crm_unavailable" });
+  });
+
+  it("returns a controlled unavailable response when Twenty fails its health check", async () => {
+    const fetchApi = await startRawTestServer({
+      config: crmEnabledConfig,
+      crmAvailabilityChecker: async () => false,
+    });
+    const headers = await signIn(fetchApi, "buyer@example.com");
+    const response = await fetchApi("/v1/crm/full-ui", { headers });
+    const body = await response.json() as JsonBody;
+
+    expect(response.status).toBe(503);
+    expect(body.error).toMatchObject({ code: "crm_unavailable" });
+  });
+
+  it("bypasses the cached Twenty status when the client requests a fresh CRM check", async () => {
+    const checks: Array<{ forceRefresh?: boolean } | undefined> = [];
+    const fetchApi = await startRawTestServer({
+      config: crmEnabledConfig,
+      crmAvailabilityChecker: async (_url, options) => {
+        checks.push(options);
+        return true;
+      },
+    });
+    const headers = await signIn(fetchApi, "buyer@example.com");
+
+    await expect(fetchApi("/v1/crm/full-ui", { headers })).resolves.toMatchObject({ status: 200 });
+    await expect(fetchApi("/v1/crm/full-ui", {
+      headers: { ...headers, "cache-control": "no-cache" },
+    })).resolves.toMatchObject({ status: 200 });
+
+    expect(checks).toEqual([
+      { forceRefresh: false },
+      { forceRefresh: true },
+    ]);
+  });
+});
 
 afterEach(async () => {
   await closeServer();
@@ -3899,10 +3999,28 @@ describe("YORSO self-hosted API skeleton", () => {
     });
   });
 
+  const productionCrmEnvironment = {
+    YORSO_CRM_ENABLED: "true",
+    YORSO_CRM_TENANT_ISOLATION_ENABLED: "true",
+    TWENTY_PUBLIC_CRM_URL: "https://crm.example.com",
+  } as const;
+
+  it("keeps CRM disabled unless it is explicitly configured", () => {
+    const defaultConfig = loadApiConfig(
+      { NODE_ENV: "production" },
+      { allowLocalDefaults: true },
+    );
+
+    expect(defaultConfig.crmEnabled).toBe(false);
+    expect(defaultConfig.crmTenantIsolationEnabled).toBe(false);
+    expect(defaultConfig.twentyPublicCrmUrl).toBeUndefined();
+  });
+
   it("requires account version preconditions in production config", () => {
     const productionConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -3925,6 +4043,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const productionConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "audit_log",
         AUTH_RATE_LIMIT_FAIL_MODE: "open",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -3944,6 +4063,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const failOpenConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "open",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -3963,6 +4083,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const noObservabilityConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -3982,6 +4103,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const noErrorObservabilityConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4002,6 +4124,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const noAuditConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4022,6 +4145,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const shortAuditRetentionConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4043,6 +4167,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const wideAuditExportConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4064,6 +4189,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const noMetricsConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4084,6 +4210,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const noRequestObservabilityConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4104,6 +4231,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const noRegistrationDeliveryWorkerConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4124,6 +4252,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const disabledRegistrationSenderConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4146,6 +4275,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const relativeSpoolConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4169,6 +4299,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const noPasswordRecoveryWorkerConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4193,6 +4324,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const disabledPasswordRecoverySenderConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4219,6 +4351,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const relativePasswordRecoverySpoolConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",
@@ -4246,6 +4379,7 @@ describe("YORSO self-hosted API skeleton", () => {
     const noPasswordRecoveryCleanupConfig = loadApiConfig(
       {
         NODE_ENV: "production",
+        ...productionCrmEnvironment,
         AUTH_RATE_LIMIT_DRIVER: "redis",
         AUTH_RATE_LIMIT_FAIL_MODE: "closed",
         AUTH_SESSION_CACHE_DRIVER: "redis",

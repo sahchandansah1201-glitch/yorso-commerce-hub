@@ -128,8 +128,10 @@ export function createSupplierAccessApiClient(
 
   const accountHeaders = (headers?: HeadersInit) => {
     const next = jsonHeaders(headers);
-    next.set(ACCOUNT_USER_ID_HEADER, accountUserId);
-    if (sessionId) next.set(ACCOUNT_SESSION_ID_HEADER, sessionId);
+    if (sessionId) {
+      next.set(ACCOUNT_USER_ID_HEADER, accountUserId);
+      next.set(ACCOUNT_SESSION_ID_HEADER, sessionId);
+    }
     return next;
   };
 

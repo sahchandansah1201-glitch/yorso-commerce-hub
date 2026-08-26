@@ -1,5 +1,44 @@
 # Worklog
 
+## 2026-08-26 — Self-hosted Twenty CRM local-lab integration
+
+- Replaced the orphaned Twenty Compose source from a deleted Downloads path
+  with repository-owned Compose files under `infra/twenty/`, while preserving
+  the existing PostgreSQL, Redis and server-file Docker volumes.
+- Extended the persistent macOS LaunchAgent runtime so one command starts and
+  checks YORSO UI on `127.0.0.1:3300`, YORSO API on `127.0.0.1:3000` and Twenty
+  on `127.0.0.1:3020`.
+- Added a protected `GET /v1/crm/full-ui` handoff for authenticated
+  `admin`/`company_admin` users, with fail-closed tenant-isolation and URL
+  configuration checks.
+- Added localized `/crm` UX and desktop/mobile account-menu links. The UI
+  states plainly that Twenty uses a separate login; no SSO was fabricated.
+- Fixed the false `CRM temporarily unavailable` state caused by stale local
+  prototype sessions: `/crm` now distinguishes an expired YORSO session and
+  sends the user through a fresh backend sign-in before returning to CRM.
+- Added a bounded Twenty `/healthz` probe to the API handoff. Availability is
+  cached for five seconds and concurrent checks are coalesced per API process,
+  so CRM failures degrade only the CRM entry surface without probe fan-out.
+- Verified the API contract, frontend client, account-menu links, retry/error
+  behavior and a live browser journey from YORSO sign-in to the real Twenty
+  login screen.
+- Final verification passed with 225/225 API tests, 32/32 focused frontend
+  tests and 2/2 PostgreSQL role-query tests. The combined CRM browser batch
+  completed three consecutive times with 16 passed and 1 intentionally skipped
+  case per run.
+- The opt-in live browser flow passed 1/1 and proved the complete boundary:
+  YORSO sign-in, `/crm` handoff, Twenty `/welcome`, a visible email field and
+  the Continue action. This is a separate-login integration, not SSO.
+
+| Plan | Fact | Remaining | Verification |
+|---|---|---|---|
+| Make Twenty the default local CRM | UI/API/Compose runtime and protected handoff are operational | Production identity, tenancy and scaling gates | local-lab status, Docker health, CRM tests and screenshots |
+| Distinguish session expiry from CRM outage | Stale prototype sessions show a localized re-authentication action and preserve the `/crm` destination | Replace the temporary two-login boundary only through a separately approved SSO contract | CRM state e2e and sign-in redirect tests |
+| Bound CRM availability checks | API checks Twenty health with timeout, TTL cache and single-flight coalescing | Add shared observability and load evidence before multi-instance production rollout | availability unit tests and CRM API tests |
+| Preserve data | Existing named Docker volumes were reused | Backup/restore proof before production | Compose volume inspection |
+| Avoid false SSO claims | Separate-login boundary is visible in UI | Design SSO only as a separate approved scope | live browser journey |
+| Keep role authorization bounded | Each CRM handoff performs one indexed account-role query; empty role sets perform no query | Add edge request budgets and shared availability caching before multi-instance production | PostgreSQL repository tests 2/2 |
+
 Keep this file factual and append-only.
 
 ## 2026-08-23 — Exact fixed candidate passed remote CI

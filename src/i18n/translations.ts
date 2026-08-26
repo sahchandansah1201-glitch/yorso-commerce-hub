@@ -351,6 +351,7 @@ type TranslationKeys = {
   signin_backToSignIn: string;
   signin_fillAll: string;
   signin_enterPhonePassword: string;
+  signin_crmEmailRequired: string;
   signin_enterValidPhone: string;
   signin_signedIn: string;
   signin_welcomeBack: string;
@@ -1533,6 +1534,17 @@ type TranslationKeys = {
 
   // Account workspace
   nav_myAccount: string;
+  nav_crm: string;
+  crm_pageTitle: string;
+  crm_pageDescription: string;
+  crm_open: string;
+  crm_loading: string;
+  crm_accessDenied: string;
+  crm_signInRequired: string;
+  crm_signInAgain: string;
+  crm_unavailable: string;
+  crm_separateLoginHint: string;
+  crm_retry: string;
   account_workspace_title: string;
   account_workspace_subtitle: string;
   account_nav_aria: string;
@@ -2321,6 +2333,7 @@ const en: TranslationKeys = {
   signin_backToSignIn: "Back to sign in",
   signin_fillAll: "Please fill in all fields",
   signin_enterPhonePassword: "Please enter your phone number and password",
+  signin_crmEmailRequired: "Sign in with email and password to open CRM.",
   signin_enterValidPhone: "Please enter a valid phone number",
   signin_signedIn: "Signed in",
   signin_welcomeBack: "Welcome back!",
@@ -3512,6 +3525,17 @@ const en: TranslationKeys = {
   blog_startHere_howItWorks_label: "How YORSO works",
   blog_startHere_howItWorks_desc: "Three access levels and the procurement flow.",
   nav_myAccount: "My account",
+  nav_crm: "CRM",
+  crm_pageTitle: "CRM workspace",
+  crm_pageDescription: "Manage customer relationships in YORSO's self-hosted CRM.",
+  crm_open: "Open CRM",
+  crm_loading: "Checking CRM access...",
+  crm_accessDenied: "You do not have permission to open CRM.",
+  crm_signInRequired: "Your YORSO session has expired. Sign in again to open CRM.",
+  crm_signInAgain: "Sign in again",
+  crm_unavailable: "CRM is temporarily unavailable.",
+  crm_separateLoginHint: "CRM opens in a separate secure service and may require a separate sign-in.",
+  crm_retry: "Try again",
   account_workspace_title: "My account",
   account_workspace_subtitle: "Company operating profile. The data here will power the catalog, matching and notifications.",
   account_nav_aria: "Account navigation",
@@ -4288,6 +4312,7 @@ const ru: TranslationKeys = {
   signin_backToSignIn: "Вернуться к входу",
   signin_fillAll: "Пожалуйста, заполните все поля",
   signin_enterPhonePassword: "Пожалуйста, введите номер и пароль",
+  signin_crmEmailRequired: "Чтобы открыть CRM, войдите по email и паролю.",
   signin_enterValidPhone: "Пожалуйста, введите корректный номер телефона",
   signin_signedIn: "Вы вошли",
   signin_welcomeBack: "С возвращением!",
@@ -5479,6 +5504,17 @@ const ru: TranslationKeys = {
   blog_startHere_howItWorks_label: "Как работает YORSO",
   blog_startHere_howItWorks_desc: "Три уровня доступа и сценарий закупки.",
   nav_myAccount: "Моя учётная запись",
+  nav_crm: "CRM",
+  crm_pageTitle: "CRM YORSO",
+  crm_pageDescription: "Управляйте отношениями с клиентами в локальной CRM YORSO.",
+  crm_open: "Открыть CRM",
+  crm_loading: "Проверяем доступ к CRM…",
+  crm_accessDenied: "У вас нет доступа к CRM.",
+  crm_signInRequired: "Сессия YORSO устарела. Войдите снова, чтобы открыть CRM.",
+  crm_signInAgain: "Войти снова",
+  crm_unavailable: "CRM временно недоступна.",
+  crm_separateLoginHint: "CRM откроется в отдельном защищённом сервисе и может запросить отдельный вход.",
+  crm_retry: "Повторить",
   account_workspace_title: "Моя учётная запись",
   account_workspace_subtitle: "Операционный профиль компании: данные, на основе которых работают каталог, матчинг и уведомления.",
   account_nav_aria: "Навигация по учётной записи",
@@ -6255,6 +6291,7 @@ const es: TranslationKeys = {
   signin_backToSignIn: "Volver a iniciar sesión",
   signin_fillAll: "Por favor complete todos los campos",
   signin_enterPhonePassword: "Ingrese su teléfono y contraseña",
+  signin_crmEmailRequired: "Para abrir CRM, inicia sesión con email y contraseña.",
   signin_enterValidPhone: "Ingrese un número de teléfono válido",
   signin_signedIn: "Sesión iniciada",
   signin_welcomeBack: "¡Bienvenido de vuelta!",
@@ -7445,6 +7482,17 @@ const es: TranslationKeys = {
   blog_startHere_howItWorks_label: "Cómo funciona YORSO",
   blog_startHere_howItWorks_desc: "Tres niveles de acceso y el flujo de compras.",
   nav_myAccount: "Mi cuenta",
+  nav_crm: "CRM",
+  crm_pageTitle: "CRM de YORSO",
+  crm_pageDescription: "Gestiona las relaciones con clientes en el CRM alojado por YORSO.",
+  crm_open: "Abrir CRM",
+  crm_loading: "Comprobando el acceso al CRM…",
+  crm_accessDenied: "No tienes permiso para abrir el CRM.",
+  crm_signInRequired: "Tu sesión de YORSO ha caducado. Vuelve a iniciar sesión para abrir el CRM.",
+  crm_signInAgain: "Volver a iniciar sesión",
+  crm_unavailable: "El CRM no está disponible temporalmente.",
+  crm_separateLoginHint: "El CRM se abre en un servicio seguro independiente y puede requerir otro inicio de sesión.",
+  crm_retry: "Reintentar",
   account_workspace_title: "Mi cuenta",
   account_workspace_subtitle: "Perfil operativo de la empresa: datos que alimentarán el catálogo, el matching y las notificaciones.",
   account_nav_aria: "Navegación de la cuenta",

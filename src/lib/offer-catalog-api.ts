@@ -125,10 +125,12 @@ const paramsFromQuery = (query: Partial<OfferCatalogQuery>) => {
 const offerCatalogHeaders = () => {
   const headers = new Headers();
   headers.set("accept", "application/json");
-  const accountUserId = getConfiguredAccountUserId();
-  if (accountUserId) headers.set(ACCOUNT_USER_ID_HEADER, accountUserId);
   const sessionId = buyerSession.getSession()?.id;
-  if (sessionId) headers.set(ACCOUNT_SESSION_ID_HEADER, sessionId);
+  if (sessionId) {
+    const accountUserId = getConfiguredAccountUserId();
+    if (accountUserId) headers.set(ACCOUNT_USER_ID_HEADER, accountUserId);
+    headers.set(ACCOUNT_SESSION_ID_HEADER, sessionId);
+  }
   return headers;
 };
 

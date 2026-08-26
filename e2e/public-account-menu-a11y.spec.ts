@@ -67,6 +67,7 @@ test.describe("public signed-in account menu accessibility", () => {
     const menu = page.getByRole("group", { name: labels.en.menu });
     await expect(menu).toBeVisible();
     await expect(menu.getByRole("link", { name: labels.en.account })).toHaveAttribute("href", "/account");
+    await expect(menu.getByTestId("header-crm-link")).toHaveAttribute("href", "/crm");
     await expect(menu.getByRole("button", { name: labels.en.signOut })).toBeVisible();
     await expectNoNestedInteractiveControls(page);
   });
@@ -87,6 +88,7 @@ test.describe("public signed-in account menu accessibility", () => {
         "href",
         "/account",
       );
+      await expect(accountPanel.getByTestId("header-mobile-crm-link")).toHaveAttribute("href", "/crm");
       await expect(accountPanel.getByRole("button", { name: labels[lang].signOut })).toBeVisible();
       await expectNoNestedInteractiveControls(page);
       await expectNoHorizontalOverflow(page);

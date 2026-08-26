@@ -227,6 +227,7 @@ export interface AuthRepository {
   ): Promise<PasswordRecoveryDeliveryOutboxEntry | null>;
   cleanupPasswordRecovery(input: PasswordRecoveryCleanupInput): Promise<PasswordRecoveryCleanupResult>;
   hasRole(userId: string, role: AdminUserRole): Promise<boolean>;
+  hasAnyRole(userId: string, roles: readonly AdminUserRole[]): Promise<boolean>;
   recordSecurityEvent(event: AuthSecurityEventInput): Promise<void>;
   countRecentSecurityEvents(query: AuthSecurityEventCountQuery): Promise<number>;
 }
@@ -295,7 +296,7 @@ export class MemoryAuthRepository implements AuthRepository {
   constructor(
     users: AuthUser[] = [demoAuthUser, demoAdminUser],
     roles: Record<string, AdminUserRole[]> = {
-      [demoAuthUser.id]: ["buyer"],
+      [demoAuthUser.id]: ["buyer", "company_admin"],
       [demoAdminUser.id]: ["admin"],
     },
     private readonly accountProvisioner?: RegistrationAccountProvisioner,
@@ -719,6 +720,11 @@ export class MemoryAuthRepository implements AuthRepository {
 
   async hasRole(userId: string, role: AdminUserRole): Promise<boolean> {
     return this.rolesByUserId.get(userId)?.has(role) ?? false;
+  }
+
+  async hasAnyRole(userId: string, roles: readonly AdminUserRole[]): Promise<boolean> {
+    const userRoles = this.rolesByUserId.get(userId);
+    return Boolean(userRoles && roles.some((role) => userRoles.has(role)));
   }
 
   async recordSecurityEvent(event: AuthSecurityEventInput): Promise<void> {

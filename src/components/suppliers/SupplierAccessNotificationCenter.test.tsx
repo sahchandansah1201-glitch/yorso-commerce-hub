@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LanguageProvider } from "@/i18n/LanguageContext";
+import { buyerSession } from "@/lib/buyer-session";
 import { queueApprovalNotification } from "@/lib/supplier-access-approval";
 import { SupplierAccessNotificationBell } from "@/components/suppliers/SupplierAccessNotificationCenter";
 
@@ -19,6 +20,7 @@ const renderBell = () =>
 
 describe("SupplierAccessNotificationCenter", () => {
   afterEach(() => {
+    buyerSession.__resetForTests();
     localStorage.clear();
     sessionStorage.clear();
     vi.restoreAllMocks();
@@ -28,6 +30,11 @@ describe("SupplierAccessNotificationCenter", () => {
 
   it("shows self-hosted supplier access notifications and marks them read", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+    buyerSession.signIn({
+      id: "session-notifications",
+      identifier: "buyer@example.com",
+      method: "email",
+    });
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       if (url.endsWith("/v1/access/notifications") && init?.method === "PATCH") {
         return new Response(JSON.stringify({

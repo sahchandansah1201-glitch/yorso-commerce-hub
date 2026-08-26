@@ -18,13 +18,8 @@ import Footer from "@/components/landing/Footer";
 type LoginMethod = "email" | "phone";
 type View = "login" | "forgot";
 
-/**
- * Buyer sign-in always lands on the procurement workspace at /offers.
- * The redirect query parameter is intentionally ignored in Phase 1 so that
- * buyers reach the catalog as quickly as possible, regardless of how they
- * arrived at the sign-in screen.
- */
-const sanitizeRedirect = (_raw: string | null): string => "/offers";
+/** Only explicitly supported internal destinations may override /offers. */
+const sanitizeRedirect = (raw: string | null): string => raw === "/crm" ? "/crm" : "/offers";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -35,6 +30,7 @@ const SignIn = () => {
     () => sanitizeRedirect(searchParams.get("redirect")),
     [searchParams],
   );
+  const requiresCrmSession = redirectTo === "/crm";
 
   // If already signed in, skip the form entirely.
   useEffect(() => {
@@ -95,6 +91,11 @@ const SignIn = () => {
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (requiresCrmSession) {
+      setMethod("email");
+      toast.error(t.signin_crmEmailRequired);
+      return;
+    }
     const digits = phoneNumber.replace(/[\s\-()]/g, "");
     if (digits.length < 5 || !phonePassword) { toast.error(t.signin_enterPhonePassword); return; }
     setSigninLoading(true);
@@ -110,6 +111,23 @@ const SignIn = () => {
     analytics.track("workspace_session_started", { method: "phone", source: "local_contract" });
     toast.success(t.signin_signedIn, { description: t.signin_welcomeBack });
     navigate(redirectTo);
+  };
+
+  const handleWhatsAppSignIn = () => {
+    if (requiresCrmSession) {
+      setMethod("email");
+      toast.error(t.signin_crmEmailRequired);
+      return;
+    }
+    if (!phoneNumber || phoneNumber.replace(/\D/g, "").length < 7) {
+      toast.error(t.signin_enterValidPhone);
+      return;
+    }
+    analytics.track("signin_whatsapp", { phone: phoneNumber });
+    signIn({ identifier: phoneNumber, method: "whatsapp", source: "local_contract" });
+    analytics.track("workspace_session_started", { method: "whatsapp", source: "local_contract" });
+    toast.success(t.signin_codeSentWhatsApp, { description: t.signin_checkWhatsApp });
+    setTimeout(() => navigate(redirectTo), 1500);
   };
 
   const handleForgotSubmit = async (e: React.FormEvent) => {
@@ -152,10 +170,16 @@ const SignIn = () => {
                 <button type="button" onClick={() => setMethod("email")} className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all ${method === "email" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
                   <Mail className="h-4 w-4" /> {t.signin_email}
                 </button>
-                <button type="button" onClick={() => setMethod("phone")} className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all ${method === "phone" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+                <button type="button" onClick={() => setMethod("phone")} disabled={requiresCrmSession} aria-describedby={requiresCrmSession ? "signin-crm-email-required" : undefined} className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50 ${method === "phone" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
                   <Phone className="h-4 w-4" /> {t.signin_phone}
                 </button>
               </div>
+
+              {requiresCrmSession && (
+                <p id="signin-crm-email-required" data-testid="signin-crm-email-required" className="mt-3 text-sm text-muted-foreground">
+                  {t.signin_crmEmailRequired}
+                </p>
+              )}
 
               <form onSubmit={method === "email" ? handleEmailSubmit : handlePhoneSubmit} className="mt-6 space-y-4">
                 <div>
@@ -193,7 +217,7 @@ const SignIn = () => {
                     <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
                     <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">{t.signin_or}</span></div>
                   </div>
-                  <Button type="button" onClick={() => { if (!phoneNumber || phoneNumber.replace(/\D/g, "").length < 7) { toast.error(t.signin_enterValidPhone); return; } analytics.track("signin_whatsapp", { phone: phoneNumber }); signIn({ identifier: phoneNumber, method: "whatsapp", source: "local_contract" }); analytics.track("workspace_session_started", { method: "whatsapp", source: "local_contract" }); toast.success(t.signin_codeSentWhatsApp, { description: t.signin_checkWhatsApp }); setTimeout(() => navigate(redirectTo), 1500); }} className="w-full h-12 gap-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
+                  <Button type="button" onClick={handleWhatsAppSignIn} className="w-full h-12 gap-2 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
                     <WhatsAppIcon className="h-5 w-5" /> {t.signin_getCodeWhatsApp}
                   </Button>
                 </>

@@ -1,5 +1,30 @@
 # Artifacts
 
+## Twenty CRM Local-Lab Integration (2026-08-26)
+
+- `infra/twenty/docker-compose.yml`: pinned self-hosted Twenty server, worker,
+  PostgreSQL and Redis stack using preserved named volumes.
+- `infra/twenty/docker-compose.local.yml`: loopback-only local port exposure.
+- `infra/twenty/.env.example` and `infra/twenty/README.md`: non-secret setup,
+  reconciliation and health-check instructions.
+- `packages/contracts/src/crm.ts`, `apps/api/src/modules/crm/routes.ts` and
+  `apps/api/src/modules/crm/availability.ts`: protected server-side CRM handoff
+  with bounded, cached and coalesced Twenty health checks.
+- `src/lib/crm-api.ts` and `src/pages/Crm.tsx`: localized frontend handoff with
+  loading, ready, denied, expired-session, unavailable and retry states.
+- `scripts/local-lab-runtime.mjs` and `scripts/local-lab-service.mjs`:
+  persistent UI/API/Twenty startup and health reporting.
+- `e2e/crm-entry.spec.ts`: desktop/mobile/error-state tests plus opt-in live
+  YORSO-to-Twenty browser journey.
+- `test-results/crm-entry/live-crm-ready.png`: authenticated YORSO CRM entry.
+- `test-results/crm-entry/live-twenty-login.png`: real Twenty login reached from
+  the YORSO handoff.
+- Verification evidence: API 225/225; focused frontend 32/32; PostgreSQL
+  role-query 2/2; combined CRM Playwright 16 passed and 1 skipped in three
+  consecutive runs; live YORSO-to-Twenty journey 1/1.
+- `docs/backend/crm-integration.md`: architecture, security boundary,
+  10,000-user baseline and production gates.
+
 ## Persistent Local Lab Runtime (2026-08-25)
 
 - `scripts/local-lab-service.mjs`: installs, restarts, reports and verifies the

@@ -43,6 +43,8 @@ import { createPasswordRecoveryCleanupRuntime } from "./modules/auth/password-re
 import type { PasswordRecoveryCleanupScheduler } from "./modules/auth/password-recovery-cleanup-scheduler.js";
 import type { AuthRepository, RegistrationAccountProvisioner } from "./modules/auth/repository.js";
 import { handleAuthRoute } from "./modules/auth/routes.js";
+import { createCrmAvailabilityChecker, type CrmAvailabilityChecker } from "./modules/crm/availability.js";
+import { handleCrmRoute } from "./modules/crm/routes.js";
 import { accountSessionIdHeaderName, accountUserIdHeaderName } from "./modules/auth/session.js";
 import { createAuthSessionCache } from "./modules/auth/session-cache.js";
 import {
@@ -77,6 +79,7 @@ export interface ApiServerOptions {
   adminIncidentRepository?: AdminIncidentRepository;
   auditSink?: AuditSink;
   authRepository?: AuthRepository;
+  crmAvailabilityChecker?: CrmAvailabilityChecker;
   fileService?: FileService;
   lifecycle?: ApiLifecycle;
   metricsRegistry?: MetricsRegistry;
@@ -129,6 +132,10 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
     options.registrationVerification,
     options.passwordRecovery,
   );
+  const crmAvailabilityChecker = options.crmAvailabilityChecker ?? createCrmAvailabilityChecker({
+    timeoutMs: config.crmHealthTimeoutMs,
+    cacheTtlMs: config.crmHealthCacheTtlMs,
+  });
   const accountService = new AccountService(accountRepository);
   const adminAuditService = new AdminAuditService(options.adminAuditRepository ?? createAdminAuditRepository(config), config);
   const lifecycle = options.lifecycle ?? new ApiLifecycle();
@@ -232,6 +239,7 @@ export function createApiServer(config: ApiConfig, options: ApiServerOptions = {
       metricsRegistry,
       auditSink,
       jsonBodyOptions,
+      crmAvailabilityChecker,
     ).catch((error) => {
       if (response.writableEnded) return;
       sendError(response, 500, "internal_error", "Internal server error.", context);
@@ -327,6 +335,7 @@ async function routeRequest(
   metricsRegistry: MetricsRegistry,
   auditSink: AuditSink,
   jsonBodyOptions: JsonBodyReadOptions,
+  crmAvailabilityChecker: CrmAvailabilityChecker,
 ) {
   applyCorsHeaders(request, response, config);
   response.setHeader("x-request-id", context.requestId);
@@ -397,6 +406,7 @@ async function routeRequest(
       auditSink,
       metricsRegistry,
       jsonBodyOptions,
+      crmAvailabilityChecker,
     );
   } finally {
     lifecycle.endRequest();
@@ -422,6 +432,7 @@ async function routeWorkRequest(
   auditSink: AuditSink,
   metricsRegistry: MetricsRegistry,
   jsonBodyOptions: JsonBodyReadOptions,
+  crmAvailabilityChecker: CrmAvailabilityChecker,
 ) {
   if (url.pathname === "/v1/account/company/schema") {
     if (request.method !== "GET") {
@@ -433,6 +444,15 @@ async function routeWorkRequest(
   }
 
   if (await handleAuthRoute(request, response, context, authService, url.pathname, jsonBodyOptions, auditSink)) return;
+  if (await handleCrmRoute(
+    request,
+    response,
+    context,
+    authService,
+    url.pathname,
+    config,
+    crmAvailabilityChecker,
+  )) return;
   if (await handleAdminOperationsRoute(
     request,
     response,

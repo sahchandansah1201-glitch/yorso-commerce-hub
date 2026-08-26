@@ -10,6 +10,7 @@ import {
   persistSupplierAccessRequest,
   type SupplierAccessRequest,
 } from "@/lib/supplier-access-requests";
+import { buyerSession } from "@/lib/buyer-session";
 
 const SUPPLIER_ID = "sup-no-001";
 const NOTIFICATION_ID = "11111111-1111-4111-8111-111111111111";
@@ -23,11 +24,13 @@ describe("supplier-access-api", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
+    buyerSession.__resetForTests();
   });
 
   afterEach(() => {
     localStorage.clear();
     sessionStorage.clear();
+    buyerSession.__resetForTests();
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
@@ -61,6 +64,7 @@ describe("supplier-access-api", () => {
     const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
       expect(init?.headers).toBeInstanceOf(Headers);
       expect((init?.headers as Headers).get("x-yorso-user-id")).toBe("00000000-0000-4000-8000-000000000042");
+      expect((init?.headers as Headers).get("x-yorso-session-id")).toBe("session-42");
 
       if (init?.method === "POST") {
         return new Response(JSON.stringify({
@@ -178,6 +182,29 @@ describe("supplier-access-api", () => {
     expect(fetchImpl.mock.calls[3][0]).toBe(
       "http://localhost:3000/v1/access/notifications",
     );
+  });
+
+  it("does not send a partial account identity without a session", async () => {
+    const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
+      const headers = init?.headers as Headers;
+      expect(headers.get("x-yorso-user-id")).toBeNull();
+      expect(headers.get("x-yorso-session-id")).toBeNull();
+      return new Response(JSON.stringify({
+        ok: true,
+        request: null,
+        accessGranted: false,
+        requestId: "anonymous-read",
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    });
+
+    const client = createSupplierAccessApiClient({
+      baseUrl: "http://localhost:3000",
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      userId: "00000000-0000-4000-8000-000000000042",
+    });
+
+    await expect(client.read(SUPPLIER_ID)).resolves.toBeNull();
+    expect(fetchImpl).toHaveBeenCalledOnce();
   });
 
   it("acknowledges self-hosted notifications through the configured API", async () => {

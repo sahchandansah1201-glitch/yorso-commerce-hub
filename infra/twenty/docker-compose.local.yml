@@ -1,0 +1,12 @@
+services:
+  server:
+    networks:
+      default: {}
+      yorso-local:
+        aliases:
+          - twenty-server
+
+networks:
+  yorso-local:
+    external: true
+    name: yorso-local

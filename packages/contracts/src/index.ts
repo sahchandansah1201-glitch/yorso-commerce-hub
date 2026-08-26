@@ -5,6 +5,7 @@ export * from "./admin-incidents.js";
 export * from "./admin-operations.js";
 export * from "./admin-runtime.js";
 export * from "./auth.js";
+export * from "./crm.js";
 export * from "./offer-catalog.js";
 export * from "./supplier-access.js";
 export * from "./supplier-directory.js";

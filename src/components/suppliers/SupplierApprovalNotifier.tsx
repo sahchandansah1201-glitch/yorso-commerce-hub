@@ -12,6 +12,7 @@ import {
 } from "@/lib/supplier-access-approval";
 import {
   acknowledgeSupplierAccessNotifications,
+  isSupplierAccessApiConfigured,
   readSupplierAccessNotifications,
 } from "@/lib/supplier-access-api";
 import {
@@ -21,13 +22,16 @@ import {
 } from "@/lib/supplier-approval-notifications";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { useBuyerSession } from "@/contexts/BuyerSessionContext";
 
 export const SupplierApprovalNotifier = () => {
   const location = useLocation();
   const { t } = useLanguage();
+  const { session } = useBuyerSession();
   useEffect(() => {
     let cancelled = false;
     let backendSyncInFlight = false;
+    const canSyncBackend = Boolean(session?.id) && isSupplierAccessApiConfigured();
     const showApprovalToast = () => {
       toast({
         title: t.supplierApprovalToast_title,
@@ -39,7 +43,7 @@ export const SupplierApprovalNotifier = () => {
       drainApprovalNotifications(showApprovalToast);
     };
     const syncBackendNotifications = async () => {
-      if (backendSyncInFlight) return;
+      if (!canSyncBackend || backendSyncInFlight) return;
       backendSyncInFlight = true;
       try {
         const notifications = await readSupplierAccessNotifications();
@@ -84,6 +88,6 @@ export const SupplierApprovalNotifier = () => {
       window.clearInterval(mockInterval);
       window.clearInterval(backendInterval);
     };
-  }, [location.pathname, t]);
+  }, [location.pathname, session?.id, t]);
   return null;
 };

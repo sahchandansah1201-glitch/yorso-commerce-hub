@@ -44,6 +44,7 @@ const ForSuppliers = lazy(() => import("./pages/ForSuppliers.tsx"));
 const Blog = lazy(() => import("./pages/Blog.tsx"));
 const BlogArticle = lazy(() => import("./pages/BlogArticle.tsx"));
 const Account = lazy(() => import("./pages/account/Account.tsx"));
+const Crm = lazy(() => import("./pages/Crm.tsx"));
 const RegistrationFunnelDashboard = lazy(() => import("./pages/dashboard/RegistrationFunnelDashboard.tsx"));
 const ResendEffectivenessDashboard = lazy(() => import("./pages/dashboard/ResendEffectivenessDashboard.tsx"));
 const TypographyAudit = lazy(() => import("./pages/dev/TypographyAudit.tsx"));
@@ -117,6 +118,7 @@ const App = () => (
                     <Route path="/blog/:slug" element={<BlogArticle />} />
                     <Route path="/account" element={<Navigate to="/account/personal" replace />} />
                     <Route path="/account/:section" element={<Account />} />
+                    <Route path="/crm" element={<Crm />} />
                     <Route path="/profile" element={<Navigate to="/account/personal" replace />} />
                     <Route path="/profile/personal" element={<Navigate to="/account/personal" replace />} />
                     <Route path="/profile/company" element={<Navigate to="/account/company" replace />} />

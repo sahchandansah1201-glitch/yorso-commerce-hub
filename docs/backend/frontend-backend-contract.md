@@ -1,7 +1,7 @@
 # YORSO Frontend-Backend Contract
 
 Status: Phase 0 closure-audited contract
-Frontend source: `/Users/istokdmgmail.com/Documents/GitHub/yorso-commerce-hub`
+Frontend source: `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`
 
 ## Purpose
 
@@ -104,6 +104,7 @@ mistaken for production data surfaces.
 | `/account/meta-regions` | Logistics grouping | self-hosted account workspace snapshot when API is configured | row-level meta-region API, bulk replace compatibility | Phase 1 closed |
 | `/account/notifications` | Notification preferences | self-hosted account workspace snapshot when API is configured | row-level notification API, bulk replace compatibility | Phase 1 closed |
 | `/account` | Account legacy/current entry | client redirect to `/account/personal` | redirect only; no data source | P0 |
+| `/crm` | Protected entry to the default self-hosted Twenty CRM workspace | `src/lib/crm-api.ts` calls `GET /v1/crm/full-ui`; Twenty opens as a separate application with its own login | server-owned CRM URL, authenticated `admin`/`company_admin` access, tenant-isolation gate, independent Twenty runtime and health monitoring | local-lab implemented; production gated |
 | `/profile` and `/profile/*` | Legacy profile aliases | client redirects to account sections | redirect compatibility only; no data source | P0 |
 | `/dashboard/registration-funnel` | Analytics demo | deterministic mock | analytics warehouse or event aggregates | P3 |
 | `/dashboard/registration-resend` | Analytics demo | deterministic mock | analytics aggregates | P3 |

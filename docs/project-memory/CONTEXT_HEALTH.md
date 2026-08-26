@@ -1,6 +1,6 @@
 # Context Health
 
-Updated: 2026-08-25
+Updated: 2026-08-26
 
 Repository: `/Users/istokdmgmail.com/Documents/yorso-commerce-hub-main`
 
@@ -12,12 +12,12 @@ Branch: `local-lab/agent-capability-foundation`
 
 ```yaml
 context_risk: "medium"
-last_checkpoint: "2026-08-25"
+last_checkpoint: "2026-08-26"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Continue scoped product development on the persistent local-lab stand, run npm run local-lab:verify after UI changes and push verified checkpoints to the experimental branch; keep main unchanged."
-why_medium: "The persistent local stand and owner-directed copywriter qualification are operational and do not block product work. Risk remains medium because the latest branch HEAD still needs fresh remote CI, accepted promotion review and post-merge server proof before any main or production claim."
+recommended_action: "Continue scoped product development on the persistent local-lab stand; first confirm npm run local-lab:status reports UI, API and Twenty healthy, then run npm run local-lab:verify after UI changes and push verified checkpoints to the experimental branch."
+why_medium: "The persistent UI/API/Twenty stand is operational and the CRM handoff is browser-proven locally. Risk remains medium because production CRM tenant and user lifecycle, HTTPS, observability, load evidence, accepted promotion review and post-merge server proof remain open."
 ```
 
 ## Confirmed Boundaries
@@ -25,8 +25,15 @@ why_medium: "The persistent local stand and owner-directed copywriter qualificat
 - `main` is the server source of truth.
 - Experimental work uses one branch pattern: `local-lab/<scope>`.
 - The current experimental branch is served persistently at
-  `http://127.0.0.1:3300/`; `npm run local-lab:verify` is the required local
-  browser smoke after UI changes.
+  `http://127.0.0.1:3300/`; the same LaunchAgent also starts the YORSO API and
+  repository-owned Twenty Compose stack. `npm run local-lab:status` checks all
+  three services and `npm run local-lab:verify` is required after UI changes.
+- `/crm` is a protected YORSO route that retrieves a server-configured Twenty
+  URL only for authenticated `admin` or `company_admin` users. The API verifies
+  Twenty health with timeout, short TTL caching and single-flight coalescing;
+  stale prototype sessions trigger a fresh YORSO sign-in instead of a false
+  outage. Twenty uses a separate login; this local integration is not an SSO
+  claim.
 - Lovable may connect to the experimental branch, but its report is not
   acceptance evidence by itself.
 - The repository contains a bounded Lovable Project Knowledge block and five
@@ -85,10 +92,13 @@ Continue Yorso from repository files, not chat memory.
 Repository: /Users/istokdmgmail.com/Documents/yorso-commerce-hub-main
 Branch: local-lab/agent-capability-foundation
 Read AGENTS.md, PROJECT_STATE.yaml, HANDOFF.md and NEXT_ACTIONS.md.
-Verify git status, npm run local-lab:status and agent governance before editing.
+Verify git status, npm run local-lab:status and agent governance before editing;
+local-lab status must report YORSO UI, YORSO API and Twenty CRM healthy.
 Do not merge main. Run the local-lab cycle before accepting feature work.
 Use http://127.0.0.1:3300/ for the latest working-tree UI and run
 npm run local-lab:verify after UI changes.
+Read docs/backend/crm-integration.md before changing CRM routing, auth,
+tenant isolation, Compose or production configuration.
 Stage B operational qualification is complete for the experimental branch;
 the adversarial QA pilot is deferred and does not block product work. Release
 Gates 4-7 still require independent, exact-HEAD and server evidence.

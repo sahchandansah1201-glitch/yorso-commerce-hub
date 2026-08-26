@@ -1,0 +1,84 @@
+name: yorso-twenty
+
+x-twenty-environment: &twenty-environment
+  PG_DATABASE_URL: postgres://${TWENTY_POSTGRES_USER}:${TWENTY_POSTGRES_PASSWORD}@db:5432/${TWENTY_POSTGRES_DB}
+  SERVER_URL: ${TWENTY_SERVER_URL}
+  REDIS_URL: redis://redis:6379
+  STORAGE_TYPE: local
+  ENCRYPTION_KEY: ${TWENTY_ENCRYPTION_KEY}
+
+services:
+  server:
+    image: twentycrm/twenty:v2.6.0@sha256:9f95cea348effbd1e005fd728f33cf64677d4024973efd6523b0080ccbe58689
+    command: ["node", "dist/main"]
+    environment:
+      <<: *twenty-environment
+      NODE_PORT: 3000
+      DISABLE_DB_MIGRATIONS: "false"
+      DISABLE_CRON_JOBS_REGISTRATION: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${TWENTY_HTTP_PORT:-3020}:3000"
+    volumes:
+      - server-local-data:/app/packages/twenty-server/.local-storage
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://127.0.0.1:3000/healthz || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+  worker:
+    image: twentycrm/twenty:v2.6.0@sha256:9f95cea348effbd1e005fd728f33cf64677d4024973efd6523b0080ccbe58689
+    command: ["yarn", "worker:prod"]
+    environment:
+      <<: *twenty-environment
+      DISABLE_DB_MIGRATIONS: "true"
+      DISABLE_CRON_JOBS_REGISTRATION: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      server:
+        condition: service_healthy
+    volumes:
+      - server-local-data:/app/packages/twenty-server/.local-storage
+    restart: unless-stopped
+
+  db:
+    image: postgres:16.9-alpine@sha256:7c688148e5e156d0e86df7ba8ae5a05a2386aaec1e2ad8e6d11bdf10504b1fb7
+    environment:
+      POSTGRES_DB: ${TWENTY_POSTGRES_DB}
+      POSTGRES_USER: ${TWENTY_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${TWENTY_POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TWENTY_POSTGRES_USER} -d ${TWENTY_POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4.5-alpine@sha256:bb186d083732f669da90be8b0f975a37812b15e913465bb14d845db72a4e3e08
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  redis-data:
+  server-local-data:

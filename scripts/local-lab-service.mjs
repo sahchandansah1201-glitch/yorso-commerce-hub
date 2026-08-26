@@ -9,8 +9,11 @@ const LABEL = "com.yorso.local-lab";
 const HOST = "127.0.0.1";
 const PORT = 3300;
 const URL = `http://${HOST}:${PORT}/`;
+const API_URL = "http://127.0.0.1:3000/health/live";
+const TWENTY_URL = "http://127.0.0.1:3020/healthz";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const viteEntry = path.join(repoRoot, "node_modules", "vite", "bin", "vite.js");
+const runtimeEntry = path.join(repoRoot, "scripts", "local-lab-runtime.mjs");
+const apiEntry = path.join(repoRoot, "apps", "api", "dist", "index.js");
 const nodeExecutable = ["/opt/homebrew/bin/node", "/usr/local/bin/node", process.execPath].find(
   (candidate) => existsSync(candidate),
 ) ?? process.execPath;
@@ -37,20 +40,10 @@ const plist = () => `<?xml version="1.0" encoding="UTF-8"?>
   <key>ProgramArguments</key>
   <array>
     <string>${xml(nodeExecutable)}</string>
-    <string>${xml(viteEntry)}</string>
-    <string>--host</string>
-    <string>${HOST}</string>
-    <string>--port</string>
-    <string>${PORT}</string>
-    <string>--strictPort</string>
+    <string>${xml(runtimeEntry)}</string>
   </array>
   <key>WorkingDirectory</key>
   <string>${xml(repoRoot)}</string>
-  <key>EnvironmentVariables</key>
-  <dict>
-    <key>VITE_YORSO_API_URL</key>
-    <string></string>
-  </dict>
   <key>RunAtLoad</key>
   <true/>
   <key>KeepAlive</key>
@@ -92,7 +85,7 @@ const bootstrapService = async () => {
 
 const assertPrerequisites = () => {
   const packagePath = path.join(repoRoot, "package.json");
-  if (!existsSync(packagePath) || !existsSync(viteEntry)) {
+  if (!existsSync(packagePath) || !existsSync(runtimeEntry)) {
     throw new Error(`Run npm install in ${repoRoot} before installing the local-lab service.`);
   }
   const packageJson = JSON.parse(readFileSync(packagePath, "utf8"));
@@ -101,12 +94,57 @@ const assertPrerequisites = () => {
   }
 };
 
-const waitForHealth = async (timeoutMs = 60_000) => {
+const runCommand = (command, args, { allowFailure = false, quiet = false } = {}) => {
+  const result = spawnSync(command, args, {
+    cwd: repoRoot,
+    encoding: "utf8",
+    stdio: quiet ? "pipe" : "inherit",
+  });
+  if (!allowFailure && result.status !== 0) {
+    throw new Error(`${command} ${args.join(" ")} failed with exit ${result.status}`);
+  }
+  return result;
+};
+
+const ensureDockerNetwork = () => {
+  const inspect = runCommand("docker", ["network", "inspect", "yorso-local"], {
+    allowFailure: true,
+    quiet: true,
+  });
+  if (inspect.status !== 0) {
+    runCommand("docker", ["network", "create", "yorso-local"]);
+  }
+};
+
+const prepareRuntime = () => {
+  runCommand("npm", ["run", "api:build"]);
+  ensureDockerNetwork();
+  runCommand("docker", [
+    "compose",
+    "--env-file",
+    "infra/twenty/.env",
+    "-f",
+    "infra/twenty/docker-compose.yml",
+    "-f",
+    "infra/twenty/docker-compose.local.yml",
+    "up",
+    "-d",
+  ]);
+  if (!existsSync(apiEntry)) throw new Error(`API build did not create ${apiEntry}.`);
+};
+
+const healthTargets = [
+  ["YORSO UI", URL],
+  ["YORSO API", API_URL],
+  ["Twenty CRM", TWENTY_URL],
+];
+
+const waitForHealth = async (targetUrl, timeoutMs = 60_000) => {
   const deadline = Date.now() + timeoutMs;
   let lastError = "no response";
   while (Date.now() < deadline) {
     try {
-      const response = await fetch(URL, { signal: AbortSignal.timeout(2_000) });
+      const response = await fetch(targetUrl, { signal: AbortSignal.timeout(2_000) });
       if (response.ok) return response.status;
       lastError = `HTTP ${response.status}`;
     } catch (error) {
@@ -114,7 +152,16 @@ const waitForHealth = async (timeoutMs = 60_000) => {
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  throw new Error(`Local lab did not become healthy at ${URL}: ${lastError}`);
+  throw new Error(`Local lab did not become healthy at ${targetUrl}: ${lastError}`);
+};
+
+const waitForAllHealth = async (timeoutMs = 60_000) => {
+  const results = [];
+  for (const [name, targetUrl] of healthTargets) {
+    const status = await waitForHealth(targetUrl, timeoutMs);
+    results.push(`${name}=HTTP ${status}`);
+  }
+  return results;
 };
 
 const printStatus = async () => {
@@ -128,16 +175,15 @@ const printStatus = async () => {
   const state = result.stdout.match(/\bstate = (\w+)/)?.[1] ?? "unknown";
   const pid = result.stdout.match(/\bpid = (\d+)/)?.[1] ?? "unknown";
   try {
-    const status = await waitForHealth(3_000);
-    console.log(`Local lab: ${state}; pid=${pid}; HTTP ${status}; ${URL}`);
+    const statuses = await waitForAllHealth(3_000);
+    console.log(`Local lab: ${state}; pid=${pid}; ${statuses.join("; ")}; ${URL}`);
   } catch (error) {
     console.error(`Local lab: ${state}; pid=${pid}; unhealthy: ${error.message}`);
     process.exitCode = 1;
   }
 };
 
-const install = async () => {
-  assertPrerequisites();
+const registerService = async () => {
   mkdirSync(launchAgentsDir, { recursive: true });
   mkdirSync(logsDir, { recursive: true });
   writeFileSync(plistPath, plist(), "utf8");
@@ -146,21 +192,23 @@ const install = async () => {
   await bootstrapService();
   runLaunchctl(["enable", serviceTarget]);
   runLaunchctl(["kickstart", "-k", serviceTarget]);
-  const status = await waitForHealth();
-  console.log(`Local lab installed: HTTP ${status}; ${URL}`);
+};
+
+const install = async () => {
+  assertPrerequisites();
+  prepareRuntime();
+  await registerService();
+  const statuses = await waitForAllHealth();
+  console.log(`Local lab installed: ${statuses.join("; ")}; ${URL}`);
   console.log(`Logs: ${logsDir}`);
 };
 
 const restart = async () => {
   assertPrerequisites();
-  const registered = runLaunchctl(["print", serviceTarget], { allowFailure: true, quiet: true });
-  if (registered.status !== 0) {
-    await install();
-    return;
-  }
-  runLaunchctl(["kickstart", "-k", serviceTarget]);
-  const status = await waitForHealth();
-  console.log(`Local lab restarted: HTTP ${status}; ${URL}`);
+  prepareRuntime();
+  await registerService();
+  const statuses = await waitForAllHealth();
+  console.log(`Local lab restarted: ${statuses.join("; ")}; ${URL}`);
 };
 
 const command = process.argv[2] ?? "status";

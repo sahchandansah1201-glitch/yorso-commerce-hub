@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { buyerSession } from "./buyer-session";
 import { createOfferCatalogApiClient } from "./offer-catalog-api";
 import { SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY } from "./supplier-access-requests";
 
 describe("offer catalog API adapter", () => {
   afterEach(() => {
+    buyerSession.__resetForTests();
     localStorage.removeItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY);
     sessionStorage.removeItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY);
   });
@@ -206,7 +208,30 @@ describe("offer catalog API adapter", () => {
     });
     expect(fetchImpl.mock.calls[0][0]).toBe("http://localhost:3000/v1/offers?q=cod&originCode=IS&category=Whitefish&accessLevel=anonymous_locked&limit=5&offset=10&sortBy=origin&sortDirection=asc");
     expect(fetchImpl.mock.calls[1][0]).toBe("http://localhost:3000/v1/offers/offer-test?accessLevel=anonymous_locked");
-    expect((fetchImpl.mock.calls[0][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
-    expect((fetchImpl.mock.calls[1][1]?.headers as Headers).get("x-yorso-user-id")).toBeTruthy();
+    expect((fetchImpl.mock.calls[0][1]?.headers as Headers).get("x-yorso-user-id")).toBeNull();
+    expect((fetchImpl.mock.calls[0][1]?.headers as Headers).get("x-yorso-session-id")).toBeNull();
+    expect((fetchImpl.mock.calls[1][1]?.headers as Headers).get("x-yorso-user-id")).toBeNull();
+    expect((fetchImpl.mock.calls[1][1]?.headers as Headers).get("x-yorso-session-id")).toBeNull();
+  });
+
+  it("adds account identity headers only when a buyer session exists", async () => {
+    buyerSession.signIn({
+      id: "session-offer-catalog",
+      identifier: "buyer@example.com",
+      method: "email",
+    });
+    const fetchImpl = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => new Response(JSON.stringify({
+      ok: true,
+      offers: [],
+      pagination: { limit: 20, offset: 0, total: 0 },
+      requestId: "list",
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    const client = createOfferCatalogApiClient({ baseUrl: "http://localhost:3000", fetchImpl });
+
+    await client.listOffers({ accessLevel: "registered_locked", limit: 20, offset: 0 });
+
+    const headers = fetchImpl.mock.calls[0][1]?.headers as Headers;
+    expect(headers.get("x-yorso-user-id")).toBeTruthy();
+    expect(headers.get("x-yorso-session-id")).toBe("session-offer-catalog");
   });
 });

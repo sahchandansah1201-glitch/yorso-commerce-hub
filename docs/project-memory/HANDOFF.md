@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-08-25
+Updated: 2026-08-26
 
 Project: `yorso-commerce-hub`
 
@@ -22,6 +22,15 @@ license provenance, independent reviewers, routing documentation, a
 multilingual UX copywriter, a persistent Lovable quality lifecycle and
 non-mutating verification gates.
 
+The same experimental branch now runs the default self-hosted CRM integration:
+the local LaunchAgent starts YORSO UI, YORSO API and the repository-owned
+Twenty Compose stack. The YORSO account menu links to `/crm`; the API authorizes
+`admin` and `company_admin` users before returning the server-configured Twenty
+URL and verifies Twenty `/healthz` through a timeout, short TTL cache and
+single-flight coalescing. Stale prototype sessions are not reported as an
+outage: the UI requires a fresh backend sign-in and returns to `/crm`. Twenty
+retains its own login until a separately designed SSO contract is approved.
+
 ## Plan / Fact
 
 | Plan | Fact | Remaining | Verification |
@@ -30,6 +39,7 @@ non-mutating verification gates.
 | Define accountable team | 13 role profiles created | Independent exact-HEAD review and later promotion review | `npm run check:agent-governance` |
 | Register project-wide skills | 17 skills registered and locked; the new adversarial test reviewer remains experimental and role-inactive | Blind Stage B qualification and feature-specific adoption tests | governance tests |
 | Make Lovable quality reproducible | Project Knowledge is present in the connected Lovable project; the four Quality Pack workspace skills are present; Lovable verified P1S.1 exact implementation SHA `4f5b393ad7c62531a7c93f5b787526eb9654675b` with a clean tree and zero edits | Run fresh exact-HEAD CI after the next checkpoint commit | plugin evidence plus `npm run check:lovable-quality` |
+| Keep the default CRM operational | Repository-owned Twenty Compose reuses persistent volumes; the persistent local service reports UI, API and Twenty health; `/crm` uses a protected handoff, stale-session recovery, cached health probing and desktop/mobile account-menu entries | Before production: HTTPS, tenant/user lifecycle, role mapping, multi-instance observability and load evidence | `npm run local-lab:status`, CRM unit/API/e2e suites, `docs/backend/crm-integration.md` |
 | Add copywriter | EN/RU/ES-ES UX copy gate is active on `local-lab/*` after owner-directed Stage B qualification | Independent review only if measured uplift or main promotion is pursued | owner directive plus pilot evidence |
 | Prevent silent gate mutation | cleanup removed from prehooks; mutation checker covers HEAD, branch, all refs, tracked/untracked files, ignored provider scaffold, symlinks and special files | Keep verification commands observer-only | `check:governance-gates-nonmutating` |
 | Protect handoff state | compact structural memory and freshness checker added | Semantic accuracy still requires review | `check:project-memory` |

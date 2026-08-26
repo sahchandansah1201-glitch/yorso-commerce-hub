@@ -582,6 +582,10 @@ export class AuthService {
     return this.repository.hasRole(userId, role);
   }
 
+  async hasAnyRole(userId: string, roles: readonly AdminUserRole[]): Promise<boolean> {
+    return this.repository.hasAnyRole(userId, roles);
+  }
+
   private async requireSession(
     sessionId: string | undefined,
     requestId: string,

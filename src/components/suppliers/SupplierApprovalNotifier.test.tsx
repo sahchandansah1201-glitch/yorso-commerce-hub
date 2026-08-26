@@ -11,6 +11,7 @@ import {
 } from "@/lib/supplier-approval-notifications";
 import {
   acknowledgeSupplierAccessNotifications,
+  isSupplierAccessApiConfigured,
   readSupplierAccessNotifications,
 } from "@/lib/supplier-access-api";
 import {
@@ -18,9 +19,12 @@ import {
   type SupplierAccessRequest,
 } from "@/lib/supplier-access-requests";
 import { toast } from "@/hooks/use-toast";
+import { BuyerSessionProvider } from "@/contexts/BuyerSessionContext";
+import { buyerSession } from "@/lib/buyer-session";
 
 vi.mock("@/lib/supplier-access-api", () => ({
   acknowledgeSupplierAccessNotifications: vi.fn(),
+  isSupplierAccessApiConfigured: vi.fn(),
   readSupplierAccessNotifications: vi.fn(),
 }));
 
@@ -47,20 +51,34 @@ const readStore = () =>
     localStorage.getItem(SUPPLIER_ACCESS_REQUESTS_STORAGE_KEY) ?? "{}",
   ) as Record<string, SupplierAccessRequest>;
 
-const renderNotifier = () =>
-  render(
+const renderNotifier = ({ signedIn = true }: { signedIn?: boolean } = {}) => {
+  if (signedIn) {
+    buyerSession.signIn({
+      id: "session-42",
+      identifier: "buyer@example.com",
+      method: "email",
+      source: "self_hosted",
+      userId: "00000000-0000-4000-8000-000000000042",
+    });
+  }
+  return render(
     <LanguageProvider>
-      <MemoryRouter>
-        <SupplierApprovalNotifier />
-      </MemoryRouter>
+      <BuyerSessionProvider>
+        <MemoryRouter>
+          <SupplierApprovalNotifier />
+        </MemoryRouter>
+      </BuyerSessionProvider>
     </LanguageProvider>,
   );
+};
 
 describe("SupplierApprovalNotifier", () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
+    buyerSession.__resetForTests();
     vi.mocked(acknowledgeSupplierAccessNotifications).mockResolvedValue([]);
+    vi.mocked(isSupplierAccessApiConfigured).mockReturnValue(true);
     vi.mocked(readSupplierAccessNotifications).mockResolvedValue([]);
   });
 
@@ -73,6 +91,20 @@ describe("SupplierApprovalNotifier", () => {
     });
     localStorage.clear();
     sessionStorage.clear();
+    buyerSession.__resetForTests();
+  });
+
+  it("does not poll protected backend notifications without a buyer session", async () => {
+    vi.useFakeTimers();
+
+    renderNotifier({ signedIn: false });
+    await act(async () => {
+      vi.advanceTimersByTime(BACKEND_NOTIFICATION_POLL_MS * 2);
+      await Promise.resolve();
+    });
+
+    expect(readSupplierAccessNotifications).not.toHaveBeenCalled();
+    expect(acknowledgeSupplierAccessNotifications).not.toHaveBeenCalled();
   });
 
   it("applies self-hosted approval notifications to local access state", async () => {

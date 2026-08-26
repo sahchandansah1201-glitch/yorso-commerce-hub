@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { buyerSession } from "@/lib/buyer-session";
 import { queueApprovalNotification } from "@/lib/supplier-access-approval";
 import {
   SUPPLIER_ACCESS_CHANGE_EVENT,
@@ -25,6 +26,7 @@ const dispatchApprovalChange = () => {
 
 describe("useSupplierAccessNotifications", () => {
   afterEach(() => {
+    buyerSession.__resetForTests();
     localStorage.clear();
     sessionStorage.clear();
     vi.restoreAllMocks();
@@ -34,6 +36,11 @@ describe("useSupplierAccessNotifications", () => {
 
   it("loads and acknowledges self-hosted access notifications", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+    buyerSession.signIn({
+      id: "session-notifications",
+      identifier: "buyer@example.com",
+      method: "email",
+    });
     const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       if (url.endsWith("/v1/access/notifications") && init?.method === "PATCH") {
         expect(JSON.parse(String(init.body))).toEqual({
@@ -118,6 +125,11 @@ describe("useSupplierAccessNotifications", () => {
 
   it("refreshes the feed after supplier access approval events", async () => {
     vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+    buyerSession.signIn({
+      id: "session-notifications",
+      identifier: "buyer@example.com",
+      method: "email",
+    });
     const fetchMock = vi.fn(async () =>
       new Response(JSON.stringify({
         ok: true,
@@ -132,5 +144,17 @@ describe("useSupplierAccessNotifications", () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
     dispatchApprovalChange();
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+  });
+
+  it("does not call the protected API without a buyer session", async () => {
+    vi.stubEnv("VITE_YORSO_API_URL", "http://api.test");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useSupplierAccessNotifications());
+
+    await waitFor(() => expect(result.current.status).toBe("local"));
+    expect(result.current.usingSelfHostedApi).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

@@ -1335,6 +1335,23 @@ export class PostgresAuthRepository implements AuthRepository {
     return result.rows[0]?.exists ?? false;
   }
 
+  async hasAnyRole(userId: string, roles: readonly AdminUserRole[]): Promise<boolean> {
+    if (roles.length === 0) return false;
+
+    const result = await this.client.query<{ exists: boolean }>(
+      `
+        select exists(
+          select 1
+          from yorso_user_roles
+          where user_id = $1
+            and role = any($2::text[])
+        ) as exists
+      `,
+      [userId, roles],
+    );
+    return result.rows[0]?.exists ?? false;
+  }
+
   async recordSecurityEvent(event: AuthSecurityEventInput): Promise<void> {
     await this.client.query(
       `

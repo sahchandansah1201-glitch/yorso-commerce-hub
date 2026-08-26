@@ -1,7 +1,7 @@
 import { type MouseEvent as ReactMouseEvent, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Globe, ChevronDown, Bell, LogOut, User } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, Bell, BriefcaseBusiness, LogOut, User } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { languageNames, languageFlags, type Language } from "@/i18n/translations";
 import analytics from "@/lib/analytics";
@@ -189,7 +189,7 @@ const Header = ({ showSkipLink = false, mainId = "main", sticky = true }: Header
             )}
           </div>
 
-          <SupplierAccessNotificationBell />
+          {isSignedIn && <SupplierAccessNotificationBell />}
 
           {isSignedIn ? (
             <div ref={accountRef} className="relative">
@@ -229,6 +229,15 @@ const Header = ({ showSkipLink = false, mainId = "main", sticky = true }: Header
                     <User className="h-4 w-4" />
                     {t.nav_myAccount}
                   </Link>
+                  <Link
+                    to="/crm"
+                    onClick={() => setAccountOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                    data-testid="header-crm-link"
+                  >
+                    <BriefcaseBusiness className="h-4 w-4" />
+                    {t.nav_crm}
+                  </Link>
                   <button
                     type="button"
                     onClick={() => {
@@ -259,13 +268,15 @@ const Header = ({ showSkipLink = false, mainId = "main", sticky = true }: Header
           className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground md:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label={t.aria_toggleMenu}
+          aria-expanded={mobileOpen}
+          aria-controls="header-mobile-menu"
         >
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-border bg-background px-4 pb-6 pt-4 md:hidden">
+        <div id="header-mobile-menu" className="border-t border-border bg-background px-4 pb-6 pt-4 md:hidden">
           <nav aria-label={t.aria_mobileNavigation} className="flex flex-col gap-4">
             <Link to="/offers" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_liveOffers}</Link>
             <a href="/#categories" className="inline-flex min-h-11 items-center text-sm font-medium text-muted-foreground" onClick={() => setMobileOpen(false)}>{t.nav_categories}</a>
@@ -304,6 +315,12 @@ const Header = ({ showSkipLink = false, mainId = "main", sticky = true }: Header
                   <Link to="/account" onClick={() => setMobileOpen(false)}>
                     <User className="h-4 w-4" />
                     {t.nav_myAccount}
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="mt-2 w-full gap-2">
+                  <Link to="/crm" onClick={() => setMobileOpen(false)} data-testid="header-mobile-crm-link">
+                    <BriefcaseBusiness className="h-4 w-4" />
+                    {t.nav_crm}
                   </Link>
                 </Button>
                 <Button
