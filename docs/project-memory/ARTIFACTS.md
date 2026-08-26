@@ -1,5 +1,27 @@
 # Artifacts
 
+## Local Auth And CRM Runtime Recovery (2026-08-26)
+
+- `local-lab-auth.local`: ignored local-only credential source; its contents are
+  intentionally not tracked or reproduced in project documentation.
+- `apps/api/src/config.ts` and `apps/api/src/modules/auth/{factory,repository}.ts`:
+  development-only in-memory bootstrap authentication with fail-closed config
+  validation.
+- `scripts/local-lab-runtime.mjs` and `scripts/local-lab-service.mjs`: local
+  credential loading before process launch plus required UI/API and optional
+  Twenty health semantics.
+- `apps/api/src/config.test.ts`,
+  `apps/api/src/modules/auth/factory.test.ts` and
+  `scripts/local-lab-service.test.mjs`: 6 auth/config tests and 2 launcher
+  degradation tests.
+- `test-results/crm-entry/live-crm-ready.png`: authenticated Yorso CRM handoff
+  ready state.
+- `test-results/crm-entry/live-twenty-login.png`: real Twenty login reached from
+  Yorso in Chromium; this is not SSO evidence.
+- Verification evidence: CRM browser 8/8, provider boundary 371 production
+  files, API build passed, production build passed and all three live services
+  returned HTTP 200.
+
 ## Twenty CRM Local-Lab Integration (2026-08-26)
 
 - `infra/twenty/docker-compose.yml`: pinned self-hosted Twenty server, worker,

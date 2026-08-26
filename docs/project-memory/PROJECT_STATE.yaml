@@ -175,4 +175,24 @@ validation:
     - "npm run build"
     - "git diff --check"
 
-next_action: "Continue scoped product development on local-lab/agent-capability-foundation using the persistent http://127.0.0.1:3300/ stand; preserve the verified CRM stale-session recovery and health-check behavior, verify UI, API and Twenty with npm run local-lab:status, and run npm run local-lab:verify after UI changes. Keep Twenty production enablement blocked until HTTPS, tenant isolation, role mapping, observability and load evidence are accepted; keep main unchanged."
+local_lab_runtime:
+  url: "http://127.0.0.1:3300/"
+  auth_source: "ignored local-lab-auth.local"
+  credential_values_tracked: false
+  auth_scope: "development_memory_repository_only"
+  ui_required: true
+  api_required: true
+  twenty_required_for_core_ui: false
+  twenty_url: "http://127.0.0.1:3020/"
+  current_status: "healthy_on_2026-08-26"
+  crm_boundary: "Twenty uses a separate login; SSO is not implemented."
+  graceful_degradation: "UI and API stay available and status reports degraded if Docker or Twenty is unavailable."
+  verification:
+    auth_config_tests: "6/6 passed"
+    launcher_tests: "2/2 passed"
+    crm_browser_tests: "8/8 passed"
+    provider_boundary: "passed; 371 production files"
+    api_build: "passed"
+    production_build: "passed"
+
+next_action: "Continue scoped product development on local-lab/agent-capability-foundation using the persistent http://127.0.0.1:3300/ stand; preserve ignored-file local auth, require UI/API health, verify Twenty when CRM is in scope, and run npm run local-lab:verify after UI changes. Keep Twenty production enablement blocked until HTTPS, tenant isolation, role mapping, observability and load evidence are accepted; keep main unchanged."

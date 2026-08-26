@@ -11,9 +11,13 @@ Branch: `local-lab/agent-capability-foundation`
 ## Current Product Priority
 
 0. Keep the local integration stand healthy before each product batch:
-   `npm run local-lab:status` must report HTTP 200 for YORSO UI, YORSO API and
-   Twenty CRM. Use `npm run local-lab:restart` to reconcile the LaunchAgent and
-   repository-owned Compose stack without deleting volumes.
+   `npm run local-lab:status` must report HTTP 200 for YORSO UI and YORSO API.
+   Twenty must also report HTTP 200 when CRM is in scope; otherwise the stand
+   must report explicit degradation while the core UI/API remain available.
+   Use `npm run local-lab:restart` to reconcile the LaunchAgent and
+   repository-owned Compose stack without deleting volumes. Keep local
+   credentials only in ignored `local-lab-auth.local`; never commit or log
+   their values.
 1. Use the persistent `http://127.0.0.1:3300/` local-lab stand for the latest
    working-tree UI. After every user-visible change, run
    `npm run local-lab:verify` before reporting the result.

@@ -152,10 +152,13 @@ test.describe("CRM entry", () => {
   test("live self-hosted YORSO session opens the running Twenty login", async ({ page, request }) => {
     test.skip(process.env.E2E_CRM_LIVE !== "1", "requires the persistent local-lab runtime");
 
+    const email = process.env.YORSO_LOCAL_AUTH_EMAIL ?? "buyer@example.com";
+    const password = process.env.YORSO_LOCAL_AUTH_PASSWORD ?? "Password1";
+
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/signin?redirect=/crm", { waitUntil: "domcontentloaded" });
-    await page.locator("#signin-email").fill("buyer@example.com");
-    await page.locator("#signin-password").fill("Password1");
+    await page.locator("#signin-email").fill(email);
+    await page.locator("#signin-password").fill(password);
     await page.getByRole("button", { name: /sign in/i }).click();
     await expect(page).toHaveURL(/\/crm$/);
     const openLink = page.getByTestId("crm-open-link");

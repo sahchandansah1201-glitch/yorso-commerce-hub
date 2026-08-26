@@ -16,8 +16,8 @@ last_checkpoint: "2026-08-26"
 last_handoff_ready: true
 current_project: "yorso-commerce-hub"
 active_workstream: "agent_capability_foundation"
-recommended_action: "Continue scoped product development on the persistent local-lab stand; first confirm npm run local-lab:status reports UI, API and Twenty healthy, then run npm run local-lab:verify after UI changes and push verified checkpoints to the experimental branch."
-why_medium: "The persistent UI/API/Twenty stand is operational and the CRM handoff is browser-proven locally. Risk remains medium because production CRM tenant and user lifecycle, HTTPS, observability, load evidence, accepted promotion review and post-merge server proof remain open."
+recommended_action: "Continue scoped product development on the persistent local-lab stand; require YORSO UI and API health, verify Twenty when CRM is in scope, then run npm run local-lab:verify after UI changes and push verified checkpoints to the experimental branch."
+why_medium: "The persistent UI/API stand, deterministic local development sign-in and live Twenty handoff are browser-proven locally. Risk remains medium because Twenty still has a separate login and production CRM tenant and user lifecycle, HTTPS, observability, load evidence, accepted promotion review and post-merge server proof remain open."
 ```
 
 ## Confirmed Boundaries
@@ -26,8 +26,15 @@ why_medium: "The persistent UI/API/Twenty stand is operational and the CRM hando
 - Experimental work uses one branch pattern: `local-lab/<scope>`.
 - The current experimental branch is served persistently at
   `http://127.0.0.1:3300/`; the same LaunchAgent also starts the YORSO API and
-  repository-owned Twenty Compose stack. `npm run local-lab:status` checks all
-  three services and `npm run local-lab:verify` is required after UI changes.
+  attempts to start the repository-owned Twenty Compose stack. YORSO UI and API
+  are required services; Twenty is an optional CRM dependency for the core
+  stand, and the launcher reports a degraded state instead of taking the UI/API
+  down when Docker or Twenty is unavailable. `npm run local-lab:verify` is
+  required after UI changes.
+- Local development credentials are loaded only from ignored
+  `local-lab-auth.local`; credential values are not tracked, documented or
+  logged. Bootstrap authentication is accepted only in development with the
+  in-memory account repository, never with PostgreSQL or production settings.
 - `/crm` is a protected YORSO route that retrieves a server-configured Twenty
   URL only for authenticated `admin` or `company_admin` users. The API verifies
   Twenty health with timeout, short TTL caching and single-flight coalescing;
@@ -93,7 +100,9 @@ Repository: /Users/istokdmgmail.com/Documents/yorso-commerce-hub-main
 Branch: local-lab/agent-capability-foundation
 Read AGENTS.md, PROJECT_STATE.yaml, HANDOFF.md and NEXT_ACTIONS.md.
 Verify git status, npm run local-lab:status and agent governance before editing;
-local-lab status must report YORSO UI, YORSO API and Twenty CRM healthy.
+local-lab status must report YORSO UI and YORSO API healthy. Twenty CRM must be
+healthy when CRM is under test; otherwise use npm run local-lab:restart and
+keep the core stand in an explicit degraded state rather than hiding failure.
 Do not merge main. Run the local-lab cycle before accepting feature work.
 Use http://127.0.0.1:3300/ for the latest working-tree UI and run
 npm run local-lab:verify after UI changes.

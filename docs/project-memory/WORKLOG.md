@@ -4758,3 +4758,26 @@ Keep this file factual and append-only.
 | Keep one local address available | LaunchAgent-backed Vite service installed | Mac must be awake and user session active | HTTP 200 plus process recovery |
 | Test changes as a user | Three browser flows and screenshots added | Extend flows when a new surface needs specific coverage | `npm run local-lab:verify` |
 | Remove Stage B from product critical path | Product priority and handoff corrected | Independent review only when uplift/promotion is requested | project-memory check |
+
+## 2026-08-26 — Local Auth And CRM Runtime Recovery
+
+- Restored deterministic local developer sign-in through an ignored
+  `local-lab-auth.local` source. No credential values are tracked, documented or
+  logged.
+- Added fail-closed configuration rules: a bootstrap email/password pair is
+  required together and is accepted only for development with the in-memory
+  account repository.
+- Made Twenty startup fault-tolerant for the core local stand. UI and API remain
+  required; Docker/Twenty failure is reported as a degraded CRM dependency
+  instead of making `http://127.0.0.1:3300/` unavailable.
+- Started the repository-owned Twenty v2.6.0 stack and verified UI, API and CRM
+  health over HTTP 200.
+- Verified the real Chromium path from Yorso sign-in to `/crm` and the Twenty
+  login surface. Twenty still requires its own credentials; SSO was not added.
+
+| План | Сделано | Осталось | Проверка |
+|---|---|---|---|
+| Restore the supplied local developer account | Ignored-file bootstrap wired into development memory auth | Keep secrets local and rotate outside Git | focused auth tests 6/6 |
+| Keep the local address stable | UI/API required; Twenty startup and health are optional for core availability | Monitor LaunchAgent after macOS updates | launcher tests 2/2; status HTTP 200 |
+| Repair the CRM handoff | Docker stack healthy and live Yorso-to-Twenty navigation works | Separate Twenty login remains until an SSO contract is designed | Chromium CRM suite 8/8 plus screenshots |
+| Preserve provider-free policy | No hosted BaaS SDK or scaffold was added | Continue boundary check on every checkpoint | 371 production files passed |

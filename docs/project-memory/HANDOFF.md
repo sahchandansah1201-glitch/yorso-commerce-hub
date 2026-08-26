@@ -40,6 +40,7 @@ retains its own login until a separately designed SSO contract is approved.
 | Register project-wide skills | 17 skills registered and locked; the new adversarial test reviewer remains experimental and role-inactive | Blind Stage B qualification and feature-specific adoption tests | governance tests |
 | Make Lovable quality reproducible | Project Knowledge is present in the connected Lovable project; the four Quality Pack workspace skills are present; Lovable verified P1S.1 exact implementation SHA `4f5b393ad7c62531a7c93f5b787526eb9654675b` with a clean tree and zero edits | Run fresh exact-HEAD CI after the next checkpoint commit | plugin evidence plus `npm run check:lovable-quality` |
 | Keep the default CRM operational | Repository-owned Twenty Compose reuses persistent volumes; the persistent local service reports UI, API and Twenty health; `/crm` uses a protected handoff, stale-session recovery, cached health probing and desktop/mobile account-menu entries | Before production: HTTPS, tenant/user lifecycle, role mapping, multi-instance observability and load evidence | `npm run local-lab:status`, CRM unit/API/e2e suites, `docs/backend/crm-integration.md` |
+| Restore deterministic local developer auth and resilient CRM runtime | An ignored local credential source loads before launch; development memory auth bootstraps one admin; UI/API are required while Twenty degrades separately; the real Chromium Yorso-to-CRM flow passed | Twenty still has a separate login; design SSO as a separately scoped identity contract | auth 6/6, launcher 2/2, CRM browser 8/8, local-lab status HTTP 200 |
 | Add copywriter | EN/RU/ES-ES UX copy gate is active on `local-lab/*` after owner-directed Stage B qualification | Independent review only if measured uplift or main promotion is pursued | owner directive plus pilot evidence |
 | Prevent silent gate mutation | cleanup removed from prehooks; mutation checker covers HEAD, branch, all refs, tracked/untracked files, ignored provider scaffold, symlinks and special files | Keep verification commands observer-only | `check:governance-gates-nonmutating` |
 | Protect handoff state | compact structural memory and freshness checker added | Semantic accuracy still requires review | `check:project-memory` |
@@ -61,6 +62,14 @@ retains its own login until a separately designed SSO contract is approved.
 | Keep Stage B in its proper role | Copywriter owner-directed qualification is complete with 30/30 valid signed outputs; the adversarial QA pilot remains deferred | Two reviewer sheets and the trusted digest are needed only for independent uplift or `main` promotion, not current product work | owner evidence plus `docs/agents/skill-pilot-protocol.md` |
 
 ## Evidence Already Established
+
+- The persistent local stand accepts the configured local developer account
+  again without tracking or logging credential values. The bootstrap is
+  fail-closed outside development and the in-memory account repository.
+- With Docker running, UI, API and Twenty all return HTTP 200 and the real
+  Chromium journey reaches the Twenty login from `/crm`. If Docker/Twenty is
+  unavailable, the launcher keeps UI/API available and reports CRM degradation
+  explicitly. Twenty authentication remains separate; no SSO claim is made.
 
 - Governance hardening commit: `8644060a`.
 - Initial provider boundary, TypeScript, lint and production build passed on the

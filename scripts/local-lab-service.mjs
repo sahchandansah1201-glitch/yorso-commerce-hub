@@ -116,27 +116,47 @@ const ensureDockerNetwork = () => {
   }
 };
 
+const startTwentyIfAvailable = () => {
+  const dockerInfo = runCommand("docker", ["info"], {
+    allowFailure: true,
+    quiet: true,
+  });
+  if (dockerInfo.status !== 0) {
+    console.warn("Twenty CRM was not started: Docker Desktop is unavailable. Yorso UI and API will continue.");
+    return false;
+  }
+
+  try {
+    ensureDockerNetwork();
+    runCommand("docker", [
+      "compose",
+      "--env-file",
+      "infra/twenty/.env",
+      "-f",
+      "infra/twenty/docker-compose.yml",
+      "-f",
+      "infra/twenty/docker-compose.local.yml",
+      "up",
+      "-d",
+    ]);
+    return true;
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.warn(`Twenty CRM was not started: ${detail}. Yorso UI and API will continue.`);
+    return false;
+  }
+};
+
 const prepareRuntime = () => {
   runCommand("npm", ["run", "api:build"]);
-  ensureDockerNetwork();
-  runCommand("docker", [
-    "compose",
-    "--env-file",
-    "infra/twenty/.env",
-    "-f",
-    "infra/twenty/docker-compose.yml",
-    "-f",
-    "infra/twenty/docker-compose.local.yml",
-    "up",
-    "-d",
-  ]);
   if (!existsSync(apiEntry)) throw new Error(`API build did not create ${apiEntry}.`);
+  return { twentyStartRequested: startTwentyIfAvailable() };
 };
 
 const healthTargets = [
-  ["YORSO UI", URL],
-  ["YORSO API", API_URL],
-  ["Twenty CRM", TWENTY_URL],
+  { name: "YORSO UI", url: URL, required: true },
+  { name: "YORSO API", url: API_URL, required: true },
+  { name: "Twenty CRM", url: TWENTY_URL, required: false },
 ];
 
 const waitForHealth = async (targetUrl, timeoutMs = 60_000) => {
@@ -155,14 +175,49 @@ const waitForHealth = async (targetUrl, timeoutMs = 60_000) => {
   throw new Error(`Local lab did not become healthy at ${targetUrl}: ${lastError}`);
 };
 
-const waitForAllHealth = async (timeoutMs = 60_000) => {
+const inspectHealth = async (targets, timeoutMs) => {
   const results = [];
-  for (const [name, targetUrl] of healthTargets) {
-    const status = await waitForHealth(targetUrl, timeoutMs);
-    results.push(`${name}=HTTP ${status}`);
+  for (const target of targets) {
+    try {
+      const status = await waitForHealth(target.url, timeoutMs);
+      results.push({ ...target, healthy: true, detail: `HTTP ${status}` });
+    } catch (error) {
+      results.push({
+        ...target,
+        healthy: false,
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
   return results;
 };
+
+export const summarizeLocalLabHealth = (results) => ({
+  requiredHealthy: results.filter((result) => result.required).every((result) => result.healthy),
+  degraded: results.some((result) => !result.required && !result.healthy),
+  message: results
+    .map((result) => `${result.name}=${result.healthy ? result.detail : "unavailable"}`)
+    .join("; "),
+});
+
+const waitForRequiredHealth = async (timeoutMs = 60_000) => {
+  const results = await inspectHealth(
+    healthTargets.filter((target) => target.required),
+    timeoutMs,
+  );
+  const summary = summarizeLocalLabHealth(results);
+  if (!summary.requiredHealthy) {
+    const failed = results.find((result) => !result.healthy);
+    throw new Error(failed?.detail ?? "Required local-lab service is unavailable.");
+  }
+  return results;
+};
+
+const inspectTwentyHealth = (timeoutMs) =>
+  inspectHealth(
+    healthTargets.filter((target) => !target.required),
+    timeoutMs,
+  );
 
 const printStatus = async () => {
   const result = runLaunchctl(["print", serviceTarget], { allowFailure: true, quiet: true });
@@ -174,13 +229,15 @@ const printStatus = async () => {
 
   const state = result.stdout.match(/\bstate = (\w+)/)?.[1] ?? "unknown";
   const pid = result.stdout.match(/\bpid = (\d+)/)?.[1] ?? "unknown";
-  try {
-    const statuses = await waitForAllHealth(3_000);
-    console.log(`Local lab: ${state}; pid=${pid}; ${statuses.join("; ")}; ${URL}`);
-  } catch (error) {
-    console.error(`Local lab: ${state}; pid=${pid}; unhealthy: ${error.message}`);
+  const statuses = await inspectHealth(healthTargets, 3_000);
+  const summary = summarizeLocalLabHealth(statuses);
+  if (!summary.requiredHealthy) {
+    console.error(`Local lab: ${state}; pid=${pid}; unhealthy: ${summary.message}`);
     process.exitCode = 1;
+    return;
   }
+  const mode = summary.degraded ? "degraded" : "healthy";
+  console.log(`Local lab: ${state}; pid=${pid}; ${mode}; ${summary.message}; ${URL}`);
 };
 
 const registerService = async () => {
@@ -196,29 +253,35 @@ const registerService = async () => {
 
 const install = async () => {
   assertPrerequisites();
-  prepareRuntime();
+  const { twentyStartRequested } = prepareRuntime();
   await registerService();
-  const statuses = await waitForAllHealth();
-  console.log(`Local lab installed: ${statuses.join("; ")}; ${URL}`);
+  const required = await waitForRequiredHealth();
+  const optional = await inspectTwentyHealth(twentyStartRequested ? 30_000 : 3_000);
+  const summary = summarizeLocalLabHealth([...required, ...optional]);
+  console.log(`Local lab installed: ${summary.message}; ${URL}`);
   console.log(`Logs: ${logsDir}`);
 };
 
 const restart = async () => {
   assertPrerequisites();
-  prepareRuntime();
+  const { twentyStartRequested } = prepareRuntime();
   await registerService();
-  const statuses = await waitForAllHealth();
-  console.log(`Local lab restarted: ${statuses.join("; ")}; ${URL}`);
+  const required = await waitForRequiredHealth();
+  const optional = await inspectTwentyHealth(twentyStartRequested ? 30_000 : 3_000);
+  const summary = summarizeLocalLabHealth([...required, ...optional]);
+  console.log(`Local lab restarted: ${summary.message}; ${URL}`);
 };
 
 const command = process.argv[2] ?? "status";
 
-try {
-  if (command === "install") await install();
-  else if (command === "restart") await restart();
-  else if (command === "status") await printStatus();
-  else throw new Error(`Unknown command "${command}". Use install, restart, or status.`);
-} catch (error) {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exitCode = 1;
+if (path.resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
+  try {
+    if (command === "install") await install();
+    else if (command === "restart") await restart();
+    else if (command === "status") await printStatus();
+    else throw new Error(`Unknown command "${command}". Use install, restart, or status.`);
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
 }

@@ -7,11 +7,27 @@ const booleanEnvSchema = z.preprocess((value) => {
   return value;
 }, z.boolean());
 
+const adminUserRoleSchema = z.enum(["admin", "support", "company_admin", "buyer", "supplier"]);
+const localAuthRolesSchema = z.preprocess(
+  (value) =>
+    typeof value === "string"
+      ? value
+          .split(",")
+          .map((role) => role.trim())
+          .filter(Boolean)
+      : value,
+  z.array(adminUserRoleSchema).min(1),
+);
+
 export const apiConfigSchema = z.object({
   nodeEnv: z.enum(["development", "test", "production"]).default("development"),
   host: z.string().min(1).default("0.0.0.0"),
   port: z.coerce.number().int().min(1).max(65535).default(3000),
   accountRepository: z.enum(["memory", "postgres"]).default("memory"),
+  localAuthEmail: z.string().email().optional(),
+  localAuthPassword: z.string().min(12).optional(),
+  localAuthDisplayName: z.string().trim().min(1).optional(),
+  localAuthRoles: localAuthRolesSchema.optional(),
   publicAppUrl: z.string().url().default("http://localhost:8080"),
   databaseUrl: z.string().regex(/^postgres(ql)?:\/\//, "DATABASE_URL must be a PostgreSQL connection string"),
   redisUrl: z.string().regex(/^redis:\/\//, "REDIS_URL must be a Redis connection string"),
@@ -159,11 +175,15 @@ const localDefaults = {
 export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowLocalDefaults?: boolean } = {}) {
   const source = options.allowLocalDefaults === false ? env : { ...localDefaults, ...env };
 
-  return apiConfigSchema.parse({
+  const config = apiConfigSchema.parse({
     nodeEnv: source.NODE_ENV,
     host: source.YORSO_API_HOST,
     port: source.YORSO_API_PORT,
     accountRepository: source.ACCOUNT_REPOSITORY,
+    localAuthEmail: source.YORSO_LOCAL_AUTH_EMAIL,
+    localAuthPassword: source.YORSO_LOCAL_AUTH_PASSWORD,
+    localAuthDisplayName: source.YORSO_LOCAL_AUTH_DISPLAY_NAME,
+    localAuthRoles: source.YORSO_LOCAL_AUTH_ROLES,
     publicAppUrl: source.YORSO_PUBLIC_APP_URL,
     databaseUrl: source.DATABASE_URL,
     redisUrl: source.REDIS_URL,
@@ -232,6 +252,20 @@ export function loadApiConfig(env: ApiConfigEnv = process.env, options: { allowL
     sessionSecret: source.YORSO_SESSION_SECRET,
     jwtSecret: source.YORSO_JWT_SECRET,
   });
+
+  const localAuthConfigured = Boolean(
+    config.localAuthEmail || config.localAuthPassword || config.localAuthDisplayName || config.localAuthRoles,
+  );
+
+  if (localAuthConfigured && (!config.localAuthEmail || !config.localAuthPassword)) {
+    throw new Error("Local auth bootstrap requires both YORSO_LOCAL_AUTH_EMAIL and YORSO_LOCAL_AUTH_PASSWORD");
+  }
+
+  if (localAuthConfigured && (config.nodeEnv !== "development" || config.accountRepository !== "memory")) {
+    throw new Error("Local auth bootstrap is allowed only for the development memory repository");
+  }
+
+  return config;
 }
 
 export function assertSelfHostedProductionRuntime(config: ApiConfig) {

@@ -22,6 +22,11 @@ export interface AuthUser {
   passwordSecret: string;
 }
 
+export interface MemoryAuthBootstrapUser {
+  roles: AdminUserRole[];
+  user: AuthUser;
+}
+
 export interface RegistrationDraft {
   categories: string[];
   certifications: string[];
@@ -300,12 +305,21 @@ export class MemoryAuthRepository implements AuthRepository {
       [demoAdminUser.id]: ["admin"],
     },
     private readonly accountProvisioner?: RegistrationAccountProvisioner,
+    bootstrapUser?: MemoryAuthBootstrapUser,
   ) {
     for (const user of users) {
       this.usersByEmail.set(user.email.toLowerCase(), { ...user, email: user.email.toLowerCase() });
     }
     for (const [userId, userRoles] of Object.entries(roles)) {
       this.rolesByUserId.set(userId, new Set(userRoles));
+    }
+    if (bootstrapUser) {
+      const user = {
+        ...bootstrapUser.user,
+        email: bootstrapUser.user.email.toLowerCase(),
+      };
+      this.usersByEmail.set(user.email, user);
+      this.rolesByUserId.set(user.id, new Set(bootstrapUser.roles));
     }
   }
 

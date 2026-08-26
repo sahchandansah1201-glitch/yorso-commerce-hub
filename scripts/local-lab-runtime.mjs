@@ -2,6 +2,7 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { loadEnvFile } from "node:process";
 import { fileURLToPath } from "node:url";
 
 const HOST = "127.0.0.1";
@@ -10,6 +11,9 @@ const API_PORT = 3000;
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const viteEntry = path.join(repoRoot, "node_modules", "vite", "bin", "vite.js");
 const apiEntry = path.join(repoRoot, "apps", "api", "dist", "index.js");
+const localLabAuthEnv = path.join(repoRoot, "local-lab-auth.local");
+
+if (existsSync(localLabAuthEnv)) loadEnvFile(localLabAuthEnv);
 
 for (const entry of [viteEntry, apiEntry]) {
   if (!existsSync(entry)) {
