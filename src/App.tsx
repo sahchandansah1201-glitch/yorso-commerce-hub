@@ -159,9 +159,8 @@ const App = () => (
                     <Route path="/admin/incident-trends" element={<AdminIncidentTrends />} />
                     <Route path="/admin/incident-trend-actions" element={<AdminIncidentTrendActions />} />
                     <Route path="/dev/typography" element={<TypographyAudit />} />
-                    {isPrototypeRouteEnabled ? (
-                      <Route path="/dev/customer-workspace" element={<CustomerWorkspacePrototype />} />
-                    ) : null}
+                    {/* Prototype route is served in full isolation above the providers. */}
+
                     {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}
                     {legacyRedirects.flatMap(({ from, to }) => [
                       <Route key={from} path={from} element={<Navigate to={to} replace />} />,
