@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -98,39 +99,34 @@ export const ServiceReview = ({ lang }: { lang: ProtoLang }) => {
         <p className="text-xs text-muted-foreground">{a.serviceScreenHint}</p>
       </div>
 
-      <div
-        role="tablist"
-        aria-label={a.serviceScreenTitle}
-        className="flex min-w-0 flex-wrap gap-1 border-b border-border/60"
-        data-testid="proto-service-tabs"
-      >
-        {SERVICE_TABS.map((key) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={tab === key}
-            onClick={() => setTab(key)}
-            className={`${CONTROL} -mb-px border-b-2 px-3 text-sm font-medium ${
-              tab === key
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-            data-testid={`proto-service-tab-${key}`}
-          >
-            {tabLabels[key]}
-          </button>
-        ))}
-      </div>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as ServiceTab)} className="min-w-0">
+        <TabsList
+          aria-label={a.serviceScreenTitle}
+          className="flex h-auto min-w-0 flex-wrap justify-start gap-1 bg-transparent p-0"
+          data-testid="proto-service-tabs"
+        >
+          {SERVICE_TABS.map((key) => (
+            <TabsTrigger
+              key={key}
+              value={key}
+              className={`${CONTROL} rounded-none border-b-2 border-transparent px-3 text-sm font-medium data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none`}
+              data-testid={`proto-service-tab-${key}`}
+            >
+              {tabLabels[key]}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      {tab === "transfer" ? <ServiceDataTransfer lang={lang} /> : null}
-      {tab === "operations" ? <OperationsSection lang={lang} /> : null}
-      {tab === "pilot" ? <ServicePilot lang={lang} /> : null}
-
-      {tab === "review" ? (
-        <>
-
-
+        <TabsContent value="transfer" className="mt-6 min-w-0">
+          <ServiceDataTransfer lang={lang} />
+        </TabsContent>
+        <TabsContent value="operations" className="mt-6 min-w-0">
+          <OperationsSection lang={lang} />
+        </TabsContent>
+        <TabsContent value="pilot" className="mt-6 min-w-0">
+          <ServicePilot lang={lang} />
+        </TabsContent>
+        <TabsContent value="review" className="mt-6 min-w-0 space-y-8">
       {/* A. Feature readiness */}
       <section className="min-w-0 space-y-3" aria-labelledby="proto-service-readiness">
         <h2 id="proto-service-readiness" className="font-heading text-base font-semibold">
@@ -295,8 +291,8 @@ export const ServiceReview = ({ lang }: { lang: ProtoLang }) => {
           ))}
         </ul>
       </section>
-        </>
-      ) : null}
+        </TabsContent>
+      </Tabs>
     </div>
 
   );
