@@ -24,11 +24,13 @@ export type ProtoRoleKey = "owner" | "admin" | "manager" | "viewer" | "service";
 export type ProtoStateKey =
   | "loading"
   | "empty"
+  | "emptySearch"
   | "ready"
   | "viewOnly"
   | "denied"
   | "unavailable"
   | "conflict"
+  | "validating"
   | "saving"
   | "success"
   | "destructive"
@@ -148,11 +150,13 @@ const ru: Dict = {
   states: {
     loading: "Загрузка",
     empty: "Пусто",
+    emptySearch: "Ничего не найдено",
     ready: "Готово",
     viewOnly: "Только просмотр",
     denied: "Нет доступа",
     unavailable: "Раздел временно недоступен",
     conflict: "Конфликт изменений",
+    validating: "Проверка данных",
     saving: "Сохранение",
     success: "Успех",
     destructive: "Подтверждение необратимого действия",
@@ -258,11 +262,13 @@ const en: Dict = {
   states: {
     loading: "Loading",
     empty: "Empty",
+    emptySearch: "Nothing found",
     ready: "Ready",
     viewOnly: "View only",
     denied: "No access",
     unavailable: "Section temporarily unavailable",
     conflict: "Edit conflict",
+    validating: "Checking the data",
     saving: "Saving",
     success: "Success",
     destructive: "Irreversible action confirmation",
@@ -368,11 +374,13 @@ const es: Dict = {
   states: {
     loading: "Cargando",
     empty: "Vacío",
+    emptySearch: "No se ha encontrado nada",
     ready: "Listo",
     viewOnly: "Solo lectura",
     denied: "Sin acceso",
     unavailable: "Sección no disponible temporalmente",
     conflict: "Conflicto de cambios",
+    validating: "Comprobando los datos",
     saving: "Guardando",
     success: "Correcto",
     destructive: "Confirmación de acción irreversible",
@@ -442,11 +450,13 @@ export const PROTO_ROLES: ProtoRoleKey[] = ["owner", "admin", "manager", "viewer
 export const PROTO_STATES: ProtoStateKey[] = [
   "loading",
   "empty",
+  "emptySearch",
   "ready",
   "viewOnly",
   "denied",
   "unavailable",
   "conflict",
+  "validating",
   "saving",
   "success",
   "destructive",
