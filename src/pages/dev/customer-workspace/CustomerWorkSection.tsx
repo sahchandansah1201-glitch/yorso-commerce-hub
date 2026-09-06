@@ -312,13 +312,19 @@ export const CustomerWorkSection = ({
   const [draftTitle, setDraftTitle] = useState("");
 
   const canCreateEdit = scenario === "createEdit";
+  const canImportWizard = scenario === "import";
+  // Новый ключ при каждом открытии: черновик мастера не переносится.
+  const [wizardKey, setWizardKey] = useState(0);
 
-  // Permission revocation closes stale forms and dialogs immediately.
+  // Смена раздела, сценария или состояния закрывает окна и очищает черновики,
+  // поэтому после «недоступно» → «Повторить» старое окно не открывается снова.
   useEffect(() => {
     setDialog(null);
     setRestoreId(null);
     setNotice(null);
-  }, [scenario, section]);
+    setDraftTitle("");
+  }, [scenario, section, state]);
+
 
   useEffect(() => {
     setOpenId(null);
@@ -583,7 +589,10 @@ export const CustomerWorkSection = ({
                   {menuEntries.map((entry) => (
                     <DropdownMenuItem
                       key={entry.key}
-                      onSelect={() => setDialog(entry.key)}
+                      onSelect={() => {
+                        if (entry.key === "import") setWizardKey((k) => k + 1);
+                        setDialog(entry.key);
+                      }}
                       data-testid={`proto-p4-menu-${entry.key}`}
                     >
                       {entry.label}
@@ -768,9 +777,14 @@ export const CustomerWorkSection = ({
         </DialogContent>
       </Dialog>
 
-      {/* Full-screen data transfer wizard; unmounts when access changes. */}
-      {dialog === "import" ? (
-        <ImportWizard lang={lang} onClose={() => setDialog(null)} />
+      {/* Full-screen data transfer wizard; a new key clears its draft. */}
+      {canImportWizard ? (
+        <ImportWizard
+          key={wizardKey}
+          open={dialog === "import"}
+          lang={lang}
+          onClose={() => setDialog(null)}
+        />
       ) : null}
 
 

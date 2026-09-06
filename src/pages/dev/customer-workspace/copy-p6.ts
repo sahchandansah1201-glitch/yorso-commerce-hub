@@ -53,6 +53,12 @@ export type P6Dict = {
   backupAgeValue: string;
   backupRetention: string;
   backupRetentionValue: string;
+  backupLocation: string;
+  backupLocationValue: string;
+  backupTransferState: string;
+  backupTransferStateValue: string;
+  backupAvailability: string;
+  backupAvailabilityValue: string;
   drillTitle: string;
   drillHint: string;
   drillFirstLabel: string;
@@ -62,6 +68,8 @@ export type P6Dict = {
   drillFirstRecorded: string;
   drillDone: string;
   drillSameBlocked: string;
+  drillIdentities: string;
+  serviceDataNotice: string;
   targetsTitle: string;
   targetColumns: { metric: string; target: string; status: string };
   targetStatus: string;
@@ -110,7 +118,7 @@ const ru: P6Dict = {
   cancel: "Отменить",
   scheduledNote: "Повтор отмечен на этой странице.",
   readinessTitle: "Готовность обновления",
-  readinessCounts: "Проверок: 8 — успешно 6, предупреждение 1, блокирующая 1",
+  readinessCounts: "Проверок: {total} — успешно {pass}, предупреждение {warning}, блокирующая {blocker}",
   checkStatuses: { pass: "Успешно", warning: "Предупреждение", blocker: "Блокирующая" },
   candidateVersion: "Проверяемая версия",
   currentVersion: "Текущая версия",
@@ -126,11 +134,17 @@ const ru: P6Dict = {
   backupScope: "Состав",
   backupScopeValue: "База данных и файлы",
   backupVerification: "Проверка копии",
-  backupVerificationValue: "Проверена, чтение восстановлено выборочно",
+  backupVerificationValue: "Проверена по контрольной сумме",
   backupAge: "Возраст копии",
   backupAgeValue: "1 час 20 минут",
   backupRetention: "Срок хранения",
   backupRetentionValue: "Ежедневно 14 дней, ежемесячно 6 месяцев",
+  backupLocation: "Место хранения",
+  backupLocationValue: "Удалённый сервер Synology",
+  backupTransferState: "Состояние передачи",
+  backupTransferStateValue: "Ожидает проверки",
+  backupAvailability: "Доступность копии",
+  backupAvailabilityValue: "Не измерено",
   drillTitle: "Учебное восстановление",
   drillHint: "Требуется подтверждение двух разных служебных сотрудников.",
   drillFirstLabel: "Первое подтверждение",
@@ -138,8 +152,10 @@ const ru: P6Dict = {
   drillFirstConfirm: "Подтвердить первым",
   drillSecondConfirm: "Подтвердить вторым",
   drillFirstRecorded: "Первое подтверждение записано на этой странице: {name}.",
-  drillDone: "Учебное восстановление подтверждено на этой странице. Восстановление данных не выполнялось.",
+  drillDone: "Подтверждения записаны на этой странице. Восстановление данных не выполнялось.",
   drillSameBlocked: "Второй сотрудник должен отличаться от первого.",
+  drillIdentities: "Подтвердившие сотрудники",
+  serviceDataNotice: "Проверочные данные для согласования интерфейса.",
   targetsTitle: "Целевые показатели",
   targetColumns: { metric: "Показатель", target: "Цель", status: "Состояние" },
   targetStatus: "Цель — не измерено",
@@ -155,8 +171,8 @@ const ru: P6Dict = {
     availability: "99,9%",
     warning: "5 минут",
     processingDelay: "30 минут",
-    recoveryPoint: "4 часа",
-    recoveryTime: "15 минут",
+    recoveryPoint: "15 минут",
+    recoveryTime: "4 часа",
     load: "10 000 одновременных пользователей",
   },
 };
@@ -188,7 +204,7 @@ const en: P6Dict = {
   cancel: "Cancel",
   scheduledNote: "The retry was marked on this page.",
   readinessTitle: "Update readiness",
-  readinessCounts: "Checks: 8 — 6 pass, 1 warning, 1 blocker",
+  readinessCounts: "Checks: {total} — {pass} pass, {warning} warning, {blocker} blocker",
   checkStatuses: { pass: "Pass", warning: "Warning", blocker: "Blocker" },
   candidateVersion: "Candidate version",
   currentVersion: "Current version",
@@ -204,11 +220,17 @@ const en: P6Dict = {
   backupScope: "Scope",
   backupScopeValue: "Database and files",
   backupVerification: "Backup verification",
-  backupVerificationValue: "Verified, sample read restored",
+  backupVerificationValue: "Verified by checksum",
   backupAge: "Backup age",
   backupAgeValue: "1 hour 20 minutes",
   backupRetention: "Retention",
   backupRetentionValue: "Daily for 14 days, monthly for 6 months",
+  backupLocation: "Storage location",
+  backupLocationValue: "Remote Synology server",
+  backupTransferState: "Transfer state",
+  backupTransferStateValue: "Awaiting verification",
+  backupAvailability: "Backup availability",
+  backupAvailabilityValue: "Not measured",
   drillTitle: "Recovery drill",
   drillHint: "Confirmation by two different service employees is required.",
   drillFirstLabel: "First confirmation",
@@ -216,8 +238,10 @@ const en: P6Dict = {
   drillFirstConfirm: "Confirm as first",
   drillSecondConfirm: "Confirm as second",
   drillFirstRecorded: "The first confirmation was recorded on this page: {name}.",
-  drillDone: "The recovery drill was confirmed on this page. No data recovery was performed.",
+  drillDone: "The confirmations were recorded on this page. No data recovery was performed.",
   drillSameBlocked: "The second employee must differ from the first.",
+  drillIdentities: "Confirming employees",
+  serviceDataNotice: "Check data for interface review.",
   targetsTitle: "Targets",
   targetColumns: { metric: "Metric", target: "Target", status: "State" },
   targetStatus: "Target — not measured",
@@ -233,8 +257,8 @@ const en: P6Dict = {
     availability: "99.9%",
     warning: "5 minutes",
     processingDelay: "30 minutes",
-    recoveryPoint: "4 hours",
-    recoveryTime: "15 minutes",
+    recoveryPoint: "15 minutes",
+    recoveryTime: "4 hours",
     load: "10,000 concurrent users",
   },
 };
@@ -266,7 +290,7 @@ const es: P6Dict = {
   cancel: "Cancelar",
   scheduledNote: "El reintento se marcó en esta página.",
   readinessTitle: "Preparación de la actualización",
-  readinessCounts: "Comprobaciones: 8 — 6 correctas, 1 advertencia, 1 bloqueante",
+  readinessCounts: "Comprobaciones: {total} — {pass} correctas, {warning} advertencia, {blocker} bloqueante",
   checkStatuses: { pass: "Correcta", warning: "Advertencia", blocker: "Bloqueante" },
   candidateVersion: "Versión candidata",
   currentVersion: "Versión actual",
@@ -282,11 +306,17 @@ const es: P6Dict = {
   backupScope: "Alcance",
   backupScopeValue: "Base de datos y archivos",
   backupVerification: "Verificación de la copia",
-  backupVerificationValue: "Verificada, lectura de muestra restaurada",
+  backupVerificationValue: "Verificada por suma de comprobación",
   backupAge: "Antigüedad de la copia",
   backupAgeValue: "1 hora 20 minutos",
   backupRetention: "Conservación",
   backupRetentionValue: "Diaria 14 días, mensual 6 meses",
+  backupLocation: "Lugar de almacenamiento",
+  backupLocationValue: "Servidor Synology remoto",
+  backupTransferState: "Estado de la transferencia",
+  backupTransferStateValue: "Pendiente de verificación",
+  backupAvailability: "Disponibilidad de la copia",
+  backupAvailabilityValue: "No medido",
   drillTitle: "Recuperación de prueba",
   drillHint: "Se requiere la confirmación de dos empleados de servicio distintos.",
   drillFirstLabel: "Primera confirmación",
@@ -294,8 +324,10 @@ const es: P6Dict = {
   drillFirstConfirm: "Confirmar como primero",
   drillSecondConfirm: "Confirmar como segundo",
   drillFirstRecorded: "La primera confirmación se registró en esta página: {name}.",
-  drillDone: "La recuperación de prueba se confirmó en esta página. No se recuperaron datos.",
+  drillDone: "Las confirmaciones se registraron en esta página. No se realizó ninguna recuperación de datos.",
   drillSameBlocked: "El segundo empleado debe ser distinto del primero.",
+  drillIdentities: "Empleados que confirmaron",
+  serviceDataNotice: "Datos de comprobación para la revisión de la interfaz.",
   targetsTitle: "Objetivos",
   targetColumns: { metric: "Métrica", target: "Objetivo", status: "Estado" },
   targetStatus: "Objetivo — no medido",
@@ -311,8 +343,8 @@ const es: P6Dict = {
     availability: "99,9 %",
     warning: "5 minutos",
     processingDelay: "30 minutos",
-    recoveryPoint: "4 horas",
-    recoveryTime: "15 minutos",
+    recoveryPoint: "15 minutos",
+    recoveryTime: "4 horas",
     load: "10 000 usuarios simultáneos",
   },
 };

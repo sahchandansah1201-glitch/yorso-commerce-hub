@@ -13,7 +13,7 @@ export const P7_SUMMARY = {
   participants: ["P-01", "P-02", "P-03"],
 };
 
-/** Customer-facing help panel: deterministic contact information. */
+/** Customer-facing help panel: responsible team and working hours only. */
 export const P7_HELP = {
   contact: {
     ru: "Служба поддержки YORSO",
@@ -24,10 +24,5 @@ export const P7_HELP = {
     ru: "Пн–Пт, 09:00–18:00",
     en: "Mon–Fri, 09:00–18:00",
     es: "Lu–Vi, 09:00–18:00",
-  },
-  response: {
-    ru: "До одного рабочего дня",
-    en: "Up to one business day",
-    es: "Hasta un día laborable",
   },
 };

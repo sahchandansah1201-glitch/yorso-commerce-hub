@@ -4,7 +4,7 @@
  *
  * All values are deterministic module constants: no storage, no network.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -63,15 +63,14 @@ export const PilotNotice = ({
   const [draft, setDraft] = useState("");
   const [note, setNote] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
-  const [lastKey, setLastKey] = useState(resetKey);
 
-  if (lastKey !== resetKey) {
-    setLastKey(resetKey);
+  // Смена роли/сценария/состояния закрывает диалоги и очищает черновик.
+  useEffect(() => {
     setDialog(null);
     setDraft("");
     setNote(null);
     setTouched(false);
-  }
+  }, [resetKey]);
 
   return (
     <div
@@ -119,11 +118,6 @@ export const PilotNotice = ({
           <dl className="grid min-w-0 grid-cols-1 gap-3">
             <Field label={t.helpContactLabel} value={P7_HELP.contact[lang]} testId="proto-p7-help-contact" />
             <Field label={t.helpHoursLabel} value={P7_HELP.hours[lang]} testId="proto-p7-help-hours" />
-            <Field
-              label={t.helpResponseLabel}
-              value={P7_HELP.response[lang]}
-              testId="proto-p7-help-response"
-            />
           </dl>
           <DialogFooter>
             <Button className={CONTROL} onClick={() => setDialog(null)}>{t.close}</Button>
@@ -152,10 +146,19 @@ export const PilotNotice = ({
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               className="min-h-[110px]"
+              aria-invalid={touched && draft.trim() === ""}
+              aria-describedby={
+                touched && draft.trim() === "" ? "proto-p7-feedback-error" : undefined
+              }
               data-testid="proto-p7-feedback-text"
             />
             {touched && draft.trim() === "" ? (
-              <p className="mt-1 text-xs text-destructive" data-testid="proto-p7-feedback-error">
+              <p
+                className="mt-1 text-xs text-destructive"
+                role="alert"
+                id="proto-p7-feedback-error"
+                data-testid="proto-p7-feedback-error"
+              >
                 {t.feedbackRequired}
               </p>
             ) : null}
@@ -189,11 +192,16 @@ export const ServicePilot = ({ lang }: { lang: ProtoLang }) => {
   const t = protoP7Copy[lang];
   const [choice, setChoice] = useState<P7DecisionKey | "">("");
   const [reason, setReason] = useState("");
-  const [recorded, setRecorded] = useState<P7DecisionKey | null>(null);
+  // Снимок решения: значение и обоснование на момент подтверждения.
+  const [recorded, setRecorded] = useState<{ choice: P7DecisionKey; reason: string } | null>(null);
+  const reasonMissing = reason.trim() === "";
 
   return (
     <section className="min-w-0 space-y-3" data-testid="proto-p7-service">
       <h2 className="font-heading text-base font-semibold">{t.pilotSummaryTitle}</h2>
+      <p className="text-xs text-muted-foreground" data-testid="proto-p7-data-notice">
+        {t.serviceDataNotice}
+      </p>
       <dl className="grid min-w-0 grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
         <Field label={t.companies} value={String(P7_SUMMARY.companies)} testId="proto-p7-companies" />
         <Field label={t.users} value={String(P7_SUMMARY.users)} testId="proto-p7-users" />
@@ -255,6 +263,8 @@ export const ServicePilot = ({ lang }: { lang: ProtoLang }) => {
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             className={`${CONTROL} w-[240px]`}
+            aria-invalid={choice !== "" && reasonMissing}
+            aria-describedby={choice !== "" && reasonMissing ? "proto-p7-reason-error" : undefined}
             data-testid="proto-p7-reason"
           />
         </div>
@@ -262,7 +272,7 @@ export const ServicePilot = ({ lang }: { lang: ProtoLang }) => {
           <AlertDialogTrigger asChild>
             <Button
               className={CONTROL}
-              disabled={choice === "" || reason.trim() === ""}
+              disabled={choice === "" || reasonMissing}
               data-testid="proto-p7-record"
             >
               {t.recordDecision}
@@ -277,7 +287,9 @@ export const ServicePilot = ({ lang }: { lang: ProtoLang }) => {
               <AlertDialogCancel className={CONTROL}>{t.cancel}</AlertDialogCancel>
               <AlertDialogAction
                 className={CONTROL}
-                onClick={() => setRecorded(choice === "" ? null : choice)}
+                onClick={() =>
+                  setRecorded(choice === "" ? null : { choice, reason: reason.trim() })
+                }
                 data-testid="proto-p7-record-confirm"
               >
                 {t.confirm}
@@ -285,15 +297,26 @@ export const ServicePilot = ({ lang }: { lang: ProtoLang }) => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        {choice !== "" && reason.trim() === "" ? (
-          <p className="text-xs text-muted-foreground">{t.reasonRequired}</p>
+        {choice !== "" && reasonMissing ? (
+          <p
+            className="text-xs text-destructive"
+            role="alert"
+            id="proto-p7-reason-error"
+            data-testid="proto-p7-reason-error"
+          >
+            {t.reasonRequired}
+          </p>
         ) : null}
       </div>
 
       {recorded ? (
-        <p className="text-sm" role="status" data-testid="proto-p7-decision-note">
-          {t.decisions[recorded]}. {t.decisionRecorded}
-        </p>
+        <div className="min-w-0 space-y-1" role="status" data-testid="proto-p7-decision-note">
+          <p className="text-sm font-medium">{t.decisions[recorded.choice]}</p>
+          <p className="text-sm" data-testid="proto-p7-decision-reason">
+            {t.recordedReasonLabel}: {recorded.reason}
+          </p>
+          <p className="text-xs text-muted-foreground">{t.decisionRecorded}</p>
+        </div>
       ) : null}
     </section>
   );
