@@ -7,18 +7,21 @@
  * outcomes and the report are derived from the selected source and from the
  * decisions of the current user.
  */
-import { useEffect, useMemo, useState } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState, type RefObject } from "react";
+import { Check, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
 import {
   Select,
   SelectContent,
@@ -81,22 +84,26 @@ const outcomeOf = (row: P5Row, choice: P5Choice | null): P5Outcome => {
   return "completed";
 };
 
-const DIALOG_CLOSE =
-  "[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center";
+/** The built-in close control is hidden: a localized one is rendered instead. */
+const DIALOG_CLOSE = "[&>button[type=button]]:hidden";
 
 export const ImportWizard = ({
   lang,
   open,
   onClose,
+  returnFocusRef,
 }: {
   lang: ProtoLang;
   /** The dialog stays mounted so closing always restores page interaction. */
   open: boolean;
   onClose: () => void;
+  /** Permanent control that receives focus after every close. */
+  returnFocusRef?: RefObject<HTMLElement>;
 }) => {
   const t = protoP5Copy[lang];
   const [step, setStep] = useState<P5StepKey>("source");
-  const [sourceId, setSourceId] = useState("");
+  const [sourceId, setSourceId] = useState(P5_SOURCES[0]?.id ?? "");
+
   const [mapping, setMapping] = useState<Record<string, P5Field>>(() =>
     Object.fromEntries(P5_COLUMNS.map((c) => [c.id, c.target])),
   );
@@ -209,9 +216,31 @@ export const ImportWizard = ({
           if (locked) e.preventDefault();
         }}
         onPointerDownOutside={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => {
+          // Фокус всегда возвращается на постоянную кнопку списка.
+          if (!returnFocusRef?.current) return;
+          e.preventDefault();
+          returnFocusRef.current.focus();
+        }}
         data-testid="proto-p5-wizard"
       >
+        {/* Во время выполнения закрытие запрещено, поэтому крестика нет вовсе. */}
+        {locked ? null : (
+          <div className="absolute right-3 top-3">
+            <DialogClose asChild>
+              <Button
+                variant="ghost"
+                className={`${CONTROL} px-0`}
+                aria-label={t.close}
+                data-testid="proto-p5-dialog-close"
+              >
+                <X aria-hidden className="h-4 w-4" />
+              </Button>
+            </DialogClose>
+          </div>
+        )}
         <div className="container min-w-0 space-y-4 px-0">
+
           <DialogHeader className="min-w-0 space-y-1 text-left">
             <DialogTitle className="font-heading text-lg font-semibold">{t.wizardTitle}</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
@@ -240,24 +269,48 @@ export const ImportWizard = ({
               <p className="text-xs text-muted-foreground" data-testid="proto-p5-file-notice">
                 {t.fileNotice}
               </p>
-              <ul className="min-w-0 space-y-2" role="radiogroup" aria-label={t.sourceLabel}>
+              {/* Клавиатурная модель radio: одна остановка Tab, стрелки меняют выбор. */}
+              <RadioGroup
+                value={sourceId}
+                onValueChange={setSourceId}
+                aria-label={t.sourceLabel}
+                className="min-w-0 gap-2"
+                data-testid="proto-p5-source-group"
+              >
                 {P5_SOURCES.map((s) => (
-                  <li key={s.id} className="min-w-0">
-                    <Button
-                      variant={sourceId === s.id ? "default" : "outline"}
-                      role="radio"
-                      aria-checked={sourceId === s.id}
-                      className={`${CONTROL} w-full justify-start`}
-                      onClick={() => setSourceId(s.id)}
+                  <label
+                    key={s.id}
+                    htmlFor={`proto-p5-source-input-${s.id}`}
+                    className={`relative flex min-h-[48px] min-w-0 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 ${
+                      sourceId === s.id
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-input bg-background text-foreground"
+                    }`}
+                    data-testid={`proto-p5-source-card-${s.id}`}
+                  >
+                    {/* Область нажатия радио — вся карточка (не меньше 44px). */}
+                    <RadioGroupItem
+                      id={`proto-p5-source-input-${s.id}`}
+                      value={s.id}
+                      className="absolute inset-0 h-full w-full rounded-md border-0 opacity-0 aspect-auto"
                       data-testid={`proto-p5-source-${s.id}`}
-                    >
-                      <span className="min-w-0 truncate">
-                        {s.fileName} · {s.rows} {t.sourceRows}
-                      </span>
-                    </Button>
-                  </li>
+                    />
+                    <span
+                      aria-hidden
+                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                        sourceId === s.id
+                          ? "border-primary-foreground bg-primary-foreground"
+                          : "border-input"
+                      }`}
+                    />
+                    <span className="min-w-0 truncate">
+                      {s.fileName} · {s.rows} {t.sourceRows}
+                    </span>
+                  </label>
+
                 ))}
-              </ul>
+              </RadioGroup>
+
             </section>
           ) : null}
 

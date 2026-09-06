@@ -5,7 +5,7 @@
  * changes what is offered here. Absent actions are removed, not disabled.
  * All data is deterministic in-memory demo data: no storage, no network.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronRight, Loader2, Lock, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -315,6 +315,9 @@ export const CustomerWorkSection = ({
   const canImportWizard = scenario === "import";
   // Новый ключ при каждом открытии: черновик мастера не переносится.
   const [wizardKey, setWizardKey] = useState(0);
+  // Постоянная кнопка, на которую всегда возвращается фокус после закрытия.
+  const listActionsRef = useRef<HTMLButtonElement>(null);
+
 
   // Смена раздела, сценария или состояния закрывает окна и очищает черновики,
   // поэтому после «недоступно» → «Повторить» старое окно не открывается снова.
@@ -581,7 +584,12 @@ export const CustomerWorkSection = ({
             {menuEntries.length > 0 ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className={CONTROL} data-testid="proto-p4-list-actions">
+                  <Button
+                    ref={listActionsRef}
+                    variant="outline"
+                    className={CONTROL}
+                    data-testid="proto-p4-list-actions"
+                  >
                     {t.listActions}
                   </Button>
                 </DropdownMenuTrigger>
@@ -784,7 +792,9 @@ export const CustomerWorkSection = ({
           open={dialog === "import"}
           lang={lang}
           onClose={() => setDialog(null)}
+          returnFocusRef={listActionsRef}
         />
+
       ) : null}
 
 

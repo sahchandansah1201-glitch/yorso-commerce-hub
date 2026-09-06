@@ -5,11 +5,13 @@
  * All values are deterministic module constants: no storage, no network.
  */
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -39,8 +41,19 @@ import { P7_DECISIONS, protoP7Copy, type P7DecisionKey } from "./copy-p7";
 import { P7_HELP, P7_SUMMARY } from "./data-p7";
 import { CONTROL } from "./ui";
 
-const DIALOG_CLOSE =
-  "[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center";
+/** The built-in close control is hidden: a localized one is rendered instead. */
+const DIALOG_CLOSE = "[&>button[type=button]]:hidden";
+
+/** Localized accessible name for the corner close control. */
+const LocalizedDialogClose = ({ label, testId }: { label: string; testId: string }) => (
+  <div className="absolute right-3 top-3">
+    <DialogClose asChild>
+      <Button variant="ghost" className={`${CONTROL} px-0`} aria-label={label} data-testid={testId}>
+        <X aria-hidden className="h-4 w-4" />
+      </Button>
+    </DialogClose>
+  </div>
+);
 
 const Field = ({ label, value, testId }: { label: string; value: string; testId: string }) => (
   <div className="min-w-0" data-testid={testId}>
@@ -111,6 +124,7 @@ export const PilotNotice = ({
 
       <Dialog open={dialog === "help"} onOpenChange={(open) => setDialog(open ? "help" : null)}>
         <DialogContent className={DIALOG_CLOSE} data-testid="proto-p7-help-dialog">
+          <LocalizedDialogClose label={t.close} testId="proto-p7-help-dialog-close" />
           <DialogHeader>
             <DialogTitle>{t.helpTitle}</DialogTitle>
             <DialogDescription>{t.helpNotice}</DialogDescription>
@@ -130,6 +144,7 @@ export const PilotNotice = ({
         onOpenChange={(open) => setDialog(open ? "feedback" : null)}
       >
         <DialogContent className={DIALOG_CLOSE} data-testid="proto-p7-feedback-dialog">
+          <LocalizedDialogClose label={t.close} testId="proto-p7-feedback-dialog-close" />
           <DialogHeader>
             <DialogTitle>{t.feedbackTitle}</DialogTitle>
             <DialogDescription>{t.feedbackHint}</DialogDescription>
