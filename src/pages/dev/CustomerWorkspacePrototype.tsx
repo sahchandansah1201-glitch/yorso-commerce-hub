@@ -112,8 +112,10 @@ const CustomerWorkspacePrototype = () => {
     return base;
   }, [section, query, lang]);
 
-  const primaryActionLabel = c.primaryActions[section];
-  const primaryAvailable = canEdit;
+  // Утверждена только матрица «Продукции»: «Редактировать» видят Владелец и Администратор.
+  // В остальных разделах прототип не показывает действий и не выводит право.
+  const primaryActionLabel = c.primaryActions.products;
+  const primaryAvailable = section === "products" && canEdit;
 
   const showTable = rows.length > 0;
 
@@ -355,7 +357,7 @@ const CustomerWorkspacePrototype = () => {
               >
                 <Building2 aria-hidden className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span className="min-w-0">
-                  <span className="block text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground">
+                  <span className="block text-[10.5px] uppercase text-muted-foreground">
                     {c.currentCompany}
                   </span>
                   <span className="block truncate text-sm font-medium">
@@ -427,7 +429,7 @@ const CustomerWorkspacePrototype = () => {
         <div className="container grid min-w-0 gap-6 py-5 lg:grid-cols-[220px_minmax(0,1fr)]">
           {/* Workspace navigation */}
           <nav aria-label={c.workspaceRoot} className="min-w-0">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
               {c.workspaceRoot}
             </p>
             <ul className="flex min-w-0 flex-wrap gap-1.5 lg:flex-col" data-testid="proto-nav">
@@ -470,7 +472,7 @@ const CustomerWorkspacePrototype = () => {
                 </p>
               </div>
 
-              {role === "service" ? null : primaryAvailable ? (
+              {role === "service" || !primaryAvailable ? null : (
                 <Button
                   className={CONTROL}
                   onClick={() => setState(state === "ready" ? "saving" : "ready")}
@@ -478,10 +480,6 @@ const CustomerWorkspacePrototype = () => {
                 >
                   {primaryActionLabel}
                 </Button>
-              ) : (
-                <p className="text-xs text-muted-foreground" data-testid="proto-primary-view-only">
-                  {c.viewOnlyTitle}
-                </p>
               )}
             </div>
 
