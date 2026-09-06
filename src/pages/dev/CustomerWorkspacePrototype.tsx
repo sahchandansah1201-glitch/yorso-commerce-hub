@@ -107,7 +107,9 @@ const CustomerWorkspacePrototype = () => {
   const [requestedSection, setRequestedSection] = useState<ProtoSectionKey>("employees");
 
   const c = protoCopy[lang];
+  const p6 = protoP6Copy[lang];
   const a = protoAccessCopy[lang];
+
   const p = protoProductsCopy[lang];
   const p4 = protoP4Copy[lang];
   const company = PROTO_COMPANY;
