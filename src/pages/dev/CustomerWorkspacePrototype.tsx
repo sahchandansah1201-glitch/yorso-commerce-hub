@@ -57,10 +57,11 @@ import {
   PROTO_UPDATED_AT,
   type ProtoRow,
 } from "./customer-workspace/data";
-
-// Local desktop overrides: the shared Button applies sm:h-10 sm:min-h-0, so P0 pins 44px.
-const CONTROL = "!h-[44px] !min-h-[44px] !min-w-[44px] text-sm";
-const ICON_CONTROL = "!h-[44px] !min-h-[44px] !w-[44px] !min-w-[44px] px-0";
+import { ServiceReview } from "./customer-workspace/ServiceReview";
+import { EmployeesSection } from "./customer-workspace/EmployeesSection";
+import { AccessClosedScreen, SignInScreen, type SignInStage } from "./customer-workspace/AccessGate";
+import { protoAccessCopy } from "./customer-workspace/copy-access";
+import { CONTROL, ICON_CONTROL } from "./customer-workspace/ui";
 
 // Состояния, содержащие изменяющие действия (в т.ч. destructive-триггер).
 const MUTATING_STATES: ProtoStateKey[] = ["conflict", "saving", "success", "destructive"];
@@ -104,8 +105,11 @@ const CustomerWorkspacePrototype = () => {
   const [state, setState] = useState<ProtoStateKey>("ready");
   const [query, setQuery] = useState("");
   const [confirmedInactive, setConfirmedInactive] = useState(false);
+  const [signInStage, setSignInStage] = useState<SignInStage>("signedOut");
+  const [requestedSection, setRequestedSection] = useState<ProtoSectionKey>("employees");
 
   const c = protoCopy[lang];
+  const a = protoAccessCopy[lang];
   const company = PROTO_COMPANY;
   const canEdit = role === "owner" || role === "admin";
 
@@ -116,8 +120,11 @@ const CustomerWorkspacePrototype = () => {
   // Состояния с изменяющими действиями существуют только там, где право
   // подтверждено; при смене роли/раздела состояние нормализуется.
   const availableStates = useMemo<ProtoStateKey[]>(
-    () => PROTO_STATES.filter((key) => canMutate || !MUTATING_STATES.includes(key)),
-    [canMutate],
+    () =>
+      role === "service"
+        ? ["ready"]
+        : PROTO_STATES.filter((key) => canMutate || !MUTATING_STATES.includes(key)),
+    [canMutate, role],
   );
   const stateAllowed = availableStates.includes(state);
   const effectiveState = stateAllowed ? state : "ready";
@@ -140,11 +147,15 @@ const CustomerWorkspacePrototype = () => {
 
   const showTable = rows.length > 0;
 
+  const isService = role === "service";
+  const isGate =
+    !isService && (effectiveState === "revoked" || effectiveState === "signedOut");
+  // Служебная роль и закрытый доступ не показывают ни указатель компании,
+  // ни пользовательскую навигацию, ни содержимое записей.
+  const hideCustomerChrome = isService || isGate;
+
 
   const renderBody = () => {
-    if (role === "service") {
-      return <StatePanel testId="proto-state-service" title={c.serviceTitle} body={c.serviceBody} tone="muted" />;
-    }
     switch (effectiveState) {
       case "loading":
         return (
@@ -162,9 +173,20 @@ const CustomerWorkspacePrototype = () => {
       case "unavailable":
         return (
           <StatePanel testId="proto-state-unavailable" title={c.unavailableTitle} body={c.unavailableBody} tone="muted">
-            <Button variant="outline" className={CONTROL} onClick={() => setState("ready")}>
+            <Button variant="outline" className={CONTROL} onClick={() => setState("ready")} data-testid="proto-unavailable-retry">
               <RotateCcw aria-hidden className="mr-2 h-4 w-4" />
               {c.retry}
+            </Button>
+            <Button
+              variant="ghost"
+              className={CONTROL}
+              onClick={() => {
+                setSection("overview");
+                setState("ready");
+              }}
+              data-testid="proto-unavailable-back"
+            >
+              {a.backLabel}
             </Button>
           </StatePanel>
         );
@@ -269,6 +291,17 @@ const CustomerWorkspacePrototype = () => {
   };
 
   const renderRecords = () => {
+    if (section === "employees") {
+      return (
+        <EmployeesSection
+          lang={lang}
+          role={role === "service" ? "viewer" : role}
+          onOwnershipTransferred={() => setRole("admin")}
+          onLeftCompany={() => setState("revoked")}
+        />
+      );
+    }
+
     if (section === "overview") {
       return (
         <div className="rounded-lg border border-border bg-card p-4" data-testid="proto-overview">
@@ -373,6 +406,7 @@ const CustomerWorkspacePrototype = () => {
             <span className="font-heading text-lg font-bold">{c.brand}</span>
 
             <div className="ml-auto flex min-w-0 flex-wrap items-center gap-2">
+              {hideCustomerChrome ? null : (
               <div
                 className="flex min-w-0 items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2"
                 data-testid="proto-current-company"
@@ -387,6 +421,7 @@ const CustomerWorkspacePrototype = () => {
                   </span>
                 </span>
               </div>
+              )}
 
               <div className="flex items-center gap-1" role="group" aria-label={c.language}>
                 {PROTO_LANGS.map((code) => (
@@ -432,6 +467,8 @@ const CustomerWorkspacePrototype = () => {
               </SelectContent>
             </Select>
 
+            {isService ? null : (
+            <>
             <label className="text-xs text-muted-foreground" htmlFor="proto-state">{c.scenario}</label>
             <Select value={effectiveState} onValueChange={(v) => setState(v as ProtoStateKey)}>
               <SelectTrigger id="proto-state" className={`${CONTROL} w-[260px]`} data-testid="proto-state-switch">
@@ -444,13 +481,20 @@ const CustomerWorkspacePrototype = () => {
 
               </SelectContent>
             </Select>
+            </>
+            )}
 
             <p className="min-w-0 text-xs text-muted-foreground">{c.prototypeNotice}</p>
           </div>
         </div>
 
-        <div className="container grid min-w-0 gap-6 py-5 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div
+          className={`container grid min-w-0 gap-6 py-5 ${
+            hideCustomerChrome ? "" : "lg:grid-cols-[220px_minmax(0,1fr)]"
+          }`}
+        >
           {/* Workspace navigation */}
+          {hideCustomerChrome ? null : (
           <nav aria-label={c.workspaceRoot} className="min-w-0">
             <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
               {c.workspaceRoot}
@@ -471,9 +515,37 @@ const CustomerWorkspacePrototype = () => {
               ))}
             </ul>
           </nav>
+          )}
 
           {/* Section surface */}
           <main className="min-w-0 space-y-4">
+            {isService ? (
+              <ServiceReview lang={lang} />
+            ) : isGate ? (
+              effectiveState === "revoked" ? (
+                <AccessClosedScreen
+                  lang={lang}
+                  onReturnToSignIn={() => {
+                    setRequestedSection("employees");
+                    setSignInStage("signedOut");
+                    setState("signedOut");
+                  }}
+                />
+              ) : (
+                <SignInScreen
+                  lang={lang}
+                  stage={signInStage}
+                  requestedSectionLabel={c.sections[requestedSection]}
+                  onSignIn={() => setSignInStage("checking")}
+                  onContinue={() => {
+                    setSection(requestedSection);
+                    setSignInStage("signedOut");
+                    setState("ready");
+                  }}
+                />
+              )
+            ) : (
+            <>
             <nav aria-label="breadcrumb">
               <ol className="flex min-w-0 flex-wrap items-center gap-1 text-xs text-muted-foreground">
                 <li>{c.breadcrumbRoot}</li>
@@ -522,6 +594,8 @@ const CustomerWorkspacePrototype = () => {
             ) : null}
 
             {renderBody()}
+            </>
+            )}
           </main>
         </div>
 

@@ -124,6 +124,7 @@ export const PROTO_ROWS: Record<ProtoSectionKey, ProtoRow[]> = {
   products: productRows,
   tasks: taskRows,
   notes: noteRows,
+  employees: [],
   search: searchRows,
 };
 

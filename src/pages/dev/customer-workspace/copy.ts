@@ -16,6 +16,7 @@ export type ProtoSectionKey =
   | "products"
   | "tasks"
   | "notes"
+  | "employees"
   | "search";
 
 export type ProtoRoleKey = "owner" | "admin" | "manager" | "viewer" | "service";
@@ -30,7 +31,9 @@ export type ProtoStateKey =
   | "conflict"
   | "saving"
   | "success"
-  | "destructive";
+  | "destructive"
+  | "revoked"
+  | "signedOut";
 
 type Dict = {
   brand: string;
@@ -112,6 +115,7 @@ const ru: Dict = {
     products: "Продукция",
     tasks: "Задачи",
     notes: "Заметки",
+    employees: "Сотрудники",
     search: "Поиск",
   },
   sectionHints: {
@@ -121,6 +125,7 @@ const ru: Dict = {
     products: "Продукция компании",
     tasks: "Обязательства с датой",
     notes: "Договорённости и наблюдения",
+    employees: "Сотрудники компании и доступ",
     search: "Поиск по записям текущей компании",
   },
   primaryActions: {
@@ -130,6 +135,7 @@ const ru: Dict = {
     products: "Редактировать",
     tasks: "Создать задачу",
     notes: "Добавить заметку",
+    employees: "Пригласить сотрудника",
     search: "Найти",
   },
   roles: {
@@ -150,6 +156,8 @@ const ru: Dict = {
     saving: "Сохранение",
     success: "Успех",
     destructive: "Подтверждение необратимого действия",
+    revoked: "Доступ к компании закрыт",
+    signedOut: "Вход в YORSO",
   },
   columns: {
     name: "Название",
@@ -171,7 +179,7 @@ const ru: Dict = {
   deniedTitle: "Нет доступа",
   deniedBody: "У вашей роли нет прав на этот раздел. Обратитесь к владельцу компании.",
   unavailableTitle: "Раздел временно недоступен",
-  unavailableBody: "Повторите попытку. Остальные разделы работают.",
+  unavailableBody: "Раздел временно недоступен. Продолжайте работу в доступных разделах.",
   retry: "Повторить",
   conflictTitle: "Запись изменена другим сотрудником",
   conflictBody: "Выберите, какую версию оставить.",
@@ -217,6 +225,7 @@ const en: Dict = {
     products: "Products",
     tasks: "Tasks",
     notes: "Notes",
+    employees: "Employees",
     search: "Search",
   },
   sectionHints: {
@@ -226,6 +235,7 @@ const en: Dict = {
     products: "Company products",
     tasks: "Commitments with a date",
     notes: "Agreements and observations",
+    employees: "Company employees and access",
     search: "Search records of the current company",
   },
   primaryActions: {
@@ -235,6 +245,7 @@ const en: Dict = {
     products: "Edit",
     tasks: "Create task",
     notes: "Add note",
+    employees: "Invite employee",
     search: "Search",
   },
   roles: {
@@ -255,6 +266,8 @@ const en: Dict = {
     saving: "Saving",
     success: "Success",
     destructive: "Irreversible action confirmation",
+    revoked: "Access to the company is closed",
+    signedOut: "Sign in to YORSO",
   },
   columns: {
     name: "Name",
@@ -276,7 +289,7 @@ const en: Dict = {
   deniedTitle: "No access",
   deniedBody: "Your role has no rights for this section. Ask the company owner.",
   unavailableTitle: "Section temporarily unavailable",
-  unavailableBody: "Try again. The other sections keep working.",
+  unavailableBody: "Feature temporarily unavailable. Continue working in the available sections.",
   retry: "Try again",
   conflictTitle: "The record was changed by another employee",
   conflictBody: "Choose which version to keep.",
@@ -322,6 +335,7 @@ const es: Dict = {
     products: "Productos",
     tasks: "Tareas",
     notes: "Notas",
+    employees: "Empleados",
     search: "Buscar",
   },
   sectionHints: {
@@ -331,6 +345,7 @@ const es: Dict = {
     products: "Productos de la empresa",
     tasks: "Compromisos con fecha",
     notes: "Acuerdos y observaciones",
+    employees: "Empleados de la empresa y acceso",
     search: "Buscar registros de la empresa actual",
   },
   primaryActions: {
@@ -340,6 +355,7 @@ const es: Dict = {
     products: "Editar",
     tasks: "Crear tarea",
     notes: "Añadir nota",
+    employees: "Invitar empleado",
     search: "Buscar",
   },
   roles: {
@@ -360,6 +376,8 @@ const es: Dict = {
     saving: "Guardando",
     success: "Correcto",
     destructive: "Confirmación de acción irreversible",
+    revoked: "El acceso a la empresa está cerrado",
+    signedOut: "Iniciar sesión en YORSO",
   },
   columns: {
     name: "Nombre",
@@ -381,7 +399,7 @@ const es: Dict = {
   deniedTitle: "Sin acceso",
   deniedBody: "Su rol no tiene permisos para esta sección. Consulte al propietario de la empresa.",
   unavailableTitle: "Sección no disponible temporalmente",
-  unavailableBody: "Vuelva a intentarlo. Las demás secciones siguen funcionando.",
+  unavailableBody: "La función no está disponible temporalmente. Continúe trabajando en las secciones disponibles.",
   retry: "Volver a intentar",
   conflictTitle: "Otro empleado cambió el registro",
   conflictBody: "Elija qué versión conservar.",
@@ -417,6 +435,7 @@ export const PROTO_SECTIONS: ProtoSectionKey[] = [
   "products",
   "tasks",
   "notes",
+  "employees",
   "search",
 ];
 export const PROTO_ROLES: ProtoRoleKey[] = ["owner", "admin", "manager", "viewer", "service"];
@@ -431,4 +450,6 @@ export const PROTO_STATES: ProtoStateKey[] = [
   "saving",
   "success",
   "destructive",
+  "revoked",
+  "signedOut",
 ];
