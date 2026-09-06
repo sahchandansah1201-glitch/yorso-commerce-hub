@@ -9,7 +9,7 @@
  *
  * No backend, no network requests, no storage writes, no new dependencies.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Building2, Check, ChevronRight, Loader2, Lock, Moon, RotateCcw, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
