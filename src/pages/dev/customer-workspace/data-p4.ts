@@ -352,6 +352,9 @@ export const p4RelatedFor = (record: P4Record, pool: P4Record[]): P4Record[] => 
   if (record.kind === "company") {
     return pool.filter((r) => r.companyId === record.id);
   }
+  // Без родительской компании связей нет: отсутствующий companyId никогда не
+  // объединяет несвязанные корневые записи.
+  if (!record.companyId) return [];
   const company = pool.find((c) => c.kind === "company" && c.id === record.companyId);
   const siblings = pool.filter(
     (r) => r.companyId === record.companyId && r.id !== record.id,

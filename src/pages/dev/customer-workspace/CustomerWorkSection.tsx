@@ -707,7 +707,7 @@ export const CustomerWorkSection = ({
         </>
       )}
 
-      {/* Create record sample */}
+      {/* Create a record */}
       <Dialog open={dialog === "create"} onOpenChange={(open) => setDialog(open ? "create" : null)}>
         <DialogContent
         className="[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center"
@@ -747,6 +747,9 @@ export const CustomerWorkSection = ({
                       active: true,
                       updated: "2026-09-06T21:00",
                       updatedLabel: { ru: "06.09.2026 21:00", en: "06.09.2026 21:00", es: "06.09.2026 21:00" },
+                      // Дочерние записи создаются в текущей компании; компания
+                      // остаётся корневой записью без родителя.
+                      companyId: kind === "company" ? undefined : "bergen",
                       details: [],
                     },
                     ...prev,
