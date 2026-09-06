@@ -210,15 +210,35 @@ const CustomerWorkspacePrototype = () => {
               body={c.destructiveBody}
               tone="destructive"
             >
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="destructive"
-                  className={CONTROL}
-                  data-testid="proto-destructive-trigger"
-                >
-                  {c.destructiveAction}
-                </Button>
-              </AlertDialogTrigger>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    className={CONTROL}
+                    data-testid="proto-destructive-trigger"
+                  >
+                    {c.destructiveAction}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent data-testid="proto-destructive-dialog">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{c.destructiveTitle}</AlertDialogTitle>
+                    <AlertDialogDescription>{c.destructiveBody}</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className={CONTROL}>{c.cancel}</AlertDialogCancel>
+                    <AlertDialogAction
+                      className={CONTROL}
+                      onClick={() => {
+                        setConfirmedInactive(true);
+                        setState("success");
+                      }}
+                    >
+                      {c.destructiveConfirm}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </StatePanel>
             {renderRecords()}
           </div>
