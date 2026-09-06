@@ -58,7 +58,9 @@ import {
   type ProtoRow,
 } from "./customer-workspace/data";
 
-const CONTROL = "h-[44px] min-h-[44px] text-sm";
+// Local desktop overrides: the shared Button applies sm:h-10 sm:min-h-0, so P0 pins 44px.
+const CONTROL = "!h-[44px] !min-h-[44px] !min-w-[44px] text-sm";
+const ICON_CONTROL = "!h-[44px] !min-h-[44px] !w-[44px] !min-w-[44px] px-0";
 
 const StatePanel = ({
   title,
@@ -371,7 +373,7 @@ const CustomerWorkspacePrototype = () => {
                   <Button
                     key={code}
                     variant={lang === code ? "default" : "outline"}
-                    className="h-[44px] min-h-[44px] w-[44px] min-w-[44px] px-0 text-xs uppercase"
+                    className={`${ICON_CONTROL} text-xs uppercase`}
                     aria-pressed={lang === code}
                     onClick={() => setLang(code)}
                     data-testid={`proto-lang-${code}`}
@@ -383,7 +385,7 @@ const CustomerWorkspacePrototype = () => {
 
               <Button
                 variant="outline"
-                className="h-[44px] min-h-[44px] w-[44px] min-w-[44px] px-0"
+                className={ICON_CONTROL}
                 aria-pressed={dark}
                 aria-label={dark ? c.themeLight : c.themeDark}
                 onClick={() => setDark((v) => !v)}
@@ -438,7 +440,7 @@ const CustomerWorkspacePrototype = () => {
                   <Button
                     variant={section === key ? "secondary" : "ghost"}
                     aria-current={section === key ? "page" : undefined}
-                    className={`h-[44px] min-h-[44px] justify-start ${section === key ? "font-semibold" : ""} lg:w-full`}
+                    className={`${CONTROL} justify-start ${section === key ? "font-semibold" : ""} lg:w-full`}
                     onClick={() => setSection(key)}
                     data-testid={`proto-nav-${key}`}
                   >
