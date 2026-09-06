@@ -58,7 +58,9 @@ import {
   type ProtoRow,
 } from "./customer-workspace/data";
 
-const CONTROL = "h-[44px] min-h-[44px] text-sm";
+// Local desktop overrides: the shared Button applies sm:h-10 sm:min-h-0, so P0 pins 44px.
+const CONTROL = "!h-[44px] !min-h-[44px] !min-w-[44px] text-sm";
+const ICON_CONTROL = "!h-[44px] !min-h-[44px] !w-[44px] !min-w-[44px] px-0";
 
 const StatePanel = ({
   title,
