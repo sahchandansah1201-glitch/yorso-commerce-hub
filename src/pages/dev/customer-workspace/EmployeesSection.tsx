@@ -103,16 +103,22 @@ export const EmployeesSection = ({
     [role],
   );
 
-  const self = SELF_RECORDS[role];
+  // Личность текущего сотрудника хранится отдельно от роли: она берётся из
+  // изменяемого списка по устойчивому идентификатору.
+  const self = useMemo(
+    () =>
+      employees.find((e) => e.id === currentEmployeeId) ??
+      SELF_RECORDS[role] ??
+      employees[0],
+    [employees, currentEmployeeId, role],
+  );
 
-  // Кандидаты действия: сотрудники компании, кроме текущего пользователя.
-  const targets = useMemo(
-    () => employees.filter((e) => e.id !== self.id),
+  // Цели действий: сотрудники компании, кроме текущего сотрудника и владельца.
+  // Владельца можно изменить только действием «Передать владение».
+  const list = useMemo(
+    () => employees.filter((e) => e.id !== self.id && e.role !== "owner"),
     [employees, self.id],
   );
-  const transferTargets = useMemo(() => targets.filter((e) => e.role !== "owner"), [targets]);
-
-  const list = pending === "transferOwnership" ? transferTargets : targets;
   const target = list.find((e) => e.id === targetId) ?? null;
 
   // Роль понижена или изменилась — закрываем открытую форму/диалог и убираем
