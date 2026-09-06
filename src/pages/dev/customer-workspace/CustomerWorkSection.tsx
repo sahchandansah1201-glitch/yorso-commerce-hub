@@ -494,7 +494,13 @@ export const CustomerWorkSection = ({
           onBack={() => setOpenId(null)}
           onOpen={(id) => setOpenId(id)}
           onEdited={(id, title) => {
-            setTitles((prev) => ({ ...prev, [id]: { ...prev[id], [lang]: title } }));
+            setTitles((prev) => {
+              const edits: Partial<Record<ProtoLang, string>> = {
+                ...prev[id],
+                [lang]: title,
+              };
+              return { ...prev, [id]: edits };
+            });
             setNotice(t.successBody);
           }}
         />
