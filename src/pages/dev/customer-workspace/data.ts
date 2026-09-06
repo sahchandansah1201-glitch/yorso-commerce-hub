@@ -1,5 +1,6 @@
 /**
- * Deterministic local data for the P0 prototype. No network, no storage,
+ * Deterministic local data for the P0 prototype. One account has exactly one
+ * active company at a time. No network, no storage,
  * no product data is touched. Values are stable across renders so screenshots
  * and acceptance runs stay comparable.
  */
@@ -11,18 +12,12 @@ export interface ProtoCompany {
   countryLabel: Record<ProtoLang, string>;
 }
 
-export const PROTO_COMPANIES: ProtoCompany[] = [
-  {
-    id: "nordkapp",
-    name: "Nordkapp Seafood AS",
-    countryLabel: { ru: "Норвегия", en: "Norway", es: "Noruega" },
-  },
-  {
-    id: "atlantica",
-    name: "Atlántica Pesca SL",
-    countryLabel: { ru: "Испания", en: "España", es: "España" },
-  },
-];
+export const PROTO_COMPANY: ProtoCompany = 
+{
+  id: "nordkapp",
+  name: "Nordkapp Seafood AS",
+  countryLabel: { ru: "Норвегия", en: "Norway", es: "Noruega" },
+};
 
 export interface ProtoRow {
   id: string;
@@ -106,7 +101,7 @@ const companyRows: ProtoRow[] = [
 
 const contactRows: ProtoRow[] = [
   row("ingrid", ["Ингрид Хальворсен", "Ingrid Halvorsen", "Ingrid Halvorsen"], ["Закупки", "Procurement", "Compras"], "Nordkapp Seafood AS", "—", true, "05.09.2026 12:10"),
-  row("pablo", ["Пабло Ортега", "Pablo Ortega", "Pablo Ortega"], ["Продажи", "Sales", "Ventas"], "Atlántica Pesca SL", "—", true, "04.09.2026 15:25"),
+  row("pablo", ["Пабло Ортега", "Pablo Ortega", "Pablo Ortega"], ["Продажи", "Sales", "Ventas"], "Vigo Fish Trading", "—", true, "04.09.2026 15:25"),
   row("marta", ["Марта Сун", "Marta Sun", "Marta Sun"], ["Логистика", "Logistics", "Logística"], "Vigo Fish Trading", "—", true, "01.09.2026 09:00"),
 ];
 
