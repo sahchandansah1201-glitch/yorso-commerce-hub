@@ -494,7 +494,7 @@ export const CustomerWorkSection = ({
           onBack={() => setOpenId(null)}
           onOpen={(id) => setOpenId(id)}
           onEdited={(id, title) => {
-            setTitles((prev) => ({ ...prev, [id]: title }));
+            setTitles((prev) => ({ ...prev, [id]: { ...prev[id], [lang]: title } }));
             setNotice(t.successBody);
           }}
         />
