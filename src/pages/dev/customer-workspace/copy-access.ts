@@ -81,7 +81,7 @@ type AccessDict = {
   ownRecordHint: string;
   ownRecordRole: string;
   invitationsHint: string;
-  invitationColumns: { name: string; role: string; status: string; added: string };
+  invitationColumns: { name: string; role: string; status: string; addedAt: string };
   invitationPending: string;
   ownershipTitle: string;
   ownershipHint: string;
@@ -191,7 +191,7 @@ const ru: AccessDict = {
   ownRecordHint: "Вы видите только свою запись и роль.",
   ownRecordRole: "Ваша роль",
   invitationsHint: "Приглашения находятся в списке на этой странице.",
-  invitationColumns: { name: "Приглашённый", role: "Роль", status: "Статус", added: "Добавлено" },
+  invitationColumns: { name: "Приглашённый", role: "Роль", status: "Статус", addedAt: "Добавлено" },
   invitationPending: "Добавлено в список",
   ownershipTitle: "Передача владения",
   ownershipHint: "Владение передаётся одному сотруднику компании.",
@@ -312,7 +312,7 @@ const en: AccessDict = {
   ownRecordHint: "You see only your own record and role.",
   ownRecordRole: "Your role",
   invitationsHint: "The invitations are in the list on this page.",
-  invitationColumns: { name: "Invited", role: "Role", status: "Status", added: "Added" },
+  invitationColumns: { name: "Invited", role: "Role", status: "Status", addedAt: "Added" },
   invitationPending: "Added to list",
   ownershipTitle: "Ownership transfer",
   ownershipHint: "Ownership is passed to one employee of the company.",
@@ -433,7 +433,7 @@ const es: AccessDict = {
   ownRecordHint: "Solo ve su propio registro y su rol.",
   ownRecordRole: "Su rol",
   invitationsHint: "Las invitaciones están en la lista de esta página.",
-  invitationColumns: { name: "Invitado", role: "Rol", status: "Estado", added: "Añadida" },
+  invitationColumns: { name: "Invitado", role: "Rol", status: "Estado", addedAt: "Añadida" },
   invitationPending: "Añadida a la lista",
   ownershipTitle: "Transferencia de propiedad",
   ownershipHint: "La propiedad pasa a un empleado de la empresa.",

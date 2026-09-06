@@ -173,7 +173,7 @@ export const EmployeesSection = ({
     if (pending === "invite") {
       const name = email.trim();
       setInvitations((prev) => [
-        { id: `inv-${prev.length + 1}`, name, role: inviteRole, added: "06.09.2026" },
+        { id: `inv-${prev.length + 1}`, name, role: inviteRole, addedAt: "06.09.2026" },
         ...prev,
       ]);
       setNote(fill(a.invitedResult, name, c.roles[inviteRole]));
@@ -410,7 +410,7 @@ export const EmployeesSection = ({
                   <TableHead className="text-xs">{a.invitationColumns.name}</TableHead>
                   <TableHead className="text-xs">{a.invitationColumns.role}</TableHead>
                   <TableHead className="text-xs">{a.invitationColumns.status}</TableHead>
-                  <TableHead className="text-xs">{a.invitationColumns.added}</TableHead>
+                  <TableHead className="text-xs">{a.invitationColumns.addedAt}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -419,7 +419,7 @@ export const EmployeesSection = ({
                     <TableCell className="align-top font-medium">{inv.name}</TableCell>
                     <TableCell className="align-top text-sm">{c.roles[inv.role]}</TableCell>
                     <TableCell className="align-top text-sm">{a.invitationPending}</TableCell>
-                    <TableCell className="align-top text-sm text-muted-foreground">{inv.added}</TableCell>
+                    <TableCell className="align-top text-sm text-muted-foreground">{inv.addedAt}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -437,7 +437,7 @@ export const EmployeesSection = ({
                   {c.roles[inv.role]} · {a.invitationPending}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {a.invitationColumns.added}: {inv.added}
+                  {a.invitationColumns.addedAt}: {inv.addedAt}
                 </p>
               </li>
             ))}

@@ -97,6 +97,9 @@ const CustomerWorkspacePrototype = () => {
   const [currentEmployeeId, setCurrentEmployeeId] = useState<string>(
     SELF_RECORDS.owner.id,
   );
+  // Ручной выбор роли — переключатель тестового пользователя: он сбрасывает
+  // локальную модель сотрудников к исходному набору. Передача владения — нет.
+  const [employeesRevision, setEmployeesRevision] = useState(0);
   const [state, setState] = useState<ProtoStateKey>("ready");
   const [scenario, setScenario] = useState<P4Scenario>("view");
   const [editingProducts, setEditingProducts] = useState(false);
@@ -169,6 +172,7 @@ const CustomerWorkspacePrototype = () => {
     if (section === "employees") {
       return (
         <EmployeesSection
+          key={`employees-${employeesRevision}`}
           lang={lang}
           role={role === "service" ? "viewer" : role}
           currentEmployeeId={currentEmployeeId}
@@ -387,6 +391,7 @@ const CustomerWorkspacePrototype = () => {
                 // Ручной выбор роли выбирает заранее заданного сотрудника
                 // этой роли; передача владения личность не меняет.
                 if (next !== "service") setCurrentEmployeeId(SELF_RECORDS[next].id);
+                setEmployeesRevision((r) => r + 1);
               }}
             >
               <SelectTrigger id="proto-role" className={`${CONTROL} w-[220px]`} data-testid="proto-role-switch">
