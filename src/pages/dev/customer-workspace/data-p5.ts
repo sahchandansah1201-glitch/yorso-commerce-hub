@@ -8,13 +8,42 @@ export type P5SourceFile = {
   id: string;
   fileName: string;
   rows: number;
+  /** Row identifiers contained in this source. */
+  rowIds: string[];
+  /** File columns contained in this source. */
+  columnIds: string[];
 };
+
+const ROW_IDS_ALL = [
+  "R-01", "R-02", "R-03", "R-04", "R-05", "R-06", "R-07",
+  "R-08", "R-09", "R-10", "R-11", "R-12", "R-13", "R-14",
+];
+const ROW_IDS_COMPANIES = ROW_IDS_ALL.slice(0, 8);
+const ROW_IDS_CONTACTS = ROW_IDS_ALL.slice(8);
 
 /** Three bundled check sources named by file name only. */
 export const P5_SOURCES: P5SourceFile[] = [
-  { id: "src-a", fileName: "companies-contacts-2026-09-01.csv", rows: 14 },
-  { id: "src-b", fileName: "companies-only-2026-08-24.csv", rows: 8 },
-  { id: "src-c", fileName: "contacts-only-2026-08-18.csv", rows: 6 },
+  {
+    id: "src-a",
+    fileName: "companies-contacts-2026-09-01.csv",
+    rows: 14,
+    rowIds: ROW_IDS_ALL,
+    columnIds: ["col-1", "col-2", "col-3", "col-4", "col-5", "col-6"],
+  },
+  {
+    id: "src-b",
+    fileName: "companies-only-2026-08-24.csv",
+    rows: 8,
+    rowIds: ROW_IDS_COMPANIES,
+    columnIds: ["col-1", "col-2", "col-6"],
+  },
+  {
+    id: "src-c",
+    fileName: "contacts-only-2026-08-18.csv",
+    rows: 6,
+    rowIds: ROW_IDS_CONTACTS,
+    columnIds: ["col-3", "col-4", "col-5", "col-6"],
+  },
 ];
 
 export type P5Field =
@@ -77,40 +106,10 @@ export const P5_ROWS: P5Row[] = [
   { id: "R-14", kind: "contact", value: "no-name@", classification: "error", defaultChoice: null },
 ];
 
-export const P5_TOTALS = {
-  rows: 14,
-  companies: 8,
-  contacts: 6,
-};
-
-/** Fixed first outcome of the local execution transition. */
-export const P5_RESULT = {
-  processable: 8,
-  completed: 7,
-  temporaryFailure: 1,
-  rejected: 2,
-  skipped: 4,
-};
-
 export type P5Outcome = "completed" | "temporaryFailure" | "rejected" | "skipped";
 
-/** Deterministic per-row outcome of the first execution. */
-export const P5_ROW_OUTCOMES: Record<string, P5Outcome> = {
-  "R-01": "completed",
-  "R-02": "completed",
-  "R-03": "skipped",
-  "R-04": "completed",
-  "R-05": "completed",
-  "R-06": "completed",
-  "R-07": "temporaryFailure",
-  "R-08": "rejected",
-  "R-09": "completed",
-  "R-10": "skipped",
-  "R-11": "skipped",
-  "R-12": "completed",
-  "R-13": "skipped",
-  "R-14": "rejected",
-};
+/** The single row that fails temporarily when it is not skipped. */
+export const P5_TEMPORARY_FAILURE_ROW = "R-07";
 
 /** Service-side run register: counts and identifiers only. */
 export const P5_SERVICE_RUN = {
