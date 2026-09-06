@@ -771,9 +771,14 @@ export const CustomerWorkSection = ({
         </DialogContent>
       </Dialog>
 
-      {/* Full-screen data transfer wizard; unmounts when access changes. */}
-      {dialog === "import" ? (
-        <ImportWizard lang={lang} onClose={() => setDialog(null)} />
+      {/* Full-screen data transfer wizard; a new key clears its draft. */}
+      {canImportWizard ? (
+        <ImportWizard
+          key={wizardKey}
+          open={dialog === "import"}
+          lang={lang}
+          onClose={() => setDialog(null)}
+        />
       ) : null}
 
 

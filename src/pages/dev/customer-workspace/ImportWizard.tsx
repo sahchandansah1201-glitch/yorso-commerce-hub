@@ -86,9 +86,12 @@ const DIALOG_CLOSE =
 
 export const ImportWizard = ({
   lang,
+  open,
   onClose,
 }: {
   lang: ProtoLang;
+  /** The dialog stays mounted so closing always restores page interaction. */
+  open: boolean;
   onClose: () => void;
 }) => {
   const t = protoP5Copy[lang];
@@ -195,7 +198,7 @@ export const ImportWizard = ({
 
   return (
     <Dialog
-      open
+      open={open}
       onOpenChange={(open) => {
         if (!open && !locked) onClose();
       }}
