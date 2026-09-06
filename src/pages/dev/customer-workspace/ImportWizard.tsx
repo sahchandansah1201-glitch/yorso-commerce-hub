@@ -500,7 +500,7 @@ export const ServiceDataTransfer = ({ lang }: { lang: ProtoLang }) => {
         />
         <Field
           label={t.serviceOutcome}
-          value={fill(t.serviceOutcomeValue, { done, total: P5_RESULT.processable })}
+          value={fill(retried ? t.serviceOutcomeFullValue : t.serviceOutcomeValue, { done, total: P5_RESULT.processable })}
           testId="proto-p5-service-outcome"
         />
         <Field label={t.serviceRowIds} value={P5_SERVICE_RUN.rowIds} testId="proto-p5-service-ids" />

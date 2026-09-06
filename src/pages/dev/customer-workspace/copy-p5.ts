@@ -85,6 +85,7 @@ export type P5Dict = {
   serviceWriteModeValue: string;
   serviceOutcome: string;
   serviceOutcomeValue: string;
+  serviceOutcomeFullValue: string;
   serviceRowIds: string;
   serviceFailedIds: string;
   serviceRetry: string;
@@ -174,6 +175,7 @@ const ru: P5Dict = {
   serviceWriteModeValue: "Проверочный проход, запись не выполняется",
   serviceOutcome: "Итог",
   serviceOutcomeValue: "Частичный: {done} из {total}",
+  serviceOutcomeFullValue: "Полный: {done} из {total}",
   serviceRowIds: "Идентификаторы строк",
   serviceFailedIds: "Строки с неудачей",
   serviceRetry: "Повторить выбранные ошибки",
@@ -263,6 +265,7 @@ const en: P5Dict = {
   serviceWriteModeValue: "Check pass, no write performed",
   serviceOutcome: "Outcome",
   serviceOutcomeValue: "Partial: {done} of {total}",
+  serviceOutcomeFullValue: "Complete: {done} of {total}",
   serviceRowIds: "Row identifiers",
   serviceFailedIds: "Failed rows",
   serviceRetry: "Retry selected failures",
@@ -352,6 +355,7 @@ const es: P5Dict = {
   serviceWriteModeValue: "Pasada de comprobación, sin escritura",
   serviceOutcome: "Resultado",
   serviceOutcomeValue: "Parcial: {done} de {total}",
+  serviceOutcomeFullValue: "Completo: {done} de {total}",
   serviceRowIds: "Identificadores de filas",
   serviceFailedIds: "Filas con fallo",
   serviceRetry: "Reintentar errores seleccionados",
