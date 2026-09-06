@@ -3,12 +3,13 @@
  * /dev/customer-workspace.
  *
  * Implemented packages: P0 shell and state library, P1 service review,
- * P2 employees and access, P3 company products, P4 customer work.
- * P5-P7 are NOT implemented here.
+ * P2 employees and access, P3 company products, P4 customer work,
+ * P5 data transfer, P6 operations, P7 limited pilot.
  *
  * No backend, no network requests, no storage reads or writes, no new
  * dependencies. All data is deterministic module memory.
  */
+
 import { useEffect, useMemo, useState } from "react";
 import { Building2, Check, ChevronRight, Loader2, Lock, Moon, RotateCcw, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,10 @@ import { ServiceReview } from "./customer-workspace/ServiceReview";
 import { EmployeesSection } from "./customer-workspace/EmployeesSection";
 import { SELF_RECORDS } from "./customer-workspace/data-access";
 import { ProductsSection } from "./customer-workspace/ProductsSection";
+import { PilotNotice } from "./customer-workspace/PilotSection";
+import { protoP6Copy } from "./customer-workspace/copy-p6";
 import { protoProductsCopy } from "./customer-workspace/copy-p3";
+
 import {
   CustomerWorkSection,
   isP4Section,
@@ -107,7 +111,9 @@ const CustomerWorkspacePrototype = () => {
   const [requestedSection, setRequestedSection] = useState<ProtoSectionKey>("employees");
 
   const c = protoCopy[lang];
+  const p6 = protoP6Copy[lang];
   const a = protoAccessCopy[lang];
+
   const p = protoProductsCopy[lang];
   const p4 = protoP4Copy[lang];
   const company = PROTO_COMPANY;
@@ -185,18 +191,22 @@ const CustomerWorkspacePrototype = () => {
     }
 
     return (
-      <div className="rounded-lg border border-border bg-card p-4" data-testid="proto-overview">
-        <h3 className="font-heading text-base font-semibold">{c.overviewHeading}</h3>
-        <ul className="mt-2 space-y-1.5">
-          {c.overviewItems.map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm">
-              <ChevronRight aria-hidden className="mt-0.5 h-4 w-4 text-primary" />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
+      <div className="space-y-4">
+        <PilotNotice lang={lang} resetKey={`${role}-${scenario}-${effectiveState}`} />
+        <div className="rounded-lg border border-border bg-card p-4" data-testid="proto-overview">
+          <h3 className="font-heading text-base font-semibold">{c.overviewHeading}</h3>
+          <ul className="mt-2 space-y-1.5">
+            {c.overviewItems.map((item) => (
+              <li key={item} className="flex items-start gap-2 text-sm">
+                <ChevronRight aria-hidden className="mt-0.5 h-4 w-4 text-primary" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
+
   };
 
   const renderBody = () => {
@@ -238,7 +248,8 @@ const CustomerWorkspacePrototype = () => {
           <StatePanel
             testId="proto-state-unavailable"
             title={c.unavailableTitle}
-            body={c.unavailableBody}
+            body={p6.customerUnavailable}
+
             tone="muted"
           >
             <Button

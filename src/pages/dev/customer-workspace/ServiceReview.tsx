@@ -34,8 +34,15 @@ import {
 } from "@/components/ui/select";
 import type { ProtoLang } from "./copy";
 import { protoAccessCopy, SERVICE_DECISIONS, type ServiceDecisionKey } from "./copy-access";
+import { protoP5Copy } from "./copy-p5";
+import { protoP6Copy } from "./copy-p6";
+import { protoP7Copy } from "./copy-p7";
+import { ServiceDataTransfer } from "./ImportWizard";
+import { OperationsSection } from "./OperationsSection";
+import { ServicePilot } from "./PilotSection";
 import { CAPABILITY_ROWS } from "./data-access";
 import { CONTROL } from "./ui";
+
 
 const SummaryField = ({
   label,
@@ -55,12 +62,27 @@ const SummaryField = ({
   </div>
 );
 
+type ServiceTab = "review" | "transfer" | "operations" | "pilot";
+
+const SERVICE_TABS: ServiceTab[] = ["review", "transfer", "operations", "pilot"];
+
 export const ServiceReview = ({ lang }: { lang: ProtoLang }) => {
   const a = protoAccessCopy[lang];
+  const p5 = protoP5Copy[lang];
+  const p6 = protoP6Copy[lang];
+  const p7 = protoP7Copy[lang];
   // Явный локальный выбор решения: сначала выбор, только потом запись.
   const [choice, setChoice] = useState<ServiceDecisionKey | "">("");
   const [recorded, setRecorded] = useState<ServiceDecisionKey | null>(null);
+  const [tab, setTab] = useState<ServiceTab>("review");
   const decisionValue = recorded ? a.decisions[recorded] : a.ownerDecisionPending;
+
+  const tabLabels: Record<ServiceTab, string> = {
+    review: a.readinessTitle,
+    transfer: p5.serviceTabTransfer,
+    operations: p6.serviceTabOperations,
+    pilot: p7.serviceTabPilot,
+  };
 
   const checks: { key: string; label: string; ok: boolean }[] = [
     { key: "company-found", label: a.accessChecks.companyFound, ok: true },
@@ -75,6 +97,39 @@ export const ServiceReview = ({ lang }: { lang: ProtoLang }) => {
         <h1 className="font-heading text-xl font-semibold lg:text-2xl">{a.serviceScreenTitle}</h1>
         <p className="text-xs text-muted-foreground">{a.serviceScreenHint}</p>
       </div>
+
+      <div
+        role="tablist"
+        aria-label={a.serviceScreenTitle}
+        className="flex min-w-0 flex-wrap gap-1 border-b border-border/60"
+        data-testid="proto-service-tabs"
+      >
+        {SERVICE_TABS.map((key) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={tab === key}
+            onClick={() => setTab(key)}
+            className={`${CONTROL} -mb-px border-b-2 px-3 text-sm font-medium ${
+              tab === key
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+            data-testid={`proto-service-tab-${key}`}
+          >
+            {tabLabels[key]}
+          </button>
+        ))}
+      </div>
+
+      {tab === "transfer" ? <ServiceDataTransfer lang={lang} /> : null}
+      {tab === "operations" ? <OperationsSection lang={lang} /> : null}
+      {tab === "pilot" ? <ServicePilot lang={lang} /> : null}
+
+      {tab === "review" ? (
+        <>
+
 
       {/* A. Feature readiness */}
       <section className="min-w-0 space-y-3" aria-labelledby="proto-service-readiness">
@@ -240,7 +295,10 @@ export const ServiceReview = ({ lang }: { lang: ProtoLang }) => {
           ))}
         </ul>
       </section>
+        </>
+      ) : null}
     </div>
+
   );
 };
 

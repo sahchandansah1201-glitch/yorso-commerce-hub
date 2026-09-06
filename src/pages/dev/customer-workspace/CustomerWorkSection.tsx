@@ -59,7 +59,9 @@ import {
   type P4TabKey,
 } from "./copy-p4";
 import { P4_ALL_RECORDS, P4_DELETED, p4RelatedFor, type P4Record } from "./data-p4";
+import { ImportWizard } from "./ImportWizard";
 import { CONTROL } from "./ui";
+
 
 export type P4SectionKey = Extract<
   ProtoSectionKey,
@@ -766,21 +768,11 @@ export const CustomerWorkSection = ({
         </DialogContent>
       </Dialog>
 
-      {/* Import entry point only */}
-      <Dialog open={dialog === "import"} onOpenChange={(open) => setDialog(open ? "import" : null)}>
-        <DialogContent
-        className="[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center"
-        data-testid="proto-p4-import-dialog"
-      >
-          <DialogHeader>
-            <DialogTitle>{t.importTitle}</DialogTitle>
-            <DialogDescription>{t.importBody}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button className={CONTROL} onClick={() => setDialog(null)}>{t.cancel}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Full-screen data transfer wizard; unmounts when access changes. */}
+      {dialog === "import" ? (
+        <ImportWizard lang={lang} onClose={() => setDialog(null)} />
+      ) : null}
+
 
       {/* Export entry point only */}
       <Dialog open={dialog === "export"} onOpenChange={(open) => setDialog(open ? "export" : null)}>
