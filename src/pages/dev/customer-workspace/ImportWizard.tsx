@@ -84,22 +84,26 @@ const outcomeOf = (row: P5Row, choice: P5Choice | null): P5Outcome => {
   return "completed";
 };
 
-const DIALOG_CLOSE =
-  "[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center";
+/** The built-in close control is hidden: a localized one is rendered instead. */
+const DIALOG_CLOSE = "[&>button[type=button]]:hidden";
 
 export const ImportWizard = ({
   lang,
   open,
   onClose,
+  returnFocusRef,
 }: {
   lang: ProtoLang;
   /** The dialog stays mounted so closing always restores page interaction. */
   open: boolean;
   onClose: () => void;
+  /** Permanent control that receives focus after every close. */
+  returnFocusRef?: RefObject<HTMLElement>;
 }) => {
   const t = protoP5Copy[lang];
   const [step, setStep] = useState<P5StepKey>("source");
-  const [sourceId, setSourceId] = useState("");
+  const [sourceId, setSourceId] = useState(P5_SOURCES[0]?.id ?? "");
+
   const [mapping, setMapping] = useState<Record<string, P5Field>>(() =>
     Object.fromEntries(P5_COLUMNS.map((c) => [c.id, c.target])),
   );
