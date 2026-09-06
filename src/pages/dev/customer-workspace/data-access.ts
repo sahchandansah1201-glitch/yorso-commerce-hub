@@ -108,12 +108,13 @@ export interface InvitationRecord {
   id: string;
   name: string;
   role: Exclude<ProtoRoleKey, "service">;
-  sent: string;
+  /** Дата добавления записи в список на странице. */
+  added: string;
 }
 
 export const INVITATION_RECORDS: InvitationRecord[] = [
-  { id: "inv-1", name: "Sofia Marques", role: "manager", sent: "05.09.2026" },
-  { id: "inv-2", name: "Jonas Berg", role: "viewer", sent: "02.09.2026" },
+  { id: "inv-1", name: "Sofia Marques", role: "manager", added: "05.09.2026" },
+  { id: "inv-2", name: "Jonas Berg", role: "viewer", added: "02.09.2026" },
 ];
 
 export const SELF_RECORDS: Record<Exclude<ProtoRoleKey, "service">, EmployeeRecord> = {

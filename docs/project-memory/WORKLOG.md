@@ -4794,3 +4794,4 @@ Keep this file factual and append-only.
 - P4: созданные contact/task/note получают companyId="bergen"; созданная company остаётся корневой; связи без companyId пусты.
 - P4: восстановление дочерней записи заблокировано до восстановления родительской компании (локализованное пояснение), окно удалённых остаётся открытым.
 - Проверено: tsc, Playwright A-E, RU/EN/ES, 390px (overflow 0, targets >=44px), no storage/network.
+- Приглашения: статус и подпись даты нейтральны (Добавлено в список / Added to list / Añadida a la lista; Добавлено / Added / Añadida); упоминания отправки и доставки убраны. Проверено RU/EN/ES, 390px, tsc, no network/storage.
