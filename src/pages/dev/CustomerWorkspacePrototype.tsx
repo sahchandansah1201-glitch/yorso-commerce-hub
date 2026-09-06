@@ -172,6 +172,7 @@ const CustomerWorkspacePrototype = () => {
           lang={lang}
           role={role === "service" ? "viewer" : role}
           currentEmployeeId={currentEmployeeId}
+          canMutate={effectiveState === "ready"}
           // Меняется только роль текущего сотрудника: личность сохраняется.
           onOwnershipTransferred={() => setRole("admin")}
           onLeftCompany={() => setState("revoked")}

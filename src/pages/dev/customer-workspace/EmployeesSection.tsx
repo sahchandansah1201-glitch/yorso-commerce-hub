@@ -168,7 +168,7 @@ export const EmployeesSection = ({
     template.replace("{name}", name).replace("{role}", roleLabel ?? "");
 
   const confirmAction = () => {
-    if (!pending || !canConfirm()) return;
+    if (!pending || !canMutate || !canConfirm()) return;
 
     if (pending === "invite") {
       const name = email.trim();
