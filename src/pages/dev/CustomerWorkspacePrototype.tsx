@@ -37,7 +37,10 @@ import { ServiceReview } from "./customer-workspace/ServiceReview";
 import { EmployeesSection } from "./customer-workspace/EmployeesSection";
 import { SELF_RECORDS } from "./customer-workspace/data-access";
 import { ProductsSection } from "./customer-workspace/ProductsSection";
+import { PilotNotice } from "./customer-workspace/PilotSection";
+import { protoP6Copy } from "./customer-workspace/copy-p6";
 import { protoProductsCopy } from "./customer-workspace/copy-p3";
+
 import {
   CustomerWorkSection,
   isP4Section,
