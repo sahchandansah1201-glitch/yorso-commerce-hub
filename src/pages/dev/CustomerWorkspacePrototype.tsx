@@ -210,15 +210,15 @@ const CustomerWorkspacePrototype = () => {
               body={c.destructiveBody}
               tone="destructive"
             >
-              <Button
-                ref={destructiveTriggerRef}
-                variant="destructive"
-                className={CONTROL}
-                onClick={() => setConfirmOpen(true)}
-                data-testid="proto-destructive-trigger"
-              >
-                {c.destructiveAction}
-              </Button>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  className={CONTROL}
+                  data-testid="proto-destructive-trigger"
+                >
+                  {c.destructiveAction}
+                </Button>
+              </AlertDialogTrigger>
             </StatePanel>
             {renderRecords()}
           </div>
