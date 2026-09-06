@@ -436,7 +436,7 @@ const CustomerWorkspacePrototype = () => {
                   <Button
                     variant={section === key ? "secondary" : "ghost"}
                     aria-current={section === key ? "page" : undefined}
-                    className={`h-11 min-h-[44px] justify-start ${section === key ? "font-semibold" : ""} lg:w-full`}
+                    className={`h-[44px] min-h-[44px] justify-start ${section === key ? "font-semibold" : ""} lg:w-full`}
                     onClick={() => setSection(key)}
                     data-testid={`proto-nav-${key}`}
                   >
