@@ -298,7 +298,11 @@ export const CustomerWorkSection = ({
   const [page, setPage] = useState(0);
   const [openId, setOpenId] = useState<string | null>(null);
   const [created, setCreated] = useState<P4Record[]>([]);
-  const [titles, setTitles] = useState<Record<string, string>>({});
+  // Локальная правка названия: recordId -> язык -> текст. Правка на одном
+  // языке никогда не переносится в другой язык.
+  const [titles, setTitles] = useState<
+    Record<string, Partial<Record<ProtoLang, string>>>
+  >({});
   const [restored, setRestored] = useState<P4Record[]>([]);
   const [dialog, setDialog] = useState<null | "create" | "import" | "export" | "deleted">(null);
   const [restoreId, setRestoreId] = useState<string | null>(null);
