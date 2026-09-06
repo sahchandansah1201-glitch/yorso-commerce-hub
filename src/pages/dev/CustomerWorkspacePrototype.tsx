@@ -470,7 +470,18 @@ const CustomerWorkspacePrototype = () => {
             {isService ? null : (
             <>
             <label className="text-xs text-muted-foreground" htmlFor="proto-state">{c.scenario}</label>
-            <Select value={effectiveState} onValueChange={(v) => setState(v as ProtoStateKey)}>
+            <Select
+              value={effectiveState}
+              onValueChange={(v) => {
+                const next = v as ProtoStateKey;
+                // Safe return: remember where the user was before the session ended.
+                if (next === "signedOut") {
+                  setRequestedSection(section);
+                  setSignInStage("signedOut");
+                }
+                setState(next);
+              }}
+            >
               <SelectTrigger id="proto-state" className={`${CONTROL} w-[260px]`} data-testid="proto-state-switch">
                 <SelectValue aria-label={c.scenario} />
               </SelectTrigger>
