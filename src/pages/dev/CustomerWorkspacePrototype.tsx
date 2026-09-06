@@ -495,15 +495,16 @@ const CustomerWorkspacePrototype = () => {
                 </p>
               </div>
 
-              {role === "service" || !primaryAvailable ? null : (
+              {primaryAvailable ? (
                 <Button
                   className={CONTROL}
-                  onClick={() => setState(state === "ready" ? "saving" : "ready")}
+                  onClick={() => setState("saving")}
                   data-testid="proto-primary-action"
                 >
                   {primaryActionLabel}
                 </Button>
-              )}
+              ) : null}
+
             </div>
 
             {section === "search" ? (
