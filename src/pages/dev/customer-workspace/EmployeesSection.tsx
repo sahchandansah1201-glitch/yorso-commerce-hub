@@ -81,6 +81,7 @@ export const EmployeesSection = ({
   lang,
   role,
   currentEmployeeId,
+  canMutate,
   onOwnershipTransferred,
   onLeftCompany,
 }: Props) => {
