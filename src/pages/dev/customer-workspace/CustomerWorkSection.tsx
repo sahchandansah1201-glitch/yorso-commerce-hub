@@ -315,6 +315,9 @@ export const CustomerWorkSection = ({
   const canImportWizard = scenario === "import";
   // Новый ключ при каждом открытии: черновик мастера не переносится.
   const [wizardKey, setWizardKey] = useState(0);
+  // Постоянная кнопка, на которую всегда возвращается фокус после закрытия.
+  const listActionsRef = useRef<HTMLButtonElement>(null);
+
 
   // Смена раздела, сценария или состояния закрывает окна и очищает черновики,
   // поэтому после «недоступно» → «Повторить» старое окно не открывается снова.
