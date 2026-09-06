@@ -61,6 +61,8 @@ interface Props {
   role: CustomerRole;
   /** Identity of the current employee — stored separately from the role. */
   currentEmployeeId: string;
+  /** Mutating actions exist only in the ready state; otherwise they are removed. */
+  canMutate: boolean;
   /** Ownership transfer leaves the current employee as administrator. */
   onOwnershipTransferred: () => void;
   /** Leaving the company closes access to the company. */
@@ -79,6 +81,7 @@ export const EmployeesSection = ({
   lang,
   role,
   currentEmployeeId,
+  canMutate,
   onOwnershipTransferred,
   onLeftCompany,
 }: Props) => {
@@ -97,10 +100,20 @@ export const EmployeesSection = ({
   const [targetId, setTargetId] = useState("");
   const [newRole, setNewRole] = useState<AssignableRole>("manager");
 
-  const actions = useMemo(() => allowedActions(role), [role]);
+  // Вне готового состояния изменяющих действий нет вовсе: они убираются,
+  // а не показываются недоступными.
+  const actions = useMemo(
+    () => (canMutate ? allowedActions(role) : []),
+    [role, canMutate],
+  );
   const tabs = useMemo<EmployeesTabKey[]>(
-    () => (canManage(role) ? EMPLOYEES_TABS.filter((t) => t !== "ownership" || role === "owner") : []),
-    [role],
+    () =>
+      canManage(role)
+        ? EMPLOYEES_TABS.filter(
+            (t) => t !== "ownership" || (role === "owner" && canMutate),
+          )
+        : [],
+    [role, canMutate],
   );
 
   // Личность текущего сотрудника хранится отдельно от роли: она берётся из
@@ -121,13 +134,17 @@ export const EmployeesSection = ({
   );
   const target = list.find((e) => e.id === targetId) ?? null;
 
-  // Роль понижена или изменилась — закрываем открытую форму/диалог и убираем
-  // устаревшее состояние, чтобы недоступные действия не оставались на экране.
+  // Роль понижена, изменилась, либо состояние вышло из готового — закрываем
+  // открытые формы и диалоги и очищаем их значения.
   useEffect(() => {
     setPending(null);
     setNote(null);
+    setEmail("");
+    setInviteRole("manager");
+    setNewRole("manager");
+    setTargetId("");
     setTab((current) => (tabs.includes(current) ? current : "employees"));
-  }, [role, tabs]);
+  }, [role, tabs, canMutate]);
 
   const openAction = (action: EmployeeActionKey) => {
     setNote(null);
@@ -151,7 +168,7 @@ export const EmployeesSection = ({
     template.replace("{name}", name).replace("{role}", roleLabel ?? "");
 
   const confirmAction = () => {
-    if (!pending || !canConfirm()) return;
+    if (!pending || !canMutate || !canConfirm()) return;
 
     if (pending === "invite") {
       const name = email.trim();

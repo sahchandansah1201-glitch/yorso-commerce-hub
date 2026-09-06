@@ -707,7 +707,7 @@ export const CustomerWorkSection = ({
         </>
       )}
 
-      {/* Create record sample */}
+      {/* Create a record */}
       <Dialog open={dialog === "create"} onOpenChange={(open) => setDialog(open ? "create" : null)}>
         <DialogContent
         className="[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center"
@@ -747,6 +747,9 @@ export const CustomerWorkSection = ({
                       active: true,
                       updated: "2026-09-06T21:00",
                       updatedLabel: { ru: "06.09.2026 21:00", en: "06.09.2026 21:00", es: "06.09.2026 21:00" },
+                      // Дочерние записи создаются в текущей компании; компания
+                      // остаётся корневой записью без родителя.
+                      companyId: kind === "company" ? undefined : "bergen",
                       details: [],
                     },
                     ...prev,
@@ -806,25 +809,44 @@ export const CustomerWorkSection = ({
             <DialogDescription>{t.deletedBody}</DialogDescription>
           </DialogHeader>
           <ul className="space-y-2">
-            {P4_DELETED.filter((r) => !restored.some((x) => x.id === r.id)).map((r) => (
-              <li
-                key={r.id}
-                className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-md border border-border p-3"
-              >
-                <span className="min-w-0">
-                  <span className="block text-sm font-medium">{r.title[lang]}</span>
-                  <span className="block text-xs text-muted-foreground">{t.kinds[r.kind]}</span>
-                </span>
-                <Button
-                  variant="outline"
-                  className={CONTROL}
-                  onClick={() => setRestoreId(r.id)}
-                  data-testid={`proto-p4-restore-${r.id}`}
+            {P4_DELETED.filter((r) => !restored.some((x) => x.id === r.id)).map((r) => {
+              // Дочернюю запись нельзя восстановить без родительской компании.
+              const parentMissing =
+                Boolean(r.companyId) &&
+                !allRecords.some((c) => c.kind === "company" && c.id === r.companyId);
+              const parentTitle =
+                P4_DELETED.find((c) => c.kind === "company" && c.id === r.companyId)?.title[lang] ??
+                "";
+              return (
+                <li
+                  key={r.id}
+                  className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-md border border-border p-3"
                 >
-                  {t.actions.restore}
-                </Button>
-              </li>
-            ))}
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium">{r.title[lang]}</span>
+                    <span className="block text-xs text-muted-foreground">{t.kinds[r.kind]}</span>
+                    {parentMissing ? (
+                      <span
+                        className="block text-xs text-muted-foreground"
+                        data-testid={`proto-p4-restore-blocked-${r.id}`}
+                      >
+                        {t.restoreBlocked.replace("{company}", parentTitle)}
+                      </span>
+                    ) : null}
+                  </span>
+                  {parentMissing ? null : (
+                    <Button
+                      variant="outline"
+                      className={CONTROL}
+                      onClick={() => setRestoreId(r.id)}
+                      data-testid={`proto-p4-restore-${r.id}`}
+                    >
+                      {t.actions.restore}
+                    </Button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
           <DialogFooter>
             <Button className={CONTROL} onClick={() => setDialog(null)}>{t.cancel}</Button>

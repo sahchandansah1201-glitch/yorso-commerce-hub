@@ -4787,3 +4787,10 @@ Keep this file factual and append-only.
 - P4 local title edits stored per recordId -> lang; no cross-language leakage.
 - Removed sample/prototype/demo wording from all visible RU/EN/ES copy; new header and scenario notices.
 - Verified: tsc clean, vite build OK, Playwright scenarios A-D, 390px no overflow, no storage writes, no network.
+
+## P1-P4 corrective package 2 (/dev/customer-workspace)
+- EmployeesSection: explicit canMutate = ready; вне ready изменяющие действия удалены (не disabled), формы/диалоги закрываются и очищаются.
+- Invite copy RU/EN/ES: без обещания отправки/доставки; запись появляется в списке страницы.
+- P4: созданные contact/task/note получают companyId="bergen"; созданная company остаётся корневой; связи без companyId пусты.
+- P4: восстановление дочерней записи заблокировано до восстановления родительской компании (локализованное пояснение), окно удалённых остаётся открытым.
+- Проверено: tsc, Playwright A-E, RU/EN/ES, 390px (overflow 0, targets >=44px), no storage/network.

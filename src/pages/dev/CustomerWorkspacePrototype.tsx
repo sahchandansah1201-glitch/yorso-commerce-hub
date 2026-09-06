@@ -118,7 +118,7 @@ const CustomerWorkspacePrototype = () => {
   // доступа и никогда не зависит от роли.
   const canMutate = isCustomerWork
     ? scenario === "createEdit"
-    : section === "products" && canEdit;
+    : (section === "products" || section === "employees") && canEdit;
 
   const availableStates = useMemo<ProtoStateKey[]>(() => {
     if (role === "service") return ["ready"];
@@ -172,6 +172,7 @@ const CustomerWorkspacePrototype = () => {
           lang={lang}
           role={role === "service" ? "viewer" : role}
           currentEmployeeId={currentEmployeeId}
+          canMutate={effectiveState === "ready"}
           // Меняется только роль текущего сотрудника: личность сохраняется.
           onOwnershipTransferred={() => setRole("admin")}
           onLeftCompany={() => setState("revoked")}
