@@ -312,7 +312,7 @@ export const EmployeesSection = ({
             </div>
             <div className="min-w-0">
               <dt className="text-[10.5px] uppercase text-muted-foreground">{a.ownRecordRole}</dt>
-              <dd className="text-sm font-medium">{c.roles[role]}</dd>
+              <dd className="text-sm font-medium">{c.roles[self.role]}</dd>
             </div>
             <div className="min-w-0">
               <dt className="text-[10.5px] uppercase text-muted-foreground">
