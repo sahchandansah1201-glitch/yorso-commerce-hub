@@ -438,9 +438,10 @@ const CustomerWorkspacePrototype = () => {
                 <SelectValue aria-label={c.scenario} />
               </SelectTrigger>
               <SelectContent>
-                {PROTO_STATES.map((key) => (
+                {availableStates.map((key) => (
                   <SelectItem key={key} value={key}>{c.states[key]}</SelectItem>
                 ))}
+
               </SelectContent>
             </Select>
 
