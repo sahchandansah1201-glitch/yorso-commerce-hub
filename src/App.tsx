@@ -179,4 +179,20 @@ const ProviderTree = () => (
   </QueryClientProvider>
 );
 
+// The prototype surface returns before any session, storage, i18n or
+// notification provider mounts, so it stays fully self-contained and local.
+const App = () => {
+  if (isDesignApprovalPrototypeAllowed() && isPrototypeRouteRequested()) {
+    return (
+      <Suspense fallback={<RouteFallback />}>
+        <CustomerWorkspacePrototype />
+      </Suspense>
+    );
+  }
+
+  return <ProviderTree />;
+};
+
+
+
 export default App;
