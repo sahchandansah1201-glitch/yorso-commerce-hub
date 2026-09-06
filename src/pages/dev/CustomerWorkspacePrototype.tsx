@@ -62,6 +62,10 @@ import {
 const CONTROL = "!h-[44px] !min-h-[44px] !min-w-[44px] text-sm";
 const ICON_CONTROL = "!h-[44px] !min-h-[44px] !w-[44px] !min-w-[44px] px-0";
 
+// Состояния, содержащие изменяющие действия (в т.ч. destructive-триггер).
+const MUTATING_STATES: ProtoStateKey[] = ["conflict", "saving", "success", "destructive"];
+
+
 const StatePanel = ({
   title,
   body,
