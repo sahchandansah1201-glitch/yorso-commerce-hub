@@ -50,11 +50,21 @@ const ResendEffectivenessDashboard = lazy(() => import("./pages/dashboard/Resend
 const TypographyAudit = lazy(() => import("./pages/dev/TypographyAudit.tsx"));
 const CustomerWorkspacePrototype = lazy(() => import("./pages/dev/CustomerWorkspacePrototype.tsx"));
 
-// Hidden interface prototype: development, test and Lovable preview hosts only.
-const isPrototypeRouteEnabled =
+// Hidden design-approval prototype surface.
+// Allowed on local development, automated tests, and exactly one preview host —
+// that exact host exists only for owner design approval, never for the ordinary
+// YORSO production domain. No wildcard/suffix matching, no env variables.
+const DESIGN_APPROVAL_PREVIEW_HOST = "id-preview--18557297-fe46-4e8e-bde7-b6c70c3cef2d.lovable.app";
+const PROTOTYPE_ROUTE_PATH = "/dev/customer-workspace";
+
+const isDesignApprovalPrototypeAllowed = () =>
   import.meta.env.DEV ||
   import.meta.env.MODE === "test" ||
-  (typeof window !== "undefined" && window.location.hostname.endsWith(".lovable.app"));
+  (typeof window !== "undefined" && window.location.hostname === DESIGN_APPROVAL_PREVIEW_HOST);
+
+const isPrototypeRouteRequested = () =>
+  typeof window !== "undefined" && window.location.pathname === PROTOTYPE_ROUTE_PATH;
+
 const AdminRuntimeStatus = lazy(() => import("./pages/admin/AdminRuntimeStatus.tsx"));
 const AdminAccessRequests = lazy(() => import("./pages/admin/AdminAccessRequests.tsx"));
 const AdminAccessGrants = lazy(() => import("./pages/admin/AdminAccessGrants.tsx"));
