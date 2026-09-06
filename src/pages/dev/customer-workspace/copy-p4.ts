@@ -99,7 +99,7 @@ export type P4Dict = {
 
 const ru: P4Dict = {
   scenarioLabel: "Сценарий доступа",
-  scenarioNotice: "Выбранный сценарий не изменяет права доступа.",
+  scenarioNotice: "Выбор меняет только отображаемый вариант доступа на этой странице.",
   scenarios: {
     view: "Просмотр разрешён",
     createEdit: "Создание и изменение разрешены",
@@ -192,7 +192,7 @@ const ru: P4Dict = {
 
 const en: P4Dict = {
   scenarioLabel: "Access scenario",
-  scenarioNotice: "The selected scenario does not change access rights.",
+  scenarioNotice: "The selection changes only the access view shown on this page.",
   scenarios: {
     view: "View allowed",
     createEdit: "Create and edit allowed",
@@ -281,7 +281,7 @@ const en: P4Dict = {
 
 const es: P4Dict = {
   scenarioLabel: "Escenario de acceso",
-  scenarioNotice: "El escenario seleccionado no cambia los permisos de acceso.",
+  scenarioNotice: "La selección solo cambia la vista de acceso que se muestra en esta página.",
   scenarios: {
     view: "Consulta permitida",
     createEdit: "Creación y edición permitidas",
