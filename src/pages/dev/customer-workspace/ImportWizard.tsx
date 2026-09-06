@@ -7,18 +7,21 @@
  * outcomes and the report are derived from the selected source and from the
  * decisions of the current user.
  */
-import { useEffect, useMemo, useState } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState, type RefObject } from "react";
+import { Check, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
 import {
   Select,
   SelectContent,
