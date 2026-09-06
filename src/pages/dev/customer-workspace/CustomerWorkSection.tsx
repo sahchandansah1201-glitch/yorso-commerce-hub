@@ -326,10 +326,11 @@ export const CustomerWorkSection = ({
   /** Все текущие записи компании: базовые, созданные и восстановленные. */
   const allRecords = useMemo(
     () =>
-      [...created, ...restored, ...P4_ALL_RECORDS].map((r) =>
-        titles[r.id] ? { ...r, title: { ...r.title, [lang]: titles[r.id] } } : r,
-      ),
-    [created, restored, titles, lang],
+      [...created, ...restored, ...P4_ALL_RECORDS].map((r) => {
+        const edits = titles[r.id];
+        return edits ? { ...r, title: { ...r.title, ...edits } } : r;
+      }),
+    [created, restored, titles],
   );
 
   /** Записи текущего раздела. */
