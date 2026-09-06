@@ -1,18 +1,17 @@
 /**
- * P0 prototype surface — hidden from the user navigation, wired at
+ * Approval prototype surface — hidden from the user navigation, wired at
  * /dev/customer-workspace.
  *
- * Scope of this package: the shared YORSO shell, a fixed current-company indicator,
- * workspace navigation, section header with breadcrumbs and one primary action,
- * the role and state scenario switches, and the real state library.
- * P1-P7 are NOT implemented here.
+ * Implemented packages: P0 shell and state library, P1 service review,
+ * P2 employees and access, P3 company products, P4 customer work.
+ * P5-P7 are NOT implemented here.
  *
- * No backend, no network requests, no storage writes, no new dependencies.
+ * No backend, no network requests, no storage reads or writes, no new
+ * dependencies. All data is deterministic module memory.
  */
 import { useEffect, useMemo, useState } from "react";
 import { Building2, Check, ChevronRight, Loader2, Lock, Moon, RotateCcw, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -21,25 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import {
   PROTO_LANGS,
   PROTO_ROLES,
@@ -51,21 +31,31 @@ import {
   type ProtoSectionKey,
   type ProtoStateKey,
 } from "./customer-workspace/copy";
-import {
-  PROTO_COMPANY,
-  PROTO_ROWS,
-  PROTO_UPDATED_AT,
-  type ProtoRow,
-} from "./customer-workspace/data";
+import { PROTO_COMPANY, PROTO_UPDATED_AT } from "./customer-workspace/data";
 import { ServiceReview } from "./customer-workspace/ServiceReview";
 import { EmployeesSection } from "./customer-workspace/EmployeesSection";
+import { ProductsSection } from "./customer-workspace/ProductsSection";
+import { protoProductsCopy } from "./customer-workspace/copy-p3";
+import {
+  CustomerWorkSection,
+  isP4Section,
+} from "./customer-workspace/CustomerWorkSection";
+import { P4_SCENARIOS, protoP4Copy, type P4Scenario } from "./customer-workspace/copy-p4";
 import { AccessClosedScreen, SignInScreen, type SignInStage } from "./customer-workspace/AccessGate";
 import { protoAccessCopy } from "./customer-workspace/copy-access";
 import { CONTROL, ICON_CONTROL } from "./customer-workspace/ui";
 
-// Состояния, содержащие изменяющие действия (в т.ч. destructive-триггер).
-const MUTATING_STATES: ProtoStateKey[] = ["conflict", "saving", "success", "destructive"];
+// Состояния, содержащие изменяющие действия.
+const MUTATING_STATES: ProtoStateKey[] = [
+  "conflict",
+  "validating",
+  "saving",
+  "success",
+  "destructive",
+];
 
+// Состояния, осмысленные только в разделах работы с клиентами.
+const CUSTOMER_WORK_STATES: ProtoStateKey[] = ["emptySearch", "validating"];
 
 const StatePanel = ({
   title,
@@ -103,29 +93,38 @@ const CustomerWorkspacePrototype = () => {
   const [section, setSection] = useState<ProtoSectionKey>("products");
   const [role, setRole] = useState<ProtoRoleKey>("owner");
   const [state, setState] = useState<ProtoStateKey>("ready");
-  const [query, setQuery] = useState("");
-  const [confirmedInactive, setConfirmedInactive] = useState(false);
+  const [scenario, setScenario] = useState<P4Scenario>("view");
+  const [editingProducts, setEditingProducts] = useState(false);
   const [signInStage, setSignInStage] = useState<SignInStage>("signedOut");
   const [requestedSection, setRequestedSection] = useState<ProtoSectionKey>("employees");
 
   const c = protoCopy[lang];
   const a = protoAccessCopy[lang];
+  const p = protoProductsCopy[lang];
+  const p4 = protoP4Copy[lang];
   const company = PROTO_COMPANY;
   const canEdit = role === "owner" || role === "admin";
 
-  // Утверждена только матрица «Продукции»: изменяющие действия доступны
-  // Владельцу и Администратору. Менеджер и Наблюдатель всегда только читают.
-  const canMutate = section === "products" && canEdit;
+  const isService = role === "service";
+  const isCustomerWork = isP4Section(section);
 
-  // Состояния с изменяющими действиями существуют только там, где право
-  // подтверждено; при смене роли/раздела состояние нормализуется.
-  const availableStates = useMemo<ProtoStateKey[]>(
-    () =>
-      role === "service"
-        ? ["ready"]
-        : PROTO_STATES.filter((key) => canMutate || !MUTATING_STATES.includes(key)),
-    [canMutate, role],
-  );
+  // Продукция: утверждённая матрица — изменяющие действия у Владельца
+  // и Администратора. Работа с клиентами: право задаётся только сценарием
+  // доступа и никогда не зависит от роли.
+  const canMutate = isCustomerWork
+    ? scenario === "createEdit"
+    : section === "products" && canEdit;
+
+  const availableStates = useMemo<ProtoStateKey[]>(() => {
+    if (role === "service") return ["ready"];
+    return PROTO_STATES.filter((key) => {
+      if (!canMutate && MUTATING_STATES.includes(key)) return false;
+      if (CUSTOMER_WORK_STATES.includes(key) && !isCustomerWork) return false;
+      if (key === "destructive" && isCustomerWork) return false;
+      return true;
+    });
+  }, [canMutate, isCustomerWork, role]);
+
   const stateAllowed = availableStates.includes(state);
   const effectiveState = stateAllowed ? state : "ready";
 
@@ -133,33 +132,68 @@ const CustomerWorkspacePrototype = () => {
     if (!stateAllowed) setState("ready");
   }, [stateAllowed]);
 
-  const rows = useMemo<ProtoRow[]>(() => {
-    const base = PROTO_ROWS[section];
-    if (section === "search") {
-      if (query.trim().length === 0) return [];
-      return base.filter((r) => r.name[lang].toLowerCase().includes(query.trim().toLowerCase()));
-    }
-    return base;
-  }, [section, query, lang]);
+  // Понижение роли или уход из готового состояния немедленно закрывает форму.
+  useEffect(() => {
+    if (!canEdit || effectiveState !== "ready") setEditingProducts(false);
+  }, [canEdit, effectiveState]);
 
-  const primaryActionLabel = c.primaryActions.products;
-  const primaryAvailable = canMutate && effectiveState === "ready";
-
-  const showTable = rows.length > 0;
-
-  const isService = role === "service";
-  const isGate =
-    !isService && (effectiveState === "revoked" || effectiveState === "signedOut");
+  const isGate = !isService && (effectiveState === "revoked" || effectiveState === "signedOut");
   // Служебная роль и закрытый доступ не показывают ни указатель компании,
   // ни пользовательскую навигацию, ни содержимое записей.
   const hideCustomerChrome = isService || isGate;
 
+  const productsPrimaryAvailable =
+    section === "products" && canEdit && effectiveState === "ready" && !editingProducts;
+  const productsReadOnly = section === "products" && !canEdit;
+
+  const renderRecords = () => {
+    if (section === "products") {
+      return (
+        <ProductsSection
+          lang={lang}
+          canEdit={canEdit}
+          editing={editingProducts}
+          onCloseEdit={() => setEditingProducts(false)}
+        />
+      );
+    }
+
+    if (section === "employees") {
+      return (
+        <EmployeesSection
+          lang={lang}
+          role={role === "service" ? "viewer" : role}
+          onOwnershipTransferred={() => setRole("admin")}
+          onLeftCompany={() => setState("revoked")}
+        />
+      );
+    }
+
+    return (
+      <div className="rounded-lg border border-border bg-card p-4" data-testid="proto-overview">
+        <h3 className="font-heading text-base font-semibold">{c.overviewHeading}</h3>
+        <ul className="mt-2 space-y-1.5">
+          {c.overviewItems.map((item) => (
+            <li key={item} className="flex items-start gap-2 text-sm">
+              <ChevronRight aria-hidden className="mt-0.5 h-4 w-4 text-primary" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
 
   const renderBody = () => {
     switch (effectiveState) {
       case "loading":
         return (
-          <div className="space-y-2" data-testid="proto-state-loading" aria-label={c.loadingLabel} aria-busy="true">
+          <div
+            className="space-y-2"
+            data-testid="proto-state-loading"
+            aria-label={c.loadingLabel}
+            aria-busy="true"
+          >
             <Skeleton className="h-11 w-full" />
             <Skeleton className="h-11 w-full" />
             <Skeleton className="h-11 w-5/6" />
@@ -167,13 +201,37 @@ const CustomerWorkspacePrototype = () => {
           </div>
         );
       case "empty":
-        return <StatePanel testId="proto-state-empty" title={c.emptyTitle} body={c.emptyBody} tone="muted" />;
+        return (
+          <StatePanel
+            testId="proto-state-empty"
+            title={section === "products" ? p.emptyTitle : c.emptyTitle}
+            body={section === "products" ? p.emptyBody : c.emptyBody}
+            tone="muted"
+          />
+        );
       case "denied":
-        return <StatePanel testId="proto-state-denied" title={c.deniedTitle} body={c.deniedBody} tone="muted" />;
+        return (
+          <StatePanel
+            testId="proto-state-denied"
+            title={section === "products" ? p.noCompanyTitle : c.deniedTitle}
+            body={section === "products" ? p.noCompanyBody : c.deniedBody}
+            tone="muted"
+          />
+        );
       case "unavailable":
         return (
-          <StatePanel testId="proto-state-unavailable" title={c.unavailableTitle} body={c.unavailableBody} tone="muted">
-            <Button variant="outline" className={CONTROL} onClick={() => setState("ready")} data-testid="proto-unavailable-retry">
+          <StatePanel
+            testId="proto-state-unavailable"
+            title={c.unavailableTitle}
+            body={c.unavailableBody}
+            tone="muted"
+          >
+            <Button
+              variant="outline"
+              className={CONTROL}
+              onClick={() => setState("ready")}
+              data-testid="proto-unavailable-retry"
+            >
               <RotateCcw aria-hidden className="mr-2 h-4 w-4" />
               {c.retry}
             </Button>
@@ -243,159 +301,13 @@ const CustomerWorkspacePrototype = () => {
             {renderRecords()}
           </div>
         );
-      case "destructive":
-        return (
-          <div className="space-y-3">
-            <StatePanel
-              testId="proto-state-destructive"
-              title={c.states.destructive}
-              body={c.destructiveBody}
-              tone="destructive"
-            >
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="destructive"
-                    className={CONTROL}
-                    data-testid="proto-destructive-trigger"
-                  >
-                    {c.destructiveAction}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent data-testid="proto-destructive-dialog">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{c.destructiveTitle}</AlertDialogTitle>
-                    <AlertDialogDescription>{c.destructiveBody}</AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className={CONTROL}>{c.cancel}</AlertDialogCancel>
-                    <AlertDialogAction
-                      className={CONTROL}
-                      onClick={() => {
-                        setConfirmedInactive(true);
-                        setState("success");
-                      }}
-                    >
-                      {c.destructiveConfirm}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </StatePanel>
-            {renderRecords()}
-          </div>
-        );
       default:
         return renderRecords();
     }
   };
 
-  const renderRecords = () => {
-    if (section === "employees") {
-      return (
-        <EmployeesSection
-          lang={lang}
-          role={role === "service" ? "viewer" : role}
-          onOwnershipTransferred={() => setRole("admin")}
-          onLeftCompany={() => setState("revoked")}
-        />
-      );
-    }
-
-    if (section === "overview") {
-      return (
-        <div className="rounded-lg border border-border bg-card p-4" data-testid="proto-overview">
-          <h3 className="font-heading text-base font-semibold">{c.overviewHeading}</h3>
-          <ul className="mt-2 space-y-1.5">
-            {c.overviewItems.map((item) => (
-              <li key={item} className="flex items-start gap-2 text-sm">
-                <ChevronRight aria-hidden className="mt-0.5 h-4 w-4 text-primary" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      );
-    }
-
-    if (section === "search" && query.trim().length === 0) {
-      return (
-        <StatePanel
-          testId="proto-search-empty-query"
-          title={c.sections.search}
-          body={c.searchEmptyQuery}
-          tone="muted"
-        />
-      );
-    }
-
-    if (!showTable) {
-      return <StatePanel testId="proto-state-empty" title={c.emptyTitle} body={c.emptyBody} tone="muted" />;
-    }
-
-    return (
-      <>
-        {/* Wide screen: dense working table */}
-        <div className="hidden min-w-0 overflow-x-auto rounded-lg border border-border bg-card md:block" data-testid="proto-table">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-xs">{c.columns.name}</TableHead>
-                <TableHead className="text-xs">{c.columns.kind}</TableHead>
-                <TableHead className="text-xs">{c.columns.responsible}</TableHead>
-                <TableHead className="text-right text-xs">{c.columns.volume}</TableHead>
-                <TableHead className="text-xs">{c.columns.status}</TableHead>
-                <TableHead className="text-xs">{c.columns.updated}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((r) => (
-                <TableRow key={r.id} className="h-12">
-                  <TableCell className="align-top">
-                    <span className="font-medium">{r.name[lang]}</span>
-                    {r.secondary ? (
-                      <span className="block text-xs italic text-muted-foreground">{r.secondary}</span>
-                    ) : null}
-                  </TableCell>
-                  <TableCell className="align-top text-sm">{r.kind[lang]}</TableCell>
-                  <TableCell className="align-top text-sm">{r.responsible}</TableCell>
-                  <TableCell className="align-top text-right text-sm tabular-nums">{r.volume}</TableCell>
-                  <TableCell className="align-top text-sm">
-                    {r.active && !(confirmedInactive && r.id === "salmon")
-                      ? c.statusActive
-                      : c.statusInactive}
-                  </TableCell>
-                  <TableCell className="align-top text-xs text-muted-foreground">{r.updated}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-
-        {/* 390px: record cards instead of the table */}
-        <ul className="space-y-2 md:hidden" data-testid="proto-cards">
-          {rows.map((r) => (
-            <li key={r.id} className="min-w-0 rounded-lg border border-border bg-card p-3">
-              <div className="flex items-start justify-between gap-2">
-                <p className="min-w-0 break-words font-medium">{r.name[lang]}</p>
-                <span className="shrink-0 text-xs text-muted-foreground">
-                  {r.active && !(confirmedInactive && r.id === "salmon") ? c.statusActive : c.statusInactive}
-                </span>
-              </div>
-              {r.secondary ? (
-                <p className="text-xs italic text-muted-foreground">{r.secondary}</p>
-              ) : null}
-              <p className="mt-1 text-sm">{r.kind[lang]} · {r.responsible}</p>
-              <p className="text-xs text-muted-foreground">
-                {r.volume !== "—" ? `${r.volume} · ` : ""}
-                {c.updatedAt}: {r.updated}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </>
-    );
-  };
+  const sectionTitle = section === "products" ? p.pageTitle : c.sections[section];
+  const sectionHint = section === "products" ? p.hint : c.sectionHints[section];
 
   return (
     <div className={dark ? "dark" : undefined}>
@@ -407,20 +319,20 @@ const CustomerWorkspacePrototype = () => {
 
             <div className="ml-auto flex min-w-0 flex-wrap items-center gap-2">
               {hideCustomerChrome ? null : (
-              <div
-                className="flex min-w-0 items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2"
-                data-testid="proto-current-company"
-              >
-                <Building2 aria-hidden className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="min-w-0">
-                  <span className="block text-[10.5px] uppercase text-muted-foreground">
-                    {c.currentCompany}
+                <div
+                  className="flex min-w-0 items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2"
+                  data-testid="proto-current-company"
+                >
+                  <Building2 aria-hidden className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0">
+                    <span className="block text-[10.5px] uppercase text-muted-foreground">
+                      {c.currentCompany}
+                    </span>
+                    <span className="block truncate text-sm font-medium">
+                      {company.name} · {company.countryLabel[lang]}
+                    </span>
                   </span>
-                  <span className="block truncate text-sm font-medium">
-                    {company.name} · {company.countryLabel[lang]}
-                  </span>
-                </span>
-              </div>
+                </div>
               )}
 
               <div className="flex items-center gap-1" role="group" aria-label={c.language}>
@@ -452,7 +364,7 @@ const CustomerWorkspacePrototype = () => {
           </div>
         </header>
 
-        {/* Compact scenario strip: role and state */}
+        {/* Compact scenario strip: role, access scenario and state */}
         <div className="border-b border-border bg-muted/40">
           <div className="container flex min-w-0 flex-wrap items-center gap-2 py-2">
             <label className="text-xs text-muted-foreground" htmlFor="proto-role">{c.role}</label>
@@ -468,34 +380,60 @@ const CustomerWorkspacePrototype = () => {
             </Select>
 
             {isService ? null : (
-            <>
-            <label className="text-xs text-muted-foreground" htmlFor="proto-state">{c.scenario}</label>
-            <Select
-              value={effectiveState}
-              onValueChange={(v) => {
-                const next = v as ProtoStateKey;
-                // Safe return: remember where the user was before the session ended.
-                if (next === "signedOut") {
-                  setRequestedSection(section);
-                  setSignInStage("signedOut");
-                }
-                setState(next);
-              }}
-            >
-              <SelectTrigger id="proto-state" className={`${CONTROL} w-[260px]`} data-testid="proto-state-switch">
-                <SelectValue aria-label={c.scenario} />
-              </SelectTrigger>
-              <SelectContent>
-                {availableStates.map((key) => (
-                  <SelectItem key={key} value={key}>{c.states[key]}</SelectItem>
-                ))}
+              <>
+                {isCustomerWork ? (
+                  <>
+                    <label className="text-xs text-muted-foreground" htmlFor="proto-scenario">
+                      {p4.scenarioLabel}
+                    </label>
+                    <Select value={scenario} onValueChange={(v) => setScenario(v as P4Scenario)}>
+                      <SelectTrigger
+                        id="proto-scenario"
+                        className={`${CONTROL} w-[280px]`}
+                        data-testid="proto-scenario-switch"
+                      >
+                        <SelectValue aria-label={p4.scenarioLabel} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {P4_SCENARIOS.map((key) => (
+                          <SelectItem key={key} value={key}>{p4.scenarios[key]}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </>
+                ) : null}
 
-              </SelectContent>
-            </Select>
-            </>
+                <label className="text-xs text-muted-foreground" htmlFor="proto-state">{c.scenario}</label>
+                <Select
+                  value={effectiveState}
+                  onValueChange={(v) => {
+                    const next = v as ProtoStateKey;
+                    // Safe return: remember where the user was before the session ended.
+                    if (next === "signedOut") {
+                      setRequestedSection(section);
+                      setSignInStage("signedOut");
+                    }
+                    setState(next);
+                  }}
+                >
+                  <SelectTrigger id="proto-state" className={`${CONTROL} w-[260px]`} data-testid="proto-state-switch">
+                    <SelectValue aria-label={c.scenario} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableStates.map((key) => (
+                      <SelectItem key={key} value={key}>{c.states[key]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
             )}
 
             <p className="min-w-0 text-xs text-muted-foreground">{c.prototypeNotice}</p>
+            {isCustomerWork && !isService ? (
+              <p className="min-w-0 text-xs text-muted-foreground" data-testid="proto-scenario-notice">
+                {p4.scenarioNotice}
+              </p>
+            ) : null}
           </div>
         </div>
 
@@ -506,26 +444,26 @@ const CustomerWorkspacePrototype = () => {
         >
           {/* Workspace navigation */}
           {hideCustomerChrome ? null : (
-          <nav aria-label={c.workspaceRoot} className="min-w-0">
-            <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
-              {c.workspaceRoot}
-            </p>
-            <ul className="flex min-w-0 flex-wrap gap-1.5 lg:flex-col" data-testid="proto-nav">
-              {PROTO_SECTIONS.map((key) => (
-                <li key={key} className="min-w-0">
-                  <Button
-                    variant={section === key ? "secondary" : "ghost"}
-                    aria-current={section === key ? "page" : undefined}
-                    className={`${CONTROL} justify-start ${section === key ? "font-semibold" : ""} lg:w-full`}
-                    onClick={() => setSection(key)}
-                    data-testid={`proto-nav-${key}`}
-                  >
-                    {c.sections[key]}
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </nav>
+            <nav aria-label={c.workspaceRoot} className="min-w-0">
+              <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
+                {c.workspaceRoot}
+              </p>
+              <ul className="flex min-w-0 flex-wrap gap-1.5 lg:flex-col" data-testid="proto-nav">
+                {PROTO_SECTIONS.map((key) => (
+                  <li key={key} className="min-w-0">
+                    <Button
+                      variant={section === key ? "secondary" : "ghost"}
+                      aria-current={section === key ? "page" : undefined}
+                      className={`${CONTROL} justify-start ${section === key ? "font-semibold" : ""} lg:w-full`}
+                      onClick={() => setSection(key)}
+                      data-testid={`proto-nav-${key}`}
+                    >
+                      {c.sections[key]}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           )}
 
           {/* Section surface */}
@@ -556,60 +494,63 @@ const CustomerWorkspacePrototype = () => {
                 />
               )
             ) : (
-            <>
-            <nav aria-label="breadcrumb">
-              <ol className="flex min-w-0 flex-wrap items-center gap-1 text-xs text-muted-foreground">
-                <li>{c.breadcrumbRoot}</li>
-                <li aria-hidden>/</li>
-                <li>{c.workspaceRoot}</li>
-                <li aria-hidden>/</li>
-                <li className="font-medium text-foreground" aria-current="page">{c.sections[section]}</li>
-              </ol>
-            </nav>
+              <>
+                <nav aria-label="breadcrumb">
+                  <ol className="flex min-w-0 flex-wrap items-center gap-1 text-xs text-muted-foreground">
+                    <li>{c.breadcrumbRoot}</li>
+                    <li aria-hidden>/</li>
+                    <li>{c.workspaceRoot}</li>
+                    <li aria-hidden>/</li>
+                    <li className="font-medium text-foreground" aria-current="page">
+                      {c.sections[section]}
+                    </li>
+                  </ol>
+                </nav>
 
-            <div className="flex min-w-0 flex-wrap items-end justify-between gap-3 border-b border-border/60 pb-3">
-              <div className="min-w-0">
-                <h1 className="font-heading text-xl font-semibold lg:text-2xl">
-                  {section === "products" ? `${c.sections.products} · ${company.name}` : c.sections[section]}
-                </h1>
-                <p className="text-xs text-muted-foreground">{c.sectionHints[section]}</p>
-                <p className="text-xs text-muted-foreground" data-testid="proto-updated-at">
-                  {c.updatedAt}: {PROTO_UPDATED_AT[lang]}
-                </p>
-              </div>
+                <div className="flex min-w-0 flex-wrap items-end justify-between gap-3 border-b border-border/60 pb-3">
+                  <div className="min-w-0">
+                    <h1 className="font-heading text-xl font-semibold lg:text-2xl">{sectionTitle}</h1>
+                    <p className="text-xs text-muted-foreground">{sectionHint}</p>
+                    <p className="text-xs text-muted-foreground" data-testid="proto-updated-at">
+                      {c.updatedAt}: {PROTO_UPDATED_AT[lang]}
+                    </p>
+                  </div>
 
-              {primaryAvailable ? (
-                <Button
-                  className={CONTROL}
-                  onClick={() => setState("saving")}
-                  data-testid="proto-primary-action"
-                >
-                  {primaryActionLabel}
-                </Button>
-              ) : null}
+                  {productsPrimaryAvailable ? (
+                    <Button
+                      className={CONTROL}
+                      onClick={() => setEditingProducts(true)}
+                      data-testid="proto-primary-action"
+                    >
+                      {p.editAction}
+                    </Button>
+                  ) : productsReadOnly ? (
+                    <span
+                      className="text-[10.5px] uppercase text-muted-foreground"
+                      data-testid="proto-products-read-only"
+                    >
+                      {p.readOnlyLabel}
+                    </span>
+                  ) : null}
+                </div>
 
-            </div>
-
-            {section === "search" ? (
-              <div className="min-w-0 max-w-md">
-                <label className="sr-only" htmlFor="proto-search">{c.sections.search}</label>
-                <Input
-                  id="proto-search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={c.searchPlaceholder}
-                  className={CONTROL}
-                  data-testid="proto-search-input"
-                />
-              </div>
-            ) : null}
-
-            {renderBody()}
-            </>
+                {isCustomerWork ? (
+                  <CustomerWorkSection
+                    lang={lang}
+                    section={section}
+                    scenario={scenario}
+                    state={effectiveState}
+                    retryLabel={c.retry}
+                    onRetry={() => setState("ready")}
+                    onResolveConflict={() => setState("success")}
+                  />
+                ) : (
+                  renderBody()
+                )}
+              </>
             )}
           </main>
         </div>
-
       </div>
     </div>
   );
