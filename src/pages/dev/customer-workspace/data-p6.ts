@@ -56,11 +56,18 @@ export const P6_CHECKS: P6Check[] = [
   { id: "c2", status: "pass", label: { ru: "Свободное место", en: "Free space", es: "Espacio libre" } },
   { id: "c3", status: "pass", label: { ru: "Очередь без роста", en: "Queue is not growing", es: "La cola no crece" } },
   { id: "c4", status: "pass", label: { ru: "План возврата описан", en: "Rollback plan documented", es: "Plan de reversión documentado" } },
-  { id: "c5", status: "pass", label: { ru: "Учебное восстановление проведено", en: "Recovery drill performed", es: "Recuperación de prueba realizada" } },
+  { id: "c5", status: "warning", label: { ru: "Два служебных подтверждения не записаны", en: "Two service confirmations are not recorded", es: "No se han registrado dos confirmaciones de servicio" } },
   { id: "c6", status: "pass", label: { ru: "Ответственные назначены", en: "Responsible employees assigned", es: "Empleados responsables asignados" } },
-  { id: "c7", status: "warning", label: { ru: "Окно работ не подтверждено", en: "Maintenance window not confirmed", es: "Ventana de trabajo sin confirmar" } },
+  { id: "c7", status: "pass", label: { ru: "Окно работ подтверждено", en: "Maintenance window confirmed", es: "Ventana de trabajo confirmada" } },
   { id: "c8", status: "blocker", label: { ru: "Решение владельца не получено", en: "Owner decision not received", es: "Decisión del propietario no recibida" } },
 ];
+
+/** Label for c5 once two different service employees confirmed on this page. */
+export const P6_CHECK_C5_PASS = {
+  ru: "Два служебных подтверждения записаны",
+  en: "Two service confirmations are recorded",
+  es: "Se han registrado dos confirmaciones de servicio",
+};
 
 export const P6_VERSIONS = {
   candidate: "2026.09.2",
