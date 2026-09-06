@@ -34,6 +34,7 @@ import {
 import { PROTO_COMPANY, PROTO_UPDATED_AT } from "./customer-workspace/data";
 import { ServiceReview } from "./customer-workspace/ServiceReview";
 import { EmployeesSection } from "./customer-workspace/EmployeesSection";
+import { SELF_RECORDS } from "./customer-workspace/data-access";
 import { ProductsSection } from "./customer-workspace/ProductsSection";
 import { protoProductsCopy } from "./customer-workspace/copy-p3";
 import {
