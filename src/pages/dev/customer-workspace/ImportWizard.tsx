@@ -281,7 +281,7 @@ export const ImportWizard = ({
                   <label
                     key={s.id}
                     htmlFor={`proto-p5-source-input-${s.id}`}
-                    className={`relative flex min-h-[44px] min-w-0 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 ${
+                    className={`relative flex min-h-[48px] min-w-0 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 ${
                       sourceId === s.id
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-input bg-background text-foreground"
