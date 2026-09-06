@@ -21,7 +21,12 @@ export const AccessClosedScreen = ({
   const a = protoAccessCopy[lang];
   return (
     <div className="min-w-0 rounded-lg border border-border bg-card p-5" data-testid="proto-access-closed">
-      <Lock aria-hidden className="h-5 w-5 text-muted-foreground" />
+      <div className="flex items-center gap-2">
+        <Lock aria-hidden className="h-5 w-5 text-muted-foreground" />
+        <span className="text-[10.5px] uppercase text-muted-foreground" data-testid="proto-access-closed-status">
+          {a.accessClosedShort}
+        </span>
+      </div>
       <h1 className="mt-2 font-heading text-xl font-semibold">{a.accessClosedTitle}</h1>
       <p className="mt-1 max-w-prose text-sm text-muted-foreground">{a.accessClosedBody}</p>
       <div className="mt-4">
@@ -80,6 +85,9 @@ export const SignInScreen = ({
       </p>
       <p className="mt-1 text-sm" data-testid="proto-signin-return-hint">
         {a.signInReturnHint}
+      </p>
+      <p className="mt-1 text-xs text-muted-foreground" data-testid="proto-signin-no-access">
+        {a.noAccess}
       </p>
       <div className="mt-4">
         <Button className={CONTROL} onClick={onSignIn} data-testid="proto-signin-action">
