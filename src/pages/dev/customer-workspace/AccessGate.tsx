@@ -52,6 +52,7 @@ export const SignInScreen = ({
   onContinue: () => void;
 }) => {
   const a = protoAccessCopy[lang];
+  const destination = a.returnToSectionTemplate.replace("{section}", requestedSectionLabel);
 
   if (stage === "checking") {
     return (
@@ -64,8 +65,8 @@ export const SignInScreen = ({
           <Loader2 aria-hidden className="h-4 w-4 animate-spin text-primary" />
           <span>{a.checkingAccess}</span>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {a.signInReturnHint} · {requestedSectionLabel}
+        <p className="mt-1 text-xs text-muted-foreground" data-testid="proto-signin-destination">
+          {destination}
         </p>
         <div className="mt-4">
           <Button className={CONTROL} onClick={onContinue} data-testid="proto-signin-continue">
@@ -84,10 +85,7 @@ export const SignInScreen = ({
         {a.sessionEnded}
       </p>
       <p className="mt-1 text-sm" data-testid="proto-signin-return-hint">
-        {a.signInReturnHint}
-      </p>
-      <p className="mt-1 text-xs text-muted-foreground" data-testid="proto-signin-no-access">
-        {a.noAccess}
+        {destination}
       </p>
       <div className="mt-4">
         <Button className={CONTROL} onClick={onSignIn} data-testid="proto-signin-action">
