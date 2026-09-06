@@ -99,6 +99,7 @@ type AccessDict = {
   returnToSignIn: string;
   signInTitle: string;
   signInReturnHint: string;
+  returnToSectionTemplate: string;
   signInAction: string;
   checkingAccess: string;
   sessionEnded: string;
@@ -109,7 +110,7 @@ type AccessDict = {
 };
 
 const ru: AccessDict = {
-  serviceScreenTitle: "Служебный обзор",
+  serviceScreenTitle: "Служебная проверка",
   serviceScreenHint: "Закрытый экран. Записи компаний и содержимое клиентов здесь не показываются.",
   readinessTitle: "Готовность возможностей",
   readinessFields: {
@@ -204,7 +205,8 @@ const ru: AccessDict = {
   returnToSignIn: "Вернуться ко входу",
   signInTitle: "Вход в YORSO",
   signInReturnHint: "После входа вы вернётесь в «Сотрудники»",
-  signInAction: "Войти",
+  returnToSectionTemplate: "После входа вы вернётесь в «{section}»",
+  signInAction: "Войти в YORSO",
   checkingAccess: "Проверяем доступ",
   sessionEnded: "Сеанс завершён. Войдите снова",
   continueLabel: "Продолжить",
@@ -309,7 +311,8 @@ const en: AccessDict = {
   returnToSignIn: "Return to sign in",
   signInTitle: "Sign in to YORSO",
   signInReturnHint: "After signing in, you will return to Employees",
-  signInAction: "Sign in",
+  returnToSectionTemplate: "After signing in, you will return to {section}",
+  signInAction: "Sign in to YORSO",
   checkingAccess: "Checking access",
   sessionEnded: "Session ended. Sign in again",
   continueLabel: "Continue",
@@ -414,7 +417,8 @@ const es: AccessDict = {
   returnToSignIn: "Volver al inicio de sesión",
   signInTitle: "Iniciar sesión en YORSO",
   signInReturnHint: "Después de iniciar sesión volverá a «Empleados»",
-  signInAction: "Iniciar sesión",
+  returnToSectionTemplate: "Después de iniciar sesión volverá a «{section}»",
+  signInAction: "Inicia sesión en YORSO",
   checkingAccess: "Comprobando el acceso",
   sessionEnded: "Sesión finalizada. Inicie sesión de nuevo",
   continueLabel: "Continuar",
