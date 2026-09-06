@@ -61,6 +61,8 @@ interface Props {
   role: CustomerRole;
   /** Identity of the current employee — stored separately from the role. */
   currentEmployeeId: string;
+  /** Mutating actions exist only in the ready state; otherwise they are removed. */
+  canMutate: boolean;
   /** Ownership transfer leaves the current employee as administrator. */
   onOwnershipTransferred: () => void;
   /** Leaving the company closes access to the company. */
