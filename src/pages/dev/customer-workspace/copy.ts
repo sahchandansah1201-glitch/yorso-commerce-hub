@@ -37,7 +37,6 @@ type Dict = {
   workspaceRoot: string;
   breadcrumbRoot: string;
   currentCompany: string;
-  switchCompany: string;
   language: string;
   theme: string;
   themeLight: string;
@@ -98,7 +97,6 @@ const ru: Dict = {
   workspaceRoot: "Работа с клиентами",
   breadcrumbRoot: "YORSO",
   currentCompany: "Текущая компания",
-  switchCompany: "Сменить компанию",
   language: "Язык",
   theme: "Оформление",
   themeLight: "Светлое",
@@ -204,7 +202,6 @@ const en: Dict = {
   workspaceRoot: "Customer work",
   breadcrumbRoot: "YORSO",
   currentCompany: "Current company",
-  switchCompany: "Switch company",
   language: "Language",
   theme: "Appearance",
   themeLight: "Light",
@@ -310,7 +307,6 @@ const es: Dict = {
   workspaceRoot: "Trabajo con clientes",
   breadcrumbRoot: "YORSO",
   currentCompany: "Empresa actual",
-  switchCompany: "Cambiar de empresa",
   language: "Idioma",
   theme: "Apariencia",
   themeLight: "Claro",

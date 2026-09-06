@@ -2,7 +2,7 @@
  * P0 prototype surface — hidden from the user navigation, wired at
  * /dev/customer-workspace.
  *
- * Scope of this package: the shared YORSO shell, current-company selection,
+ * Scope of this package: the shared YORSO shell, a fixed current-company indicator,
  * workspace navigation, section header with breadcrumbs and one primary action,
  * the role and state scenario switches, and the real state library.
  * P1-P7 are NOT implemented here.
@@ -52,13 +52,13 @@ import {
   type ProtoStateKey,
 } from "./customer-workspace/copy";
 import {
-  PROTO_COMPANIES,
+  PROTO_COMPANY,
   PROTO_ROWS,
   PROTO_UPDATED_AT,
   type ProtoRow,
 } from "./customer-workspace/data";
 
-const CONTROL = "h-11 min-h-11 text-sm";
+const CONTROL = "h-[44px] min-h-[44px] text-sm";
 
 const StatePanel = ({
   title,
@@ -93,7 +93,6 @@ const StatePanel = ({
 const CustomerWorkspacePrototype = () => {
   const [lang, setLang] = useState<ProtoLang>("ru");
   const [dark, setDark] = useState(false);
-  const [companyId, setCompanyId] = useState(PROTO_COMPANIES[0].id);
   const [section, setSection] = useState<ProtoSectionKey>("products");
   const [role, setRole] = useState<ProtoRoleKey>("owner");
   const [state, setState] = useState<ProtoStateKey>("ready");
@@ -101,9 +100,8 @@ const CustomerWorkspacePrototype = () => {
   const [confirmedInactive, setConfirmedInactive] = useState(false);
 
   const c = protoCopy[lang];
-  const company = PROTO_COMPANIES.find((item) => item.id === companyId) ?? PROTO_COMPANIES[0];
+  const company = PROTO_COMPANY;
   const canEdit = role === "owner" || role === "admin";
-  const canCreate = canEdit || role === "manager";
 
   const rows = useMemo<ProtoRow[]>(() => {
     const base = PROTO_ROWS[section];
@@ -115,8 +113,7 @@ const CustomerWorkspacePrototype = () => {
   }, [section, query, lang]);
 
   const primaryActionLabel = c.primaryActions[section];
-  const primaryAvailable =
-    section === "products" ? canEdit : section === "overview" || section === "search" ? true : canCreate;
+  const primaryAvailable = canEdit;
 
   const showTable = rows.length > 0;
 
@@ -349,30 +346,30 @@ const CustomerWorkspacePrototype = () => {
         {/* Shared YORSO shell header */}
         <header className="border-b border-border bg-card">
           <div className="container flex min-w-0 flex-wrap items-center gap-2 py-3">
-            <span className="font-heading text-lg font-bold tracking-tight">{c.brand}</span>
+            <span className="font-heading text-lg font-bold">{c.brand}</span>
 
             <div className="ml-auto flex min-w-0 flex-wrap items-center gap-2">
-              <label className="sr-only" htmlFor="proto-company">{c.currentCompany}</label>
-              <Select value={companyId} onValueChange={setCompanyId}>
-                <SelectTrigger id="proto-company" className={`${CONTROL} w-[200px]`} data-testid="proto-company-switch">
-                  <Building2 aria-hidden className="mr-2 h-4 w-4 text-muted-foreground" />
-                  <SelectValue aria-label={c.currentCompany} />
-                </SelectTrigger>
-                <SelectContent>
-                  {PROTO_COMPANIES.map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.name} · {item.countryLabel[lang]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div
+                className="flex min-w-0 items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2"
+                data-testid="proto-current-company"
+              >
+                <Building2 aria-hidden className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="min-w-0">
+                  <span className="block text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground">
+                    {c.currentCompany}
+                  </span>
+                  <span className="block truncate text-sm font-medium">
+                    {company.name} · {company.countryLabel[lang]}
+                  </span>
+                </span>
+              </div>
 
               <div className="flex items-center gap-1" role="group" aria-label={c.language}>
                 {PROTO_LANGS.map((code) => (
                   <Button
                     key={code}
                     variant={lang === code ? "default" : "outline"}
-                    className="h-11 min-h-11 w-11 min-w-11 px-0 text-xs uppercase"
+                    className="h-[44px] min-h-[44px] w-[44px] min-w-[44px] px-0 text-xs uppercase"
                     aria-pressed={lang === code}
                     onClick={() => setLang(code)}
                     data-testid={`proto-lang-${code}`}
@@ -384,7 +381,7 @@ const CustomerWorkspacePrototype = () => {
 
               <Button
                 variant="outline"
-                className="h-11 min-h-11 w-11 min-w-11 px-0"
+                className="h-[44px] min-h-[44px] w-[44px] min-w-[44px] px-0"
                 aria-pressed={dark}
                 aria-label={dark ? c.themeLight : c.themeDark}
                 onClick={() => setDark((v) => !v)}
@@ -439,7 +436,7 @@ const CustomerWorkspacePrototype = () => {
                   <Button
                     variant={section === key ? "secondary" : "ghost"}
                     aria-current={section === key ? "page" : undefined}
-                    className={`h-11 min-h-11 justify-start ${section === key ? "font-semibold" : ""} lg:w-full`}
+                    className={`h-[44px] min-h-[44px] justify-start ${section === key ? "font-semibold" : ""} lg:w-full`}
                     onClick={() => setSection(key)}
                     data-testid={`proto-nav-${key}`}
                   >
