@@ -9,7 +9,7 @@
  *
  * No backend, no network requests, no storage writes, no new dependencies.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Building2, Check, ChevronRight, Loader2, Lock, Moon, RotateCcw, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +62,10 @@ import {
 const CONTROL = "!h-[44px] !min-h-[44px] !min-w-[44px] text-sm";
 const ICON_CONTROL = "!h-[44px] !min-h-[44px] !w-[44px] !min-w-[44px] px-0";
 
+// Состояния, содержащие изменяющие действия (в т.ч. destructive-триггер).
+const MUTATING_STATES: ProtoStateKey[] = ["conflict", "saving", "success", "destructive"];
+
+
 const StatePanel = ({
   title,
   body,
@@ -105,6 +109,23 @@ const CustomerWorkspacePrototype = () => {
   const company = PROTO_COMPANY;
   const canEdit = role === "owner" || role === "admin";
 
+  // Утверждена только матрица «Продукции»: изменяющие действия доступны
+  // Владельцу и Администратору. Менеджер и Наблюдатель всегда только читают.
+  const canMutate = section === "products" && canEdit;
+
+  // Состояния с изменяющими действиями существуют только там, где право
+  // подтверждено; при смене роли/раздела состояние нормализуется.
+  const availableStates = useMemo<ProtoStateKey[]>(
+    () => PROTO_STATES.filter((key) => canMutate || !MUTATING_STATES.includes(key)),
+    [canMutate],
+  );
+  const stateAllowed = availableStates.includes(state);
+  const effectiveState = stateAllowed ? state : "ready";
+
+  useEffect(() => {
+    if (!stateAllowed) setState("ready");
+  }, [stateAllowed]);
+
   const rows = useMemo<ProtoRow[]>(() => {
     const base = PROTO_ROWS[section];
     if (section === "search") {
@@ -114,18 +135,17 @@ const CustomerWorkspacePrototype = () => {
     return base;
   }, [section, query, lang]);
 
-  // Утверждена только матрица «Продукции»: «Редактировать» видят Владелец и Администратор.
-  // В остальных разделах прототип не показывает действий и не выводит право.
   const primaryActionLabel = c.primaryActions.products;
-  const primaryAvailable = section === "products" && canEdit;
+  const primaryAvailable = canMutate && effectiveState === "ready";
 
   const showTable = rows.length > 0;
+
 
   const renderBody = () => {
     if (role === "service") {
       return <StatePanel testId="proto-state-service" title={c.serviceTitle} body={c.serviceBody} tone="muted" />;
     }
-    switch (state) {
+    switch (effectiveState) {
       case "loading":
         return (
           <div className="space-y-2" data-testid="proto-state-loading" aria-label={c.loadingLabel} aria-busy="true">
@@ -413,14 +433,15 @@ const CustomerWorkspacePrototype = () => {
             </Select>
 
             <label className="text-xs text-muted-foreground" htmlFor="proto-state">{c.scenario}</label>
-            <Select value={state} onValueChange={(v) => setState(v as ProtoStateKey)}>
+            <Select value={effectiveState} onValueChange={(v) => setState(v as ProtoStateKey)}>
               <SelectTrigger id="proto-state" className={`${CONTROL} w-[260px]`} data-testid="proto-state-switch">
                 <SelectValue aria-label={c.scenario} />
               </SelectTrigger>
               <SelectContent>
-                {PROTO_STATES.map((key) => (
+                {availableStates.map((key) => (
                   <SelectItem key={key} value={key}>{c.states[key]}</SelectItem>
                 ))}
+
               </SelectContent>
             </Select>
 
@@ -474,15 +495,16 @@ const CustomerWorkspacePrototype = () => {
                 </p>
               </div>
 
-              {role === "service" || !primaryAvailable ? null : (
+              {primaryAvailable ? (
                 <Button
                   className={CONTROL}
-                  onClick={() => setState(state === "ready" ? "saving" : "ready")}
+                  onClick={() => setState("saving")}
                   data-testid="proto-primary-action"
                 >
                   {primaryActionLabel}
                 </Button>
-              )}
+              ) : null}
+
             </div>
 
             {section === "search" ? (
