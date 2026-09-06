@@ -185,18 +185,22 @@ const CustomerWorkspacePrototype = () => {
     }
 
     return (
-      <div className="rounded-lg border border-border bg-card p-4" data-testid="proto-overview">
-        <h3 className="font-heading text-base font-semibold">{c.overviewHeading}</h3>
-        <ul className="mt-2 space-y-1.5">
-          {c.overviewItems.map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm">
-              <ChevronRight aria-hidden className="mt-0.5 h-4 w-4 text-primary" />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
+      <div className="space-y-4">
+        <PilotNotice lang={lang} resetKey={`${role}-${scenario}-${effectiveState}`} />
+        <div className="rounded-lg border border-border bg-card p-4" data-testid="proto-overview">
+          <h3 className="font-heading text-base font-semibold">{c.overviewHeading}</h3>
+          <ul className="mt-2 space-y-1.5">
+            {c.overviewItems.map((item) => (
+              <li key={item} className="flex items-start gap-2 text-sm">
+                <ChevronRight aria-hidden className="mt-0.5 h-4 w-4 text-primary" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
+
   };
 
   const renderBody = () => {
