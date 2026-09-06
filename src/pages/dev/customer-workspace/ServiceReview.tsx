@@ -34,8 +34,15 @@ import {
 } from "@/components/ui/select";
 import type { ProtoLang } from "./copy";
 import { protoAccessCopy, SERVICE_DECISIONS, type ServiceDecisionKey } from "./copy-access";
+import { protoP5Copy } from "./copy-p5";
+import { protoP6Copy } from "./copy-p6";
+import { protoP7Copy } from "./copy-p7";
+import { ServiceDataTransfer } from "./ImportWizard";
+import { OperationsSection } from "./OperationsSection";
+import { ServicePilot } from "./PilotSection";
 import { CAPABILITY_ROWS } from "./data-access";
 import { CONTROL } from "./ui";
+
 
 const SummaryField = ({
   label,
