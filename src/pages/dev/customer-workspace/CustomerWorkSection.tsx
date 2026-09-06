@@ -581,7 +581,12 @@ export const CustomerWorkSection = ({
             {menuEntries.length > 0 ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className={CONTROL} data-testid="proto-p4-list-actions">
+                  <Button
+                    ref={listActionsRef}
+                    variant="outline"
+                    className={CONTROL}
+                    data-testid="proto-p4-list-actions"
+                  >
                     {t.listActions}
                   </Button>
                 </DropdownMenuTrigger>
