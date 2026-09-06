@@ -120,7 +120,6 @@ YORSO (одна оболочка, один бренд, один вход)
 | Связи | Связи | Links | Vínculos |
 | Поиск | Поиск | Search | Buscar |
 | Текущая компания | Текущая компания | Current company | Empresa actual |
-| Сменить компанию | Сменить компанию | Switch company | Cambiar de empresa |
 | Сотрудники | Сотрудники | Employees | Empleados |
 | Приглашения | Приглашения | Invitations | Invitaciones |
 | Роли | Владелец / Администратор / Менеджер / Наблюдатель | Owner / Administrator / Manager / Viewer | Propietario / Administrador / Gestor / Observador |
