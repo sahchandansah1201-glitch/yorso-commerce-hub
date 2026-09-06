@@ -267,7 +267,7 @@ export const ImportWizard = ({
         {step === "matches" ? (
           <section className="min-w-0 space-y-3" data-testid="proto-p5-step-matches">
             {ambiguousPending ? (
-              <p className="text-xs text-muted-foreground" data-testid="proto-p5-choice-required">
+              <p className="text-xs text-muted-foreground" data-testid="proto-p5-required-note">
                 {t.choiceRequired}
               </p>
             ) : null}
