@@ -208,7 +208,7 @@ const ru: AccessDict = {
     leaveCompany: "Покинуть компанию",
   },
   confirmBodies: {
-    invite: "Сотрудник получит приглашение и роль, которую вы выбрали.",
+    invite: "Укажите электронную почту и роль. Приглашение появится в списке на этой странице.",
     changeRole: "Права сотрудника изменятся сразу после подтверждения.",
     closeAccess: "Сотрудник потеряет доступ к записям компании.",
     transferOwnership: "После передачи вы останетесь администратором компании.",
@@ -224,7 +224,7 @@ const ru: AccessDict = {
   selectPlaceholder: "Выберите значение",
   inviteEmailInvalid: "Укажите электронную почту.",
   confirmSelection: "Выбрано",
-  invitedResult: "Приглашение отправлено: {name} · {role}.",
+  invitedResult: "Приглашение для {name} добавлено в список на этой странице.",
   roleChangedResult: "Роль изменена: {name} · {role}.",
   accessClosedResult: "Доступ закрыт: {name}.",
 
@@ -329,7 +329,7 @@ const en: AccessDict = {
     leaveCompany: "Leave company",
   },
   confirmBodies: {
-    invite: "The employee will get an invitation and the role you selected.",
+    invite: "Enter an email address and role. The invitation will appear in the list on this page.",
     changeRole: "The employee rights change right after confirmation.",
     closeAccess: "The employee will lose access to the company records.",
     transferOwnership: "After the transfer you stay an administrator of the company.",
@@ -345,7 +345,7 @@ const en: AccessDict = {
   selectPlaceholder: "Select a value",
   inviteEmailInvalid: "Enter an email address.",
   confirmSelection: "Selected",
-  invitedResult: "Invitation sent: {name} · {role}.",
+  invitedResult: "The invitation for {name} was added to the list on this page.",
   roleChangedResult: "Role changed: {name} · {role}.",
   accessClosedResult: "Access closed: {name}.",
 
@@ -450,7 +450,7 @@ const es: AccessDict = {
     leaveCompany: "Salir de la empresa",
   },
   confirmBodies: {
-    invite: "El empleado recibirá una invitación y el rol que ha elegido.",
+    invite: "Indique el correo electrónico y el rol. La invitación aparecerá en la lista de esta página.",
     changeRole: "Los permisos del empleado cambian justo después de confirmar.",
     closeAccess: "El empleado perderá el acceso a los registros de la empresa.",
     transferOwnership: "Después de la transferencia usted seguirá como administrador de la empresa.",
@@ -466,7 +466,7 @@ const es: AccessDict = {
   selectPlaceholder: "Seleccione un valor",
   inviteEmailInvalid: "Indique un correo electrónico.",
   confirmSelection: "Seleccionado",
-  invitedResult: "Invitación enviada: {name} · {role}.",
+  invitedResult: "La invitación para {name} se ha añadido a la lista de esta página.",
   roleChangedResult: "Rol cambiado: {name} · {role}.",
   accessClosedResult: "Acceso cerrado: {name}.",
 

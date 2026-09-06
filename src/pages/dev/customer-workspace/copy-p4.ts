@@ -72,6 +72,8 @@ export type P4Dict = {
   restoreBody: string;
   restoreConfirm: string;
   restored: string;
+  /** Дочернюю запись нельзя восстановить без родительской компании. */
+  restoreBlocked: string;
   deniedTitle: string;
   deniedBody: string;
   unavailableTitle: string;
@@ -164,6 +166,7 @@ const ru: P4Dict = {
   restoreBody: "Запись вернётся в основной список.",
   restoreConfirm: "Восстановить",
   restored: "Запись восстановлена и вернулась в основной список.",
+  restoreBlocked: "Сначала восстановите компанию {company}.",
   deniedTitle: "Раздел недоступен",
   deniedBody: "У вашей учётной записи нет доступа к этому разделу.",
   unavailableTitle: "Раздел временно недоступен",
@@ -252,6 +255,7 @@ const en: P4Dict = {
   restoreBody: "The record returns to the main list.",
   restoreConfirm: "Restore",
   restored: "The record is restored and returned to the main list.",
+  restoreBlocked: "Restore {company} first.",
   deniedTitle: "Section unavailable",
   deniedBody: "Your account does not have access to this section.",
   unavailableTitle: "Section temporarily unavailable",
@@ -340,6 +344,7 @@ const es: P4Dict = {
   restoreBody: "El registro volverá a la lista principal.",
   restoreConfirm: "Restaurar",
   restored: "El registro se ha restaurado y ha vuelto a la lista principal.",
+  restoreBlocked: "Restaure primero {company}.",
   deniedTitle: "Sección no disponible",
   deniedBody: "Su cuenta no tiene acceso a esta sección.",
   unavailableTitle: "Sección temporalmente no disponible",
