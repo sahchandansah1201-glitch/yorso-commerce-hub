@@ -242,7 +242,8 @@ const CustomerWorkspacePrototype = () => {
           <StatePanel
             testId="proto-state-unavailable"
             title={c.unavailableTitle}
-            body={c.unavailableBody}
+            body={p6.customerUnavailable}
+
             tone="muted"
           >
             <Button
