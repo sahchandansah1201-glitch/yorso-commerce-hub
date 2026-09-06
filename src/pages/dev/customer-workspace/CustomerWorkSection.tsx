@@ -313,12 +313,15 @@ export const CustomerWorkSection = ({
 
   const canCreateEdit = scenario === "createEdit";
 
-  // Permission revocation closes stale forms and dialogs immediately.
+  // Смена раздела, сценария или состояния закрывает окна и очищает черновики,
+  // поэтому после «недоступно» → «Повторить» старое окно не открывается снова.
   useEffect(() => {
     setDialog(null);
     setRestoreId(null);
     setNotice(null);
-  }, [scenario, section]);
+    setDraftTitle("");
+  }, [scenario, section, state]);
+
 
   useEffect(() => {
     setOpenId(null);
