@@ -78,6 +78,7 @@ const allowedActions = (role: CustomerRole): EmployeeActionKey[] => {
 export const EmployeesSection = ({
   lang,
   role,
+  currentEmployeeId,
   onOwnershipTransferred,
   onLeftCompany,
 }: Props) => {
