@@ -288,7 +288,10 @@ export const ServiceReview = ({ lang }: { lang: ProtoLang }) => {
           ))}
         </ul>
       </section>
+        </>
+      ) : null}
     </div>
+
   );
 };
 
