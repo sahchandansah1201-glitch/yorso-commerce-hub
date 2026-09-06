@@ -17,7 +17,6 @@ export type P7Dict = {
   helpNotice: string;
   helpContactLabel: string;
   helpHoursLabel: string;
-  helpResponseLabel: string;
   feedbackTitle: string;
   feedbackLabel: string;
   feedbackHint: string;
@@ -38,6 +37,8 @@ export type P7Dict = {
   decisionLabel: string;
   decisions: Record<P7DecisionKey, string>;
   reasonLabel: string;
+  recordedReasonLabel: string;
+  serviceDataNotice: string;
   reasonRequired: string;
   recordDecision: string;
   recordDecisionTitle: string;
@@ -56,7 +57,6 @@ const ru: P7Dict = {
   helpNotice: "Это сведения на этой странице. Обращение не создаётся.",
   helpContactLabel: "Ответственный за пилотный доступ",
   helpHoursLabel: "Часы работы",
-  helpResponseLabel: "Ожидаемое время ответа",
   feedbackTitle: "Оставить отзыв",
   feedbackLabel: "Текст отзыва",
   feedbackHint: "Опишите, что работает и что мешает работе.",
@@ -77,6 +77,8 @@ const ru: P7Dict = {
   decisionLabel: "Решение по пилоту",
   decisions: { stop: "Остановить", continue: "Продолжить", expand: "Расширить" },
   reasonLabel: "Обоснование",
+  recordedReasonLabel: "Зафиксированное обоснование",
+  serviceDataNotice: "Проверочные данные для согласования интерфейса.",
   reasonRequired: "Укажите обоснование.",
   recordDecision: "Записать решение",
   recordDecisionTitle: "Записать решение по пилоту",
@@ -95,7 +97,6 @@ const en: P7Dict = {
   helpNotice: "This is information on this page. No request is created.",
   helpContactLabel: "Responsible for pilot access",
   helpHoursLabel: "Working hours",
-  helpResponseLabel: "Expected response time",
   feedbackTitle: "Add feedback",
   feedbackLabel: "Feedback text",
   feedbackHint: "Describe what works and what gets in the way.",
@@ -116,6 +117,8 @@ const en: P7Dict = {
   decisionLabel: "Pilot decision",
   decisions: { stop: "Stop", continue: "Continue", expand: "Expand" },
   reasonLabel: "Reason",
+  recordedReasonLabel: "Recorded reason",
+  serviceDataNotice: "Check data for interface review.",
   reasonRequired: "Enter a reason.",
   recordDecision: "Record the decision",
   recordDecisionTitle: "Record the pilot decision",
@@ -134,7 +137,6 @@ const es: P7Dict = {
   helpNotice: "Esta es información en esta página. No se crea ninguna solicitud.",
   helpContactLabel: "Responsable del acceso piloto",
   helpHoursLabel: "Horario",
-  helpResponseLabel: "Tiempo de respuesta previsto",
   feedbackTitle: "Añadir comentario",
   feedbackLabel: "Texto del comentario",
   feedbackHint: "Describa qué funciona y qué dificulta el trabajo.",
@@ -155,6 +157,8 @@ const es: P7Dict = {
   decisionLabel: "Decisión del piloto",
   decisions: { stop: "Detener", continue: "Continuar", expand: "Ampliar" },
   reasonLabel: "Motivo",
+  recordedReasonLabel: "Motivo registrado",
+  serviceDataNotice: "Datos de comprobación para la revisión de la interfaz.",
   reasonRequired: "Indique el motivo.",
   recordDecision: "Registrar la decisión",
   recordDecisionTitle: "Registrar la decisión del piloto",
