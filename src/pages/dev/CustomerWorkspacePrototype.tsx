@@ -58,7 +58,7 @@ import {
   type ProtoRow,
 } from "./customer-workspace/data";
 
-const CONTROL = "h-11 min-h-11 text-sm";
+const CONTROL = "h-[44px] min-h-[44px] text-sm";
 
 const StatePanel = ({
   title,
@@ -369,7 +369,7 @@ const CustomerWorkspacePrototype = () => {
                   <Button
                     key={code}
                     variant={lang === code ? "default" : "outline"}
-                    className="h-11 min-h-11 w-11 min-w-11 px-0 text-xs uppercase"
+                    className="h-[44px] min-h-[44px] w-[44px] min-w-[44px] px-0 text-xs uppercase"
                     aria-pressed={lang === code}
                     onClick={() => setLang(code)}
                     data-testid={`proto-lang-${code}`}
@@ -381,7 +381,7 @@ const CustomerWorkspacePrototype = () => {
 
               <Button
                 variant="outline"
-                className="h-11 min-h-11 w-11 min-w-11 px-0"
+                className="h-[44px] min-h-[44px] w-[44px] min-w-[44px] px-0"
                 aria-pressed={dark}
                 aria-label={dark ? c.themeLight : c.themeDark}
                 onClick={() => setDark((v) => !v)}
@@ -436,7 +436,7 @@ const CustomerWorkspacePrototype = () => {
                   <Button
                     variant={section === key ? "secondary" : "ghost"}
                     aria-current={section === key ? "page" : undefined}
-                    className={`h-11 min-h-11 justify-start ${section === key ? "font-semibold" : ""} lg:w-full`}
+                    className={`h-11 min-h-[44px] justify-start ${section === key ? "font-semibold" : ""} lg:w-full`}
                     onClick={() => setSection(key)}
                     data-testid={`proto-nav-${key}`}
                   >
