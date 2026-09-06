@@ -766,21 +766,11 @@ export const CustomerWorkSection = ({
         </DialogContent>
       </Dialog>
 
-      {/* Import entry point only */}
-      <Dialog open={dialog === "import"} onOpenChange={(open) => setDialog(open ? "import" : null)}>
-        <DialogContent
-        className="[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center"
-        data-testid="proto-p4-import-dialog"
-      >
-          <DialogHeader>
-            <DialogTitle>{t.importTitle}</DialogTitle>
-            <DialogDescription>{t.importBody}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button className={CONTROL} onClick={() => setDialog(null)}>{t.cancel}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Full-screen data transfer wizard; unmounts when access changes. */}
+      {dialog === "import" ? (
+        <ImportWizard lang={lang} onClose={() => setDialog(null)} />
+      ) : null}
+
 
       {/* Export entry point only */}
       <Dialog open={dialog === "export"} onOpenChange={(open) => setDialog(open ? "export" : null)}>
