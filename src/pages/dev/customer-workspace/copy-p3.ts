@@ -31,6 +31,10 @@ export type ProductsDict = {
   readOnlyLabel: string;
   editPreviewTitle: string;
   editPreviewHint: string;
+  positionSelectorLabel: string;
+  newPositionOption: string;
+  newPositionTitle: string;
+  savedNotice: string;
   save: string;
   cancel: string;
   makeInactive: string;
@@ -72,7 +76,11 @@ const ru: ProductsDict = {
   editAction: "Редактировать",
   readOnlyLabel: "Только просмотр",
   editPreviewTitle: "Изменение продукции компании",
-  editPreviewHint: "Образец формы: значения меняются только в этом экране.",
+  editPreviewHint: "Выберите позицию и измените её данные.",
+  positionSelectorLabel: "Позиция продукции",
+  newPositionOption: "Новая позиция",
+  newPositionTitle: "Новая позиция",
+  savedNotice: "Изменения сохранены.",
   save: "Сохранить",
   cancel: "Отмена",
   makeInactive: "Сделать неактивным",
@@ -115,7 +123,11 @@ const en: ProductsDict = {
   editAction: "Edit",
   readOnlyLabel: "Read only",
   editPreviewTitle: "Editing company products",
-  editPreviewHint: "Sample form: values change only inside this screen.",
+  editPreviewHint: "Select a position and change its data.",
+  positionSelectorLabel: "Product position",
+  newPositionOption: "New position",
+  newPositionTitle: "New position",
+  savedNotice: "Changes saved.",
   save: "Save",
   cancel: "Cancel",
   makeInactive: "Make inactive",
@@ -157,7 +169,11 @@ const es: ProductsDict = {
   editAction: "Editar",
   readOnlyLabel: "Solo lectura",
   editPreviewTitle: "Edición de los productos de la empresa",
-  editPreviewHint: "Formulario de muestra: los valores cambian solo en esta pantalla.",
+  editPreviewHint: "Seleccione un artículo y cambie sus datos.",
+  positionSelectorLabel: "Artículo de producto",
+  newPositionOption: "Nuevo artículo",
+  newPositionTitle: "Nuevo artículo",
+  savedNotice: "Cambios guardados.",
   save: "Guardar",
   cancel: "Cancelar",
   makeInactive: "Desactivar",

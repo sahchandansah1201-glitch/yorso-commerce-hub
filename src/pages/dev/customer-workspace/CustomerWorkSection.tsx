@@ -58,16 +58,7 @@ import {
   type P4SortKey,
   type P4TabKey,
 } from "./copy-p4";
-import {
-  P4_ALL_RECORDS,
-  P4_COMPANIES,
-  P4_CONTACTS,
-  P4_DELETED,
-  P4_NOTES,
-  P4_TASKS,
-  p4RelatedFor,
-  type P4Record,
-} from "./data-p4";
+import { P4_ALL_RECORDS, P4_DELETED, p4RelatedFor, type P4Record } from "./data-p4";
 import { CONTROL } from "./ui";
 
 export type P4SectionKey = Extract<
@@ -87,21 +78,6 @@ export const isP4Section = (key: ProtoSectionKey): key is P4SectionKey =>
   (P4_SECTIONS as ProtoSectionKey[]).includes(key);
 
 const PAGE_SIZE = 2;
-
-const baseRecords = (section: P4SectionKey): P4Record[] => {
-  switch (section) {
-    case "companies":
-      return P4_COMPANIES;
-    case "contacts":
-      return P4_CONTACTS;
-    case "tasks":
-      return P4_TASKS;
-    case "notes":
-      return P4_NOTES;
-    case "search":
-      return P4_ALL_RECORDS;
-  }
-};
 
 const Panel = ({
   title,
@@ -131,6 +107,7 @@ const Panel = ({
 const RecordCard = ({
   lang,
   record,
+  pool,
   canEdit,
   onBack,
   onOpen,
@@ -138,6 +115,8 @@ const RecordCard = ({
 }: {
   lang: ProtoLang;
   record: P4Record;
+  /** Все текущие записи: связи учитывают изменённые, созданные и восстановленные. */
+  pool: P4Record[];
   canEdit: boolean;
   onBack: () => void;
   onOpen: (id: string) => void;
@@ -156,8 +135,8 @@ const RecordCard = ({
     setEditing(false);
   }, [record, lang]);
 
-  const related = p4RelatedFor(record);
-  const company = P4_COMPANIES.find((c) => c.id === record.companyId);
+  const related = p4RelatedFor(record, pool);
+  const company = pool.find((c) => c.kind === "company" && c.id === record.companyId);
   const tabs: P4TabKey[] =
     record.kind === "company"
       ? ["overview", "contacts", "tasks", "notes", "related"]
@@ -246,7 +225,7 @@ const RecordCard = ({
                 onClick={() => setEditing(true)}
                 data-testid="proto-p4-record-edit"
               >
-                {t.titleField}
+                {t.editTitleAction}
               </Button>
             )}
           </div>
@@ -267,9 +246,9 @@ const RecordCard = ({
           <dl className="mt-2 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
             {[
               ...(company ? [{ label: t.companyField, value: company.title[lang] }] : []),
-              { label: t.responsible, value: record.responsible },
-              { label: t.updated, value: record.updated },
-              ...record.details.map((d) => ({ label: d.label[lang], value: d.value })),
+              { label: t.responsible, value: record.responsible[lang] },
+              { label: t.updated, value: record.updatedLabel[lang] },
+              ...record.details.map((d) => ({ label: d.label[lang], value: d.value[lang] })),
             ].map((f) => (
               <div key={f.label} className="min-w-0">
                 <dt className="text-[10.5px] uppercase text-muted-foreground">{f.label}</dt>
@@ -320,7 +299,7 @@ export const CustomerWorkSection = ({
   const [openId, setOpenId] = useState<string | null>(null);
   const [created, setCreated] = useState<P4Record[]>([]);
   const [titles, setTitles] = useState<Record<string, string>>({});
-  const [restored, setRestored] = useState<string[]>([]);
+  const [restored, setRestored] = useState<P4Record[]>([]);
   const [dialog, setDialog] = useState<null | "create" | "import" | "export" | "deleted">(null);
   const [restoreId, setRestoreId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -340,10 +319,21 @@ export const CustomerWorkSection = ({
     setPage(0);
   }, [section]);
 
+  /** Все текущие записи компании: базовые, созданные и восстановленные. */
+  const allRecords = useMemo(
+    () =>
+      [...created, ...restored, ...P4_ALL_RECORDS].map((r) =>
+        titles[r.id] ? { ...r, title: { ...r.title, [lang]: titles[r.id] } } : r,
+      ),
+    [created, restored, titles, lang],
+  );
+
+  /** Записи текущего раздела. */
   const records = useMemo(() => {
-    const list = [...created.filter((r) => r.kind === kindOf(section)), ...baseRecords(section)];
-    return list.map((r) => (titles[r.id] ? { ...r, title: { ...r.title, [lang]: titles[r.id] } } : r));
-  }, [created, section, titles, lang]);
+    if (section === "search") return allRecords;
+    const kind = kindOf(section);
+    return allRecords.filter((r) => r.kind === kind);
+  }, [allRecords, section]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -358,7 +348,7 @@ export const CustomerWorkSection = ({
     list = [...list].sort((a, b) => {
       if (sort === "titleAsc") return a.title[lang].localeCompare(b.title[lang]);
       if (sort === "titleDesc") return b.title[lang].localeCompare(a.title[lang]);
-      return b.updated.localeCompare(a.updated);
+      return b.updated.localeCompare(a.updated); // ISO: машинная сортировка
     });
     return list;
   }, [records, query, filter, sort, lang]);
@@ -368,11 +358,12 @@ export const CustomerWorkSection = ({
   const pageItems = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
 
   const openRecord = useMemo(
-    () => (openId ? [...records, ...P4_DELETED].find((r) => r.id === openId) ?? null : null),
-    [openId, records],
+    () => (openId ? allRecords.find((r) => r.id === openId) ?? null : null),
+    [openId, allRecords],
   );
 
-  if (scenario === "denied" || state === "denied") {
+  // Право в P4 задаёт только сценарий доступа.
+  if (scenario === "denied") {
     return <Panel testId="proto-p4-denied" title={t.deniedTitle} body={t.deniedBody} tone="muted" />;
   }
 
@@ -389,7 +380,12 @@ export const CustomerWorkSection = ({
 
   if (state === "loading") {
     return (
-      <div className="space-y-2" data-testid="proto-p4-loading" aria-busy="true">
+      <div
+        className="space-y-2"
+        data-testid="proto-p4-loading"
+        aria-label={t.loadingLabel}
+        aria-busy="true"
+      >
         <Skeleton className="h-11 w-full" />
         <Skeleton className="h-11 w-full" />
         <Skeleton className="h-11 w-2/3" />
@@ -465,7 +461,7 @@ export const CustomerWorkSection = ({
         </div>
       ) : null}
 
-      {state === "viewOnly" || scenario === "view" ? (
+      {scenario === "view" ? (
         <div
           className="flex items-start gap-2 rounded-lg border border-border bg-muted/40 p-3"
           data-testid="proto-p4-view-only"
@@ -488,6 +484,7 @@ export const CustomerWorkSection = ({
         <RecordCard
           lang={lang}
           record={openRecord}
+          pool={allRecords}
           canEdit={canCreateEdit}
           onBack={() => setOpenId(null)}
           onOpen={(id) => setOpenId(id)}
@@ -620,14 +617,16 @@ export const CustomerWorkSection = ({
                           <span className="block text-xs text-muted-foreground">{r.subtitle[lang]}</span>
                         </TableCell>
                         <TableCell className="align-top text-sm">
-                          {P4_COMPANIES.find((c) => c.id === r.companyId)?.title[lang] ??
-                            t.kinds[r.kind]}
+                          {allRecords.find((c) => c.kind === "company" && c.id === r.companyId)
+                            ?.title[lang] ?? t.kinds[r.kind]}
                         </TableCell>
-                        <TableCell className="align-top text-sm">{r.responsible}</TableCell>
+                        <TableCell className="align-top text-sm">{r.responsible[lang]}</TableCell>
                         <TableCell className="align-top text-sm">
                           {r.active ? t.filterActive : t.filterInactive}
                         </TableCell>
-                        <TableCell className="align-top text-xs text-muted-foreground">{r.updated}</TableCell>
+                        <TableCell className="align-top text-xs text-muted-foreground">
+                          {r.updatedLabel[lang]}
+                        </TableCell>
                         <TableCell className="align-top">
                           <Button
                             variant="outline"
@@ -650,10 +649,10 @@ export const CustomerWorkSection = ({
                     <p className="min-w-0 break-words font-medium">{r.title[lang]}</p>
                     <p className="text-xs text-muted-foreground">{r.subtitle[lang]}</p>
                     <p className="mt-1 text-sm">
-                      {r.responsible} · {r.active ? t.filterActive : t.filterInactive}
+                      {r.responsible[lang]} · {r.active ? t.filterActive : t.filterInactive}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {t.updated}: {r.updated}
+                      {t.updated}: {r.updatedLabel[lang]}
                     </p>
                     <div className="mt-3 border-t border-border/60 pt-3">
                       <Button
@@ -733,9 +732,10 @@ export const CustomerWorkSection = ({
                       kind,
                       title: { ru: title, en: title, es: title },
                       subtitle: { ru: "Новая запись", en: "New record", es: "Nuevo registro" },
-                      responsible: "—",
+                      responsible: { ru: "—", en: "—", es: "—" },
                       active: true,
-                      updated: "06.09.2026 21:00",
+                      updated: "2026-09-06T21:00",
+                      updatedLabel: { ru: "06.09.2026 21:00", en: "06.09.2026 21:00", es: "06.09.2026 21:00" },
                       details: [],
                     },
                     ...prev,
@@ -795,7 +795,7 @@ export const CustomerWorkSection = ({
             <DialogDescription>{t.deletedBody}</DialogDescription>
           </DialogHeader>
           <ul className="space-y-2">
-            {P4_DELETED.map((r) => (
+            {P4_DELETED.filter((r) => !restored.some((x) => x.id === r.id)).map((r) => (
               <li
                 key={r.id}
                 className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-md border border-border p-3"
@@ -804,18 +804,14 @@ export const CustomerWorkSection = ({
                   <span className="block text-sm font-medium">{r.title[lang]}</span>
                   <span className="block text-xs text-muted-foreground">{t.kinds[r.kind]}</span>
                 </span>
-                {restored.includes(r.id) ? (
-                  <span className="text-xs text-muted-foreground">{t.restored}</span>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className={CONTROL}
-                    onClick={() => setRestoreId(r.id)}
-                    data-testid={`proto-p4-restore-${r.id}`}
-                  >
-                    {t.actions.restore}
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  className={CONTROL}
+                  onClick={() => setRestoreId(r.id)}
+                  data-testid={`proto-p4-restore-${r.id}`}
+                >
+                  {t.actions.restore}
+                </Button>
               </li>
             ))}
           </ul>
@@ -836,7 +832,8 @@ export const CustomerWorkSection = ({
             <AlertDialogAction
               className={CONTROL}
               onClick={() => {
-                if (restoreId) setRestored((prev) => [...prev, restoreId]);
+                const record = P4_DELETED.find((r) => r.id === restoreId);
+                if (record) setRestored((prev) => [{ ...record, active: true }, ...prev]);
                 setRestoreId(null);
                 setNotice(t.restored);
               }}

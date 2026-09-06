@@ -1,8 +1,10 @@
 /**
- * P3 — Company products. One shared current-company list.
- * All company roles may read it; only Owner/Administrator see one Edit action in
- * the ready state. Items are never deleted: confirmed items stay visible with the
- * Inactive status. In-memory only: no storage, no network, no real route import.
+ * P3 — Company products. One shared current-company list for every company role.
+ *
+ * The read list has no per-row actions: the whole product profile is changed
+ * through the single top-level Edit action, which opens one edit panel with a
+ * product position selector. "Make inactive" lives inside that panel.
+ * In-memory only: no storage, no network, no real route import.
  */
 import { useMemo, useState } from "react";
 import { Check } from "lucide-react";
@@ -47,23 +49,28 @@ import {
 import { PROTO_PRODUCTS, type ProtoProduct } from "./data-p3";
 import { CONTROL } from "./ui";
 
+const NEW_POSITION = "__new__";
+
 export const ProductsOzNote = ({ lang }: { lang: ProtoLang }) => (
   <p className="text-xs text-muted-foreground" data-testid="proto-products-oz-note">
     {protoProductsCopy[lang].ozNote}
   </p>
 );
 
-const ProductsList = ({
-  lang,
-  items,
-  canEdit,
-  onMakeInactive,
-}: {
-  lang: ProtoLang;
-  items: ProtoProduct[];
-  canEdit: boolean;
-  onMakeInactive: (id: string) => void;
-}) => {
+const emptyDraft = (lang: ProtoLang, title: string): ProtoProduct => ({
+  id: NEW_POSITION,
+  product: { ru: title, en: title, es: title },
+  latin: "",
+  condition: "frozen",
+  direction: "sale",
+  monthlyVolume: "",
+  unit: "kg",
+  format: { ru: "", en: "", es: "" },
+  active: true,
+});
+
+/** Read list: seven fields only, no row-level actions for any role. */
+const ProductsList = ({ lang, items }: { lang: ProtoLang; items: ProtoProduct[] }) => {
   const p = protoProductsCopy[lang];
   const value = (item: ProtoProduct) => ({
     condition: p.conditions[item.condition],
@@ -89,7 +96,6 @@ const ProductsList = ({
               <TableHead className="text-xs">{p.fields.unit}</TableHead>
               <TableHead className="text-xs">{p.fields.format}</TableHead>
               <TableHead className="text-xs">{p.fields.status}</TableHead>
-              {canEdit ? <TableHead className="text-xs" /> : null}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -99,7 +105,9 @@ const ProductsList = ({
                 <TableRow key={item.id} className="h-12" data-testid={`proto-product-row-${item.id}`}>
                   <TableCell className="align-top">
                     <span className="font-medium">{item.product[lang]}</span>
-                    <span className="block text-xs italic text-muted-foreground">{item.latin}</span>
+                    {item.latin ? (
+                      <span className="block text-xs italic text-muted-foreground">{item.latin}</span>
+                    ) : null}
                   </TableCell>
                   <TableCell className="align-top text-sm">{v.condition}</TableCell>
                   <TableCell className="align-top text-sm">{v.direction}</TableCell>
@@ -111,39 +119,6 @@ const ProductsList = ({
                   <TableCell className="align-top text-sm" data-testid={`proto-product-status-${item.id}`}>
                     {v.status}
                   </TableCell>
-                  {canEdit ? (
-                    <TableCell className="align-top">
-                      {item.active ? (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={CONTROL}
-                              data-testid={`proto-product-inactive-${item.id}`}
-                            >
-                              {p.makeInactive}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent data-testid="proto-product-inactive-dialog">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>{p.makeInactiveTitle}</AlertDialogTitle>
-                              <AlertDialogDescription>{p.makeInactiveBody}</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className={CONTROL}>{p.cancel}</AlertDialogCancel>
-                              <AlertDialogAction
-                                className={CONTROL}
-                                onClick={() => onMakeInactive(item.id)}
-                                data-testid="proto-product-inactive-confirm"
-                              >
-                                {p.makeInactiveConfirm}
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      ) : null}
-                    </TableCell>
-                  ) : null}
                 </TableRow>
               );
             })}
@@ -155,12 +130,18 @@ const ProductsList = ({
         {items.map((item) => {
           const v = value(item);
           return (
-            <li key={item.id} className="min-w-0 rounded-lg border border-border bg-card p-3">
+            <li
+              key={item.id}
+              className="min-w-0 rounded-lg border border-border bg-card p-3"
+              data-testid={`proto-product-card-${item.id}`}
+            >
               <div className="flex min-w-0 items-start justify-between gap-2">
                 <p className="min-w-0 break-words font-medium">{item.product[lang]}</p>
                 <span className="shrink-0 text-xs text-muted-foreground">{v.status}</span>
               </div>
-              <p className="text-xs italic text-muted-foreground">{item.latin}</p>
+              {item.latin ? (
+                <p className="text-xs italic text-muted-foreground">{item.latin}</p>
+              ) : null}
               <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5">
                 {[
                   [p.fields.condition, v.condition],
@@ -175,37 +156,6 @@ const ProductsList = ({
                   </div>
                 ))}
               </dl>
-              {canEdit && item.active ? (
-                <div className="mt-3 border-t border-border/60 pt-3">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={CONTROL}
-                        data-testid={`proto-product-inactive-mobile-${item.id}`}
-                      >
-                        {p.makeInactive}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent data-testid="proto-product-inactive-dialog">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>{p.makeInactiveTitle}</AlertDialogTitle>
-                        <AlertDialogDescription>{p.makeInactiveBody}</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className={CONTROL}>{p.cancel}</AlertDialogCancel>
-                        <AlertDialogAction
-                          className={CONTROL}
-                          onClick={() => onMakeInactive(item.id)}
-                          data-testid="proto-product-inactive-confirm"
-                        >
-                          {p.makeInactiveConfirm}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              ) : null}
             </li>
           );
         })}
@@ -214,25 +164,63 @@ const ProductsList = ({
   );
 };
 
-const EditPreview = ({
+/** Whole-profile edit panel: position selector plus the seven agreed fields. */
+const EditPanel = ({
   lang,
-  item,
+  items,
   onSave,
+  onMakeInactive,
   onCancel,
 }: {
   lang: ProtoLang;
-  item: ProtoProduct;
+  items: ProtoProduct[];
   onSave: (next: ProtoProduct) => void;
+  onMakeInactive: (id: string) => void;
   onCancel: () => void;
 }) => {
   const p = protoProductsCopy[lang];
-  const [draft, setDraft] = useState<ProtoProduct>(item);
+  const [selected, setSelected] = useState<string>(items[0]?.id ?? NEW_POSITION);
+  const [drafts, setDrafts] = useState<Record<string, ProtoProduct>>({});
+
+  const source = useMemo(
+    () => items.find((it) => it.id === selected) ?? emptyDraft(lang, p.newPositionTitle),
+    [items, selected, lang, p.newPositionTitle],
+  );
+  const draft = drafts[selected] ?? source;
+  const patch = (next: Partial<ProtoProduct>) =>
+    setDrafts((prev) => ({ ...prev, [selected]: { ...draft, ...next } }));
 
   return (
     <div className="min-w-0 rounded-lg border border-border bg-card p-4" data-testid="proto-products-edit">
       <h3 className="font-heading text-base font-semibold">{p.editPreviewTitle}</h3>
       <p className="mt-1 text-xs text-muted-foreground">{p.editPreviewHint}</p>
       <ProductsOzNote lang={lang} />
+
+      <div className="mt-3 min-w-0 max-w-sm">
+        <label
+          className="text-[10.5px] uppercase text-muted-foreground"
+          htmlFor="proto-product-position"
+        >
+          {p.positionSelectorLabel}
+        </label>
+        <Select value={selected} onValueChange={setSelected}>
+          <SelectTrigger
+            id="proto-product-position"
+            className={CONTROL}
+            data-testid="proto-product-position-select"
+          >
+            <SelectValue aria-label={p.positionSelectorLabel} />
+          </SelectTrigger>
+          <SelectContent>
+            {items.map((it) => (
+              <SelectItem key={it.id} value={it.id}>
+                {it.product[lang]}
+              </SelectItem>
+            ))}
+            <SelectItem value={NEW_POSITION}>{p.newPositionOption}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
         <div className="min-w-0">
@@ -243,9 +231,7 @@ const EditPreview = ({
             id="proto-product-name"
             className={CONTROL}
             value={draft.product[lang]}
-            onChange={(e) =>
-              setDraft({ ...draft, product: { ...draft.product, [lang]: e.target.value } })
-            }
+            onChange={(e) => patch({ product: { ...draft.product, [lang]: e.target.value } })}
             data-testid="proto-product-field-name"
           />
         </div>
@@ -256,7 +242,7 @@ const EditPreview = ({
           </label>
           <Select
             value={draft.condition}
-            onValueChange={(v) => setDraft({ ...draft, condition: v as ProductConditionKey })}
+            onValueChange={(v) => patch({ condition: v as ProductConditionKey })}
           >
             <SelectTrigger id="proto-product-condition" className={CONTROL} data-testid="proto-product-field-condition">
               <SelectValue aria-label={p.fields.condition} />
@@ -275,7 +261,7 @@ const EditPreview = ({
           </label>
           <Select
             value={draft.direction}
-            onValueChange={(v) => setDraft({ ...draft, direction: v as ProductDirectionKey })}
+            onValueChange={(v) => patch({ direction: v as ProductDirectionKey })}
           >
             <SelectTrigger id="proto-product-direction" className={CONTROL} data-testid="proto-product-field-direction">
               <SelectValue aria-label={p.fields.direction} />
@@ -296,7 +282,7 @@ const EditPreview = ({
             id="proto-product-volume"
             className={CONTROL}
             value={draft.monthlyVolume}
-            onChange={(e) => setDraft({ ...draft, monthlyVolume: e.target.value })}
+            onChange={(e) => patch({ monthlyVolume: e.target.value })}
             data-testid="proto-product-field-volume"
           />
         </div>
@@ -305,7 +291,7 @@ const EditPreview = ({
           <label className="text-[10.5px] uppercase text-muted-foreground" htmlFor="proto-product-unit">
             {p.fields.unit}
           </label>
-          <Select value={draft.unit} onValueChange={(v) => setDraft({ ...draft, unit: v as ProductUnitKey })}>
+          <Select value={draft.unit} onValueChange={(v) => patch({ unit: v as ProductUnitKey })}>
             <SelectTrigger id="proto-product-unit" className={CONTROL} data-testid="proto-product-field-unit">
               <SelectValue aria-label={p.fields.unit} />
             </SelectTrigger>
@@ -325,9 +311,7 @@ const EditPreview = ({
             id="proto-product-format"
             className={CONTROL}
             value={draft.format[lang]}
-            onChange={(e) =>
-              setDraft({ ...draft, format: { ...draft.format, [lang]: e.target.value } })
-            }
+            onChange={(e) => patch({ format: { ...draft.format, [lang]: e.target.value } })}
             data-testid="proto-product-field-format"
           />
         </div>
@@ -344,6 +328,39 @@ const EditPreview = ({
         <Button className={CONTROL} onClick={() => onSave(draft)} data-testid="proto-products-save">
           {p.save}
         </Button>
+
+        {draft.active && selected !== NEW_POSITION ? (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" className={CONTROL} data-testid="proto-product-inactive">
+                {p.makeInactive}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent
+              className="[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center"
+              data-testid="proto-product-inactive-dialog"
+            >
+              <AlertDialogHeader>
+                <AlertDialogTitle>{p.makeInactiveTitle}</AlertDialogTitle>
+                <AlertDialogDescription>{p.makeInactiveBody}</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className={CONTROL}>{p.cancel}</AlertDialogCancel>
+                <AlertDialogAction
+                  className={CONTROL}
+                  onClick={() => {
+                    onMakeInactive(draft.id);
+                    setDrafts((prev) => ({ ...prev, [selected]: { ...draft, active: false } }));
+                  }}
+                  data-testid="proto-product-inactive-confirm"
+                >
+                  {p.makeInactiveConfirm}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : null}
+
         <Button variant="outline" className={CONTROL} onClick={onCancel} data-testid="proto-products-cancel">
           {p.cancel}
         </Button>
@@ -360,6 +377,7 @@ export const ProductsSection = ({
   showEmpty = false,
 }: {
   lang: ProtoLang;
+  /** True only for Owner/Administrator in the ready state. */
   canEdit: boolean;
   editing: boolean;
   onCloseEdit: () => void;
@@ -367,13 +385,12 @@ export const ProductsSection = ({
 }) => {
   const p = protoProductsCopy[lang];
   const [items, setItems] = useState<ProtoProduct[]>(PROTO_PRODUCTS);
-  const [saved, setSaved] = useState(false);
-  const [inactiveDone, setInactiveDone] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const visible = useMemo(() => (showEmpty ? [] : items), [items, showEmpty]);
-  const editable = items[0];
+  const editOpen = editing && canEdit;
 
-  if (visible.length === 0 && !editing) {
+  if (visible.length === 0 && !editOpen) {
     return (
       <div className="min-w-0 rounded-lg border border-border bg-muted/40 p-4" data-testid="proto-products-empty">
         <h3 className="font-heading text-base font-semibold">{p.emptyTitle}</h3>
@@ -385,26 +402,33 @@ export const ProductsSection = ({
 
   return (
     <div className="space-y-3">
-      {saved || inactiveDone ? (
+      {notice ? (
         <div
           className="flex items-start gap-2 rounded-lg border border-success/40 bg-success/10 p-3"
           role="status"
           data-testid="proto-products-status"
         >
           <Check aria-hidden className="mt-0.5 h-4 w-4 text-success" />
-          <p className="text-sm">{inactiveDone ? p.inactiveDone : p.editPreviewHint}</p>
+          <p className="text-sm">{notice}</p>
         </div>
       ) : null}
 
-      {editing && canEdit ? (
-        <EditPreview
+      {editOpen ? (
+        <EditPanel
           lang={lang}
-          item={editable}
+          items={items}
           onSave={(next) => {
-            setItems((prev) => prev.map((it) => (it.id === next.id ? next : it)));
-            setSaved(true);
-            setInactiveDone(false);
+            setItems((prev) =>
+              prev.some((it) => it.id === next.id)
+                ? prev.map((it) => (it.id === next.id ? next : it))
+                : [...prev, { ...next, id: `new-${prev.length + 1}` }],
+            );
+            setNotice(p.savedNotice);
             onCloseEdit();
+          }}
+          onMakeInactive={(id) => {
+            setItems((prev) => prev.map((it) => (it.id === id ? { ...it, active: false } : it)));
+            setNotice(p.inactiveDone);
           }}
           onCancel={onCloseEdit}
         />
@@ -416,16 +440,7 @@ export const ProductsSection = ({
             </p>
             <ProductsOzNote lang={lang} />
           </div>
-          <ProductsList
-            lang={lang}
-            items={visible}
-            canEdit={canEdit}
-            onMakeInactive={(id) => {
-              setItems((prev) => prev.map((it) => (it.id === id ? { ...it, active: false } : it)));
-              setInactiveDone(true);
-              setSaved(false);
-            }}
-          />
+          <ProductsList lang={lang} items={visible} />
         </>
       )}
     </div>
