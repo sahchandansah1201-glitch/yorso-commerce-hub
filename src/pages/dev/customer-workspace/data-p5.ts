@@ -120,4 +120,7 @@ export const P5_SERVICE_RUN = {
   sourceContacts: 6,
   rowIds: "R-01 … R-14",
   failedIds: ["R-07"],
+  /** Check run of src-a: 8 processable rows, 7 completed before the retry. */
+  processable: 8,
+  completed: 7,
 };

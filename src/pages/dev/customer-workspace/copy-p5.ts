@@ -53,6 +53,11 @@ export type P5Dict = {
   choice: string;
   choices: Record<P5Choice, string>;
   choiceRequired: string;
+  mappingHint: string;
+  mappingErrorDuplicate: string;
+  mappingErrorCompanyRequired: string;
+  mappingErrorContactRequired: string;
+  previewMappingTitle: string;
   errorNotExecutable: string;
   executionHint: string;
   executionConfirm: string;
@@ -95,6 +100,7 @@ export type P5Dict = {
   serviceReasonRequired: string;
   serviceRetryConfirm: string;
   serviceRetryResult: string;
+  serviceDataNotice: string;
 };
 
 const ru: P5Dict = {
@@ -144,6 +150,11 @@ const ru: P5Dict = {
   choice: "Решение по строке",
   choices: { link: "Связать", create: "Создать", skip: "Пропустить" },
   choiceRequired: "Для неоднозначных строк выберите решение.",
+  mappingHint: "Каждое поле YORSO можно выбрать только один раз. Для набора с компаниями укажите название компании, для набора с контактами — имя контакта.",
+  mappingErrorDuplicate: "Одно поле YORSO выбрано несколько раз. Оставьте одно соответствие.",
+  mappingErrorCompanyRequired: "Укажите ровно одну колонку для поля «Название компании».",
+  mappingErrorContactRequired: "Укажите ровно одну колонку для поля «Имя контакта».",
+  previewMappingTitle: "Соответствие колонок",
   errorNotExecutable: "Строка с ошибкой не выполняется.",
   executionHint: "Проверьте решения по строкам и подтвердите выполнение. После подтверждения отмена недоступна.",
   executionConfirm: "Подтвердить выполнение",
@@ -185,6 +196,7 @@ const ru: P5Dict = {
   serviceReasonRequired: "Укажите причину.",
   serviceRetryConfirm: "Подтвердить",
   serviceRetryResult: "Итог на этой странице: {done} из {total}.",
+  serviceDataNotice: "Проверочные данные для согласования интерфейса.",
 };
 
 const en: P5Dict = {
@@ -234,6 +246,11 @@ const en: P5Dict = {
   choice: "Row decision",
   choices: { link: "Link", create: "Create", skip: "Skip" },
   choiceRequired: "Choose a decision for every ambiguous row.",
+  mappingHint: "Each YORSO field can be selected once. A source with companies needs a company name, a source with contacts needs a contact name.",
+  mappingErrorDuplicate: "One YORSO field is selected more than once. Keep a single match.",
+  mappingErrorCompanyRequired: "Select exactly one column for the field “Company name”.",
+  mappingErrorContactRequired: "Select exactly one column for the field “Contact name”.",
+  previewMappingTitle: "Column matching",
   errorNotExecutable: "A row with an error is not executed.",
   executionHint: "Review the row decisions and confirm execution. Cancel is unavailable after confirmation.",
   executionConfirm: "Confirm execution",
@@ -275,6 +292,7 @@ const en: P5Dict = {
   serviceReasonRequired: "Enter a reason.",
   serviceRetryConfirm: "Confirm",
   serviceRetryResult: "Outcome on this page: {done} of {total}.",
+  serviceDataNotice: "Check data for interface review.",
 };
 
 const es: P5Dict = {
@@ -324,6 +342,11 @@ const es: P5Dict = {
   choice: "Decisión de la fila",
   choices: { link: "Vincular", create: "Crear", skip: "Omitir" },
   choiceRequired: "Elija una decisión para cada fila ambigua.",
+  mappingHint: "Cada campo de YORSO se puede seleccionar una sola vez. Un origen con empresas necesita el nombre de la empresa y uno con contactos, el nombre del contacto.",
+  mappingErrorDuplicate: "Un campo de YORSO está seleccionado más de una vez. Deje una sola correspondencia.",
+  mappingErrorCompanyRequired: "Seleccione exactamente una columna para el campo «Nombre de la empresa».",
+  mappingErrorContactRequired: "Seleccione exactamente una columna para el campo «Nombre del contacto».",
+  previewMappingTitle: "Correspondencia de columnas",
   errorNotExecutable: "Una fila con error no se ejecuta.",
   executionHint: "Revise las decisiones de las filas y confirme la ejecución. Cancelar no está disponible después de confirmar.",
   executionConfirm: "Confirmar la ejecución",
@@ -365,6 +388,7 @@ const es: P5Dict = {
   serviceReasonRequired: "Indique el motivo.",
   serviceRetryConfirm: "Confirmar",
   serviceRetryResult: "Resultado en esta página: {done} de {total}.",
+  serviceDataNotice: "Datos de comprobación para la revisión de la interfaz.",
 };
 
 export const protoP5Copy: Record<ProtoLang, P5Dict> = { ru, en, es };
