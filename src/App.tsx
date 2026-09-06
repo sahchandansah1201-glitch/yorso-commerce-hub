@@ -49,6 +49,9 @@ const RegistrationFunnelDashboard = lazy(() => import("./pages/dashboard/Registr
 const ResendEffectivenessDashboard = lazy(() => import("./pages/dashboard/ResendEffectivenessDashboard.tsx"));
 const TypographyAudit = lazy(() => import("./pages/dev/TypographyAudit.tsx"));
 const CustomerWorkspacePrototype = lazy(() => import("./pages/dev/CustomerWorkspacePrototype.tsx"));
+
+// Hidden interface prototype: available only in development and test builds.
+const isPrototypeRouteEnabled = import.meta.env.DEV || import.meta.env.MODE === "test";
 const AdminRuntimeStatus = lazy(() => import("./pages/admin/AdminRuntimeStatus.tsx"));
 const AdminAccessRequests = lazy(() => import("./pages/admin/AdminAccessRequests.tsx"));
 const AdminAccessGrants = lazy(() => import("./pages/admin/AdminAccessGrants.tsx"));
@@ -143,7 +146,9 @@ const App = () => (
                     <Route path="/admin/incident-trends" element={<AdminIncidentTrends />} />
                     <Route path="/admin/incident-trend-actions" element={<AdminIncidentTrendActions />} />
                     <Route path="/dev/typography" element={<TypographyAudit />} />
-                    <Route path="/dev/customer-workspace" element={<CustomerWorkspacePrototype />} />
+                    {isPrototypeRouteEnabled ? (
+                      <Route path="/dev/customer-workspace" element={<CustomerWorkspacePrototype />} />
+                    ) : null}
                     {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}
                     {legacyRedirects.flatMap(({ from, to }) => [
                       <Route key={from} path={from} element={<Navigate to={to} replace />} />,
