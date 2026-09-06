@@ -147,6 +147,13 @@ const CustomerWorkspacePrototype = () => {
 
   const showTable = rows.length > 0;
 
+  const isService = role === "service";
+  const isGate =
+    !isService && (effectiveState === "revoked" || effectiveState === "signedOut");
+  // Служебная роль и закрытый доступ не показывают ни указатель компании,
+  // ни пользовательскую навигацию, ни содержимое записей.
+  const hideCustomerChrome = isService || isGate;
+
 
   const renderBody = () => {
     switch (effectiveState) {
@@ -399,6 +406,7 @@ const CustomerWorkspacePrototype = () => {
             <span className="font-heading text-lg font-bold">{c.brand}</span>
 
             <div className="ml-auto flex min-w-0 flex-wrap items-center gap-2">
+              {hideCustomerChrome ? null : (
               <div
                 className="flex min-w-0 items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2"
                 data-testid="proto-current-company"
@@ -413,6 +421,7 @@ const CustomerWorkspacePrototype = () => {
                   </span>
                 </span>
               </div>
+              )}
 
               <div className="flex items-center gap-1" role="group" aria-label={c.language}>
                 {PROTO_LANGS.map((code) => (
@@ -458,6 +467,8 @@ const CustomerWorkspacePrototype = () => {
               </SelectContent>
             </Select>
 
+            {isService ? null : (
+            <>
             <label className="text-xs text-muted-foreground" htmlFor="proto-state">{c.scenario}</label>
             <Select value={effectiveState} onValueChange={(v) => setState(v as ProtoStateKey)}>
               <SelectTrigger id="proto-state" className={`${CONTROL} w-[260px]`} data-testid="proto-state-switch">
@@ -470,13 +481,20 @@ const CustomerWorkspacePrototype = () => {
 
               </SelectContent>
             </Select>
+            </>
+            )}
 
             <p className="min-w-0 text-xs text-muted-foreground">{c.prototypeNotice}</p>
           </div>
         </div>
 
-        <div className="container grid min-w-0 gap-6 py-5 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div
+          className={`container grid min-w-0 gap-6 py-5 ${
+            hideCustomerChrome ? "" : "lg:grid-cols-[220px_minmax(0,1fr)]"
+          }`}
+        >
           {/* Workspace navigation */}
+          {hideCustomerChrome ? null : (
           <nav aria-label={c.workspaceRoot} className="min-w-0">
             <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
               {c.workspaceRoot}
@@ -497,9 +515,37 @@ const CustomerWorkspacePrototype = () => {
               ))}
             </ul>
           </nav>
+          )}
 
           {/* Section surface */}
           <main className="min-w-0 space-y-4">
+            {isService ? (
+              <ServiceReview lang={lang} />
+            ) : isGate ? (
+              effectiveState === "revoked" ? (
+                <AccessClosedScreen
+                  lang={lang}
+                  onReturnToSignIn={() => {
+                    setRequestedSection("employees");
+                    setSignInStage("signedOut");
+                    setState("signedOut");
+                  }}
+                />
+              ) : (
+                <SignInScreen
+                  lang={lang}
+                  stage={signInStage}
+                  requestedSectionLabel={c.sections[requestedSection]}
+                  onSignIn={() => setSignInStage("checking")}
+                  onContinue={() => {
+                    setSection(requestedSection);
+                    setSignInStage("signedOut");
+                    setState("ready");
+                  }}
+                />
+              )
+            ) : (
+            <>
             <nav aria-label="breadcrumb">
               <ol className="flex min-w-0 flex-wrap items-center gap-1 text-xs text-muted-foreground">
                 <li>{c.breadcrumbRoot}</li>
@@ -548,6 +594,8 @@ const CustomerWorkspacePrototype = () => {
             ) : null}
 
             {renderBody()}
+            </>
+            )}
           </main>
         </div>
 
