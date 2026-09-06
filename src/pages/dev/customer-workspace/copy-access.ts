@@ -81,7 +81,7 @@ type AccessDict = {
   ownRecordHint: string;
   ownRecordRole: string;
   invitationsHint: string;
-  invitationColumns: { name: string; role: string; status: string; sent: string };
+  invitationColumns: { name: string; role: string; status: string; added: string };
   invitationPending: string;
   ownershipTitle: string;
   ownershipHint: string;
@@ -190,9 +190,9 @@ const ru: AccessDict = {
   ownRecordTitle: "Ваша запись",
   ownRecordHint: "Вы видите только свою запись и роль.",
   ownRecordRole: "Ваша роль",
-  invitationsHint: "Приглашения ожидают ответа сотрудника.",
-  invitationColumns: { name: "Приглашённый", role: "Роль", status: "Статус", sent: "Отправлено" },
-  invitationPending: "Ожидает ответа",
+  invitationsHint: "Приглашения находятся в списке на этой странице.",
+  invitationColumns: { name: "Приглашённый", role: "Роль", status: "Статус", added: "Добавлено" },
+  invitationPending: "Добавлено в список",
   ownershipTitle: "Передача владения",
   ownershipHint: "Владение передаётся одному сотруднику компании.",
   ownershipOwnerNote: "Покинуть компанию можно только после передачи владения.",
@@ -311,9 +311,9 @@ const en: AccessDict = {
   ownRecordTitle: "Your record",
   ownRecordHint: "You see only your own record and role.",
   ownRecordRole: "Your role",
-  invitationsHint: "Invitations are waiting for the employee to answer.",
-  invitationColumns: { name: "Invited", role: "Role", status: "Status", sent: "Sent" },
-  invitationPending: "Waiting for an answer",
+  invitationsHint: "The invitations are in the list on this page.",
+  invitationColumns: { name: "Invited", role: "Role", status: "Status", added: "Added" },
+  invitationPending: "Added to list",
   ownershipTitle: "Ownership transfer",
   ownershipHint: "Ownership is passed to one employee of the company.",
   ownershipOwnerNote: "You can leave the company only after transferring ownership.",
@@ -432,9 +432,9 @@ const es: AccessDict = {
   ownRecordTitle: "Su registro",
   ownRecordHint: "Solo ve su propio registro y su rol.",
   ownRecordRole: "Su rol",
-  invitationsHint: "Las invitaciones esperan la respuesta del empleado.",
-  invitationColumns: { name: "Invitado", role: "Rol", status: "Estado", sent: "Enviado" },
-  invitationPending: "Esperando respuesta",
+  invitationsHint: "Las invitaciones están en la lista de esta página.",
+  invitationColumns: { name: "Invitado", role: "Rol", status: "Estado", added: "Añadida" },
+  invitationPending: "Añadida a la lista",
   ownershipTitle: "Transferencia de propiedad",
   ownershipHint: "La propiedad pasa a un empleado de la empresa.",
   ownershipOwnerNote: "Solo puede salir de la empresa después de transferir la propiedad.",
