@@ -118,7 +118,7 @@ const CustomerWorkspacePrototype = () => {
   // доступа и никогда не зависит от роли.
   const canMutate = isCustomerWork
     ? scenario === "createEdit"
-    : section === "products" && canEdit;
+    : (section === "products" || section === "employees") && canEdit;
 
   const availableStates = useMemo<ProtoStateKey[]>(() => {
     if (role === "service") return ["ready"];
