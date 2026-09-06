@@ -92,8 +92,9 @@ const RouteFallback = () => (
   </div>
 );
 
-const App = () => (
+const ProviderTree = () => (
   <QueryClientProvider client={queryClient}>
+
     <LanguageProvider>
       <TooltipProvider>
         <Toaster />
