@@ -4,7 +4,7 @@
  *
  * Counts and identifiers only: no customer records. Local state only.
  */
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AlertTriangle, Check, CircleDashed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,7 @@ import { protoP6Copy } from "./copy-p6";
 import {
   P6_ALERTS,
   P6_BACKUP,
+  P6_CHECK_C5_PASS,
   P6_CHECKS,
   P6_QUEUE,
   P6_SERVICE_EMPLOYEES,
@@ -61,13 +62,44 @@ export const OperationsSection = ({ lang }: { lang: ProtoLang }) => {
   const [firstId, setFirstId] = useState<string | null>(null);
   const [firstChoice, setFirstChoice] = useState("");
   const [secondChoice, setSecondChoice] = useState("");
-  const [drillDone, setDrillDone] = useState(false);
+  // Обе личности сохраняются: вторая не может совпадать с первой.
+  const [secondId, setSecondId] = useState<string | null>(null);
+  const drillDone = firstId !== null && secondId !== null;
 
   const secondOptions = P6_SERVICE_EMPLOYEES.filter((e) => e.id !== firstId);
+
+  /** c5 depends on the two confirmations recorded on this page. */
+  const checks = useMemo(
+    () =>
+      P6_CHECKS.map((ch) =>
+        ch.id === "c5" && drillDone
+          ? { ...ch, status: "pass" as const, label: P6_CHECK_C5_PASS }
+          : ch,
+      ),
+    [drillDone],
+  );
+
+  const counts = useMemo(
+    () => ({
+      total: checks.length,
+      pass: checks.filter((c) => c.status === "pass").length,
+      warning: checks.filter((c) => c.status === "warning").length,
+      blocker: checks.filter((c) => c.status === "blocker").length,
+    }),
+    [checks],
+  );
+
+  const readinessCounts = Object.entries(counts).reduce(
+    (acc, [key, value]) => acc.replace(`{${key}}`, String(value)),
+    t.readinessCounts,
+  );
 
   return (
     <div className="space-y-8" data-testid="proto-p6-operations">
       <h2 className="font-heading text-base font-semibold">{t.operationsTitle}</h2>
+      <p className="text-xs text-muted-foreground" data-testid="proto-p6-data-notice">
+        {t.serviceDataNotice}
+      </p>
 
       {/* Queue summary */}
       <section className="min-w-0 space-y-2" aria-labelledby="proto-p6-queue">
@@ -121,6 +153,12 @@ export const OperationsSection = ({ lang }: { lang: ProtoLang }) => {
                       setAlertReason((prev) => ({ ...prev, [al.id]: e.target.value }))
                     }
                     className={`${CONTROL} w-[220px]`}
+                    aria-invalid={(alertReason[al.id] ?? "").trim() === "" && !scheduled[al.id]}
+                    aria-describedby={
+                      (alertReason[al.id] ?? "").trim() === "" && !scheduled[al.id]
+                        ? `proto-p6-reason-error-${al.id}`
+                        : undefined
+                    }
                     data-testid={`proto-p6-reason-${al.id}`}
                   />
                 </div>
@@ -157,7 +195,13 @@ export const OperationsSection = ({ lang }: { lang: ProtoLang }) => {
                     {t.scheduledNote}
                   </p>
                 ) : (alertReason[al.id] ?? "").trim() === "" ? (
-                  <p className="text-xs text-muted-foreground">{t.reasonRequired}</p>
+                  <p
+                    className="text-xs text-destructive"
+                    role="alert"
+                    id={`proto-p6-reason-error-${al.id}`}
+                  >
+                    {t.reasonRequired}
+                  </p>
                 ) : null}
               </div>
             </li>
@@ -171,10 +215,10 @@ export const OperationsSection = ({ lang }: { lang: ProtoLang }) => {
           {t.readinessTitle}
         </h3>
         <p className="text-xs text-muted-foreground" data-testid="proto-p6-readiness-counts">
-          {t.readinessCounts}
+          {readinessCounts}
         </p>
         <ul className="min-w-0 divide-y divide-border/60 border-t border-border/60">
-          {P6_CHECKS.map((ch) => (
+          {checks.map((ch) => (
             <li
               key={ch.id}
               className="flex min-w-0 items-center justify-between gap-3 py-2"
@@ -224,6 +268,21 @@ export const OperationsSection = ({ lang }: { lang: ProtoLang }) => {
             label={t.backupVerification}
             value={t.backupVerificationValue}
             testId="proto-p6-backup-verification"
+          />
+          <Field
+            label={t.backupLocation}
+            value={t.backupLocationValue}
+            testId="proto-p6-backup-location"
+          />
+          <Field
+            label={t.backupTransferState}
+            value={t.backupTransferStateValue}
+            testId="proto-p6-backup-transfer"
+          />
+          <Field
+            label={t.backupAvailability}
+            value={t.backupAvailabilityValue}
+            testId="proto-p6-backup-availability"
           />
           <Field label={t.backupAge} value={t.backupAgeValue} testId="proto-p6-backup-age" />
           <Field
@@ -313,7 +372,7 @@ export const OperationsSection = ({ lang }: { lang: ProtoLang }) => {
               variant="outline"
               className={CONTROL}
               disabled={secondChoice === "" || secondChoice === firstId}
-              onClick={() => setDrillDone(true)}
+              onClick={() => setSecondId(secondChoice)}
               data-testid="proto-p6-second-confirm"
             >
               {t.drillSecondConfirm}
@@ -323,9 +382,12 @@ export const OperationsSection = ({ lang }: { lang: ProtoLang }) => {
         ) : null}
 
         {drillDone ? (
-          <p className="text-sm" role="status" data-testid="proto-p6-drill-done">
-            {t.drillDone}
-          </p>
+          <div className="min-w-0 space-y-1" role="status" data-testid="proto-p6-drill-done">
+            <p className="text-sm font-medium" data-testid="proto-p6-drill-identities">
+              {t.drillIdentities}: {firstId} + {secondId}
+            </p>
+            <p className="text-sm">{t.drillDone}</p>
+          </div>
         ) : null}
       </section>
 
