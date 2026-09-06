@@ -792,7 +792,9 @@ export const CustomerWorkSection = ({
           open={dialog === "import"}
           lang={lang}
           onClose={() => setDialog(null)}
+          returnFocusRef={listActionsRef}
         />
+
       ) : null}
 
 
