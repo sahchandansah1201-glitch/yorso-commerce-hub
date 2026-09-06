@@ -121,6 +121,9 @@ const CustomerWorkspacePrototype = () => {
       if (!canMutate && MUTATING_STATES.includes(key)) return false;
       if (CUSTOMER_WORK_STATES.includes(key) && !isCustomerWork) return false;
       if (key === "destructive" && isCustomerWork) return false;
+      // В разделах работы с клиентами просмотр и отсутствие доступа задаёт
+      // только сценарий доступа, поэтому состояние не может ему противоречить.
+      if (isCustomerWork && (key === "viewOnly" || key === "denied")) return false;
       return true;
     });
   }, [canMutate, isCustomerWork, role]);
@@ -151,7 +154,7 @@ const CustomerWorkspacePrototype = () => {
       return (
         <ProductsSection
           lang={lang}
-          canEdit={canEdit}
+          canEdit={canEdit && effectiveState === "ready"}
           editing={editingProducts}
           onCloseEdit={() => setEditingProducts(false)}
         />

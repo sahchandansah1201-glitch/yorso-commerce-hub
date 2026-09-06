@@ -2,13 +2,16 @@
  * Deterministic in-memory records for the P4 prototype: companies, contacts,
  * tasks, notes and deleted records of the single current company.
  * No parallel API or data model, no storage, no network.
+ *
+ * Every visible value is localized (RU / EN / ES). `updated` is the machine
+ * sortable value; `updatedLabel` is presentation only.
  */
 import type { ProtoLang } from "./copy";
 import type { P4RecordKind } from "./copy-p4";
 
 export interface P4Detail {
   label: Record<ProtoLang, string>;
-  value: string;
+  value: Record<ProtoLang, string>;
 }
 
 export interface P4Record {
@@ -16,17 +19,53 @@ export interface P4Record {
   kind: P4RecordKind;
   title: Record<ProtoLang, string>;
   subtitle: Record<ProtoLang, string>;
-  responsible: string;
+  /** Localized display name of the responsible employee. */
+  responsible: Record<ProtoLang, string>;
   active: boolean;
+  /** Machine sortable ISO timestamp. Never shown to the user. */
   updated: string;
+  /** Localized dd.mm.yyyy presentation of `updated`. */
+  updatedLabel: Record<ProtoLang, string>;
   companyId?: string;
   details: P4Detail[];
 }
 
-const detail = (ru: string, en: string, es: string, value: string): P4Detail => ({
-  label: { ru, en, es },
-  value,
+const detail = (
+  label: [string, string, string],
+  value: [string, string, string],
+): P4Detail => ({
+  label: { ru: label[0], en: label[1], es: label[2] },
+  value: { ru: value[0], en: value[1], es: value[2] },
 });
+
+/** dd.mm.yyyy HH:MM label shared by all three languages. */
+const stamp = (label: string): Record<ProtoLang, string> => ({
+  ru: label,
+  en: label,
+  es: label,
+});
+
+const person = (name: string): Record<ProtoLang, string> => ({
+  ru: name,
+  en: name,
+  es: name,
+});
+
+const COUNTRY = ["Страна", "Country", "País"] as [string, string, string];
+const CITY = ["Город", "City", "Ciudad"] as [string, string, string];
+const WORKING_ROLE = ["Роль в работе", "Working role", "Rol de trabajo"] as [
+  string,
+  string,
+  string,
+];
+const POSITION = ["Должность", "Position", "Puesto"] as [string, string, string];
+const LANGUAGE = ["Язык общения", "Working language", "Idioma de trabajo"] as [
+  string,
+  string,
+  string,
+];
+const PRIORITY = ["Приоритет", "Priority", "Prioridad"] as [string, string, string];
+const SOURCE = ["Источник", "Source", "Origen"] as [string, string, string];
 
 export const P4_COMPANIES: P4Record[] = [
   {
@@ -34,13 +73,14 @@ export const P4_COMPANIES: P4Record[] = [
     kind: "company",
     title: { ru: "Bergen Cold Store", en: "Bergen Cold Store", es: "Bergen Cold Store" },
     subtitle: { ru: "Холодный склад", en: "Cold storage", es: "Almacén frigorífico" },
-    responsible: "Ingrid Halvorsen",
+    responsible: person("Ingrid Halvorsen"),
     active: true,
-    updated: "05.09.2026 10:30",
+    updated: "2026-09-05T10:30",
+    updatedLabel: stamp("05.09.2026 10:30"),
     details: [
-      detail("Страна", "Country", "País", "Norway"),
-      detail("Город", "City", "Ciudad", "Bergen"),
-      detail("Роль в работе", "Working role", "Rol de trabajo", "Storage partner"),
+      detail(COUNTRY, ["Норвегия", "Norway", "Noruega"]),
+      detail(CITY, ["Берген", "Bergen", "Bergen"]),
+      detail(WORKING_ROLE, ["Складской партнёр", "Storage partner", "Socio de almacenamiento"]),
     ],
   },
   {
@@ -48,13 +88,14 @@ export const P4_COMPANIES: P4Record[] = [
     kind: "company",
     title: { ru: "Vigo Fish Trading", en: "Vigo Fish Trading", es: "Vigo Fish Trading" },
     subtitle: { ru: "Покупатель", en: "Buyer", es: "Comprador" },
-    responsible: "Pablo Ortega",
+    responsible: person("Pablo Ortega"),
     active: true,
-    updated: "03.09.2026 16:00",
+    updated: "2026-09-03T16:00",
+    updatedLabel: stamp("03.09.2026 16:00"),
     details: [
-      detail("Страна", "Country", "País", "Spain"),
-      detail("Город", "City", "Ciudad", "Vigo"),
-      detail("Роль в работе", "Working role", "Rol de trabajo", "Wholesale buyer"),
+      detail(COUNTRY, ["Испания", "Spain", "España"]),
+      detail(CITY, ["Виго", "Vigo", "Vigo"]),
+      detail(WORKING_ROLE, ["Оптовый покупатель", "Wholesale buyer", "Comprador mayorista"]),
     ],
   },
   {
@@ -62,13 +103,14 @@ export const P4_COMPANIES: P4Record[] = [
     kind: "company",
     title: { ru: "Lisbon Retail Group", en: "Lisbon Retail Group", es: "Lisbon Retail Group" },
     subtitle: { ru: "Розничная сеть", en: "Retail chain", es: "Cadena minorista" },
-    responsible: "Marta Sun",
+    responsible: person("Marta Sun"),
     active: false,
-    updated: "28.08.2026 08:45",
+    updated: "2026-08-28T08:45",
+    updatedLabel: stamp("28.08.2026 08:45"),
     details: [
-      detail("Страна", "Country", "País", "Portugal"),
-      detail("Город", "City", "Ciudad", "Lisbon"),
-      detail("Роль в работе", "Working role", "Rol de trabajo", "Retail chain"),
+      detail(COUNTRY, ["Португалия", "Portugal", "Portugal"]),
+      detail(CITY, ["Лиссабон", "Lisbon", "Lisboa"]),
+      detail(WORKING_ROLE, ["Розничная сеть", "Retail chain", "Cadena minorista"]),
     ],
   },
   {
@@ -76,13 +118,18 @@ export const P4_COMPANIES: P4Record[] = [
     kind: "company",
     title: { ru: "Gdansk Processing", en: "Gdansk Processing", es: "Gdansk Processing" },
     subtitle: { ru: "Переработка", en: "Processing", es: "Procesamiento" },
-    responsible: "Ingrid Halvorsen",
+    responsible: person("Ingrid Halvorsen"),
     active: true,
-    updated: "01.09.2026 09:40",
+    updated: "2026-09-01T09:40",
+    updatedLabel: stamp("01.09.2026 09:40"),
     details: [
-      detail("Страна", "Country", "País", "Poland"),
-      detail("Город", "City", "Ciudad", "Gdansk"),
-      detail("Роль в работе", "Working role", "Rol de trabajo", "Processing partner"),
+      detail(COUNTRY, ["Польша", "Poland", "Polonia"]),
+      detail(CITY, ["Гданьск", "Gdansk", "Gdansk"]),
+      detail(WORKING_ROLE, [
+        "Партнёр по переработке",
+        "Processing partner",
+        "Socio de procesamiento",
+      ]),
     ],
   },
 ];
@@ -93,13 +140,18 @@ export const P4_CONTACTS: P4Record[] = [
     kind: "contact",
     title: { ru: "Ингрид Хальворсен", en: "Ingrid Halvorsen", es: "Ingrid Halvorsen" },
     subtitle: { ru: "Закупки", en: "Procurement", es: "Compras" },
-    responsible: "Ingrid Halvorsen",
+    responsible: person("Ingrid Halvorsen"),
     active: true,
-    updated: "05.09.2026 12:10",
+    updated: "2026-09-05T12:10",
+    updatedLabel: stamp("05.09.2026 12:10"),
     companyId: "bergen",
     details: [
-      detail("Должность", "Position", "Puesto", "Head of procurement"),
-      detail("Язык общения", "Working language", "Idioma de trabajo", "EN / NO"),
+      detail(POSITION, [
+        "Руководитель закупок",
+        "Head of procurement",
+        "Responsable de compras",
+      ]),
+      detail(LANGUAGE, ["Английский / норвежский", "English / Norwegian", "Inglés / noruego"]),
     ],
   },
   {
@@ -107,13 +159,14 @@ export const P4_CONTACTS: P4Record[] = [
     kind: "contact",
     title: { ru: "Пабло Ортега", en: "Pablo Ortega", es: "Pablo Ortega" },
     subtitle: { ru: "Продажи", en: "Sales", es: "Ventas" },
-    responsible: "Pablo Ortega",
+    responsible: person("Pablo Ortega"),
     active: true,
-    updated: "04.09.2026 15:25",
+    updated: "2026-09-04T15:25",
+    updatedLabel: stamp("04.09.2026 15:25"),
     companyId: "vigo",
     details: [
-      detail("Должность", "Position", "Puesto", "Sales manager"),
-      detail("Язык общения", "Working language", "Idioma de trabajo", "ES / EN"),
+      detail(POSITION, ["Менеджер по продажам", "Sales manager", "Gerente de ventas"]),
+      detail(LANGUAGE, ["Испанский / английский", "Spanish / English", "Español / inglés"]),
     ],
   },
   {
@@ -121,13 +174,22 @@ export const P4_CONTACTS: P4Record[] = [
     kind: "contact",
     title: { ru: "Марта Сун", en: "Marta Sun", es: "Marta Sun" },
     subtitle: { ru: "Логистика", en: "Logistics", es: "Logística" },
-    responsible: "Marta Sun",
+    responsible: person("Marta Sun"),
     active: true,
-    updated: "01.09.2026 09:00",
+    updated: "2026-09-01T09:00",
+    updatedLabel: stamp("01.09.2026 09:00"),
     companyId: "lisbon",
     details: [
-      detail("Должность", "Position", "Puesto", "Logistics coordinator"),
-      detail("Язык общения", "Working language", "Idioma de trabajo", "PT / EN"),
+      detail(POSITION, [
+        "Координатор логистики",
+        "Logistics coordinator",
+        "Coordinadora de logística",
+      ]),
+      detail(LANGUAGE, [
+        "Португальский / английский",
+        "Portuguese / English",
+        "Portugués / inglés",
+      ]),
     ],
   },
   {
@@ -135,13 +197,14 @@ export const P4_CONTACTS: P4Record[] = [
     kind: "contact",
     title: { ru: "Томаш Новак", en: "Tomasz Nowak", es: "Tomasz Nowak" },
     subtitle: { ru: "Производство", en: "Production", es: "Producción" },
-    responsible: "Ingrid Halvorsen",
+    responsible: person("Ingrid Halvorsen"),
     active: false,
-    updated: "27.08.2026 14:05",
+    updated: "2026-08-27T14:05",
+    updatedLabel: stamp("27.08.2026 14:05"),
     companyId: "gdansk",
     details: [
-      detail("Должность", "Position", "Puesto", "Plant manager"),
-      detail("Язык общения", "Working language", "Idioma de trabajo", "PL / EN"),
+      detail(POSITION, ["Директор завода", "Plant manager", "Director de planta"]),
+      detail(LANGUAGE, ["Польский / английский", "Polish / English", "Polaco / inglés"]),
     ],
   },
 ];
@@ -156,11 +219,12 @@ export const P4_TASKS: P4Record[] = [
       es: "Confirmar el volumen de octubre",
     },
     subtitle: { ru: "Срок 09.09.2026", en: "Due 09 Sep 2026", es: "Vence 09 sep 2026" },
-    responsible: "Ingrid Halvorsen",
+    responsible: person("Ingrid Halvorsen"),
     active: true,
-    updated: "06.09.2026 08:15",
+    updated: "2026-09-06T08:15",
+    updatedLabel: stamp("06.09.2026 08:15"),
     companyId: "vigo",
-    details: [detail("Приоритет", "Priority", "Prioridad", "High")],
+    details: [detail(PRIORITY, ["Высокий", "High", "Alta"])],
   },
   {
     id: "t2",
@@ -171,11 +235,12 @@ export const P4_TASKS: P4Record[] = [
       es: "Aclarar las condiciones de pago",
     },
     subtitle: { ru: "Срок 11.09.2026", en: "Due 11 Sep 2026", es: "Vence 11 sep 2026" },
-    responsible: "Pablo Ortega",
+    responsible: person("Pablo Ortega"),
     active: true,
-    updated: "05.09.2026 18:40",
+    updated: "2026-09-05T18:40",
+    updatedLabel: stamp("05.09.2026 18:40"),
     companyId: "vigo",
-    details: [detail("Приоритет", "Priority", "Prioridad", "Medium")],
+    details: [detail(PRIORITY, ["Средний", "Medium", "Media"])],
   },
   {
     id: "t3",
@@ -186,11 +251,12 @@ export const P4_TASKS: P4Record[] = [
       es: "Acordar el calendario de envíos",
     },
     subtitle: { ru: "Срок 15.09.2026", en: "Due 15 Sep 2026", es: "Vence 15 sep 2026" },
-    responsible: "Marta Sun",
+    responsible: person("Marta Sun"),
     active: false,
-    updated: "31.08.2026 11:20",
+    updated: "2026-08-31T11:20",
+    updatedLabel: stamp("31.08.2026 11:20"),
     companyId: "bergen",
-    details: [detail("Приоритет", "Priority", "Prioridad", "Low")],
+    details: [detail(PRIORITY, ["Низкий", "Low", "Baja"])],
   },
 ];
 
@@ -204,11 +270,12 @@ export const P4_NOTES: P4Record[] = [
       es: "Listos para enviar desde Bergen",
     },
     subtitle: { ru: "Договорённость", en: "Agreement", es: "Acuerdo" },
-    responsible: "Marta Sun",
+    responsible: person("Marta Sun"),
     active: true,
-    updated: "05.09.2026 13:55",
+    updated: "2026-09-05T13:55",
+    updatedLabel: stamp("05.09.2026 13:55"),
     companyId: "bergen",
-    details: [detail("Источник", "Source", "Origen", "Call")],
+    details: [detail(SOURCE, ["Звонок", "Call", "Llamada"])],
   },
   {
     id: "n2",
@@ -219,11 +286,12 @@ export const P4_NOTES: P4Record[] = [
       es: "Piden un lote de prueba",
     },
     subtitle: { ru: "Наблюдение", en: "Observation", es: "Observación" },
-    responsible: "Pablo Ortega",
+    responsible: person("Pablo Ortega"),
     active: true,
-    updated: "02.09.2026 10:20",
+    updated: "2026-09-02T10:20",
+    updatedLabel: stamp("02.09.2026 10:20"),
     companyId: "vigo",
-    details: [detail("Источник", "Source", "Origen", "Meeting")],
+    details: [detail(SOURCE, ["Встреча", "Meeting", "Reunión"])],
   },
   {
     id: "n3",
@@ -234,11 +302,12 @@ export const P4_NOTES: P4Record[] = [
       es: "Revisar los certificados de la planta",
     },
     subtitle: { ru: "Наблюдение", en: "Observation", es: "Observación" },
-    responsible: "Ingrid Halvorsen",
+    responsible: person("Ingrid Halvorsen"),
     active: true,
-    updated: "30.08.2026 16:35",
+    updated: "2026-08-30T16:35",
+    updatedLabel: stamp("30.08.2026 16:35"),
     companyId: "gdansk",
-    details: [detail("Источник", "Source", "Origen", "Visit")],
+    details: [detail(SOURCE, ["Визит", "Visit", "Visita"])],
   },
 ];
 
@@ -248,21 +317,23 @@ export const P4_DELETED: P4Record[] = [
     kind: "company",
     title: { ru: "Oslo Market Supply", en: "Oslo Market Supply", es: "Oslo Market Supply" },
     subtitle: { ru: "Покупатель", en: "Buyer", es: "Comprador" },
-    responsible: "Ingrid Halvorsen",
+    responsible: person("Ingrid Halvorsen"),
     active: false,
-    updated: "20.08.2026 12:00",
-    details: [detail("Страна", "Country", "País", "Norway")],
+    updated: "2026-08-20T12:00",
+    updatedLabel: stamp("20.08.2026 12:00"),
+    details: [detail(COUNTRY, ["Норвегия", "Norway", "Noruega"])],
   },
   {
     id: "hanna",
     kind: "contact",
     title: { ru: "Ханна Ли", en: "Hanna Lee", es: "Hanna Lee" },
     subtitle: { ru: "Закупки", en: "Procurement", es: "Compras" },
-    responsible: "Pablo Ortega",
+    responsible: person("Pablo Ortega"),
     active: false,
-    updated: "18.08.2026 09:15",
+    updated: "2026-08-18T09:15",
+    updatedLabel: stamp("18.08.2026 09:15"),
     companyId: "oslo",
-    details: [detail("Должность", "Position", "Puesto", "Buyer")],
+    details: [detail(POSITION, ["Закупщик", "Buyer", "Comprador"])],
   },
 ];
 
@@ -273,12 +344,16 @@ export const P4_ALL_RECORDS: P4Record[] = [
   ...P4_NOTES,
 ];
 
-export const p4RelatedFor = (record: P4Record): P4Record[] => {
+/**
+ * Related records of `record`, resolved inside the given pool so locally
+ * changed titles, created records and restored records are reflected.
+ */
+export const p4RelatedFor = (record: P4Record, pool: P4Record[]): P4Record[] => {
   if (record.kind === "company") {
-    return P4_ALL_RECORDS.filter((r) => r.companyId === record.id);
+    return pool.filter((r) => r.companyId === record.id);
   }
-  const company = P4_COMPANIES.find((c) => c.id === record.companyId);
-  const siblings = P4_ALL_RECORDS.filter(
+  const company = pool.find((c) => c.kind === "company" && c.id === record.companyId);
+  const siblings = pool.filter(
     (r) => r.companyId === record.companyId && r.id !== record.id,
   );
   return company ? [company, ...siblings] : siblings;

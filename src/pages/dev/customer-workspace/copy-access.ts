@@ -15,6 +15,8 @@ export type CapabilityStatusKey =
   | "deferred"
   | "prohibited";
 
+export type ServiceDecisionKey = "continueReview" | "pause" | "doNotUse";
+
 export type EmployeesTabKey = "employees" | "invitations" | "ownership";
 
 export type EmployeeActionKey =
@@ -40,7 +42,8 @@ type AccessDict = {
   licenseValue: string;
   lastReviewValue: string;
   ownerDecisionPending: string;
-  ownerDecisionRecorded: string;
+  decisionLabel: string;
+  decisions: Record<ServiceDecisionKey, string>;
   capabilityColumns: {
     feature: string;
     status: string;
@@ -92,6 +95,16 @@ type AccessDict = {
   confirm: string;
   cancel: string;
   actionRecorded: string;
+  inviteEmailLabel: string;
+  inviteRoleLabel: string;
+  employeeTargetLabel: string;
+  newRoleLabel: string;
+  selectPlaceholder: string;
+  inviteEmailInvalid: string;
+  confirmSelection: string;
+  invitedResult: string;
+  roleChangedResult: string;
+  accessClosedResult: string;
 
   // Revoked access + sign-in demo
   accessClosedTitle: string;
@@ -123,8 +136,13 @@ const ru: AccessDict = {
   editionStatus: "Требует решения",
   licenseValue: "Не согласована",
   lastReviewValue: "6 сентября 2026, 14:20",
-  ownerDecisionPending: "Не принято",
-  ownerDecisionRecorded: "Записано в образце",
+  ownerDecisionPending: "Решение не выбрано",
+  decisionLabel: "Решение по обзору",
+  decisions: {
+    continueReview: "Продолжить проверку",
+    pause: "Приостановить",
+    doNotUse: "Не использовать",
+  },
   capabilityColumns: {
     feature: "Возможность",
     status: "Состояние",
@@ -144,7 +162,7 @@ const ru: AccessDict = {
   recordDecisionBody:
     "Запись остаётся только в этом образце интерфейса и не означает согласования редакции или лицензии.",
   recordDecisionConfirm: "Записать",
-  decisionRecordedNote: "Решение записано в образце. Редакция и лицензия остаются несогласованными.",
+  decisionRecordedNote: "Решение записано. Редакция и лицензия остаются несогласованными.",
   accessReviewTitle: "Обзор доступа",
   accessChecks: {
     companyFound: "Компания найдена",
@@ -198,7 +216,17 @@ const ru: AccessDict = {
   },
   confirm: "Подтвердить",
   cancel: "Отмена",
-  actionRecorded: "Действие выполнено в образце.",
+  actionRecorded: "Действие выполнено.",
+  inviteEmailLabel: "Электронная почта",
+  inviteRoleLabel: "Роль приглашённого",
+  employeeTargetLabel: "Сотрудник",
+  newRoleLabel: "Новая роль",
+  selectPlaceholder: "Выберите значение",
+  inviteEmailInvalid: "Укажите электронную почту.",
+  confirmSelection: "Выбрано",
+  invitedResult: "Приглашение отправлено: {name} · {role}.",
+  roleChangedResult: "Роль изменена: {name} · {role}.",
+  accessClosedResult: "Доступ закрыт: {name}.",
 
   accessClosedTitle: "Доступ к компании закрыт",
   accessClosedBody: "Записи и действия компании больше не показываются.",
@@ -229,8 +257,13 @@ const en: AccessDict = {
   editionStatus: "Requires decision",
   licenseValue: "Not approved",
   lastReviewValue: "6 September 2026, 14:20",
-  ownerDecisionPending: "Not taken",
-  ownerDecisionRecorded: "Recorded in the sample",
+  ownerDecisionPending: "No decision selected",
+  decisionLabel: "Review decision",
+  decisions: {
+    continueReview: "Continue the review",
+    pause: "Pause",
+    doNotUse: "Do not use",
+  },
   capabilityColumns: {
     feature: "Feature",
     status: "Status",
@@ -250,7 +283,7 @@ const en: AccessDict = {
   recordDecisionBody:
     "The record stays inside this interface sample and does not mean the edition or the license is approved.",
   recordDecisionConfirm: "Record",
-  decisionRecordedNote: "Decision recorded in the sample. The edition and the license stay unapproved.",
+  decisionRecordedNote: "Decision recorded. The edition and the license stay unapproved.",
   accessReviewTitle: "Access review",
   accessChecks: {
     companyFound: "Company found",
@@ -304,7 +337,17 @@ const en: AccessDict = {
   },
   confirm: "Confirm",
   cancel: "Cancel",
-  actionRecorded: "The action is done in the sample.",
+  actionRecorded: "The action is done.",
+  inviteEmailLabel: "Email",
+  inviteRoleLabel: "Role of the invited employee",
+  employeeTargetLabel: "Employee",
+  newRoleLabel: "New role",
+  selectPlaceholder: "Select a value",
+  inviteEmailInvalid: "Enter an email address.",
+  confirmSelection: "Selected",
+  invitedResult: "Invitation sent: {name} · {role}.",
+  roleChangedResult: "Role changed: {name} · {role}.",
+  accessClosedResult: "Access closed: {name}.",
 
   accessClosedTitle: "Access to the company is closed",
   accessClosedBody: "Company records and actions are no longer shown.",
@@ -335,8 +378,13 @@ const es: AccessDict = {
   editionStatus: "Requiere decisión",
   licenseValue: "No aprobada",
   lastReviewValue: "6 de septiembre de 2026, 14:20",
-  ownerDecisionPending: "No tomada",
-  ownerDecisionRecorded: "Registrada en la muestra",
+  ownerDecisionPending: "Sin decisión seleccionada",
+  decisionLabel: "Decisión de la revisión",
+  decisions: {
+    continueReview: "Continuar la revisión",
+    pause: "Pausar",
+    doNotUse: "No utilizar",
+  },
   capabilityColumns: {
     feature: "Función",
     status: "Estado",
@@ -356,7 +404,7 @@ const es: AccessDict = {
   recordDecisionBody:
     "El registro queda dentro de esta muestra de interfaz y no significa que la edición o la licencia estén aprobadas.",
   recordDecisionConfirm: "Registrar",
-  decisionRecordedNote: "Decisión registrada en la muestra. La edición y la licencia siguen sin aprobar.",
+  decisionRecordedNote: "Decisión registrada. La edición y la licencia siguen sin aprobar.",
   accessReviewTitle: "Revisión de acceso",
   accessChecks: {
     companyFound: "Empresa encontrada",
@@ -410,7 +458,17 @@ const es: AccessDict = {
   },
   confirm: "Confirmar",
   cancel: "Cancelar",
-  actionRecorded: "La acción se ha realizado en la muestra.",
+  actionRecorded: "La acción se ha realizado.",
+  inviteEmailLabel: "Correo electrónico",
+  inviteRoleLabel: "Rol del empleado invitado",
+  employeeTargetLabel: "Empleado",
+  newRoleLabel: "Nuevo rol",
+  selectPlaceholder: "Seleccione un valor",
+  inviteEmailInvalid: "Indique un correo electrónico.",
+  confirmSelection: "Seleccionado",
+  invitedResult: "Invitación enviada: {name} · {role}.",
+  roleChangedResult: "Rol cambiado: {name} · {role}.",
+  accessClosedResult: "Acceso cerrado: {name}.",
 
   accessClosedTitle: "El acceso a la empresa está cerrado",
   accessClosedBody: "Los registros y las acciones de la empresa ya no se muestran.",
@@ -418,7 +476,7 @@ const es: AccessDict = {
   signInTitle: "Iniciar sesión en YORSO",
   signInReturnHint: "Después de iniciar sesión volverá a «Empleados»",
   returnToSectionTemplate: "Después de iniciar sesión volverá a «{section}»",
-  signInAction: "Inicia sesión en YORSO",
+  signInAction: "Inicie sesión en YORSO",
   checkingAccess: "Comprobando el acceso",
   sessionEnded: "Sesión finalizada. Inicie sesión de nuevo",
   continueLabel: "Continuar",
@@ -428,5 +486,11 @@ const es: AccessDict = {
 };
 
 export const protoAccessCopy: Record<ProtoLang, AccessDict> = { ru, en, es };
+
+export const SERVICE_DECISIONS: ServiceDecisionKey[] = [
+  "continueReview",
+  "pause",
+  "doNotUse",
+];
 
 export const EMPLOYEES_TABS: EmployeesTabKey[] = ["employees", "invitations", "ownership"];

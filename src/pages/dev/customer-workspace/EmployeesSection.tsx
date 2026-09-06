@@ -1,10 +1,21 @@
 /**
  * P2 — "Employees" customer section: employees, invitations, ownership transfer.
- * Role matrix mirrors the current company-access contract. All actions are
- * local in-memory demo state with accessible confirmation dialogs.
+ *
+ * Every mutating flow collects a real target (and role, where relevant) before
+ * confirmation, the confirmation text repeats the selection, and confirming
+ * updates the local in-memory list coherently. Role matrix mirrors the current
+ * company-access contract. No storage, no network.
  */
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -14,15 +25,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { protoCopy, type ProtoLang, type ProtoRoleKey } from "./copy";
 import {
   EMPLOYEES_TABS,
@@ -30,10 +39,22 @@ import {
   type EmployeeActionKey,
   type EmployeesTabKey,
 } from "./copy-access";
-import { EMPLOYEE_RECORDS, INVITATION_RECORDS, SELF_RECORDS } from "./data-access";
+import {
+  EMPLOYEE_RECORDS,
+  INVITATION_RECORDS,
+  SELF_RECORDS,
+  type EmployeeRecord,
+  type InvitationRecord,
+} from "./data-access";
 import { CONTROL } from "./ui";
 
 type CustomerRole = Exclude<ProtoRoleKey, "service">;
+type AssignableRole = Extract<CustomerRole, "admin" | "manager" | "viewer">;
+
+const ASSIGNABLE_ROLES: AssignableRole[] = ["admin", "manager", "viewer"];
+
+const DIALOG_CLOSE_44 =
+  "[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center";
 
 interface Props {
   lang: ProtoLang;
@@ -64,34 +85,113 @@ export const EmployeesSection = ({
   const [pending, setPending] = useState<EmployeeActionKey | null>(null);
   const [note, setNote] = useState<string | null>(null);
 
+  const [employees, setEmployees] = useState<EmployeeRecord[]>(EMPLOYEE_RECORDS);
+  const [invitations, setInvitations] = useState<InvitationRecord[]>(INVITATION_RECORDS);
+
+  // Ввод для изменяющих действий — заполняется до подтверждения.
+  const [email, setEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<AssignableRole>("manager");
+  const [targetId, setTargetId] = useState("");
+  const [newRole, setNewRole] = useState<AssignableRole>("manager");
+
   const actions = useMemo(() => allowedActions(role), [role]);
   const tabs = useMemo<EmployeesTabKey[]>(
     () => (canManage(role) ? EMPLOYEES_TABS.filter((t) => t !== "ownership" || role === "owner") : []),
     [role],
   );
 
+  const self = SELF_RECORDS[role];
+
+  // Кандидаты действия: сотрудники компании, кроме текущего пользователя.
+  const targets = useMemo(
+    () => employees.filter((e) => e.id !== self.id),
+    [employees, self.id],
+  );
+  const transferTargets = useMemo(() => targets.filter((e) => e.role !== "owner"), [targets]);
+
+  const list = pending === "transferOwnership" ? transferTargets : targets;
+  const target = list.find((e) => e.id === targetId) ?? null;
+
   // Роль понижена или изменилась — закрываем открытую форму/диалог и убираем
   // устаревшее состояние, чтобы недоступные действия не оставались на экране.
   useEffect(() => {
-    setPending((current) => (current && actions.includes(current) ? current : null));
+    setPending(null);
     setNote(null);
     setTab((current) => (tabs.includes(current) ? current : "employees"));
-  }, [role, actions, tabs]);
+  }, [role, tabs]);
 
-  const self = SELF_RECORDS[role];
+  const openAction = (action: EmployeeActionKey) => {
+    setNote(null);
+    setEmail("");
+    setInviteRole("manager");
+    setNewRole("manager");
+    setTargetId("");
+    setPending(action);
+  };
+
+  const emailValid = /.+@.+\..+/.test(email.trim());
+  const canConfirm = () => {
+    if (pending === "invite") return emailValid;
+    if (pending === "changeRole" || pending === "closeAccess" || pending === "transferOwnership") {
+      return target !== null;
+    }
+    return pending === "leaveCompany";
+  };
+
+  const fill = (template: string, name: string, roleLabel?: string) =>
+    template.replace("{name}", name).replace("{role}", roleLabel ?? "");
 
   const confirmAction = () => {
-    if (!pending) return;
-    if (pending === "transferOwnership") {
+    if (!pending || !canConfirm()) return;
+
+    if (pending === "invite") {
+      const name = email.trim();
+      setInvitations((prev) => [
+        { id: `inv-${prev.length + 1}`, name, role: inviteRole, sent: "06.09.2026" },
+        ...prev,
+      ]);
+      setNote(fill(a.invitedResult, name, c.roles[inviteRole]));
+      setPending(null);
+      return;
+    }
+
+    if (pending === "changeRole" && target) {
+      setEmployees((prev) =>
+        prev.map((e) => (e.id === target.id ? { ...e, role: newRole } : e)),
+      );
+      setNote(fill(a.roleChangedResult, target.name, c.roles[newRole]));
+      setPending(null);
+      return;
+    }
+
+    if (pending === "closeAccess" && target) {
+      setEmployees((prev) => prev.filter((e) => e.id !== target.id));
+      setNote(fill(a.accessClosedResult, target.name));
+      setPending(null);
+      return;
+    }
+
+    if (pending === "transferOwnership" && target) {
+      setEmployees((prev) =>
+        prev.map((e) =>
+          e.id === target.id
+            ? { ...e, role: "owner" }
+            : e.id === self.id
+              ? { ...e, role: "admin" }
+              : e,
+        ),
+      );
       setPending(null);
       onOwnershipTransferred();
       return;
     }
+
     if (pending === "leaveCompany") {
       setPending(null);
       onLeftCompany();
       return;
     }
+
     setNote(a.actionRecorded);
     setPending(null);
   };
@@ -107,12 +207,57 @@ export const EmployeesSection = ({
       <Button
         variant={variant}
         className={CONTROL}
-        onClick={() => setPending(action)}
+        onClick={() => openAction(action)}
         data-testid={`proto-employees-action-${action}`}
       >
         {a.employeeActions[action]}
       </Button>
     ) : null;
+
+  const RoleSelect = ({
+    id,
+    label,
+    value,
+    onChange,
+  }: {
+    id: string;
+    label: string;
+    value: AssignableRole;
+    onChange: (next: AssignableRole) => void;
+  }) => (
+    <div className="min-w-0">
+      <label className="block text-[10.5px] uppercase text-muted-foreground" htmlFor={id}>
+        {label}
+      </label>
+      <Select value={value} onValueChange={(v) => onChange(v as AssignableRole)}>
+        <SelectTrigger id={id} className={CONTROL} data-testid={id}>
+          <SelectValue aria-label={label} />
+        </SelectTrigger>
+        <SelectContent>
+          {ASSIGNABLE_ROLES.map((key) => (
+            <SelectItem key={key} value={key}>{c.roles[key]}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
+  const dialogSummary = () => {
+    if (!pending) return "";
+    const base = a.confirmBodies[pending];
+    if (pending === "invite") {
+      return emailValid
+        ? `${base} ${a.confirmSelection}: ${email.trim()} · ${c.roles[inviteRole]}.`
+        : base;
+    }
+    if (pending === "changeRole") {
+      return target ? `${base} ${a.confirmSelection}: ${target.name} · ${c.roles[newRole]}.` : base;
+    }
+    if (pending === "closeAccess" || pending === "transferOwnership") {
+      return target ? `${base} ${a.confirmSelection}: ${target.name}.` : base;
+    }
+    return base;
+  };
 
   return (
     <div className="min-w-0 space-y-4" data-testid="proto-employees">
@@ -186,7 +331,7 @@ export const EmployeesSection = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {EMPLOYEE_RECORDS.map((e) => (
+                {employees.map((e) => (
                   <TableRow key={e.id} className="h-12" data-testid={`proto-employee-row-${e.id}`}>
                     <TableCell className="align-top font-medium">{e.name}</TableCell>
                     <TableCell className="align-top text-sm">{c.roles[e.role]}</TableCell>
@@ -198,7 +343,7 @@ export const EmployeesSection = ({
           </div>
 
           <ul className="space-y-2 md:hidden">
-            {EMPLOYEE_RECORDS.map((e) => (
+            {employees.map((e) => (
               <li
                 key={e.id}
                 className="min-w-0 rounded-lg border border-border bg-card p-3"
@@ -243,7 +388,7 @@ export const EmployeesSection = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {INVITATION_RECORDS.map((inv) => (
+                {invitations.map((inv) => (
                   <TableRow key={inv.id} className="h-12" data-testid={`proto-invitation-row-${inv.id}`}>
                     <TableCell className="align-top font-medium">{inv.name}</TableCell>
                     <TableCell className="align-top text-sm">{c.roles[inv.role]}</TableCell>
@@ -255,7 +400,7 @@ export const EmployeesSection = ({
             </Table>
           </div>
           <ul className="space-y-2 md:hidden">
-            {INVITATION_RECORDS.map((inv) => (
+            {invitations.map((inv) => (
               <li
                 key={inv.id}
                 className="min-w-0 rounded-lg border border-border bg-card p-3"
@@ -290,26 +435,100 @@ export const EmployeesSection = ({
         </div>
       ) : null}
 
-      <AlertDialog open={pending !== null} onOpenChange={(open) => (open ? null : setPending(null))}>
-        <AlertDialogContent data-testid="proto-employees-dialog">
-          <AlertDialogHeader>
-            <AlertDialogTitle>{pending ? a.confirmTitles[pending] : ""}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {pending ? a.confirmBodies[pending] : ""}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className={CONTROL}>{a.cancel}</AlertDialogCancel>
-            <AlertDialogAction
+      <Dialog open={pending !== null} onOpenChange={(open) => (open ? null : setPending(null))}>
+        <DialogContent className={DIALOG_CLOSE_44} data-testid="proto-employees-dialog">
+          <DialogHeader>
+            <DialogTitle>{pending ? a.confirmTitles[pending] : ""}</DialogTitle>
+            <DialogDescription data-testid="proto-employees-dialog-summary">
+              {dialogSummary()}
+            </DialogDescription>
+          </DialogHeader>
+
+          {pending === "invite" ? (
+            <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0">
+                <label
+                  className="block text-[10.5px] uppercase text-muted-foreground"
+                  htmlFor="proto-employees-invite-email"
+                >
+                  {a.inviteEmailLabel}
+                </label>
+                <Input
+                  id="proto-employees-invite-email"
+                  type="email"
+                  className={CONTROL}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  data-testid="proto-employees-invite-email"
+                />
+                {email.length > 0 && !emailValid ? (
+                  <p className="mt-1 text-xs text-destructive">{a.inviteEmailInvalid}</p>
+                ) : null}
+              </div>
+              <RoleSelect
+                id="proto-employees-invite-role"
+                label={a.inviteRoleLabel}
+                value={inviteRole}
+                onChange={setInviteRole}
+              />
+            </div>
+          ) : null}
+
+          {pending === "changeRole" || pending === "closeAccess" || pending === "transferOwnership" ? (
+            <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="min-w-0">
+                <label
+                  className="block text-[10.5px] uppercase text-muted-foreground"
+                  htmlFor="proto-employees-target"
+                >
+                  {a.employeeTargetLabel}
+                </label>
+                <Select value={targetId} onValueChange={setTargetId}>
+                  <SelectTrigger
+                    id="proto-employees-target"
+                    className={CONTROL}
+                    data-testid="proto-employees-target"
+                  >
+                    <SelectValue
+                      placeholder={a.selectPlaceholder}
+                      aria-label={a.employeeTargetLabel}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {list.map((e) => (
+                      <SelectItem key={e.id} value={e.id}>
+                        {e.name} · {c.roles[e.role]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {pending === "changeRole" ? (
+                <RoleSelect
+                  id="proto-employees-new-role"
+                  label={a.newRoleLabel}
+                  value={newRole}
+                  onChange={setNewRole}
+                />
+              ) : null}
+            </div>
+          ) : null}
+
+          <DialogFooter>
+            <Button variant="outline" className={CONTROL} onClick={() => setPending(null)}>
+              {a.cancel}
+            </Button>
+            <Button
               className={CONTROL}
+              disabled={!canConfirm()}
               onClick={confirmAction}
               data-testid="proto-employees-dialog-confirm"
             >
               {a.confirm}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

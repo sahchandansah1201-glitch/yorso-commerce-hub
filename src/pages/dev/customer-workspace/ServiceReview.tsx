@@ -25,8 +25,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ProtoLang } from "./copy";
-import { protoAccessCopy } from "./copy-access";
+import { protoAccessCopy, SERVICE_DECISIONS, type ServiceDecisionKey } from "./copy-access";
 import { CAPABILITY_ROWS } from "./data-access";
 import { CONTROL } from "./ui";
 
@@ -50,7 +57,10 @@ const SummaryField = ({
 
 export const ServiceReview = ({ lang }: { lang: ProtoLang }) => {
   const a = protoAccessCopy[lang];
-  const [decisionRecorded, setDecisionRecorded] = useState(false);
+  // Явный локальный выбор решения: сначала выбор, только потом запись.
+  const [choice, setChoice] = useState<ServiceDecisionKey | "">("");
+  const [recorded, setRecorded] = useState<ServiceDecisionKey | null>(null);
+  const decisionValue = recorded ? a.decisions[recorded] : a.ownerDecisionPending;
 
   const checks: { key: string; label: string; ok: boolean }[] = [
     { key: "company-found", label: a.accessChecks.companyFound, ok: true },
@@ -91,7 +101,7 @@ export const ServiceReview = ({ lang }: { lang: ProtoLang }) => {
           />
           <SummaryField
             label={a.readinessFields.ownerDecision}
-            value={decisionRecorded ? a.ownerDecisionRecorded : a.ownerDecisionPending}
+            value={decisionValue}
             testId="proto-service-owner-decision"
           />
         </dl>
@@ -117,7 +127,7 @@ export const ServiceReview = ({ lang }: { lang: ProtoLang }) => {
                   </TableCell>
                   <TableCell className="align-top text-sm">{r.risk[lang]}</TableCell>
                   <TableCell className="align-top text-sm text-muted-foreground">
-                    {r.decision[lang]}
+                    {recorded ? decisionValue : r.decision[lang]}
                   </TableCell>
                 </TableRow>
               ))}
@@ -135,36 +145,69 @@ export const ServiceReview = ({ lang }: { lang: ProtoLang }) => {
               </p>
               <p className="text-xs text-muted-foreground">
                 {a.capabilityColumns.risk}: {r.risk[lang]} · {a.capabilityColumns.decision}:{" "}
-                {r.decision[lang]}
+                {recorded ? decisionValue : r.decision[lang]}
               </p>
             </li>
           ))}
         </ul>
 
-        <div className="flex min-w-0 flex-wrap items-center gap-3 pt-1">
+        <div className="flex min-w-0 flex-wrap items-end gap-3 pt-1">
+          <div className="min-w-0">
+            <label
+              className="block text-[10.5px] uppercase text-muted-foreground"
+              htmlFor="proto-service-decision-select"
+            >
+              {a.decisionLabel}
+            </label>
+            <Select value={choice} onValueChange={(v) => setChoice(v as ServiceDecisionKey)}>
+              <SelectTrigger
+                id="proto-service-decision-select"
+                className={`${CONTROL} w-[260px]`}
+                data-testid="proto-service-decision-select"
+              >
+                <SelectValue placeholder={a.ownerDecisionPending} aria-label={a.decisionLabel} />
+              </SelectTrigger>
+              <SelectContent>
+                {SERVICE_DECISIONS.map((key) => (
+                  <SelectItem key={key} value={key}>{a.decisions[key]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button className={CONTROL} data-testid="proto-service-record-decision">
+              <Button
+                className={CONTROL}
+                disabled={choice === ""}
+                data-testid="proto-service-record-decision"
+              >
                 {a.recordDecision}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent data-testid="proto-service-decision-dialog">
               <AlertDialogHeader>
                 <AlertDialogTitle>{a.recordDecisionTitle}</AlertDialogTitle>
-                <AlertDialogDescription>{a.recordDecisionBody}</AlertDialogDescription>
+                <AlertDialogDescription>
+                  {choice === "" ? a.recordDecisionBody : `${a.decisionLabel}: ${a.decisions[choice]}. ${a.recordDecisionBody}`}
+                </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel className={CONTROL}>{a.cancel}</AlertDialogCancel>
-                <AlertDialogAction className={CONTROL} onClick={() => setDecisionRecorded(true)}>
+                <AlertDialogAction
+                  className={CONTROL}
+                  onClick={() => setRecorded(choice === "" ? null : choice)}
+                  data-testid="proto-service-decision-confirm"
+                >
                   {a.recordDecisionConfirm}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
 
-          {decisionRecorded ? (
+          {recorded ? (
             <p className="min-w-0 text-xs text-muted-foreground" role="status" data-testid="proto-service-decision-note">
-              {a.decisionRecordedNote}
+              {a.decisions[recorded]}. {a.decisionRecordedNote}
             </p>
           ) : null}
         </div>
