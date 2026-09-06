@@ -50,8 +50,11 @@ const ResendEffectivenessDashboard = lazy(() => import("./pages/dashboard/Resend
 const TypographyAudit = lazy(() => import("./pages/dev/TypographyAudit.tsx"));
 const CustomerWorkspacePrototype = lazy(() => import("./pages/dev/CustomerWorkspacePrototype.tsx"));
 
-// Hidden interface prototype: available only in development and test builds.
-const isPrototypeRouteEnabled = import.meta.env.DEV || import.meta.env.MODE === "test";
+// Hidden interface prototype: development, test and Lovable preview hosts only.
+const isPrototypeRouteEnabled =
+  import.meta.env.DEV ||
+  import.meta.env.MODE === "test" ||
+  (typeof window !== "undefined" && window.location.hostname.endsWith(".lovable.app"));
 const AdminRuntimeStatus = lazy(() => import("./pages/admin/AdminRuntimeStatus.tsx"));
 const AdminAccessRequests = lazy(() => import("./pages/admin/AdminAccessRequests.tsx"));
 const AdminAccessGrants = lazy(() => import("./pages/admin/AdminAccessGrants.tsx"));
