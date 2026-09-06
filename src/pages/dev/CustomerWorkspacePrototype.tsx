@@ -105,6 +105,23 @@ const CustomerWorkspacePrototype = () => {
   const company = PROTO_COMPANY;
   const canEdit = role === "owner" || role === "admin";
 
+  // Утверждена только матрица «Продукции»: изменяющие действия доступны
+  // Владельцу и Администратору. Менеджер и Наблюдатель всегда только читают.
+  const canMutate = section === "products" && canEdit;
+
+  // Состояния с изменяющими действиями существуют только там, где право
+  // подтверждено; при смене роли/раздела состояние нормализуется.
+  const availableStates = useMemo<ProtoStateKey[]>(
+    () => PROTO_STATES.filter((key) => canMutate || !MUTATING_STATES.includes(key)),
+    [canMutate],
+  );
+  const stateAllowed = availableStates.includes(state);
+  const effectiveState = stateAllowed ? state : "ready";
+
+  useEffect(() => {
+    if (!stateAllowed) setState("ready");
+  }, [stateAllowed]);
+
   const rows = useMemo<ProtoRow[]>(() => {
     const base = PROTO_ROWS[section];
     if (section === "search") {
@@ -114,12 +131,11 @@ const CustomerWorkspacePrototype = () => {
     return base;
   }, [section, query, lang]);
 
-  // Утверждена только матрица «Продукции»: «Редактировать» видят Владелец и Администратор.
-  // В остальных разделах прототип не показывает действий и не выводит право.
   const primaryActionLabel = c.primaryActions.products;
-  const primaryAvailable = section === "products" && canEdit;
+  const primaryAvailable = canMutate && effectiveState === "ready";
 
   const showTable = rows.length > 0;
+
 
   const renderBody = () => {
     if (role === "service") {
