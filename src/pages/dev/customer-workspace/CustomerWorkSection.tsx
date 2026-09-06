@@ -699,7 +699,10 @@ export const CustomerWorkSection = ({
 
       {/* Create record sample */}
       <Dialog open={dialog === "create"} onOpenChange={(open) => setDialog(open ? "create" : null)}>
-        <DialogContent data-testid="proto-p4-create-dialog">
+        <DialogContent
+        className="[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center"
+        data-testid="proto-p4-create-dialog"
+      >
           <DialogHeader>
             <DialogTitle>{createLabel ?? t.createTitle}</DialogTitle>
             <DialogDescription>{t.createHint}</DialogDescription>
@@ -751,7 +754,10 @@ export const CustomerWorkSection = ({
 
       {/* Import entry point only */}
       <Dialog open={dialog === "import"} onOpenChange={(open) => setDialog(open ? "import" : null)}>
-        <DialogContent data-testid="proto-p4-import-dialog">
+        <DialogContent
+        className="[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center"
+        data-testid="proto-p4-import-dialog"
+      >
           <DialogHeader>
             <DialogTitle>{t.importTitle}</DialogTitle>
             <DialogDescription>{t.importBody}</DialogDescription>
@@ -764,7 +770,10 @@ export const CustomerWorkSection = ({
 
       {/* Export entry point only */}
       <Dialog open={dialog === "export"} onOpenChange={(open) => setDialog(open ? "export" : null)}>
-        <DialogContent data-testid="proto-p4-export-dialog">
+        <DialogContent
+        className="[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center"
+        data-testid="proto-p4-export-dialog"
+      >
           <DialogHeader>
             <DialogTitle>{t.exportTitle}</DialogTitle>
             <DialogDescription>{t.exportBody}</DialogDescription>
@@ -777,7 +786,10 @@ export const CustomerWorkSection = ({
 
       {/* Deleted records: review and restore */}
       <Dialog open={dialog === "deleted"} onOpenChange={(open) => setDialog(open ? "deleted" : null)}>
-        <DialogContent data-testid="proto-p4-deleted-dialog">
+        <DialogContent
+        className="[&>button[type=button]]:h-11 [&>button[type=button]]:w-11 [&>button[type=button]]:min-h-11 [&>button[type=button]]:min-w-11 [&>button[type=button]]:inline-flex [&>button[type=button]]:items-center [&>button[type=button]]:justify-center"
+        data-testid="proto-p4-deleted-dialog"
+      >
           <DialogHeader>
             <DialogTitle>{t.deletedTitle}</DialogTitle>
             <DialogDescription>{t.deletedBody}</DialogDescription>

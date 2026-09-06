@@ -187,14 +187,18 @@ const ProductsList = ({
                         {p.makeInactive}
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent data-testid="proto-product-inactive-dialog">
                       <AlertDialogHeader>
                         <AlertDialogTitle>{p.makeInactiveTitle}</AlertDialogTitle>
                         <AlertDialogDescription>{p.makeInactiveBody}</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel className={CONTROL}>{p.cancel}</AlertDialogCancel>
-                        <AlertDialogAction className={CONTROL} onClick={() => onMakeInactive(item.id)}>
+                        <AlertDialogAction
+                          className={CONTROL}
+                          onClick={() => onMakeInactive(item.id)}
+                          data-testid="proto-product-inactive-confirm"
+                        >
                           {p.makeInactiveConfirm}
                         </AlertDialogAction>
                       </AlertDialogFooter>
