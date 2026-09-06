@@ -59,9 +59,11 @@ const DIALOG_CLOSE_44 =
 interface Props {
   lang: ProtoLang;
   role: CustomerRole;
-  /** Ownership transfer in the demo leaves the current user as administrator. */
+  /** Identity of the current employee — stored separately from the role. */
+  currentEmployeeId: string;
+  /** Ownership transfer leaves the current employee as administrator. */
   onOwnershipTransferred: () => void;
-  /** Leaving the company in the demo closes access to the company. */
+  /** Leaving the company closes access to the company. */
   onLeftCompany: () => void;
 }
 
