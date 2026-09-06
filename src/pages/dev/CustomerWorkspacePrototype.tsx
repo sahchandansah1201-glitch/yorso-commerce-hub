@@ -472,7 +472,7 @@ const CustomerWorkspacePrototype = () => {
                 </p>
               </div>
 
-              {role === "service" ? null : primaryAvailable ? (
+              {role === "service" || !primaryAvailable ? null : (
                 <Button
                   className={CONTROL}
                   onClick={() => setState(state === "ready" ? "saving" : "ready")}
@@ -480,10 +480,6 @@ const CustomerWorkspacePrototype = () => {
                 >
                   {primaryActionLabel}
                 </Button>
-              ) : (
-                <p className="text-xs text-muted-foreground" data-testid="proto-primary-view-only">
-                  {c.viewOnlyTitle}
-                </p>
               )}
             </div>
 
