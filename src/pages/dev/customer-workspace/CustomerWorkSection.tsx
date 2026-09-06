@@ -312,6 +312,9 @@ export const CustomerWorkSection = ({
   const [draftTitle, setDraftTitle] = useState("");
 
   const canCreateEdit = scenario === "createEdit";
+  const canImportWizard = scenario === "import";
+  // Новый ключ при каждом открытии: черновик мастера не переносится.
+  const [wizardKey, setWizardKey] = useState(0);
 
   // Смена раздела, сценария или состояния закрывает окна и очищает черновики,
   // поэтому после «недоступно» → «Повторить» старое окно не открывается снова.
@@ -586,7 +589,10 @@ export const CustomerWorkSection = ({
                   {menuEntries.map((entry) => (
                     <DropdownMenuItem
                       key={entry.key}
-                      onSelect={() => setDialog(entry.key)}
+                      onSelect={() => {
+                        if (entry.key === "import") setWizardKey((k) => k + 1);
+                        setDialog(entry.key);
+                      }}
                       data-testid={`proto-p4-menu-${entry.key}`}
                     >
                       {entry.label}
