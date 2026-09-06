@@ -269,24 +269,42 @@ export const ImportWizard = ({
               <p className="text-xs text-muted-foreground" data-testid="proto-p5-file-notice">
                 {t.fileNotice}
               </p>
-              <ul className="min-w-0 space-y-2" role="radiogroup" aria-label={t.sourceLabel}>
+              {/* Клавиатурная модель radio: одна остановка Tab, стрелки меняют выбор. */}
+              <RadioGroup
+                value={sourceId}
+                onValueChange={setSourceId}
+                aria-label={t.sourceLabel}
+                className="min-w-0 gap-2"
+                data-testid="proto-p5-source-group"
+              >
                 {P5_SOURCES.map((s) => (
-                  <li key={s.id} className="min-w-0">
-                    <Button
-                      variant={sourceId === s.id ? "default" : "outline"}
-                      role="radio"
-                      aria-checked={sourceId === s.id}
-                      className={`${CONTROL} w-full justify-start`}
-                      onClick={() => setSourceId(s.id)}
+                  <label
+                    key={s.id}
+                    htmlFor={`proto-p5-source-input-${s.id}`}
+                    className={`flex min-h-[44px] min-w-0 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm ${
+                      sourceId === s.id
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-input bg-background text-foreground"
+                    }`}
+                    data-testid={`proto-p5-source-card-${s.id}`}
+                  >
+                    <RadioGroupItem
+                      id={`proto-p5-source-input-${s.id}`}
+                      value={s.id}
+                      className={
+                        sourceId === s.id
+                          ? "h-5 w-5 border-primary-foreground text-primary-foreground"
+                          : "h-5 w-5"
+                      }
                       data-testid={`proto-p5-source-${s.id}`}
-                    >
-                      <span className="min-w-0 truncate">
-                        {s.fileName} · {s.rows} {t.sourceRows}
-                      </span>
-                    </Button>
-                  </li>
+                    />
+                    <span className="min-w-0 truncate">
+                      {s.fileName} · {s.rows} {t.sourceRows}
+                    </span>
+                  </label>
                 ))}
-              </ul>
+              </RadioGroup>
+
             </section>
           ) : null}
 
