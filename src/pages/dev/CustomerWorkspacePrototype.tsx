@@ -145,7 +145,7 @@ const CustomerWorkspacePrototype = () => {
     if (role === "service") {
       return <StatePanel testId="proto-state-service" title={c.serviceTitle} body={c.serviceBody} tone="muted" />;
     }
-    switch (state) {
+    switch (effectiveState) {
       case "loading":
         return (
           <div className="space-y-2" data-testid="proto-state-loading" aria-label={c.loadingLabel} aria-busy="true">
