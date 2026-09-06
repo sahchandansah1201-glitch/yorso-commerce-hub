@@ -92,6 +92,10 @@ const CustomerWorkspacePrototype = () => {
   const [dark, setDark] = useState(false);
   const [section, setSection] = useState<ProtoSectionKey>("products");
   const [role, setRole] = useState<ProtoRoleKey>("owner");
+  // Личность текущего сотрудника хранится отдельно от его роли.
+  const [currentEmployeeId, setCurrentEmployeeId] = useState<string>(
+    SELF_RECORDS.owner.id,
+  );
   const [state, setState] = useState<ProtoStateKey>("ready");
   const [scenario, setScenario] = useState<P4Scenario>("view");
   const [editingProducts, setEditingProducts] = useState(false);
