@@ -9,7 +9,7 @@
  *
  * No backend, no network requests, no storage writes, no new dependencies.
  */
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Building2, Check, ChevronRight, Loader2, Lock, Moon, RotateCcw, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,9 +97,7 @@ const CustomerWorkspacePrototype = () => {
   const [role, setRole] = useState<ProtoRoleKey>("owner");
   const [state, setState] = useState<ProtoStateKey>("ready");
   const [query, setQuery] = useState("");
-  const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmedInactive, setConfirmedInactive] = useState(false);
-  const destructiveTriggerRef = useRef<HTMLButtonElement>(null);
 
   const c = protoCopy[lang];
   const company = PROTO_COMPANIES.find((item) => item.id === companyId) ?? PROTO_COMPANIES[0];
@@ -507,32 +505,6 @@ const CustomerWorkspacePrototype = () => {
           </main>
         </div>
 
-        <AlertDialog
-          open={confirmOpen}
-          onOpenChange={(open) => {
-            setConfirmOpen(open);
-            if (!open) destructiveTriggerRef.current?.focus();
-          }}
-        >
-          <AlertDialogContent data-testid="proto-destructive-dialog">
-            <AlertDialogHeader>
-              <AlertDialogTitle>{c.destructiveTitle}</AlertDialogTitle>
-              <AlertDialogDescription>{c.destructiveBody}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className={CONTROL}>{c.cancel}</AlertDialogCancel>
-              <AlertDialogAction
-                className={CONTROL}
-                onClick={() => {
-                  setConfirmedInactive(true);
-                  setState("success");
-                }}
-              >
-                {c.destructiveConfirm}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
     </div>
   );
