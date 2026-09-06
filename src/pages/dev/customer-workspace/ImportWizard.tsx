@@ -281,27 +281,33 @@ export const ImportWizard = ({
                   <label
                     key={s.id}
                     htmlFor={`proto-p5-source-input-${s.id}`}
-                    className={`flex min-h-[44px] min-w-0 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm ${
+                    className={`relative flex min-h-[44px] min-w-0 cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 ${
                       sourceId === s.id
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-input bg-background text-foreground"
                     }`}
                     data-testid={`proto-p5-source-card-${s.id}`}
                   >
+                    {/* Область нажатия радио — вся карточка (не меньше 44px). */}
                     <RadioGroupItem
                       id={`proto-p5-source-input-${s.id}`}
                       value={s.id}
-                      className={
-                        sourceId === s.id
-                          ? "h-5 w-5 border-primary-foreground text-primary-foreground"
-                          : "h-5 w-5"
-                      }
+                      className="absolute inset-0 h-full w-full rounded-md border-0 opacity-0 aspect-auto"
                       data-testid={`proto-p5-source-${s.id}`}
+                    />
+                    <span
+                      aria-hidden
+                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                        sourceId === s.id
+                          ? "border-primary-foreground bg-primary-foreground"
+                          : "border-input"
+                      }`}
                     />
                     <span className="min-w-0 truncate">
                       {s.fileName} · {s.rows} {t.sourceRows}
                     </span>
                   </label>
+
                 ))}
               </RadioGroup>
 
