@@ -300,6 +300,7 @@ export const CustomerWorkSection = ({
   section,
   scenario,
   state,
+  retryLabel,
   onRetry,
   onResolveConflict,
 }: {
@@ -307,6 +308,7 @@ export const CustomerWorkSection = ({
   section: P4SectionKey;
   scenario: P4Scenario;
   state: ProtoStateKey;
+  retryLabel: string;
   onRetry: () => void;
   onResolveConflict: () => void;
 }) => {
@@ -379,7 +381,7 @@ export const CustomerWorkSection = ({
       <Panel testId="proto-p4-unavailable" title={t.unavailableTitle} body={t.unavailableBody} tone="muted">
         <Button variant="outline" className={CONTROL} onClick={onRetry} data-testid="proto-p4-retry">
           <RotateCcw aria-hidden className="mr-2 h-4 w-4" />
-          {t.previous === "Previous" ? "Retry" : t.previous}
+          {retryLabel}
         </Button>
       </Panel>
     );
