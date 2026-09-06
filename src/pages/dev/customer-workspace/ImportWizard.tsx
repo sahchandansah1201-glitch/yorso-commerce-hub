@@ -216,9 +216,31 @@ export const ImportWizard = ({
           if (locked) e.preventDefault();
         }}
         onPointerDownOutside={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => {
+          // Фокус всегда возвращается на постоянную кнопку списка.
+          if (!returnFocusRef?.current) return;
+          e.preventDefault();
+          returnFocusRef.current.focus();
+        }}
         data-testid="proto-p5-wizard"
       >
+        {/* Во время выполнения закрытие запрещено, поэтому крестика нет вовсе. */}
+        {locked ? null : (
+          <div className="absolute right-3 top-3">
+            <DialogClose asChild>
+              <Button
+                variant="ghost"
+                className={`${CONTROL} px-0`}
+                aria-label={t.close}
+                data-testid="proto-p5-dialog-close"
+              >
+                <X aria-hidden className="h-4 w-4" />
+              </Button>
+            </DialogClose>
+          </div>
+        )}
         <div className="container min-w-0 space-y-4 px-0">
+
           <DialogHeader className="min-w-0 space-y-1 text-left">
             <DialogTitle className="font-heading text-lg font-semibold">{t.wizardTitle}</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
