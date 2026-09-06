@@ -105,6 +105,7 @@ type AccessDict = {
   continueLabel: string;
   noAccess: string;
   accessClosedShort: string;
+  backLabel: string;
 };
 
 const ru: AccessDict = {
@@ -209,6 +210,7 @@ const ru: AccessDict = {
   continueLabel: "Продолжить",
   noAccess: "Нет доступа",
   accessClosedShort: "Доступ закрыт",
+  backLabel: "Назад",
 };
 
 const en: AccessDict = {
@@ -313,6 +315,7 @@ const en: AccessDict = {
   continueLabel: "Continue",
   noAccess: "No access",
   accessClosedShort: "Access closed",
+  backLabel: "Back",
 };
 
 const es: AccessDict = {
@@ -417,6 +420,7 @@ const es: AccessDict = {
   continueLabel: "Continuar",
   noAccess: "Sin acceso",
   accessClosedShort: "Acceso cerrado",
+  backLabel: "Atrás",
 };
 
 export const protoAccessCopy: Record<ProtoLang, AccessDict> = { ru, en, es };
