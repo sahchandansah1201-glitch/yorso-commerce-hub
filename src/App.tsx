@@ -48,6 +48,7 @@ const Crm = lazy(() => import("./pages/Crm.tsx"));
 const RegistrationFunnelDashboard = lazy(() => import("./pages/dashboard/RegistrationFunnelDashboard.tsx"));
 const ResendEffectivenessDashboard = lazy(() => import("./pages/dashboard/ResendEffectivenessDashboard.tsx"));
 const TypographyAudit = lazy(() => import("./pages/dev/TypographyAudit.tsx"));
+const CustomerWorkspacePrototype = lazy(() => import("./pages/dev/CustomerWorkspacePrototype.tsx"));
 const AdminRuntimeStatus = lazy(() => import("./pages/admin/AdminRuntimeStatus.tsx"));
 const AdminAccessRequests = lazy(() => import("./pages/admin/AdminAccessRequests.tsx"));
 const AdminAccessGrants = lazy(() => import("./pages/admin/AdminAccessGrants.tsx"));
@@ -142,6 +143,7 @@ const App = () => (
                     <Route path="/admin/incident-trends" element={<AdminIncidentTrends />} />
                     <Route path="/admin/incident-trend-actions" element={<AdminIncidentTrendActions />} />
                     <Route path="/dev/typography" element={<TypographyAudit />} />
+                    <Route path="/dev/customer-workspace" element={<CustomerWorkspacePrototype />} />
                     {/* Legacy redirects are declared in src/lib/legacy-redirects.ts. */}
                     {legacyRedirects.flatMap(({ from, to }) => [
                       <Route key={from} path={from} element={<Navigate to={to} replace />} />,
