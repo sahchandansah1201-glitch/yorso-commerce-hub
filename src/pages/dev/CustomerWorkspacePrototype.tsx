@@ -57,10 +57,11 @@ import {
   PROTO_UPDATED_AT,
   type ProtoRow,
 } from "./customer-workspace/data";
-
-// Local desktop overrides: the shared Button applies sm:h-10 sm:min-h-0, so P0 pins 44px.
-const CONTROL = "!h-[44px] !min-h-[44px] !min-w-[44px] text-sm";
-const ICON_CONTROL = "!h-[44px] !min-h-[44px] !w-[44px] !min-w-[44px] px-0";
+import { ServiceReview } from "./customer-workspace/ServiceReview";
+import { EmployeesSection } from "./customer-workspace/EmployeesSection";
+import { AccessClosedScreen, SignInScreen, type SignInStage } from "./customer-workspace/AccessGate";
+import { protoAccessCopy } from "./customer-workspace/copy-access";
+import { CONTROL, ICON_CONTROL } from "./customer-workspace/ui";
 
 // Состояния, содержащие изменяющие действия (в т.ч. destructive-триггер).
 const MUTATING_STATES: ProtoStateKey[] = ["conflict", "saving", "success", "destructive"];
@@ -104,8 +105,11 @@ const CustomerWorkspacePrototype = () => {
   const [state, setState] = useState<ProtoStateKey>("ready");
   const [query, setQuery] = useState("");
   const [confirmedInactive, setConfirmedInactive] = useState(false);
+  const [signInStage, setSignInStage] = useState<SignInStage>("signedOut");
+  const [requestedSection, setRequestedSection] = useState<ProtoSectionKey>("employees");
 
   const c = protoCopy[lang];
+  const a = protoAccessCopy[lang];
   const company = PROTO_COMPANY;
   const canEdit = role === "owner" || role === "admin";
 
@@ -116,8 +120,11 @@ const CustomerWorkspacePrototype = () => {
   // Состояния с изменяющими действиями существуют только там, где право
   // подтверждено; при смене роли/раздела состояние нормализуется.
   const availableStates = useMemo<ProtoStateKey[]>(
-    () => PROTO_STATES.filter((key) => canMutate || !MUTATING_STATES.includes(key)),
-    [canMutate],
+    () =>
+      role === "service"
+        ? ["ready"]
+        : PROTO_STATES.filter((key) => canMutate || !MUTATING_STATES.includes(key)),
+    [canMutate, role],
   );
   const stateAllowed = availableStates.includes(state);
   const effectiveState = stateAllowed ? state : "ready";
@@ -142,9 +149,6 @@ const CustomerWorkspacePrototype = () => {
 
 
   const renderBody = () => {
-    if (role === "service") {
-      return <StatePanel testId="proto-state-service" title={c.serviceTitle} body={c.serviceBody} tone="muted" />;
-    }
     switch (effectiveState) {
       case "loading":
         return (
@@ -162,9 +166,20 @@ const CustomerWorkspacePrototype = () => {
       case "unavailable":
         return (
           <StatePanel testId="proto-state-unavailable" title={c.unavailableTitle} body={c.unavailableBody} tone="muted">
-            <Button variant="outline" className={CONTROL} onClick={() => setState("ready")}>
+            <Button variant="outline" className={CONTROL} onClick={() => setState("ready")} data-testid="proto-unavailable-retry">
               <RotateCcw aria-hidden className="mr-2 h-4 w-4" />
               {c.retry}
+            </Button>
+            <Button
+              variant="ghost"
+              className={CONTROL}
+              onClick={() => {
+                setSection("overview");
+                setState("ready");
+              }}
+              data-testid="proto-unavailable-back"
+            >
+              {a.backLabel}
             </Button>
           </StatePanel>
         );
@@ -269,6 +284,17 @@ const CustomerWorkspacePrototype = () => {
   };
 
   const renderRecords = () => {
+    if (section === "employees") {
+      return (
+        <EmployeesSection
+          lang={lang}
+          role={role === "service" ? "viewer" : role}
+          onOwnershipTransferred={() => setRole("admin")}
+          onLeftCompany={() => setState("revoked")}
+        />
+      );
+    }
+
     if (section === "overview") {
       return (
         <div className="rounded-lg border border-border bg-card p-4" data-testid="proto-overview">
