@@ -160,7 +160,7 @@ const ru: AccessDict = {
   recordDecision: "Записать решение",
   recordDecisionTitle: "Записать решение по обзору",
   recordDecisionBody:
-    "Запись остаётся только в этом образце интерфейса и не означает согласования редакции или лицензии.",
+    "Решение действует только на этой странице и не означает согласования редакции или лицензии.",
   recordDecisionConfirm: "Записать",
   decisionRecordedNote: "Решение записано. Редакция и лицензия остаются несогласованными.",
   accessReviewTitle: "Обзор доступа",
@@ -281,7 +281,7 @@ const en: AccessDict = {
   recordDecision: "Record decision",
   recordDecisionTitle: "Record the review decision",
   recordDecisionBody:
-    "The record stays inside this interface sample and does not mean the edition or the license is approved.",
+    "The decision applies on this page only and does not mean the edition or the license is approved.",
   recordDecisionConfirm: "Record",
   decisionRecordedNote: "Decision recorded. The edition and the license stay unapproved.",
   accessReviewTitle: "Access review",
@@ -402,7 +402,7 @@ const es: AccessDict = {
   recordDecision: "Registrar decisión",
   recordDecisionTitle: "Registrar la decisión de la revisión",
   recordDecisionBody:
-    "El registro queda dentro de esta muestra de interfaz y no significa que la edición o la licencia estén aprobadas.",
+    "La decisión se aplica solo en esta página y no significa que la edición o la licencia estén aprobadas.",
   recordDecisionConfirm: "Registrar",
   decisionRecordedNote: "Decisión registrada. La edición y la licencia siguen sin aprobar.",
   accessReviewTitle: "Revisión de acceso",

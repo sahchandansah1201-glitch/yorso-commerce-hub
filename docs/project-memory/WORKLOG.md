@@ -4781,3 +4781,9 @@ Keep this file factual and append-only.
 | Keep the local address stable | UI/API required; Twenty startup and health are optional for core availability | Monitor LaunchAgent after macOS updates | launcher tests 2/2; status HTTP 200 |
 | Repair the CRM handoff | Docker stack healthy and live Yorso-to-Twenty navigation works | Separate Twenty login remains until an SSO contract is designed | Chromium CRM suite 8/8 plus screenshots |
 | Preserve provider-free policy | No hosted BaaS SDK or scaffold was added | Continue boundary check on every checkpoint | 371 production files passed |
+
+## 2026-09-06 — P1-P4 blocker fixes (/dev/customer-workspace)
+- Employee identity (currentEmployeeId) separated from role; transfer of ownership keeps Ingrid as current employee with Admin role; owners excluded from changeRole/closeAccess targets.
+- P4 local title edits stored per recordId -> lang; no cross-language leakage.
+- Removed sample/prototype/demo wording from all visible RU/EN/ES copy; new header and scenario notices.
+- Verified: tsc clean, vite build OK, Playwright scenarios A-D, 390px no overflow, no storage writes, no network.

@@ -109,7 +109,7 @@ const ru: Dict = {
   role: "Роль",
   scenario: "Состояние",
   updatedAt: "Обновлено",
-  prototypeNotice: "Рабочий образец интерфейса для согласования. Данные демонстрационные.",
+  prototypeNotice: "Изменения на этой странице не сохраняются.",
   sections: {
     overview: "Обзор",
     companies: "Компании",
@@ -221,7 +221,7 @@ const en: Dict = {
   role: "Role",
   scenario: "State",
   updatedAt: "Updated",
-  prototypeNotice: "Working interface sample for review. The data is for demonstration.",
+  prototypeNotice: "Changes on this page are not saved.",
   sections: {
     overview: "Overview",
     companies: "Companies",
@@ -333,7 +333,7 @@ const es: Dict = {
   role: "Rol",
   scenario: "Estado",
   updatedAt: "Actualizado",
-  prototypeNotice: "Muestra de interfaz para revisión. Los datos son de demostración.",
+  prototypeNotice: "Los cambios en esta página no se guardan.",
   sections: {
     overview: "Resumen",
     companies: "Empresas",

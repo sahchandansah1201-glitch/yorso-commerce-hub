@@ -97,7 +97,7 @@ export type P4Dict = {
 
 const ru: P4Dict = {
   scenarioLabel: "Сценарий доступа",
-  scenarioNotice: "Сценарий доступа — только для показа образца. Он не выдаёт права.",
+  scenarioNotice: "Выбранный сценарий не изменяет права доступа.",
   scenarios: {
     view: "Просмотр разрешён",
     createEdit: "Создание и изменение разрешены",
@@ -189,7 +189,7 @@ const ru: P4Dict = {
 
 const en: P4Dict = {
   scenarioLabel: "Access scenario",
-  scenarioNotice: "The access scenario is a prototype control only. It grants no rights.",
+  scenarioNotice: "The selected scenario does not change access rights.",
   scenarios: {
     view: "View allowed",
     createEdit: "Create and edit allowed",
@@ -277,7 +277,7 @@ const en: P4Dict = {
 
 const es: P4Dict = {
   scenarioLabel: "Escenario de acceso",
-  scenarioNotice: "El escenario de acceso es solo un control de muestra. No concede permisos.",
+  scenarioNotice: "El escenario seleccionado no cambia los permisos de acceso.",
   scenarios: {
     view: "Consulta permitida",
     createEdit: "Creación y edición permitidas",

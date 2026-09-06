@@ -298,7 +298,11 @@ export const CustomerWorkSection = ({
   const [page, setPage] = useState(0);
   const [openId, setOpenId] = useState<string | null>(null);
   const [created, setCreated] = useState<P4Record[]>([]);
-  const [titles, setTitles] = useState<Record<string, string>>({});
+  // Локальная правка названия: recordId -> язык -> текст. Правка на одном
+  // языке никогда не переносится в другой язык.
+  const [titles, setTitles] = useState<
+    Record<string, Partial<Record<ProtoLang, string>>>
+  >({});
   const [restored, setRestored] = useState<P4Record[]>([]);
   const [dialog, setDialog] = useState<null | "create" | "import" | "export" | "deleted">(null);
   const [restoreId, setRestoreId] = useState<string | null>(null);
@@ -322,10 +326,11 @@ export const CustomerWorkSection = ({
   /** Все текущие записи компании: базовые, созданные и восстановленные. */
   const allRecords = useMemo(
     () =>
-      [...created, ...restored, ...P4_ALL_RECORDS].map((r) =>
-        titles[r.id] ? { ...r, title: { ...r.title, [lang]: titles[r.id] } } : r,
-      ),
-    [created, restored, titles, lang],
+      [...created, ...restored, ...P4_ALL_RECORDS].map((r) => {
+        const edits = titles[r.id];
+        return edits ? { ...r, title: { ...r.title, ...edits } } : r;
+      }),
+    [created, restored, titles],
   );
 
   /** Записи текущего раздела. */
@@ -489,7 +494,13 @@ export const CustomerWorkSection = ({
           onBack={() => setOpenId(null)}
           onOpen={(id) => setOpenId(id)}
           onEdited={(id, title) => {
-            setTitles((prev) => ({ ...prev, [id]: title }));
+            setTitles((prev) => {
+              const edits: Partial<Record<ProtoLang, string>> = {
+                ...prev[id],
+                [lang]: title,
+              };
+              return { ...prev, [id]: edits };
+            });
             setNotice(t.successBody);
           }}
         />

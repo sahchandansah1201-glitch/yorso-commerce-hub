@@ -59,9 +59,11 @@ const DIALOG_CLOSE_44 =
 interface Props {
   lang: ProtoLang;
   role: CustomerRole;
-  /** Ownership transfer in the demo leaves the current user as administrator. */
+  /** Identity of the current employee — stored separately from the role. */
+  currentEmployeeId: string;
+  /** Ownership transfer leaves the current employee as administrator. */
   onOwnershipTransferred: () => void;
-  /** Leaving the company in the demo closes access to the company. */
+  /** Leaving the company closes access to the company. */
   onLeftCompany: () => void;
 }
 
@@ -76,6 +78,7 @@ const allowedActions = (role: CustomerRole): EmployeeActionKey[] => {
 export const EmployeesSection = ({
   lang,
   role,
+  currentEmployeeId,
   onOwnershipTransferred,
   onLeftCompany,
 }: Props) => {
@@ -100,16 +103,22 @@ export const EmployeesSection = ({
     [role],
   );
 
-  const self = SELF_RECORDS[role];
+  // Личность текущего сотрудника хранится отдельно от роли: она берётся из
+  // изменяемого списка по устойчивому идентификатору.
+  const self = useMemo(
+    () =>
+      employees.find((e) => e.id === currentEmployeeId) ??
+      SELF_RECORDS[role] ??
+      employees[0],
+    [employees, currentEmployeeId, role],
+  );
 
-  // Кандидаты действия: сотрудники компании, кроме текущего пользователя.
-  const targets = useMemo(
-    () => employees.filter((e) => e.id !== self.id),
+  // Цели действий: сотрудники компании, кроме текущего сотрудника и владельца.
+  // Владельца можно изменить только действием «Передать владение».
+  const list = useMemo(
+    () => employees.filter((e) => e.id !== self.id && e.role !== "owner"),
     [employees, self.id],
   );
-  const transferTargets = useMemo(() => targets.filter((e) => e.role !== "owner"), [targets]);
-
-  const list = pending === "transferOwnership" ? transferTargets : targets;
   const target = list.find((e) => e.id === targetId) ?? null;
 
   // Роль понижена или изменилась — закрываем открытую форму/диалог и убираем
@@ -303,7 +312,7 @@ export const EmployeesSection = ({
             </div>
             <div className="min-w-0">
               <dt className="text-[10.5px] uppercase text-muted-foreground">{a.ownRecordRole}</dt>
-              <dd className="text-sm font-medium">{c.roles[role]}</dd>
+              <dd className="text-sm font-medium">{c.roles[self.role]}</dd>
             </div>
             <div className="min-w-0">
               <dt className="text-[10.5px] uppercase text-muted-foreground">

@@ -34,6 +34,7 @@ import {
 import { PROTO_COMPANY, PROTO_UPDATED_AT } from "./customer-workspace/data";
 import { ServiceReview } from "./customer-workspace/ServiceReview";
 import { EmployeesSection } from "./customer-workspace/EmployeesSection";
+import { SELF_RECORDS } from "./customer-workspace/data-access";
 import { ProductsSection } from "./customer-workspace/ProductsSection";
 import { protoProductsCopy } from "./customer-workspace/copy-p3";
 import {
@@ -92,6 +93,10 @@ const CustomerWorkspacePrototype = () => {
   const [dark, setDark] = useState(false);
   const [section, setSection] = useState<ProtoSectionKey>("products");
   const [role, setRole] = useState<ProtoRoleKey>("owner");
+  // Личность текущего сотрудника хранится отдельно от его роли.
+  const [currentEmployeeId, setCurrentEmployeeId] = useState<string>(
+    SELF_RECORDS.owner.id,
+  );
   const [state, setState] = useState<ProtoStateKey>("ready");
   const [scenario, setScenario] = useState<P4Scenario>("view");
   const [editingProducts, setEditingProducts] = useState(false);
@@ -166,6 +171,8 @@ const CustomerWorkspacePrototype = () => {
         <EmployeesSection
           lang={lang}
           role={role === "service" ? "viewer" : role}
+          currentEmployeeId={currentEmployeeId}
+          // Меняется только роль текущего сотрудника: личность сохраняется.
           onOwnershipTransferred={() => setRole("admin")}
           onLeftCompany={() => setState("revoked")}
         />
@@ -371,7 +378,16 @@ const CustomerWorkspacePrototype = () => {
         <div className="border-b border-border bg-muted/40">
           <div className="container flex min-w-0 flex-wrap items-center gap-2 py-2">
             <label className="text-xs text-muted-foreground" htmlFor="proto-role">{c.role}</label>
-            <Select value={role} onValueChange={(v) => setRole(v as ProtoRoleKey)}>
+            <Select
+              value={role}
+              onValueChange={(v) => {
+                const next = v as ProtoRoleKey;
+                setRole(next);
+                // Ручной выбор роли выбирает заранее заданного сотрудника
+                // этой роли; передача владения личность не меняет.
+                if (next !== "service") setCurrentEmployeeId(SELF_RECORDS[next].id);
+              }}
+            >
               <SelectTrigger id="proto-role" className={`${CONTROL} w-[220px]`} data-testid="proto-role-switch">
                 <SelectValue aria-label={c.role} />
               </SelectTrigger>
