@@ -378,7 +378,16 @@ const CustomerWorkspacePrototype = () => {
         <div className="border-b border-border bg-muted/40">
           <div className="container flex min-w-0 flex-wrap items-center gap-2 py-2">
             <label className="text-xs text-muted-foreground" htmlFor="proto-role">{c.role}</label>
-            <Select value={role} onValueChange={(v) => setRole(v as ProtoRoleKey)}>
+            <Select
+              value={role}
+              onValueChange={(v) => {
+                const next = v as ProtoRoleKey;
+                setRole(next);
+                // Ручной выбор роли выбирает заранее заданного сотрудника
+                // этой роли; передача владения личность не меняет.
+                if (next !== "service") setCurrentEmployeeId(SELF_RECORDS[next].id);
+              }}
+            >
               <SelectTrigger id="proto-role" className={`${CONTROL} w-[220px]`} data-testid="proto-role-switch">
                 <SelectValue aria-label={c.role} />
               </SelectTrigger>
