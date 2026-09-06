@@ -3,12 +3,13 @@
  * /dev/customer-workspace.
  *
  * Implemented packages: P0 shell and state library, P1 service review,
- * P2 employees and access, P3 company products, P4 customer work.
- * P5-P7 are NOT implemented here.
+ * P2 employees and access, P3 company products, P4 customer work,
+ * P5 data transfer, P6 operations, P7 limited pilot.
  *
  * No backend, no network requests, no storage reads or writes, no new
  * dependencies. All data is deterministic module memory.
  */
+
 import { useEffect, useMemo, useState } from "react";
 import { Building2, Check, ChevronRight, Loader2, Lock, Moon, RotateCcw, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
