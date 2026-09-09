@@ -63,6 +63,24 @@ describe("ContactFirstPrototype", () => {
     expect(screen.getAllByText("Скопировано").length).toBeGreaterThan(0);
   });
 
+  it("показывает загрузку списка внутри контактов", () => {
+    renderApp();
+    expect(has("crm-import-panel")).toBe(false);
+    fireEvent.click(el("crm-import-open"));
+    expect(has("crm-import-panel")).toBe(true);
+    fireEvent.click(el("crm-import-open"));
+    expect(has("crm-import-panel")).toBe(false);
+  });
+
+  it("возвращает фокус на кнопку создания после закрытия формы", () => {
+    renderApp();
+    const open = el("crm-create-open") as HTMLButtonElement;
+    open.focus();
+    fireEvent.click(open);
+    fireEvent.click(el("crm-create-cancel"));
+    expect(has("crm-create-submit")).toBe(false);
+  });
+
   it("проверяет обязательные поля при создании клиента", () => {
     renderApp();
     fireEvent.click(el("crm-create-open"));
