@@ -12,6 +12,12 @@ afterEach(() => cleanup());
 const el = (testId: string) => screen.getAllByTestId(testId)[0];
 const has = (testId: string) => screen.queryAllByTestId(testId).length > 0;
 
+/** Radix Tabs активирует вкладку по нажатию указателя. */
+const openTab = (testId: string) => {
+  fireEvent.mouseDown(el(testId));
+  fireEvent.click(el(testId));
+};
+
 const setSelect = (testId: string, value: string) =>
   fireEvent.change(screen.getByTestId(testId), { target: { value } });
 
@@ -100,12 +106,12 @@ describe("ContactFirstPrototype", () => {
     renderApp();
     fireEvent.click(el("crm-open-c1"));
 
-    fireEvent.click(el("crm-tab-tasks"));
+    openTab("crm-tab-tasks");
     fireEvent.change(el("crm-task-input"), { target: { value: "Позвонить в пятницу" } });
     fireEvent.click(el("crm-task-add"));
     expect(within(el("crm-task-list")).getAllByText("Позвонить в пятницу").length).toBeGreaterThan(0);
 
-    fireEvent.click(el("crm-tab-notes"));
+    openTab("crm-tab-notes");
     fireEvent.change(el("crm-note-input"), { target: { value: "Просит недельные объёмы" } });
     fireEvent.click(el("crm-note-add"));
     expect(within(el("crm-note-list")).getAllByText("Просит недельные объёмы").length).toBeGreaterThan(0);
