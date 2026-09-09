@@ -130,6 +130,7 @@ export const ContactsList = ({
   const [country, setCountry] = useState("");
   const [product, setProduct] = useState("");
   const [page, setPage] = useState(1);
+  const [importOpen, setImportOpen] = useState(false);
   // Повторная попытка сохраняет запрос и фильтры пользователя.
   const keepQueryRef = useRef(false);
 
