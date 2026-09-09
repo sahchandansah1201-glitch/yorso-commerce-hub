@@ -220,14 +220,14 @@ export const ContactsList = ({
     [companies],
   );
 
-  const quickActions = (contact: CrmContact) => (
+  const quickActions = (contact: CrmContact, suffix = "") => (
     <span className="inline-flex flex-wrap items-center gap-1">
       {perms.canReachOut && contact.phone ? (
         <a
           href={`tel:${contact.phone.replace(/[^+\d]/g, "")}`}
           aria-label={`${t.act_call}: ${contact.firstName} ${contact.lastName}`}
           title={t.act_call}
-          data-testid={`crm-call-${contact.id}`}
+          data-testid={`crm-call-${contact.id}${suffix}`}
           className="inline-flex h-[44px] w-[44px] items-center justify-center rounded-md border border-input text-foreground hover:bg-accent"
         >
           <Phone aria-hidden className="h-4 w-4" />
@@ -238,7 +238,7 @@ export const ContactsList = ({
           href={`mailto:${contact.email}`}
           aria-label={`${t.act_email}: ${contact.firstName} ${contact.lastName}`}
           title={t.act_email}
-          data-testid={`crm-mail-${contact.id}`}
+          data-testid={`crm-mail-${contact.id}${suffix}`}
           className="inline-flex h-[44px] w-[44px] items-center justify-center rounded-md border border-input text-foreground hover:bg-accent"
         >
           <Mail aria-hidden className="h-4 w-4" />
@@ -247,7 +247,7 @@ export const ContactsList = ({
     </span>
   );
 
-  const channels = (contact: CrmContact) => (
+  const channels = (contact: CrmContact, suffix = "") => (
     <div className="min-w-0 space-y-1">
       {contact.email ? (
         <div className="flex min-w-0 items-center gap-1">
@@ -256,7 +256,7 @@ export const ContactsList = ({
             value={contact.email}
             label={`${t.act_copy_email}: ${contact.email}`}
             copiedLabel={t.act_copied}
-            testId={`crm-copy-email-${contact.id}`}
+            testId={`crm-copy-email-${contact.id}${suffix}`}
           />
         </div>
       ) : null}
@@ -267,22 +267,24 @@ export const ContactsList = ({
             value={contact.phone}
             label={`${t.act_copy_phone}: ${contact.phone}`}
             copiedLabel={t.act_copied}
-            testId={`crm-copy-phone-${contact.id}`}
+            testId={`crm-copy-phone-${contact.id}${suffix}`}
           />
         </div>
       ) : null}
     </div>
   );
 
-  const nameCell = (contact: CrmContact) => (
+  const nameCell = (contact: CrmContact, suffix = "") => (
     <div className="min-w-0">
       <Button
         type="button"
         variant="link"
-        className="h-auto min-h-0 justify-start whitespace-normal break-words p-0 text-left text-sm font-medium"
+        className={`h-auto justify-start whitespace-normal break-words p-0 text-left text-sm font-medium ${
+          suffix ? "min-h-[44px]" : "min-h-0"
+        }`}
         onClick={() => onOpen(contact.id)}
         title={t.act_open}
-        data-testid={`crm-open-${contact.id}`}
+        data-testid={`crm-open-${contact.id}${suffix}`}
       >
         {contact.firstName} {contact.lastName}
       </Button>
@@ -546,12 +548,12 @@ export const ContactsList = ({
                   className="min-w-0 rounded-lg border border-border bg-card p-3"
                   data-testid={`crm-card-${contact.id}`}
                 >
-                  {nameCell(contact)}
+                  {nameCell(contact, "-card")}
                   <p className="mt-1 break-words text-xs text-muted-foreground">
                     {company?.name}
                     {company ? ` · ${CRM_COUNTRY_LABELS[company.country][lang]}` : ""}
                   </p>
-                  <div className="mt-2">{channels(contact)}</div>
+                  <div className="mt-2">{channels(contact, "-card")}</div>
                   <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                     <div className="min-w-0">
                       <dt className="text-muted-foreground">{t.col_stage}</dt>
@@ -568,7 +570,7 @@ export const ContactsList = ({
                       <dd>{formatDate(contact.lastActivityAt, lang)}</dd>
                     </div>
                   </dl>
-                  <div className="mt-2">{quickActions(contact)}</div>
+                  <div className="mt-2">{quickActions(contact, "-card")}</div>
                 </li>
               );
             })}
