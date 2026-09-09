@@ -58,21 +58,15 @@ export const ContactFirstPrototype = () => {
 
   // Видимость записей зависит только от выбранной роли просмотра.
   const visible = useMemo(() => {
-    if (role === "manager") {
-      const scope = employee.companyIds ?? [];
-      return contacts.filter((c) => scope.includes(c.companyId));
-    }
     if (role === "limitedManager") return contacts.filter((c) => c.ownerId === employee.id);
     return contacts;
   }, [contacts, role, employee]);
 
   const openContact = visible.find((c) => c.id === openId) ?? null;
 
-  // Менеджер создаёт клиентов только в своих компаниях.
-  const selectableCompanies = useMemo(() => {
-    const scope = role === "manager" ? (employee.companyIds ?? []) : null;
-    return scope ? companies.filter((c) => scope.includes(c.id)) : companies;
-  }, [companies, role, employee]);
+  // Организации-клиенты доступны всем сотрудникам рабочего пространства.
+  const selectableCompanies = companies;
+
 
   const roleLabel = (key: CrmRoleKey) =>
     key === "owner"
