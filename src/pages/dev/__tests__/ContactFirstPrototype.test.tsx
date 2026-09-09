@@ -3,7 +3,7 @@
  * Данные только в памяти компонента: сеть, storage и backend не используются.
  */
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, within } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, within, waitFor, act } from "@testing-library/react";
 import ContactFirstPrototype from "@/pages/dev/ContactFirstPrototype";
 
 afterEach(() => cleanup());
