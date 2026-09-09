@@ -2,7 +2,7 @@
  * Contacts start screen: search, filters, dense table on wide screens and
  * compact records at 390px. In-memory only.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Copy, Mail, Phone, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,9 +130,15 @@ export const ContactsList = ({
   const [country, setCountry] = useState("");
   const [product, setProduct] = useState("");
   const [page, setPage] = useState(1);
+  // Повторная попытка сохраняет запрос и фильтры пользователя.
+  const keepQueryRef = useRef(false);
 
   // Сценарий страницы задаёт исходные значения поиска и фильтров.
   useEffect(() => {
+    if (keepQueryRef.current) {
+      keepQueryRef.current = false;
+      return;
+    }
     setPage(1);
     if (scenario === "activeFilters") {
       setQuery("");
@@ -462,7 +468,11 @@ export const ContactsList = ({
           body={t.st_unavailable_body}
           testId="crm-unavailable"
         >
-          <Button variant="outline" className={CONTROL} onClick={onRetry} data-testid="crm-retry">
+          <Button variant="outline" className={CONTROL} onClick={() => {
+              keepQueryRef.current = true;
+              onRetry();
+            }}
+            data-testid="crm-retry">
             <RotateCcw aria-hidden className="mr-2 h-4 w-4" />
             {t.st_retry}
           </Button>
