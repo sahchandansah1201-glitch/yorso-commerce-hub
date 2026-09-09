@@ -68,6 +68,12 @@ export const ContactFirstPrototype = () => {
 
   const openContact = visible.find((c) => c.id === openId) ?? null;
 
+  // Менеджер создаёт клиентов только в своих компаниях.
+  const selectableCompanies = useMemo(() => {
+    const scope = role === "manager" ? (employee.companyIds ?? []) : null;
+    return scope ? companies.filter((c) => scope.includes(c.id)) : companies;
+  }, [companies, role, employee]);
+
   const roleLabel = (key: CrmRoleKey) =>
     key === "owner"
       ? t.role_owner
@@ -305,7 +311,7 @@ export const ContactFirstPrototype = () => {
         <CreateClientDialog
           lang={lang}
           open={createOpen && perms.canCreate}
-          companies={companies}
+          companies={selectableCompanies}
           ownerName={employee.name}
           onClose={() => setCreateOpen(false)}
           onCreate={createClient}
