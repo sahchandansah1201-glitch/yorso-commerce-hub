@@ -63,13 +63,28 @@ describe("ContactFirstPrototype", () => {
     expect(screen.getAllByText("Скопировано").length).toBeGreaterThan(0);
   });
 
-  it("ограничивает менеджера контактами его компаний", () => {
+  it("обычный менеджер видит контакты всех организаций-клиентов", () => {
     renderApp();
     setSelect("crm-role", "manager");
     expect(screen.getAllByText("Nordic Retail Group").length).toBeGreaterThan(0);
-    expect(screen.queryAllByText("Vistula Seafood").length).toBe(0);
-    expect(screen.queryAllByText("Iberia Fish Distribution").length).toBe(0);
+    expect(screen.getAllByText("Iberia Fish Distribution").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Vistula Seafood").length).toBeGreaterThan(0);
+    expect(has("crm-row-c11")).toBe(false);
   });
+
+  it("в форме обычного менеджера доступны все организации и создание новой", () => {
+    renderApp();
+    setSelect("crm-role", "manager");
+    fireEvent.click(el("crm-create-open"));
+    const options = Array.from(
+      (screen.getByTestId("crm-f-company") as HTMLSelectElement).options,
+    ).map((o) => o.value);
+    expect(options).toContain("nordic-retail");
+    expect(options).toContain("iberia-fish");
+    expect(options).toContain("vistula");
+    expect(options).toContain("__new");
+  });
+
 
   it("показывает загрузку списка внутри контактов", () => {
     renderApp();
