@@ -107,6 +107,7 @@ type Dict = {
   act_copy_email: string;
   act_copy_phone: string;
   act_copied: string;
+  act_copy_failed: string;
   act_call: string;
   act_email: string;
   act_open: string;
@@ -238,6 +239,7 @@ export const crmCopy: Record<CrmLang, Dict> = {
     act_copy_email: "Копировать email",
     act_copy_phone: "Копировать телефон",
     act_copied: "Скопировано",
+    act_copy_failed: "Не удалось скопировать",
     act_call: "Позвонить",
     act_email: "Написать письмо",
     act_open: "Открыть карточку",
@@ -367,6 +369,7 @@ export const crmCopy: Record<CrmLang, Dict> = {
     act_copy_email: "Copy email",
     act_copy_phone: "Copy phone",
     act_copied: "Copied",
+    act_copy_failed: "Could not copy",
     act_call: "Call",
     act_email: "Write an email",
     act_open: "Open record",
@@ -496,6 +499,7 @@ export const crmCopy: Record<CrmLang, Dict> = {
     act_copy_email: "Copiar correo",
     act_copy_phone: "Copiar teléfono",
     act_copied: "Copiado",
+    act_copy_failed: "No se pudo copiar",
     act_call: "Llamar",
     act_email: "Escribir un correo",
     act_open: "Abrir registro",

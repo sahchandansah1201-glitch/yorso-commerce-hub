@@ -3,7 +3,7 @@
  * Данные только в памяти компонента: сеть, storage и backend не используются.
  */
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, cleanup, fireEvent, within } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, within, waitFor, act } from "@testing-library/react";
 import ContactFirstPrototype from "@/pages/dev/ContactFirstPrototype";
 
 afterEach(() => cleanup());
@@ -51,25 +51,113 @@ describe("ContactFirstPrototype", () => {
     expect(has("crm-row-c3")).toBe(true);
   });
 
-  it("копирует значение и показывает подтверждение", () => {
-    const writeText = vi.fn();
+  const setClipboard = (writeText: unknown) =>
     Object.defineProperty(navigator, "clipboard", {
-      value: { writeText },
+      value: writeText === undefined ? undefined : { writeText },
       configurable: true,
     });
+
+  it("показывает подтверждение только после успешной записи", async () => {
+    let resolve: () => void = () => {};
+    const writeText = vi.fn(() => new Promise<void>((r) => (resolve = r)));
+    setClipboard(writeText);
     renderApp();
     fireEvent.click(el("crm-copy-email-c1"));
     expect(writeText).toHaveBeenCalledWith("sofia.lindqvist@nordic-retail.example");
+    expect(screen.queryAllByText("Скопировано").length).toBe(0);
+    await act(async () => {
+      resolve();
+    });
     expect(screen.getAllByText("Скопировано").length).toBeGreaterThan(0);
   });
 
-  it("ограничивает менеджера контактами его компаний", () => {
+  it("не блокирует кнопку повторным нажатием во время ожидания", async () => {
+    let resolve: () => void = () => {};
+    const writeText = vi.fn(() => new Promise<void>((r) => (resolve = r)));
+    setClipboard(writeText);
+    renderApp();
+    fireEvent.click(el("crm-copy-email-c1"));
+    fireEvent.click(el("crm-copy-email-c1"));
+    expect(writeText).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      resolve();
+    });
+  });
+
+  it("показывает нейтральную ошибку при отказе записи", async () => {
+    const writeText = vi.fn(() => Promise.reject(new Error("SecurityError: denied")));
+    setClipboard(writeText);
+    renderApp();
+    await act(async () => {
+      fireEvent.click(el("crm-copy-email-c1"));
+    });
+    expect(screen.queryAllByText("Скопировано").length).toBe(0);
+    expect(screen.getAllByText("Не удалось скопировать").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/SecurityError/)).toBeNull();
+    const status = screen.getAllByText("Не удалось скопировать")[0].parentElement;
+    expect(status?.getAttribute("aria-live")).toBe("polite");
+    expect(status?.textContent).toBe("Не удалось скопировать");
+  });
+
+  it("показывает нейтральную ошибку в EN и ES при отсутствии буфера обмена", async () => {
+    setClipboard(undefined);
+    renderApp();
+    setSelect("crm-lang", "en");
+    await act(async () => {
+      fireEvent.click(el("crm-copy-email-c1"));
+    });
+    expect(screen.getAllByText("Could not copy").length).toBeGreaterThan(0);
+    setSelect("crm-lang", "es");
+    await act(async () => {
+      fireEvent.click(el("crm-copy-email-c1"));
+    });
+    expect(screen.getAllByText("No se pudo copiar").length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("Copiado").length).toBe(0);
+  });
+
+  it("успешно копирует при повторной попытке после ошибки", async () => {
+    const writeText = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("denied"))
+      .mockResolvedValueOnce(undefined);
+    setClipboard(writeText);
+    renderApp();
+    await act(async () => {
+      fireEvent.click(el("crm-copy-email-c1"));
+    });
+    expect(screen.getAllByText("Не удалось скопировать").length).toBeGreaterThan(0);
+    await act(async () => {
+      fireEvent.click(el("crm-copy-email-c1"));
+    });
+    expect(screen.getAllByText("Скопировано").length).toBeGreaterThan(0);
+  });
+
+
+  it("обычный менеджер видит контакты всех организаций-клиентов", () => {
     renderApp();
     setSelect("crm-role", "manager");
     expect(screen.getAllByText("Nordic Retail Group").length).toBeGreaterThan(0);
-    expect(screen.queryAllByText("Vistula Seafood").length).toBe(0);
-    expect(screen.queryAllByText("Iberia Fish Distribution").length).toBe(0);
+    fireEvent.change(el("crm-search"), { target: { value: "Iberia" } });
+    expect(screen.getAllByText("Iberia Fish Distribution").length).toBeGreaterThan(0);
+    fireEvent.change(el("crm-search"), { target: { value: "Vistula" } });
+    expect(screen.getAllByText("Vistula Seafood").length).toBeGreaterThan(0);
+    fireEvent.change(el("crm-search"), { target: { value: "" } });
+    expect(has("crm-row-c11")).toBe(false);
   });
+
+  it("в форме обычного менеджера доступны все организации и создание новой", () => {
+    renderApp();
+    setSelect("crm-role", "manager");
+    fireEvent.click(el("crm-create-open"));
+    const options = Array.from(
+      (screen.getByTestId("crm-f-company") as HTMLSelectElement).options,
+    ).map((o) => o.value);
+    expect(options).toContain("nordic-retail");
+    expect(options).toContain("iberia-fish");
+    expect(options).toContain("vistula");
+    expect(options).toContain("__new");
+  });
+
 
   it("показывает загрузку списка внутри контактов", () => {
     renderApp();
@@ -80,13 +168,14 @@ describe("ContactFirstPrototype", () => {
     expect(has("crm-import-panel")).toBe(false);
   });
 
-  it("возвращает фокус на кнопку создания после закрытия формы", () => {
+  it("возвращает фокус на кнопку создания после закрытия формы", async () => {
     renderApp();
     const open = el("crm-create-open") as HTMLButtonElement;
     open.focus();
     fireEvent.click(open);
     fireEvent.click(el("crm-create-cancel"));
     expect(has("crm-create-submit")).toBe(false);
+    await waitFor(() => expect(document.activeElement).toBe(open));
   });
 
   it("проверяет обязательные поля при создании клиента", () => {

@@ -36,20 +36,38 @@ export const CopyValueButton = ({
   value,
   label,
   copiedLabel,
+  failedLabel,
   testId,
 }: {
   value: string;
   label: string;
   copiedLabel: string;
+  failedLabel: string;
   testId: string;
 }) => {
-  const [copied, setCopied] = useState(false);
+  const [state, setState] = useState<"idle" | "pending" | "copied" | "failed">("idle");
 
   useEffect(() => {
-    if (!copied) return;
-    const timer = window.setTimeout(() => setCopied(false), 2000);
+    if (state !== "copied" && state !== "failed") return;
+    const timer = window.setTimeout(() => setState("idle"), 2000);
     return () => window.clearTimeout(timer);
-  }, [copied]);
+  }, [state]);
+
+  const copied = state === "copied";
+
+  const copy = async () => {
+    if (state === "pending") return;
+    setState("pending");
+    try {
+      const write = navigator.clipboard?.writeText;
+      if (typeof write !== "function") throw new Error("unavailable");
+      await write.call(navigator.clipboard, value);
+      setState("copied");
+    } catch {
+      // Значение и техническая причина не показываются: только нейтральный статус.
+      setState("failed");
+    }
+  };
 
   return (
     <span className="inline-flex items-center gap-1">
@@ -59,14 +77,10 @@ export const CopyValueButton = ({
         className={ICON_CONTROL}
         aria-label={label}
         title={label}
+        disabled={state === "pending"}
         data-testid={testId}
         onClick={() => {
-          try {
-            void navigator.clipboard?.writeText(value);
-          } catch {
-            /* Копирование недоступно в этой среде — подтверждение всё равно показываем. */
-          }
-          setCopied(true);
+          void copy();
         }}
       >
         {copied ? (
@@ -75,14 +89,14 @@ export const CopyValueButton = ({
           <Copy aria-hidden className="h-4 w-4" />
         )}
       </Button>
-      {copied ? (
-        <span className="text-xs text-success" role="status">
-          {copiedLabel}
-        </span>
-      ) : null}
+      <span aria-live="polite" className="text-xs">
+        {copied ? <span className="text-success">{copiedLabel}</span> : null}
+        {state === "failed" ? <span className="text-destructive">{failedLabel}</span> : null}
+      </span>
     </span>
   );
 };
+
 
 const StatePanel = ({
   title,
@@ -257,6 +271,7 @@ export const ContactsList = ({
             value={contact.email}
             label={`${t.act_copy_email}: ${contact.email}`}
             copiedLabel={t.act_copied}
+            failedLabel={t.act_copy_failed}
             testId={`crm-copy-email-${contact.id}${suffix}`}
           />
         </div>
@@ -268,6 +283,7 @@ export const ContactsList = ({
             value={contact.phone}
             label={`${t.act_copy_phone}: ${contact.phone}`}
             copiedLabel={t.act_copied}
+            failedLabel={t.act_copy_failed}
             testId={`crm-copy-phone-${contact.id}${suffix}`}
           />
         </div>

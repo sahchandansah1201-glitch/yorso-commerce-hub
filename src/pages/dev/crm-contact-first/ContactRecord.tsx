@@ -164,6 +164,7 @@ export const ContactRecord = ({
                 value={contact.email}
                 label={`${t.act_copy_email}: ${contact.email}`}
                 copiedLabel={t.act_copied}
+                failedLabel={t.act_copy_failed}
                 testId="crm-record-copy-email"
               />
               {perms.canReachOut ? (
@@ -184,6 +185,7 @@ export const ContactRecord = ({
                 value={contact.phone}
                 label={`${t.act_copy_phone}: ${contact.phone}`}
                 copiedLabel={t.act_copied}
+                failedLabel={t.act_copy_failed}
                 testId="crm-record-copy-phone"
               />
               {perms.canReachOut ? (
