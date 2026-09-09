@@ -36,8 +36,10 @@ type NavKey = "contacts" | "deals" | "tasks" | "companies";
 
 const permsFor = (role: CrmRoleKey, scenario: CrmScenarioKey): CrmPerms => {
   const readOnly = role === "observer" || scenario === "viewOnly";
-  if (readOnly) return { canCreate: false, canEdit: false, canReachOut: false };
-  return { canCreate: true, canEdit: true, canReachOut: true };
+  // Загрузка клиентской базы доступна только владельцу и администратору.
+  const canImport = !readOnly && (role === "owner" || role === "admin");
+  if (readOnly) return { canCreate: false, canEdit: false, canReachOut: false, canImport: false };
+  return { canCreate: true, canEdit: true, canReachOut: true, canImport };
 };
 
 export const ContactFirstPrototype = () => {

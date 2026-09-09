@@ -29,7 +29,12 @@ import {
   type CrmStage,
 } from "./copy";
 
-export type CrmPerms = { canCreate: boolean; canEdit: boolean; canReachOut: boolean };
+export type CrmPerms = {
+  canCreate: boolean;
+  canEdit: boolean;
+  canReachOut: boolean;
+  canImport: boolean;
+};
 
 /** Copy control with an inline confirmation, no toast provider needed. */
 export const CopyValueButton = ({
