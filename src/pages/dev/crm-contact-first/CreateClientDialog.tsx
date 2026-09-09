@@ -118,6 +118,15 @@ export const CreateClientDialog = ({
       <DialogContent
         className={`${DIALOG_CLOSE} max-h-[92dvh] overflow-y-auto`}
         data-testid="crm-create-dialog"
+        onCloseAutoFocus={(event) => {
+          // Фокус возвращается на постоянную кнопку создания клиента.
+          event.preventDefault();
+          const buttons = Array.from(
+            document.querySelectorAll<HTMLButtonElement>('[data-testid="crm-create-open"]'),
+          );
+          const visible = buttons.find((node) => node.offsetParent !== null) ?? buttons[0];
+          visible?.focus();
+        }}
       >
         <div className="absolute right-3 top-3">
           <DialogClose asChild>
