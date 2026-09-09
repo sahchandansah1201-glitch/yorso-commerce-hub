@@ -94,7 +94,9 @@ describe("ContactFirstPrototype", () => {
     expect(screen.queryAllByText("Скопировано").length).toBe(0);
     expect(screen.getAllByText("Не удалось скопировать").length).toBeGreaterThan(0);
     expect(screen.queryByText(/SecurityError/)).toBeNull();
-    expect(screen.queryAllByText("sofia.lindqvist@nordic-retail.example").length).toBe(0);
+    const status = screen.getAllByText("Не удалось скопировать")[0].parentElement;
+    expect(status?.getAttribute("aria-live")).toBe("polite");
+    expect(status?.textContent).toBe("Не удалось скопировать");
   });
 
   it("показывает нейтральную ошибку в EN и ES при отсутствии буфера обмена", async () => {
@@ -135,8 +137,11 @@ describe("ContactFirstPrototype", () => {
     renderApp();
     setSelect("crm-role", "manager");
     expect(screen.getAllByText("Nordic Retail Group").length).toBeGreaterThan(0);
+    fireEvent.change(el("crm-search"), { target: { value: "Iberia" } });
     expect(screen.getAllByText("Iberia Fish Distribution").length).toBeGreaterThan(0);
+    fireEvent.change(el("crm-search"), { target: { value: "Vistula" } });
     expect(screen.getAllByText("Vistula Seafood").length).toBeGreaterThan(0);
+    fireEvent.change(el("crm-search"), { target: { value: "" } });
     expect(has("crm-row-c11")).toBe(false);
   });
 
