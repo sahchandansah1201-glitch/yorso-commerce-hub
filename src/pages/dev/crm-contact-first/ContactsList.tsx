@@ -271,6 +271,7 @@ export const ContactsList = ({
             value={contact.email}
             label={`${t.act_copy_email}: ${contact.email}`}
             copiedLabel={t.act_copied}
+            failedLabel={t.act_copy_failed}
             testId={`crm-copy-email-${contact.id}${suffix}`}
           />
         </div>
@@ -282,6 +283,7 @@ export const ContactsList = ({
             value={contact.phone}
             label={`${t.act_copy_phone}: ${contact.phone}`}
             copiedLabel={t.act_copied}
+            failedLabel={t.act_copy_failed}
             testId={`crm-copy-phone-${contact.id}${suffix}`}
           />
         </div>
