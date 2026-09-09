@@ -313,9 +313,20 @@ export const ContactsList = ({
           </p>
         </div>
         {perms.canCreate ? (
-          <Button className={CONTROL} onClick={onCreate} data-testid="crm-create-open">
-            {t.list_create}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button className={CONTROL} onClick={onCreate} data-testid="crm-create-open">
+              {t.list_create}
+            </Button>
+            <Button
+              variant="outline"
+              className={CONTROL}
+              aria-expanded={importOpen}
+              onClick={() => setImportOpen((prev) => !prev)}
+              data-testid="crm-import-open"
+            >
+              {importOpen ? t.import_close : t.list_import}
+            </Button>
+          </div>
         ) : (
           <span
             className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground"
@@ -325,6 +336,12 @@ export const ContactsList = ({
           </span>
         )}
       </div>
+
+      {/* Загрузка списка живёт внутри контактов, отдельного раздела для неё нет. */}
+      {importOpen && perms.canCreate ? (
+        <StatePanel title={t.import_title} body={t.import_body} testId="crm-import-panel" />
+      ) : null}
+
 
       <div className="space-y-3 rounded-lg border border-border bg-card p-3">
         <div className="min-w-0">
