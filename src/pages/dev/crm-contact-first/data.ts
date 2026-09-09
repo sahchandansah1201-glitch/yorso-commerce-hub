@@ -9,8 +9,6 @@ export type CrmEmployee = {
   name: string;
   /** Team used for grouping employees. */
   teamId: "nordic" | "iberia";
-  /** Companies the employee works with: manager scope is limited to them. */
-  companyIds?: string[];
 };
 
 export const CRM_EMPLOYEES: Record<CrmRoleKey, CrmEmployee> = {
@@ -20,7 +18,6 @@ export const CRM_EMPLOYEES: Record<CrmRoleKey, CrmEmployee> = {
     id: "e-manager",
     name: "Marta Ruiz",
     teamId: "nordic",
-    companyIds: ["nordic-retail", "bergen", "kattegat"],
   },
   limitedManager: { id: "e-limited", name: "Lars Kvale", teamId: "nordic" },
   observer: { id: "e-observer", name: "Anna Petrova", teamId: "iberia" },
