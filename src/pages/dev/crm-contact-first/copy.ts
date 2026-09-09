@@ -84,6 +84,10 @@ type Dict = {
   list_title: string;
   list_create: string;
   list_count: string;
+  list_import: string;
+  import_title: string;
+  import_body: string;
+  import_close: string;
   list_search: string;
   list_searchPlaceholder: string;
   f_owner: string;
@@ -210,6 +214,11 @@ export const crmCopy: Record<CrmLang, Dict> = {
     list_title: "Контакты",
     list_create: "Создать клиента",
     list_count: "Записей: {n}",
+    list_import: "Загрузить список",
+    import_title: "Загрузка списка контактов",
+    import_body:
+      "Загрузка файла на этой странице пока не выполняется. Раздел показан, чтобы согласовать его место внутри контактов.",
+    import_close: "Скрыть загрузку",
     list_search: "Поиск по контактам",
     list_searchPlaceholder: "Имя, email, телефон или компания",
     f_owner: "Ответственный",
@@ -334,6 +343,11 @@ export const crmCopy: Record<CrmLang, Dict> = {
     list_title: "Contacts",
     list_create: "Create client",
     list_count: "Records: {n}",
+    list_import: "Upload list",
+    import_title: "Contact list upload",
+    import_body:
+      "File upload does not run on this page yet. The section is shown to agree on its place inside contacts.",
+    import_close: "Hide upload",
     list_search: "Search contacts",
     list_searchPlaceholder: "Name, email, phone or company",
     f_owner: "Contact owner",
@@ -458,6 +472,11 @@ export const crmCopy: Record<CrmLang, Dict> = {
     list_title: "Contactos",
     list_create: "Crear cliente",
     list_count: "Registros: {n}",
+    list_import: "Cargar lista",
+    import_title: "Carga de la lista de contactos",
+    import_body:
+      "La carga de archivos todavía no funciona en esta página. La sección se muestra para acordar su lugar dentro de contactos.",
+    import_close: "Ocultar la carga",
     list_search: "Buscar contactos",
     list_searchPlaceholder: "Nombre, correo, teléfono o empresa",
     f_owner: "Responsable",
