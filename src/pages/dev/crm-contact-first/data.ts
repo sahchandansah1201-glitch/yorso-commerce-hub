@@ -7,14 +7,21 @@ import type { CrmLang, CrmRoleKey, CrmStage } from "./copy";
 export type CrmEmployee = {
   id: string;
   name: string;
-  /** Team used for manager visibility rules. */
+  /** Team used for grouping employees. */
   teamId: "nordic" | "iberia";
+  /** Companies the employee works with: manager scope is limited to them. */
+  companyIds?: string[];
 };
 
 export const CRM_EMPLOYEES: Record<CrmRoleKey, CrmEmployee> = {
   owner: { id: "e-owner", name: "Ingrid Halvorsen", teamId: "nordic" },
   admin: { id: "e-admin", name: "Pablo Ortega", teamId: "iberia" },
-  manager: { id: "e-manager", name: "Marta Ruiz", teamId: "nordic" },
+  manager: {
+    id: "e-manager",
+    name: "Marta Ruiz",
+    teamId: "nordic",
+    companyIds: ["nordic-retail", "bergen", "kattegat"],
+  },
   limitedManager: { id: "e-limited", name: "Lars Kvale", teamId: "nordic" },
   observer: { id: "e-observer", name: "Anna Petrova", teamId: "iberia" },
 };

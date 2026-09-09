@@ -58,7 +58,10 @@ export const ContactFirstPrototype = () => {
 
   // Видимость записей зависит только от выбранной роли просмотра.
   const visible = useMemo(() => {
-    if (role === "manager") return contacts.filter((c) => c.teamId === employee.teamId);
+    if (role === "manager") {
+      const scope = employee.companyIds ?? [];
+      return contacts.filter((c) => scope.includes(c.companyId));
+    }
     if (role === "limitedManager") return contacts.filter((c) => c.ownerId === employee.id);
     return contacts;
   }, [contacts, role, employee]);
