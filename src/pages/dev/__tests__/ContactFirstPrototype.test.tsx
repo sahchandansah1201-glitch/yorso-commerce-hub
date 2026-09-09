@@ -95,13 +95,14 @@ describe("ContactFirstPrototype", () => {
     expect(has("crm-import-panel")).toBe(false);
   });
 
-  it("возвращает фокус на кнопку создания после закрытия формы", () => {
+  it("возвращает фокус на кнопку создания после закрытия формы", async () => {
     renderApp();
     const open = el("crm-create-open") as HTMLButtonElement;
     open.focus();
     fireEvent.click(open);
     fireEvent.click(el("crm-create-cancel"));
     expect(has("crm-create-submit")).toBe(false);
+    await waitFor(() => expect(document.activeElement).toBe(open));
   });
 
   it("проверяет обязательные поля при создании клиента", () => {
