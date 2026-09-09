@@ -29,7 +29,12 @@ import {
   type CrmStage,
 } from "./copy";
 
-export type CrmPerms = { canCreate: boolean; canEdit: boolean; canReachOut: boolean };
+export type CrmPerms = {
+  canCreate: boolean;
+  canEdit: boolean;
+  canReachOut: boolean;
+  canImport: boolean;
+};
 
 /** Copy control with an inline confirmation, no toast provider needed. */
 export const CopyValueButton = ({
@@ -145,6 +150,10 @@ export const ContactsList = ({
   const [product, setProduct] = useState("");
   const [page, setPage] = useState(1);
   const [importOpen, setImportOpen] = useState(false);
+  // Потеря права на загрузку сразу закрывает ранее открытую панель.
+  useEffect(() => {
+    if (!perms.canImport) setImportOpen(false);
+  }, [perms.canImport]);
   // Повторная попытка сохраняет запрос и фильтры пользователя.
   const keepQueryRef = useRef(false);
 
@@ -334,15 +343,17 @@ export const ContactsList = ({
             <Button className={CONTROL} onClick={onCreate} data-testid="crm-create-open">
               {t.list_create}
             </Button>
-            <Button
-              variant="outline"
-              className={CONTROL}
-              aria-expanded={importOpen}
-              onClick={() => setImportOpen((prev) => !prev)}
-              data-testid="crm-import-open"
-            >
-              {importOpen ? t.import_close : t.list_import}
-            </Button>
+            {perms.canImport ? (
+              <Button
+                variant="outline"
+                className={CONTROL}
+                aria-expanded={importOpen}
+                onClick={() => setImportOpen((prev) => !prev)}
+                data-testid="crm-import-open"
+              >
+                {importOpen ? t.import_close : t.list_import}
+              </Button>
+            ) : null}
           </div>
         ) : (
           <span
@@ -355,7 +366,7 @@ export const ContactsList = ({
       </div>
 
       {/* Загрузка списка живёт внутри контактов, отдельного раздела для неё нет. */}
-      {importOpen && perms.canCreate ? (
+      {importOpen && perms.canImport ? (
         <StatePanel title={t.import_title} body={t.import_body} testId="crm-import-panel" />
       ) : null}
 
