@@ -71,7 +71,7 @@ describe("ContactFirstPrototype", () => {
     expect(screen.getAllByText("Скопировано").length).toBeGreaterThan(0);
   });
 
-  it("не блокирует кнопку повторным нажатием во время ожидания", async () => {
+  it("блокирует повторное нажатие кнопки во время ожидания записи", async () => {
     let resolve: () => void = () => {};
     const writeText = vi.fn(() => new Promise<void>((r) => (resolve = r)));
     setClipboard(writeText);
@@ -287,5 +287,31 @@ describe("ContactFirstPrototype", () => {
     renderApp();
     fireEvent.click(el("crm-nav-deals"));
     expect(el("crm-nav-unavailable")).toBeTruthy();
+  });
+
+  it("загрузка списка доступна владельцу и администратору", () => {
+    renderApp();
+    expect(has("crm-import-open")).toBe(true);
+    setSelect("crm-role", "admin");
+    expect(has("crm-import-open")).toBe(true);
+  });
+
+  it("загрузка списка недоступна менеджеру, ограниченному менеджеру и наблюдателю", () => {
+    renderApp();
+    setSelect("crm-role", "manager");
+    expect(has("crm-import-open")).toBe(false);
+    setSelect("crm-role", "limitedManager");
+    expect(has("crm-import-open")).toBe(false);
+    setSelect("crm-role", "observer");
+    expect(has("crm-import-open")).toBe(false);
+  });
+
+  it("открытая владельцем панель загрузки скрывается после перехода к менеджеру", () => {
+    renderApp();
+    fireEvent.click(el("crm-import-open"));
+    expect(has("crm-import-panel")).toBe(true);
+    setSelect("crm-role", "manager");
+    expect(has("crm-import-panel")).toBe(false);
+    expect(has("crm-import-open")).toBe(false);
   });
 });
