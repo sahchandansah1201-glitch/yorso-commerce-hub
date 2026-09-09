@@ -63,6 +63,14 @@ describe("ContactFirstPrototype", () => {
     expect(screen.getAllByText("Скопировано").length).toBeGreaterThan(0);
   });
 
+  it("ограничивает менеджера контактами его компаний", () => {
+    renderApp();
+    setSelect("crm-role", "manager");
+    expect(screen.getAllByText("Nordic Retail Group").length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("Vistula Seafood").length).toBe(0);
+    expect(screen.queryAllByText("Iberia Fish Distribution").length).toBe(0);
+  });
+
   it("показывает загрузку списка внутри контактов", () => {
     renderApp();
     expect(has("crm-import-panel")).toBe(false);

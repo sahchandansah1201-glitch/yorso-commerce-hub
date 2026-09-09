@@ -58,12 +58,21 @@ export const ContactFirstPrototype = () => {
 
   // Видимость записей зависит только от выбранной роли просмотра.
   const visible = useMemo(() => {
-    if (role === "manager") return contacts.filter((c) => c.teamId === employee.teamId);
+    if (role === "manager") {
+      const scope = employee.companyIds ?? [];
+      return contacts.filter((c) => scope.includes(c.companyId));
+    }
     if (role === "limitedManager") return contacts.filter((c) => c.ownerId === employee.id);
     return contacts;
   }, [contacts, role, employee]);
 
   const openContact = visible.find((c) => c.id === openId) ?? null;
+
+  // Менеджер создаёт клиентов только в своих компаниях.
+  const selectableCompanies = useMemo(() => {
+    const scope = role === "manager" ? (employee.companyIds ?? []) : null;
+    return scope ? companies.filter((c) => scope.includes(c.id)) : companies;
+  }, [companies, role, employee]);
 
   const roleLabel = (key: CrmRoleKey) =>
     key === "owner"
@@ -302,7 +311,7 @@ export const ContactFirstPrototype = () => {
         <CreateClientDialog
           lang={lang}
           open={createOpen && perms.canCreate}
-          companies={companies}
+          companies={selectableCompanies}
           ownerName={employee.name}
           onClose={() => setCreateOpen(false)}
           onCreate={createClient}
