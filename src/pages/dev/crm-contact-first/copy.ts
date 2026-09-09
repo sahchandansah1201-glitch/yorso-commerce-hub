@@ -164,7 +164,7 @@ type Dict = {
   tab_notes: string;
   act_filter: string;
   act_all: string;
-  act_demoNote: string;
+  act_feedNote: string;
   a_created: string;
   a_stage: string;
   a_email: string;
@@ -295,7 +295,7 @@ export const crmCopy: Record<CrmLang, Dict> = {
     tab_notes: "Заметки",
     act_filter: "Тип события",
     act_all: "Все типы",
-    act_demoNote: "Лента показывает события по этому контакту.",
+    act_feedNote: "Лента показывает события по этому контакту.",
     a_created: "Контакт создан",
     a_stage: "Этап работы: {stage}",
     a_email: "Письмо",
@@ -424,7 +424,7 @@ export const crmCopy: Record<CrmLang, Dict> = {
     tab_notes: "Notes",
     act_filter: "Event type",
     act_all: "All types",
-    act_demoNote: "The feed shows events for this contact.",
+    act_feedNote: "The feed shows events for this contact.",
     a_created: "Contact created",
     a_stage: "Contact stage: {stage}",
     a_email: "Email",
@@ -554,7 +554,7 @@ export const crmCopy: Record<CrmLang, Dict> = {
     tab_notes: "Notas",
     act_filter: "Tipo de evento",
     act_all: "Todos los tipos",
-    act_demoNote: "La cronología muestra los eventos de este contacto.",
+    act_feedNote: "La cronología muestra los eventos de este contacto.",
     a_created: "Contacto creado",
     a_stage: "Etapa de trabajo: {stage}",
     a_email: "Correo",

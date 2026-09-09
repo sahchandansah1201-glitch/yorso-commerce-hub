@@ -7,7 +7,7 @@ import type { CrmLang, CrmRoleKey, CrmStage } from "./copy";
 export type CrmEmployee = {
   id: string;
   name: string;
-  /** Team used only to demonstrate manager visibility. */
+  /** Team used for manager visibility rules. */
   teamId: "nordic" | "iberia";
 };
 

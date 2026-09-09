@@ -401,7 +401,7 @@ export const ContactRecord = ({
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-[11px] text-muted-foreground">{t.act_demoNote}</p>
+            <p className="mt-3 text-[11px] text-muted-foreground">{t.act_feedNote}</p>
           </div>
         </TabsContent>
 
