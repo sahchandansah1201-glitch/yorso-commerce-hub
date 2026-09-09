@@ -49,6 +49,7 @@ const RegistrationFunnelDashboard = lazy(() => import("./pages/dashboard/Registr
 const ResendEffectivenessDashboard = lazy(() => import("./pages/dashboard/ResendEffectivenessDashboard.tsx"));
 const TypographyAudit = lazy(() => import("./pages/dev/TypographyAudit.tsx"));
 const CustomerWorkspacePrototype = lazy(() => import("./pages/dev/CustomerWorkspacePrototype.tsx"));
+const ContactFirstPrototype = lazy(() => import("./pages/dev/ContactFirstPrototype.tsx"));
 
 // Hidden design-approval prototype surface.
 // Allowed on local development, automated tests, and exactly one preview host —
@@ -56,6 +57,7 @@ const CustomerWorkspacePrototype = lazy(() => import("./pages/dev/CustomerWorksp
 // YORSO production domain. No wildcard/suffix matching, no env variables.
 const DESIGN_APPROVAL_PREVIEW_HOST = "id-preview--18557297-fe46-4e8e-bde7-b6c70c3cef2d.lovable.app";
 const PROTOTYPE_ROUTE_PATH = "/dev/customer-workspace";
+const CONTACT_FIRST_ROUTE_PATH = "/dev/crm-contact-first";
 
 const isDesignApprovalPrototypeAllowed = () =>
   import.meta.env.DEV ||
@@ -64,6 +66,9 @@ const isDesignApprovalPrototypeAllowed = () =>
 
 const isPrototypeRouteRequested = () =>
   typeof window !== "undefined" && window.location.pathname === PROTOTYPE_ROUTE_PATH;
+
+const isContactFirstRouteRequested = () =>
+  typeof window !== "undefined" && window.location.pathname === CONTACT_FIRST_ROUTE_PATH;
 
 const AdminRuntimeStatus = lazy(() => import("./pages/admin/AdminRuntimeStatus.tsx"));
 const AdminAccessRequests = lazy(() => import("./pages/admin/AdminAccessRequests.tsx"));
@@ -186,6 +191,14 @@ const App = () => {
     return (
       <Suspense fallback={<RouteFallback />}>
         <CustomerWorkspacePrototype />
+      </Suspense>
+    );
+  }
+
+  if (isDesignApprovalPrototypeAllowed() && isContactFirstRouteRequested()) {
+    return (
+      <Suspense fallback={<RouteFallback />}>
+        <ContactFirstPrototype />
       </Suspense>
     );
   }
