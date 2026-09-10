@@ -1,145 +1,118 @@
-# Contact-first customer work — interface plan for owner review
+# Компоновка рабочей вкладки «Контакты» (/crm/contacts)
 
-Status: plan only. No files were edited, no Build was run, no routes or data were
-connected, and the rejected `/dev/customer-workspace` remains untouched.
+Только анализ и план. Файлы кода не менялись. Реализация — позднее, в ветке `local-lab/agent-capability-foundation`. Внутреннее название сторонней системы в интерфейсе не показывается: пользователь видит только YORSO.
 
-For users this is one YORSO system: no second login, and no words for
-integration, synchronization, gateway, backend, provider, prototype or demo in
-any visible text. `app.yorso.com` is used only as a functional reference for
-fields and business scenarios, never for its old visual design.
+## 1. Одна рекомендуемая архитектура экрана
 
-## 1. Screen map and transitions
+Сверху вниз, одна колонка контента, ширина до 1400 px:
 
 ```text
-Contacts (start screen)
- ├─ Create client (modal)                → new contact record
- ├─ Contact record
- │   ├─ tabs: Activity | Tasks | Notes | Correspondence
- │   ├─ create task / create note (in context)
- │   ├─ company context block           → Company record
- │   └─ edit details (inline section edit)
- ├─ List actions → Import (Owner/Administrator only, 6 steps)
- └─ Companies (secondary)
-     ├─ Company record
-     │   ├─ details | contacts | addresses | tasks | notes | activity
-     │   ├─ trust data (YORSO)
-     │   └─ product profile (YORSO)
-     └─ add contact                      → Create client, company pre-filled
-
-Account navigation (unchanged): Personal · Company · Branches · Products ·
-Meta-regions · Notifications · Employees
+Заголовок «Контакты» + счётчик найденных + кнопка «Создать контакт» (единственная оранжевая)
+Строка поиска (широкая) + фильтры в одну линию: Менеджер, Этап, Страна, Продукция + «Сбросить»
+Полоса активных условий (чипы с крестиком), появляется только при наличии условий
+Плотная таблица контактов (заголовки прилипают при прокрутке)
+Постраничная навигация: «Показано 1–25 из 214», размер страницы 25/50/100
 ```
 
-Employees stays in account navigation. Customer-work navigation is Contacts,
-Companies, Tasks, Notes, Search — Employees never appears there.
-`/account/personal` composition is not touched.
+Правая вспомогательная панель не нужна: карточка открывается отдельным экраном, это экономит ширину строки.
 
-## 2. Structure of each screen
+Столбцы таблицы слева направо:
 
-**Contacts start screen (primary, ~20× Companies).** Section title, general
-search, filter strip (contact tags, company tags, company country, plus the
-legacy "Latin names" control shown as a deferred open question, not implemented
-with guessed semantics), saved views if the pinned edition provides them,
-result count, dense table: Name · Contacts (email/phone with copy) · Company +
-country · Contact owner · Registered · Actions. Sorting per column,
-pagination, quick communication actions only where a channel value exists.
-Narrow layout: one card per contact, name first, channel row, company +
-country, owner, single actions menu.
+1. Контакт — имя-ссылка, под ним должность или теги
+2. Организация — ссылка, под ней страна и город
+3. Телефон — значение и кнопка копирования рядом
+4. Почта — значение и кнопка копирования рядом
+5. Этап
+6. Менеджер — только для владельца и администратора
+7. Регистрация — дата
+8. Действия — 3 значка
 
-**Create client (modal).** Identity (name required, surname), optional company
-relation or create-company inline, job title, owner, stage, channels
-(email/phone/messengers), language. No account, membership, password or
-employee fields. Company/email/phone requiredness is an owner decision (§6).
+## 2. Размеры и плотность
 
-**Contact record.** Header with name, stage control, owner, channel actions.
-Details section (multiple emails and phones, job title, company, language,
-messenger handles: Telegram, WhatsApp, WeChat, Instagram, Facebook, LinkedIn),
-tags, notification preferences as separate switches for email, phone, Telegram,
-WhatsApp and YORSO, company context summary, then tabs Activity, Tasks, Notes,
-Correspondence. Support impersonation is a YORSO-only action, attributed to the
-YORSO employee in an internal log visible only to YORSO Administrator. HubSpot,
-auction and legacy demo controls are excluded.
+- Высота строки: 56 px при двух уровнях текста (значение + подпись), минимум 48 px при одном уровне. Сейчас строка выше 100 px — это и есть основной дефект.
+- Отступы ячейки: 8 px по вертикали, 12 px по горизонтали. Между значением и подписью — 2 px.
+- Размеры текста: имя 14 px полужирное, значения 14 px, подписи 12 px приглушённые, дата 13 px с табличными цифрами.
+- Заголовок таблицы: 36 px, текст 12 px, заглавными.
+- Разделители: линия 1 px в цвете границы; полос-«зебры» нет, при наведении — лёгкая подсветка.
+- Сетка столбцов (1280 px): 260 / 200 / 150 / 220 / 110 / 130 / 100 / 92. Телефон и почта не переносятся: длинная почта обрезается с многоточием и полным значением во всплывающей подсказке.
+- Кнопки в строке: значок 28 × 28 px, область нажатия 32 px, интервал 4 px. Для касания на узком экране — 44 px (см. пункт 5).
+- Поиск и фильтры: высота полей 40 px, кнопка создания 40 px.
+- Приоритет: создание контакта — оранжевая кнопка, одна на экран. Всё остальное — вторичное и прозрачное, активное состояние проявляется при наведении и фокусе.
 
-**Companies list (secondary).** Search, sortable columns Company name · Email ·
-Phone · Company owner · Created, pagination.
+## 3. Панель поиска, фильтров и действий
 
-**Company record.** Details (name, email, phone, owner, domain, description,
-Facebook, Instagram, LinkedIn), tags, addresses, linked contacts + add contact,
-tasks, notes, activity, YORSO trust checks and documents, and product profile
-with first-release fields only: Product, State, Buy or Sell, Monthly volume,
-Unit, Cut/format, active/inactive. Visible action «Редактировать» for Owner and
-Administrator; Manager and Observer read only.
+- Поиск: одно поле, ищет по имени, организации, почте, телефону. Работает по вводу с задержкой 300 мс, значение сохраняется при повторе после ошибки.
+- Фильтры — четыре компактных списка с множественным выбором и внутренним поиском по значениям. На кнопке видно название и число выбранных: «Страна · 2».
+  - Менеджер и Этап — из справочника рабочего пространства; Менеджер скрыт для роли менеджера.
+  - Страна — страны организаций-клиентов.
+  - Продукция — тот же справочник, что в разделе «Продукты», без второй копии.
+- Все условия складываются с поиском по правилу «и»; внутри одного фильтра значения складываются по правилу «или».
+- Чипы активных условий: каждый снимается по отдельности, справа «Сбросить всё».
+- Постраничная навигация возвращается к первой странице при изменении условий; сами условия сохраняются.
 
-**Import (presented as YORSO, Owner/Administrator only).** Six steps: file →
-column mapping → preview → valid/error rows with matches and duplicates →
-explicit update/restore decision → progress, then partial result and retry of
-failed rows only.
+## 4. Строка контакта и близость действий
 
-## 3. Reusable component inventory
+```text
+| Ольга Свенссон           | Nordic Retail Group | +47 55 12 34 56 ⧉ | olga@nordic.no ⧉ | Активный | И. Ларсен | 14.03.2026 | ☎ ✉ ⋯ |
+| Менеджер закупок         | Норвегия, Берген    |                   |                  |          |           |            |       |
+```
 
-Reused as-is: page shell, section header, dense table row, `Field` / `FormRow`
-from `src/components/account/fields.tsx`, list section primitives, dialog,
-tabs, radio group, badge-free plain status text, pagination control, search
-input, filter chip.
+- Имя — ссылка на карточку, единственный крупный переход в строке.
+- Под именем — должность, если она есть; иначе до двух тегов; пустая строка не занимает место.
+- Организация — ссылка на карточку организации, под ней страна и город.
+- Копирование стоит вплотную к значению (интервал 4 px) и копирует только это значение. Подсказка и подпись для чтения с экрана: «Скопировать почту Ольги Свенссон». Подтверждение — короткий статус рядом со значением, только после фактического успеха; при отказе — нейтральное «Не удалось скопировать».
+- Столбец «Действия»: «Позвонить» и «Написать» появляются только при наличии значения; «⋯» открывает список с реально работающими пунктами: «Добавить задачу», «Добавить заметку», «Изменить данные». Пункты без поведения не добавляются.
+- В режиме только чтения и для наблюдателя изменяющие пункты не отображаются; в неактивной записи строка приглушена, доступны просмотр и копирование.
 
-New shared pieces (built once, used in ≥2 places): `ChannelActions`
-(email/phone/messenger quick actions), `StageSelect`, `RecordHeader`,
-`RelatedRecordList`, `NotificationPreferenceRows`, `ImportStepper`.
+## 5. Мобильная перестройка (390 px)
 
-Design language: Inter body, Plus Jakarta Sans headings, quiet dense work UI,
-radius ≤8px, semantic tokens only, no hero, no gradients, no cards inside
-cards.
+Таблица заменяется списком плотных записей, не крупными карточками:
 
-## 4. State inventory (every list and record)
+```text
+Ольга Свенссон                        Активный
+Менеджер закупок · Nordic Retail Group
+Норвегия, Берген
++47 55 12 34 56            ⧉      ☎
+olga@nordic.no             ⧉      ✉
+Регистрация 14.03.2026              ⋯
+```
 
-loading · ready · empty · no search results · active filters · read-only ·
-no access · unavailable · conflict · validation error · saving · success ·
-inactive/trash. No-access and unavailable states use neutral wording and never
-name a technology or a second system.
+- Высота записи 128–140 px, отступы 12 px, разделитель 1 px.
+- Все нажимаемые элементы не меньше 44 px; копирование и звонок разнесены, случайное нажатие исключено.
+- Поиск на всю ширину; фильтры — одна кнопка «Фильтры · 3», открывающая нижнюю панель с теми же четырьмя списками.
+- Столбцы «Менеджер» и «Этап» уходят в текст записи. Горизонтальной прокрутки нет: длинные значения обрезаются, ссылки и подписи переносятся.
 
-## 5. Wide and narrow behavior
+## 6. Что убрать или упростить
 
-Wide (1280×800): table layout, record page with left content and right context
-column, filters horizontal above the list. Narrow (390×844): cards instead of
-tables, tabs become a scrollable row, context column moves below content, no
-horizontal overflow, tap targets ≥44px, visible focus, Escape closes dialogs,
-no nested interactive controls.
+- Отдельные высокие строки для почты и телефона — свести к одной строке контакта.
+- Крупные пустые вертикальные промежутки, двойные рамки и вложенные карточки внутри строки.
+- Повторяющиеся значки-подсказки и одинаковые пометки надёжности в каждой строке.
+- Кнопки копирования, вынесенные в конец строки, вдали от значения.
+- Крупные кнопки в каждой строке, соперничающие с именем контакта.
+- Столбцы, которые не участвуют в решении: длинные внутренние коды, дублирующие пометки этапа.
+- Пункты меню без поведения; вместо них — только имеющиеся действия.
 
-## 6. Capability classification
+## 7. Критерии приёмки (измеримые)
 
-Native (pinned Twenty edition, verification required): tables, record pages,
-relations, tasks, notes, timeline/activity, views, filters, search, pagination,
-import, forms.
+1. При двух уровнях текста высота строки 56 ± 2 px, при одном — 48 ± 2 px.
+2. На экране 1280 × 900 без прокрутки видно не менее 12 строк.
+3. Расстояние от значения почты или телефона до его кнопки копирования не более 8 px; кнопка копирует только это значение.
+4. Подтверждение копирования появляется только после успеха; при отказе виден нейтральный текст без значения и без технических подробностей.
+5. Ширина документа на 390 px равна ширине окна, горизонтальной прокрутки нет ни в одном состоянии.
+6. Все нажимаемые элементы на 390 px не меньше 44 × 44 px, вложенных нажимаемых элементов нет.
+7. Роль менеджера: столбца «Менеджер» нет ни в таблице, ни в фильтрах.
+8. Фильтры «Страна» и «Продукция» допускают несколько значений с поиском, складываются с поиском и друг с другом; счётчик найденных совпадает с числом строк.
+9. Справочник продукции в фильтре совпадает со справочником раздела «Продукты» (одинаковые названия и порядок).
+10. Присутствуют все состояния: загрузка, пустая база, нет результатов, ошибка с повтором, нет прав, только чтение, неактивная запись; при повторе сохраняются поиск и фильтры.
+11. Переход по клавиатуре по строке: имя → организация → копирование телефона → копирование почты → действия; после закрытия меню фокус возвращается на кнопку «⋯».
+12. Слова с внутренним названием сторонней системы в интерфейсе отсутствуют; в трёх языках нет незаполненных подписей.
 
-YORSO layer (proven gaps only): identity and access, workspace isolation,
-product profile, trust data and documents, support audit log, brand language
-and RU/EN/ES copy, contact-first list composition.
+## 8. Три главных риска и проверка
 
-Deferred: the "Latin names" control, Chat and WeChat behavior, saved views if
-not native in the pinned edition, auction and HubSpot legacy controls
-(excluded), any server design.
+1. **Слишком плотная строка становится нечитаемой и по ней трудно попасть.** Проверка: измерить высоту строки и области нажатия на 1280 и 390 px; пройти 10 подряд открытий карточки и 10 копирований без промахов.
+2. **Обрезание почты и длинных названий скрывает нужные данные.** Проверка: записи с почтой в 40+ знаков и названием организации в 45+ знаков — значение целиком доступно в подсказке и на карточке, ширина документа не растёт.
+3. **Справочник продукции расходится с разделом «Продукты», фильтр даёт неверную выборку.** Проверка: сравнить перечни значений; выбрать два продукта и одну страну вместе с поиском и сверить число найденных с числом строк вручную.
 
-## 7. Owner decisions required
+## Границы
 
-1. Exact semantics of the legacy "Latin names" control.
-2. Russian labels and business meaning of the six contact stages (New,
-   Negotiation, Qualified, Unqualified, Irrelevant, No Response) — they must not
-   be confused with opportunity stages.
-3. Whether company, email and phone are required for every manually created
-   contact (the plan proposes contact without company allowed).
-4. What legacy Chat and WeChat actions actually open.
-5. Exact per-field visibility and editability by role (Owner, Administrator,
-   Manager, Observer).
-6. Which capabilities the pinned edition provides without paid restrictions.
-
-## 8. RU/EN/ES content strategy
-
-All three languages planned together, one key per visible string, no technology
-words. Strings whose meaning is unresolved (§7) stay unwritten rather than
-guessed; they are listed as blocked keys until the owner decides.
-
-## 9. Boundary
-
-Build is forbidden until the owner approves this plan and then separately
-approves a new clickable interface with the exact phrase «Интерфейс принят».
-Server design does not begin in this plan.
+Ничего не реализуется до отдельного одобрения. Работы затрагивают только вкладку контактов и её карточку; рабочие разделы «Личные данные», «Сотрудники», «Продукты», главная страница и регистрация не меняются. Мессенджеры не вводятся. Серверные части, авторизация и внешние подключения не проектируются.
