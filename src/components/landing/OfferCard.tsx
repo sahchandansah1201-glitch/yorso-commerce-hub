@@ -83,7 +83,7 @@ const OfferCard = ({ offer }: OfferCardProps) => {
         <div className="mt-1.5 min-h-[1.5rem]">
           <CertificationBadges
             certifications={offer.certifications ?? []}
-            limit={2}
+            limit={3}
             interactive={false}
           />
         </div>
